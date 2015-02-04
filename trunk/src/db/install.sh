@@ -75,9 +75,9 @@ function installSubsystem()
 sourceConfgiFile
 
 option=''
-hostname=$DW_HOSTNAME
-user=$DW_USERNAME
-password=$DW_PASSWORD
+hostname=$AYSO_HOSTNAME
+user=$AYSO_USERNAME
+password=$AYSO_PASSWORD
 arg=''
 
 while getopts ":cuth:n:p:" arg; do
@@ -112,7 +112,7 @@ echo "----------------------------------------------"
 echo 'Executing master install script. Bash version ' $BASH_VERSION
 echo "Current dir $(pwd)"
 
-installSubsystem $hostname $user $password $option "ayso122"
+installSubsystem $hostname $user $password $option "fields"
 
 echo ""
 echo "Done. All is well."
