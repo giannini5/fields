@@ -12,7 +12,7 @@ class Model_Fields_League extends Model_Fields_Base implements SaveModelInterfac
      * @brief: Constructor
      *
      * @param int    $id - unique identifier
-     * @param string $name - name of state
+     * @param string $name - Unique name of league
      *
      * @return Model_Fields_League
      */
@@ -88,11 +88,7 @@ class Model_Fields_League extends Model_Fields_Base implements SaveModelInterfac
         $dataObject = $dbHandle->create($name);
         assertion(!empty($dataObject), "Unable to create league with name '$name''");
 
-        $league = new Model_Fields_League(
-            $dataObject->{Model_Fields_LeagueDB::DB_COLUMN_ID},
-            $dataObject->{Model_Fields_LeagueDB::DB_COLUMN_NAME});
-
-        return $league;
+        return Model_Fields_League::GetInstance($dataObject);
     }
 
     /**
@@ -107,11 +103,7 @@ class Model_Fields_League extends Model_Fields_Base implements SaveModelInterfac
         $dataObject = $dbHandle->getById($leagueId);
         assertion(!empty($dataObject), "League row for id: '$leagueId' not found");
 
-        $league = new Model_Fields_League(
-            $dataObject->{Model_Fields_LeagueDB::DB_COLUMN_ID},
-            $dataObject->{Model_Fields_LeagueDB::DB_COLUMN_NAME});
-
-        return $league;
+        return Model_Fields_League::GetInstance($dataObject);
     }
 
     /**
@@ -133,11 +125,7 @@ class Model_Fields_League extends Model_Fields_Base implements SaveModelInterfac
             return NULL;
         }
 
-        $league = new Model_Fields_League(
-            $dataObject->{Model_Fields_LeagueDB::DB_COLUMN_ID},
-            $dataObject->{Model_Fields_LeagueDB::DB_COLUMN_NAME});
-
-        return $league;
+        return Model_Fields_League::GetInstance($dataObject);
     }
 
     /**

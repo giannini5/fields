@@ -5,5 +5,5 @@ create table practiceFieldCoordinator (
     name        varchar(60),
     password    varchar(10),
     PRIMARY KEY (id),
-    unique index ux_leageEmail(leagueId, email)
+    unique index ux_leagueEmail(leagueId, email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

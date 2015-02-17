@@ -54,6 +54,7 @@ abstract class Model_Base extends DAG_Object
      */
     public function __construct($autoDeclarationbOfClassVariables = self::AUTO_DECLARE_CLASS_VARIABLE_OFF) {
         $this->isLoaded  = FALSE;
+        $this->isModified = FALSE;
 
         if ($this->isSaveModel() && self::AUTO_DECLARE_CLASS_VARIABLE_ON === $autoDeclarationbOfClassVariables) {
             $dbHandle = $this->_getDBHandle();
