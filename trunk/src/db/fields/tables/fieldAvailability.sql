@@ -1,11 +1,10 @@
-create table reservation (
+create table fieldAvailability (
     id           bigint auto_increment,
-    seasonId     bigint not NULL,
     fieldId      bigint not NULL,
-    teamId       bigint not NULL,
+    startDate    date not NULL,
+    endDate      date not NULL,
     startTime    time not NULL,
     endTime      time not NULL,
     PRIMARY KEY (id),
-    index ix_fieldId(fieldId),
-    index ix_teamId(teamId)
+    unique index ux_fieldId(fieldId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

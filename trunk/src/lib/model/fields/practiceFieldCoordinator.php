@@ -142,7 +142,7 @@ class Model_Fields_PracticeFieldCoordinator extends Model_Fields_Base implements
     /**
      * @brief: Get Model_Fields_PracticeFieldCoordinator instance for the specified PracticeFieldCoordinator league and email
      *
-     * @param $league : Model_Feilds_League instance
+     * @param $league : Model_Fields_League instance
      * @param $email : Practice Field Coordinator's email address
      * @param $assertIfNotFound - If TRUE then assert object if found.  Otherwise return NULL when object not found
      *
@@ -165,7 +165,7 @@ class Model_Fields_PracticeFieldCoordinator extends Model_Fields_Base implements
     /**
      * @brief: Delete if exists
      *
-     * @param $league : Model_Feilds_League instance
+     * @param $league : Model_Fields_League instance
      * @param $email : Practice Field Coordinator's email address
      */
     public static function Delete($league, $email) {
