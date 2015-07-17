@@ -26,6 +26,7 @@ class Model_Fields_FacilityDB extends Model_Fields_BaseDB {
     const DB_COLUMN_CONTACT_NAME  = 'contactName';
     const DB_COLUMN_CONTACT_EMAIL = 'contactEmail';
     const DB_COLUMN_CONTACT_PHONE = 'contactPhone';
+    const DB_COLUMN_IMAGE         = 'image';
     const DB_COLUMN_ENABLED       = 'enabled';
 
     /**
@@ -90,7 +91,7 @@ class Model_Fields_FacilityDB extends Model_Fields_BaseDB {
      *
      * @return DataObject[]
      */
-    public function create($league, $name, $address1, $address2, $city, $state, $postalCode, $country, $contactName, $contactEmail, $contactPhone, $enabled) {
+    public function create($league, $name, $address1, $address2, $city, $state, $postalCode, $country, $contactName, $contactEmail, $contactPhone, $image, $enabled) {
         $dataObject = new DataObject();
         $dataObject->{self::DB_COLUMN_LEAGUE_ID} = $league->id;
         $dataObject->{self::DB_COLUMN_NAME} = $name;
@@ -103,6 +104,7 @@ class Model_Fields_FacilityDB extends Model_Fields_BaseDB {
         $dataObject->{self::DB_COLUMN_CONTACT_NAME} = $contactName;
         $dataObject->{self::DB_COLUMN_CONTACT_EMAIL} = $contactEmail;
         $dataObject->{self::DB_COLUMN_CONTACT_PHONE} = $contactPhone;
+        $dataObject->{self::DB_COLUMN_IMAGE} = $image;
         $dataObject->{self::DB_COLUMN_ENABLED} = $enabled;
 
 
@@ -136,5 +138,17 @@ class Model_Fields_FacilityDB extends Model_Fields_BaseDB {
         $leagueId = isset($leagueId) ? $leagueId : $league->id;
         $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $leagueId . "' and " . self::DB_COLUMN_NAME . " ='" . $name . "'");
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
+    }
+
+    /**
+     * getByLeague retrieves the list of facilities by league
+     *
+     * @param $league - The league that the practice field coordinator represents
+     *
+     * @return Array of DataObject (empty array if non found)
+     */
+    public function getByLeague($league) {
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $league->id . "'");
+        return $dataObjectArray;
     }
 }

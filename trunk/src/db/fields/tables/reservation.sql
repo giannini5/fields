@@ -6,6 +6,6 @@ create table reservation (
     startTime    time not NULL,
     endTime      time not NULL,
     PRIMARY KEY (id),
-    index ix_fieldId(fieldId),
-    index ix_teamId(teamId)
+    index ix_fieldId(seasonId, fieldId),
+    index ix_teamId(seasonId, teamId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

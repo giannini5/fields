@@ -65,5 +65,24 @@ class Model_DivisionTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($division->enabled, 0);
         $this->assertTrue($division->isLoaded());
         $this->assertFalse($division->isModified());
+
+        // Test GetList - 0 in list
+        $divisions = Model_Fields_Division::GitList($this->m_league);
+        $this->assertEquals(count($divisions), 0);
+
+        // Test GetList - 1 in list
+        $division->enabled = 1;
+        $division->setModified();
+        $division->saveModel();
+        $divisions = Model_Fields_Division::GitList($this->m_league);
+        $this->assertEquals(count($divisions), 1);
+
+        // Test GetList - 5 in list
+        $division = Model_Fields_Division::Create($this->m_league, 'testDiv2', 1);
+        $division = Model_Fields_Division::Create($this->m_league, 'testDiv3', 1);
+        $division = Model_Fields_Division::Create($this->m_league, 'testDiv4', 1);
+        $division = Model_Fields_Division::Create($this->m_league, 'testDiv5', 1);
+        $divisions = Model_Fields_Division::GitList($this->m_league);
+        $this->assertEquals(count($divisions), 5);
     }
 }

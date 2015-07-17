@@ -26,10 +26,11 @@ class Model_Fields_Facility extends Model_Fields_Base implements SaveModelInterf
      * @param string $contactName - Name of person in charge of facility
      * @param string $contactEmail - Email of person in charge of facility
      * @param string $contactPhone - Phone number of person in charge of facility
+     * @param string $image - File name that contains image of the fields
      * @param bool $enabled - 1 if facility is enabled; 0 otherwise
      */
     public function __construct($league = NULL, $id = NULL, $leagueId = NULL, $name = '', $address1 = '', $address2 = '', $city = '', $state = '',
-                                $postalCode = '', $country = '', $contactName = '', $contactEmail = '', $contactPhone = '', $enabled = 0) {
+                                $postalCode = '', $country = '', $contactName = '', $contactEmail = '', $contactPhone = '', $image = '', $enabled = 0) {
         parent::__construct('Model_Fields_FacilityDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->m_league = $league;
@@ -45,6 +46,7 @@ class Model_Fields_Facility extends Model_Fields_Base implements SaveModelInterf
         $this->{Model_Fields_FacilityDB::DB_COLUMN_CONTACT_NAME} = $contactName;
         $this->{Model_Fields_FacilityDB::DB_COLUMN_CONTACT_EMAIL} = $contactEmail;
         $this->{Model_Fields_FacilityDB::DB_COLUMN_CONTACT_PHONE} = $contactPhone;
+        $this->{Model_Fields_FacilityDB::DB_COLUMN_IMAGE} = $image;
         $this->{Model_Fields_FacilityDB::DB_COLUMN_ENABLED} = $enabled;
         $this->_setLeague();
     }
@@ -124,6 +126,7 @@ class Model_Fields_Facility extends Model_Fields_Base implements SaveModelInterf
             $dataObject->{Model_Fields_FacilityDB::DB_COLUMN_CONTACT_NAME},
             $dataObject->{Model_Fields_FacilityDB::DB_COLUMN_CONTACT_EMAIL},
             $dataObject->{Model_Fields_FacilityDB::DB_COLUMN_CONTACT_PHONE},
+            $dataObject->{Model_Fields_FacilityDB::DB_COLUMN_IMAGE},
             $dataObject->{Model_Fields_FacilityDB::DB_COLUMN_ENABLED});
 
         $facility->setLoaded();
@@ -150,9 +153,9 @@ class Model_Fields_Facility extends Model_Fields_Base implements SaveModelInterf
      * @return Model_Fields_Facility
      * @throws AssertionException
      */
-    public static function Create($league, $name, $address1, $address2, $city, $state, $postalCode, $country, $contactName, $contactEmail, $contactPhone, $enabled) {
+    public static function Create($league, $name, $address1, $address2, $city, $state, $postalCode, $country, $contactName, $contactEmail, $contactPhone, $image, $enabled) {
         $dbHandle = new Model_Fields_FacilityDB();
-        $dataObject = $dbHandle->create($league, $name, $address1, $address2, $city, $state, $postalCode, $country, $contactName, $contactEmail, $contactPhone, $enabled);
+        $dataObject = $dbHandle->create($league, $name, $address1, $address2, $city, $state, $postalCode, $country, $contactName, $contactEmail, $contactPhone, $image, $enabled);
         assertion(!empty($dataObject), "Unable to create Facility with name:'$name'");
 
         return Model_Fields_Facility::GetInstance($dataObject, $league);
@@ -194,6 +197,27 @@ class Model_Fields_Facility extends Model_Fields_Base implements SaveModelInterf
         }
 
         return Model_Fields_Facility::GetInstance($dataObject, $league);
+    }
+
+    /**
+     * @brief: Get Model_Fields_Facility instances for the specified league
+     *
+     * @param $league - Model_Fields_League instance
+     * @param $assertIfNotFound - If TRUE then assert object if found.  Otherwise return NULL when object not found
+     *
+     * @return array of Model_Fields_Facility objects (empty if no facilities found)
+     * @throws AssertionException
+     */
+    public static function LookupByLeague($league) {
+        $dbHandle = new Model_Fields_FacilityDB();
+        $dataObjects = $dbHandle->getByLeague($league);
+
+        $facilities = array();
+        foreach ($dataObjects as $dataObject) {
+            $facilities[] = Model_Fields_Facility::GetInstance($dataObject, $league);
+        }
+
+        return $facilities;
     }
 
     /**

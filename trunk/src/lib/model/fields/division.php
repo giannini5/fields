@@ -160,6 +160,25 @@ class Model_Fields_Division extends Model_Fields_Base implements SaveModelInterf
     }
 
     /**
+     * @brief: Get list of Model_Fields_Division instances for the specified Division league
+     *
+     * @param $league - Model_Fields_League instance
+     *
+     * @return Model_Fields_Division list
+     */
+    public static function GitList($league) {
+        $dbHandle = new Model_Fields_DivisionDB();
+        $dataObjects = $dbHandle->getList($league);
+
+        $divisions = array();
+        foreach ($dataObjects as $dataObject) {
+            $divisions[] = Model_Fields_Division::GetInstance($dataObject, $league);
+        }
+
+        return $divisions;
+    }
+
+    /**
      * @brief: Delete if exists
      *
      * @param $league - Model_Fields_League instance

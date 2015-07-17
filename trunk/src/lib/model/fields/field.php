@@ -160,6 +160,25 @@ class Model_Fields_Field extends Model_Fields_Base implements SaveModelInterface
     }
 
     /**
+     * @brief: Get list of Model_Fields_Field instances for the specified Field facility
+     *
+     * @param $facility - Model_Fields_Facility instance
+     *
+     * @return Array of Model_Fields_Field or empty array if none found
+     */
+    public static function LookupByFacility($facility) {
+        $dbHandle = new Model_Fields_FieldDB();
+        $dataObjects = $dbHandle->getByFacility($facility);
+
+        $fields = array();
+        foreach ($dataObjects as $dataObject) {
+            $fields[] = Model_Fields_Field::GetInstance($dataObject, $facility);
+        }
+
+        return $fields;
+    }
+
+    /**
      * @brief: Delete if exists
      *
      * @param $facility - Model_Fields_Facility instance

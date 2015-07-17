@@ -72,7 +72,7 @@ class Model_ReservationTest extends PHPUnit_Framework_TestCase {
 
         $this->m_league = Model_Fields_League::Create($this->m_leagueName);
         $this->m_facility = Model_Fields_Facility::Create($this->m_league, $this->m_facilityName,
-            'address1', 'address2', 'city', 'state', 'p-code', 'country', 'contactName', 'contactEmail', 'contactPhone', 1);
+            'address1', 'address2', 'city', 'state', 'p-code', 'country', 'contactName', 'contactEmail', 'contactPhone', 'image', 1);
         $this->m_season = Model_Fields_Season::Create($this->m_league, $this->m_seasonName, 1);
         $this->m_division = Model_Fields_Division::Create($this->m_league, $this->m_divisionName, 1);
         $this->m_field = Model_Fields_Field::Create($this->m_facility, $this->m_fieldName, 1);
@@ -98,18 +98,31 @@ class Model_ReservationTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($reservation->isLoaded());
         $this->assertFalse($reservation->isModified());
 
-        // Test LookupByNumber
-        $reservation = Model_Fields_Reservation::LookupByTeam($this->m_season, $this->m_field, $this->m_team);
-        $this->assertEquals($reservation->seasonId, $this->m_season->id);
-        $this->assertEquals($reservation->fieldId, $this->m_field->id);
-        $this->assertEquals($reservation->teamId, $this->m_team->id);
-        $this->assertEquals($reservation->startTime, $this->m_startTime);
-        $this->assertEquals($reservation->endTime, $this->m_endTime);
-        $this->assertEquals($reservation->m_season->name, $this->m_season->name);
-        $this->assertEquals($reservation->m_field->name, $this->m_field->name);
-        $this->assertEquals($reservation->m_team->teamNumber, $this->m_team->teamNumber);
-        $this->assertTrue($reservation->isLoaded());
-        $this->assertFalse($reservation->isModified());
+        // Test LookupByTeam
+        $reservations = Model_Fields_Reservation::LookupByTeam($this->m_season, $this->m_team);
+        $this->assertEquals($reservations[0]->seasonId, $this->m_season->id);
+        $this->assertEquals($reservations[0]->fieldId, $this->m_field->id);
+        $this->assertEquals($reservations[0]->teamId, $this->m_team->id);
+        $this->assertEquals($reservations[0]->startTime, $this->m_startTime);
+        $this->assertEquals($reservations[0]->endTime, $this->m_endTime);
+        $this->assertEquals($reservations[0]->m_season->name, $this->m_season->name);
+        $this->assertEquals($reservations[0]->m_field->name, $this->m_field->name);
+        $this->assertEquals($reservations[0]->m_team->teamNumber, $this->m_team->teamNumber);
+        $this->assertTrue($reservations[0]->isLoaded());
+        $this->assertFalse($reservations[0]->isModified());
+
+        // Test LookupByField
+        $reservations = Model_Fields_Reservation::LookupByField($this->m_season, $this->m_field);
+        $this->assertEquals($reservations[0]->seasonId, $this->m_season->id);
+        $this->assertEquals($reservations[0]->fieldId, $this->m_field->id);
+        $this->assertEquals($reservations[0]->teamId, $this->m_team->id);
+        $this->assertEquals($reservations[0]->startTime, $this->m_startTime);
+        $this->assertEquals($reservations[0]->endTime, $this->m_endTime);
+        $this->assertEquals($reservations[0]->m_season->name, $this->m_season->name);
+        $this->assertEquals($reservations[0]->m_field->name, $this->m_field->name);
+        $this->assertEquals($reservations[0]->m_team->teamNumber, $this->m_team->teamNumber);
+        $this->assertTrue($reservations[0]->isLoaded());
+        $this->assertFalse($reservations[0]->isModified());
 
         // Test LookupById
         $reservation = Model_Fields_Reservation::LookupById($id);

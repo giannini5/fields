@@ -110,4 +110,17 @@ class Model_Fields_DivisionDB extends Model_Fields_BaseDB {
         $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $leagueId . "' and " . self::DB_COLUMN_NAME . " ='" . $name . "'");
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
     }
+
+    /**
+     * getList retrieves a list of divisions for the league
+     *
+     * @param $league - The league that the practice field coordinator represents
+     *
+     * @return DataObject list
+     */
+    public function getList($league) {
+        $leagueId = $league->id;
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $leagueId . "' and " . self::DB_COLUMN_ENABLED . " = '1' order by " . self::DB_COLUMN_ID);
+        return $dataObjectArray;
+    }
 }

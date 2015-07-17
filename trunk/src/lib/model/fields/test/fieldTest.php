@@ -30,7 +30,7 @@ class Model_FieldTest extends PHPUnit_Framework_TestCase {
 
         $this->m_league = Model_Fields_League::Create($this->m_leagueName);
         $this->m_facility = Model_Fields_Facility::Create($this->m_league, $this->m_facilityName,
-            'address1', 'address2', 'city', 'state', 'p-code', 'country', 'contactName', 'contactEmail', 'contactPhone', 1);
+            'address1', 'address2', 'city', 'state', 'p-code', 'country', 'contactName', 'contactEmail', 'contactPhone', 'image', 1);
     }
 
     /**
@@ -50,6 +50,17 @@ class Model_FieldTest extends PHPUnit_Framework_TestCase {
 
         // Test LookupByName
         $field = Model_Fields_Field::LookupByName($this->m_facility, $this->m_name);
+        $this->assertEquals($field->facilityId, $this->m_facility->id);
+        $this->assertEquals($field->name, $this->m_name);
+        $this->assertEquals($field->enabled, $this->m_enabled);
+        $this->assertEquals($field->m_facility->name, $this->m_facility->name);
+        $this->assertTrue($field->isLoaded());
+        $this->assertFalse($field->isModified());
+
+        // Test LookupByFacility
+        $fields = Model_Fields_Field::LookupByFacility($this->m_facility);
+        $this->assertTrue(count($fields) == 1);
+        $field = $fields[0];
         $this->assertEquals($field->facilityId, $this->m_facility->id);
         $this->assertEquals($field->name, $this->m_name);
         $this->assertEquals($field->enabled, $this->m_enabled);

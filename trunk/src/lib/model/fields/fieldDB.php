@@ -109,4 +109,17 @@ class Model_Fields_FieldDB extends Model_Fields_BaseDB {
         $dataObjectArray = $this->getWhere(self::DB_COLUMN_FACILITY_ID . " = '" . $facilityId . "' and " . self::DB_COLUMN_NAME . " ='" . $name . "'");
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
     }
+
+    /**
+     * getByFacility retrieves a list of fields by facility
+     *
+     * @param $facility - The facility that the practice field coordinator represents
+     *
+     * @return Array of DataObjects found empty array if none found
+     */
+    public function getByFacility($facility) {
+        $facilityId = isset($facilityId) ? $facilityId : $facility->id;
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_FACILITY_ID . " = '" . $facilityId . "'");
+        return $dataObjectArray;
+    }
 }

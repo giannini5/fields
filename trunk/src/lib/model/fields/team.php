@@ -166,7 +166,7 @@ class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface 
      * @param $teamNumber - Team's number
      */
     public static function Delete($division, $teamNumber) {
-        $team = Model_Fields_Team::LookupByName($division, $teamNumber, FALSE);
+        $team = Model_Fields_Team::LookupByNumber($division, $teamNumber, FALSE);
         if (isset($team)) {
             $team->_delete();
         }

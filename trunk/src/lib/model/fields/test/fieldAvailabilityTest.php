@@ -39,7 +39,7 @@ class Model_FieldAvailabilityTest extends PHPUnit_Framework_TestCase {
 
         $this->m_league = Model_Fields_League::Create($this->m_leagueName);
         $this->m_facility = Model_Fields_Facility::Create($this->m_league, $this->m_facilityName,
-            'address1', 'address2', 'city', 'state', 'p-code', 'country', 'contactName', 'contactEmail', 'contactPhone', 1);
+            'address1', 'address2', 'city', 'state', 'p-code', 'country', 'contactName', 'contactEmail', 'contactPhone', 'image', 1);
         $this->m_field = Model_Fields_Field::Create($this->m_facility, $this->m_fieldName, 1);
     }
 

@@ -169,6 +169,28 @@ class Model_Fields_Coach extends Model_Fields_Base implements SaveModelInterface
     }
 
     /**
+     * @brief: Get Model_Fields_Coach instance for the specified Coach's team
+     *
+     * @param $team - Model_Fields_Team instance
+     * @param bool $assertIfNotFound - If TRUE then assert object if found.  Otherwise return NULL when object not found
+     *
+     * @return Model_Fields_Coach|null
+     * @throws AssertionException
+     */
+    public static function LookupByTeam($team, $assertIfNotFound = TRUE) {
+        $dbHandle = new Model_Fields_CoachDB();
+        $dataObject = $dbHandle->getByTeam($team);
+
+        if ($assertIfNotFound) {
+            assertion(!empty($dataObject), "Coach for team: '$team->name' not found");
+        } else if (empty($dataObject)) {
+            return NULL;
+        }
+
+        return Model_Fields_Coach::GetInstance($dataObject, $team);
+    }
+
+    /**
      * @brief: Delete if exists
      *
      * @param $team - Model_Fields_Team instance

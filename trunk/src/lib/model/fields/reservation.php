@@ -180,24 +180,56 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
      * @brief: Get Model_Fields_Reservation instance for the specified Reservation team and season
      *
      * @param $season - Model_Fields_Season instance
-     * @param $field - Model_Fields_Field instance
      * @param $team - Model_Fields_Team instance
      * @param bool $assertIfNotFound - If TRUE then assert object if found.  Otherwise return NULL when object not found
      *
-     * @return Model_Fields_Reservation|null
+     * @return Model_Fields_Reservation array | null
      * @throws AssertionException
      */
-    public static function LookupByTeam($season, $field, $team, $assertIfNotFound = TRUE) {
+    public static function LookupByTeam($season, $team, $assertIfNotFound = TRUE) {
         $dbHandle = new Model_Fields_ReservationDB();
-        $dataObject = $dbHandle->getByTeam($season, $field, $team);
+        $dataObjects = $dbHandle->getByTeam($season, $team);
+        $reservations = array();
 
         if ($assertIfNotFound) {
-            assertion(!empty($dataObject), "Reservation row for team: '$team->name' not found");
-        } else if (empty($dataObject)) {
-            return NULL;
+            assertion(!empty($dataObjects), "Reservation row for team: '$team->name' not found");
+        } else if (empty($dataObjects)) {
+            return $reservations;
         }
 
-        return Model_Fields_Reservation::GetInstance($dataObject, $season, $field, $team);
+        foreach ($dataObjects as $dataObject) {
+            $reservations[] = Model_Fields_Reservation::GetInstance($dataObject, $season, NULL, $team);
+        }
+
+        return $reservations;
+    }
+
+    /**
+     * @brief: Get Model_Fields_Reservation instance for the specified Reservation field and season
+     *
+     * @param $season - Model_Fields_Season instance
+     * @param $field - Model_Fields_Field instance
+     * @param bool $assertIfNotFound - If TRUE then assert object if found.  Otherwise return NULL when object not found
+     *
+     * @return Model_Fields_Reservation array
+     * @throws AssertionException
+     */
+    public static function LookupByField($season, $field, $assertIfNotFound = TRUE) {
+        $dbHandle = new Model_Fields_ReservationDB();
+        $dataObjects = $dbHandle->getByField($season, $field);
+        $reservations = array();
+
+        if ($assertIfNotFound) {
+            assertion(!empty($dataObjects), "Reservation row for field: '$field->name' not found");
+        } else if (empty($dataObjects)) {
+            return $reservations;
+        }
+
+        foreach ($dataObjects as $dataObject) {
+            $reservations[] = Model_Fields_Reservation::GetInstance($dataObject, $season, $field, NULL);
+        }
+
+        return $reservations;
     }
 
     /**
@@ -207,9 +239,9 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
      * @param $field - Model_Fields_Field instance
      * @param $team - Model_Fields_Team instance
      */
-    public static function Delete($season, $field, $team) {
-        $reservation = Model_Fields_Reservation::LookupByTeam($season, $field, $team, FALSE);
-        if (isset($reservation)) {
+    public static function Delete($season, $team) {
+        $reservations = Model_Fields_Reservation::LookupByTeam($season, $team, FALSE);
+        foreach ($reservations as $reservation) {
             $reservation->_delete();
         }
     }

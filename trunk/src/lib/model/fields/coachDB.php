@@ -6,7 +6,8 @@
 /**
  * Model_Fields_CoachDB class is the DB class for the Field database table
  */
-class Model_Fields_CoachDB extends Model_Fields_BaseDB {
+class Model_Fields_CoachDB extends Model_Fields_BaseDB
+{
     // Schema
     const DB_SCHEMA_NAME = DB_FIELDS_RW;
 
@@ -14,19 +15,20 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB {
     const DB_TABLE_NAME = 'coach';
 
     // Columns constant
-    const DB_COLUMN_ID         = 'id';
-    const DB_COLUMN_TEAM_ID    = 'teamId';
-    const DB_COLUMN_NAME       = 'name';
-    const DB_COLUMN_EMAIL      = 'email';
-    const DB_COLUMN_PHONE      = 'phone';
-    const DB_COLUMN_PASSWORD   = 'password';
+    const DB_COLUMN_ID = 'id';
+    const DB_COLUMN_TEAM_ID = 'teamId';
+    const DB_COLUMN_NAME = 'name';
+    const DB_COLUMN_EMAIL = 'email';
+    const DB_COLUMN_PHONE = 'phone';
+    const DB_COLUMN_PASSWORD = 'password';
 
     /**
      * @brief: Constructor
      *
      * @return Model_Fields_CoachDB
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(self::DB_SCHEMA_NAME, self::DB_TABLE_NAME, DAG_Factory::DB_ADAPTER_DEFAULTSQL);
     }
 
@@ -37,9 +39,13 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB {
      *
      * @throws PreconditionException
      */
-    protected function _checkPreconditions(DataObject $dataObject) {
-        precondition(!empty($dataObject->{self::DB_COLUMN_TEAM_ID}), "fields.coach." . self::DB_COLUMN_TEAM_ID . " not set");
-        precondition(!empty($dataObject->{self::DB_COLUMN_NAME}), "fields.coach." . self::DB_COLUMN_NAME . " not set");
+    protected function _checkPreconditions(DataObject $dataObject)
+    {
+        precondition(
+            !empty($dataObject->{self::DB_COLUMN_TEAM_ID}),
+            "fields.coach.".self::DB_COLUMN_TEAM_ID." not set"
+        );
+        precondition(!empty($dataObject->{self::DB_COLUMN_NAME}), "fields.coach.".self::DB_COLUMN_NAME." not set");
     }
 
     /**
@@ -47,7 +53,8 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB {
      *
      * @param DataObject $dataObject
      */
-    protected function _setDefaults(DataObject &$dataObject) {
+    protected function _setDefaults(DataObject &$dataObject)
+    {
     }
 
     /**
@@ -55,7 +62,8 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB {
      *
      * @param DataObject $dataObject
      */
-    protected function _checkUpdatePreconditions(DataObject $dataObject) {
+    protected function _checkUpdatePreconditions(DataObject $dataObject)
+    {
     }
 
     /**
@@ -63,7 +71,8 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB {
      *
      * @return array primaryKeys K => V
      */
-    public function _getUpdateKeys() {
+    public function _getUpdateKeys()
+    {
         return array(Model_Fields_CoachDB::DB_COLUMN_ID => $this->{Model_Fields_CoachDB::DB_COLUMN_ID});
     }
 
@@ -78,7 +87,8 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB {
      *
      * @return DataObject[]
      */
-    public function create($team, $name, $email, $phone, $password) {
+    public function create($team, $name, $email, $phone, $password)
+    {
         $dataObject = new DataObject();
         $dataObject->{self::DB_COLUMN_TEAM_ID} = $team->id;
         $dataObject->{self::DB_COLUMN_NAME} = $name;
@@ -98,13 +108,15 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB {
      *
      * @return DataObject found or NULL if none found
      */
-    public function getById($id) {
-        $dataObjectArray = $this->getWhere(self::DB_COLUMN_ID . "=" . $id);
-        return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
+    public function getById($id)
+    {
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_ID."=".$id);
+
+        return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : null;
     }
 
     /**
-     * getByTeam retrieves the coach by unique team, field and team combination
+     * getByEmail retrieves the coach by unique team and coach email
      *
      * @param $team - Team associated with the coach
      * @param $email - Email for the Coach
@@ -112,13 +124,32 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB {
      *
      * @return DataObject found or NULL if none found
      */
-    public function getByEmail($team, $email, $teamId = NULL) {
+    public function getByEmail($team, $email, $teamId = null)
+    {
         $teamId = isset($teamId) ? $teamId : $team->id;
 
         $dataObjectArray = $this->getWhere(
-            self::DB_COLUMN_TEAM_ID . " = " . $teamId
-            . " and " . self::DB_COLUMN_EMAIL . " = '" . $email . "'");
+            self::DB_COLUMN_TEAM_ID." = ".$teamId
+            ." and ".self::DB_COLUMN_EMAIL." = '".$email."'"
+        );
 
-        return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
+        return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : null;
+    }
+
+    /**
+     * getByTeam retrieves the coach by unique team
+     *
+     * @param $team - Team associated with the coach
+     * @param $teamId - Optional team identifier
+     *
+     * @return DataObject found or NULL if none found
+     */
+    public function getByTeam($team, $teamId = null)
+    {
+        $teamId = isset($teamId) ? $teamId : $team->id;
+
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_TEAM_ID." = ".$teamId);
+
+        return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : null;
     }
 }
