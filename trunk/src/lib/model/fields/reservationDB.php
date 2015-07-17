@@ -87,9 +87,9 @@ class Model_Fields_ReservationDB extends Model_Fields_BaseDB {
         $dataObject->{self::DB_COLUMN_START_TIME} = $startTime;
         $dataObject->{self::DB_COLUMN_END_TIME} = $endTime;
 
-        $this->insert($dataObject);
+        $id = $this->insert($dataObject);
 
-        return $this->getByTeam($season, $field, $team);
+        return $this->getById($id);
     }
 
     /**
@@ -105,27 +105,44 @@ class Model_Fields_ReservationDB extends Model_Fields_BaseDB {
     }
 
     /**
-     * getByTeam retrieves the reservation by unique season, field and team combination
+     * getByTeam retrieves the reservations by unique season and team combination
      *
      * @param $season - Season associated with the reservation
-     * @param $field - Field associated with the reservation
      * @param $team - Team associated with the reservation
      * @param $seasonId - Optional season identifier (used as override)
-     * @param $fieldId - Optional field identifier (used as override)
      * @param $teamId - Optional team identifier (used as override)
      *
-     * @return DataObject found or NULL if none found
+     * @return DataObject array found or NULL if none found
      */
-    public function getByTeam($season, $field, $team, $seasonId = NULL, $fieldId = NULL, $teamId = NULL) {
+    public function getByTeam($season, $team, $seasonId = NULL, $teamId = NULL) {
         $seasonId = isset($seasonId) ? $seasonId : $season->id;
-        $fieldId = isset($fieldId) ? $fieldId : $field->id;
         $teamId = isset($teamId) ? $teamId : $team->id;
 
         $dataObjectArray = $this->getWhere(
             self::DB_COLUMN_SEASON_ID . " = " . $seasonId
-            . " and " . self::DB_COLUMN_FIELD_ID . " = " . $fieldId
             . " and " . self::DB_COLUMN_TEAM_ID . " = " . $teamId);
 
-        return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
+        return (0 < count($dataObjectArray)) ? $dataObjectArray : NULL;
+    }
+
+    /**
+     * getByField retrieves the reservations by unique season and field combination
+     *
+     * @param $season - Season associated with the reservation
+     * @param $field - Field associated with the reservation
+     * @param $seasonId - Optional season identifier (used as override)
+     * @param $fieldId - Optional field identifier (used as override)
+     *
+     * @return DataObject array found or NULL if none found
+     */
+    public function getByField($season, $field, $seasonId = NULL, $fieldId = NULL) {
+        $seasonId = isset($seasonId) ? $seasonId : $season->id;
+        $fieldId = isset($fieldId) ? $fieldId : $field->id;
+
+        $dataObjectArray = $this->getWhere(
+            self::DB_COLUMN_SEASON_ID . " = " . $seasonId
+            . " and " . self::DB_COLUMN_FIELD_ID . " = " . $fieldId);
+
+        return (0 < count($dataObjectArray)) ? $dataObjectArray : NULL;
     }
 }

@@ -15,6 +15,7 @@ class Model_FacilityTest extends PHPUnit_Framework_TestCase {
     public $m_contactName = 'David A. Giannini';
     public $m_contactEmail = 'david_giannini@hotmail.com';
     public $m_contactPhone = '8058989551';
+    public $m_image = 'hello.jpg';
     public $m_enabled = 1;
 
 
@@ -39,7 +40,8 @@ class Model_FacilityTest extends PHPUnit_Framework_TestCase {
     {
         // Test Create
         $facility = Model_Fields_Facility::Create($this->m_league, $this->m_name, $this->m_address1, $this->m_address2,
-            $this->m_city, $this->m_state, $this->m_postalCode, $this->m_country, $this->m_contactName, $this->m_contactEmail, $this->m_contactPhone, 1);
+            $this->m_city, $this->m_state, $this->m_postalCode, $this->m_country, $this->m_contactName, $this->m_contactEmail,
+            $this->m_contactPhone, $this->m_image, 1);
         $id = $facility->id;
         $this->assertEquals($facility->leagueId, $this->m_league->id);
         $this->assertEquals($facility->name, $this->m_name);
@@ -52,6 +54,7 @@ class Model_FacilityTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($facility->contactName, $this->m_contactName);
         $this->assertEquals($facility->contactEmail, $this->m_contactEmail);
         $this->assertEquals($facility->contactPhone, $this->m_contactPhone);
+        $this->assertEquals($facility->image, $this->m_image);
         $this->assertEquals($facility->enabled, $this->m_enabled);
         $this->assertEquals($facility->m_league->name, $this->m_league->name);
         $this->assertTrue($facility->isLoaded());
@@ -70,6 +73,7 @@ class Model_FacilityTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($facility->contactName, $this->m_contactName);
         $this->assertEquals($facility->contactEmail, $this->m_contactEmail);
         $this->assertEquals($facility->contactPhone, $this->m_contactPhone);
+        $this->assertEquals($facility->image, $this->m_image);
         $this->assertEquals($facility->enabled, $this->m_enabled);
         $this->assertEquals($facility->m_league->name, $this->m_league->name);
         $this->assertTrue($facility->isLoaded());
@@ -88,6 +92,28 @@ class Model_FacilityTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($facility->contactName, $this->m_contactName);
         $this->assertEquals($facility->contactEmail, $this->m_contactEmail);
         $this->assertEquals($facility->contactPhone, $this->m_contactPhone);
+        $this->assertEquals($facility->image, $this->m_image);
+        $this->assertEquals($facility->enabled, $this->m_enabled);
+        $this->assertEquals($facility->m_league->name, $this->m_league->name);
+        $this->assertTrue($facility->isLoaded());
+        $this->assertFalse($facility->isModified());
+
+        // Test LookupById
+        $facilities = Model_Fields_Facility::LookupByLeague($this->m_league);
+        $this->assertTrue(count($facilities) == 1);
+        $facility = $facilities[0];
+        $this->assertEquals($facility->leagueId, $this->m_league->id);
+        $this->assertEquals($facility->name, $this->m_name);
+        $this->assertEquals($facility->address1, $this->m_address1);
+        $this->assertEquals($facility->address2, $this->m_address2);
+        $this->assertEquals($facility->city, $this->m_city);
+        $this->assertEquals($facility->state, $this->m_state);
+        $this->assertEquals($facility->postalCode, $this->m_postalCode);
+        $this->assertEquals($facility->country, $this->m_country);
+        $this->assertEquals($facility->contactName, $this->m_contactName);
+        $this->assertEquals($facility->contactEmail, $this->m_contactEmail);
+        $this->assertEquals($facility->contactPhone, $this->m_contactPhone);
+        $this->assertEquals($facility->image, $this->m_image);
         $this->assertEquals($facility->enabled, $this->m_enabled);
         $this->assertEquals($facility->m_league->name, $this->m_league->name);
         $this->assertTrue($facility->isLoaded());

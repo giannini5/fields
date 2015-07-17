@@ -20,7 +20,7 @@ class SQLException extends DAG_Exception
         $this->errorCode = $code;
     }
 
-    public function asString() {
+    public function asString($verbose = true, $includeBacktrace = true, $prefixPadding = "  ", $includeFileNameAndLineNumber = true) {
         return get_class($this) . ": Error:[{$this->errorCode}], SQL State: [{$this->sqlstate}], {$this->message}";
     }
 
@@ -312,7 +312,7 @@ class MySQL_Wrapper
                         }
                     }
                 }
-                while ($this->m_clDbConn->next_result());
+                while ($this->m_clDbConn->more_results() and $this->m_clDbConn->next_result());
 
                 // we are done
                 break;
@@ -371,7 +371,6 @@ class MySQL_Wrapper
         $hostName = $this->m_dbPersistant ? 'p:' . $this->m_sHostName : $this->m_sHostName;
         $this->m_clDbConn->real_connect($hostName, $this->m_sDbUser, $this->m_sDbPwd, $this->m_sDbName, $this->m_sPort);
 
-printf("%s %d\n", "Connection open: error", $this->m_clDbConn->connect_error);
         assertion(!$this->m_clDbConn->connect_error, '$this->m_clDbConn->real_connect failed');
 
         if (!$this->m_bAutocommit) {

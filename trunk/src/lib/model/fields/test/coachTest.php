@@ -76,6 +76,17 @@ class Model_CoachTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($coach->isLoaded());
         $this->assertFalse($coach->isModified());
 
+        // Test LookupByTeam
+        $coach = Model_Fields_Coach::LookupByTeam($this->m_team);
+        $this->assertEquals($coach->teamId, $this->m_team->id);
+        $this->assertEquals($coach->name, $this->m_name);
+        $this->assertEquals($coach->email, $this->m_email);
+        $this->assertEquals($coach->phone, $this->m_phone);
+        $this->assertEquals($coach->password, $this->m_password);
+        $this->assertEquals($coach->m_team->name, $this->m_team->name);
+        $this->assertTrue($coach->isLoaded());
+        $this->assertFalse($coach->isModified());
+
         // Test LookupById
         $coach = Model_Fields_Coach::LookupById($id);
         $this->assertEquals($coach->teamId, $this->m_team->id);
