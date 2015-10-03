@@ -19,6 +19,7 @@ class Model_Fields_SessionDB extends Model_Fields_BaseDB
     const DB_COLUMN_CREATION_DATE = 'creationDate';
     const DB_COLUMN_USER_ID = 'userId';
     const DB_COLUMN_USER_TYPE = 'userType';
+    const DB_COLUMN_TEAM_ID = 'teamId';
 
     /**
      * @brief: Constructor
@@ -74,33 +75,37 @@ class Model_Fields_SessionDB extends Model_Fields_BaseDB
      *
      * @param $userId - Identifier of the user (coach, manager, practiceFieldCoordinator)
      * @param $userType - Type of user (COACH, MANAGER, PRACTICE_FIELD_COORDINATOR)
+     * @param $teamId - Team identifier
      *
      * @return DataObject[]
      */
-    public function create($userId, $userType)
+    public function create($userId, $userType, $teamId)
     {
         $dataObject = new DataObject();
         $dataObject->{self::DB_COLUMN_USER_ID} = $userId;
         $dataObject->{self::DB_COLUMN_USER_TYPE} = $userType;
+        $dataObject->{self::DB_COLUMN_TEAM_ID} = $teamId;
 
         $this->insert($dataObject);
 
-        return $this->getByUser($userId, $userType);
+        return $this->getByUser($userId, $userType, $teamId);
     }
 
     /**
-     * getByUser retrieves the session by unique user identifier and type
+     * getByUser retrieves the session by unique user identifier, type and team id
      *
      * @param int $userId - ID of user
      * @param int $userType - Type of the user
+     * @param int $teamId - ID of team
      *
      * @return DataObject found or NULL if none found
      */
-    public function getByUser($userId, $userType)
+    public function getByUser($userId, $userType, $teamId)
     {
         $dataObjectArray = $this->getWhere(
             self::DB_COLUMN_USER_ID . " = " . $userId .
-            " and " . self::DB_COLUMN_USER_TYPE . " = " . $userType);
+            " and " . self::DB_COLUMN_USER_TYPE . " = " . $userType .
+            " and " . self::DB_COLUMN_TEAM_ID . " = " . teamId);
 
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : null;
     }

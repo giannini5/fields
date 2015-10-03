@@ -1,16 +1,8 @@
 <?php
 require_once '../../../autoLoader.php';
+require_once 'helper.php';
 
-class Model_ManagerTest extends PHPUnit_Framework_TestCase {
-
-    public $m_league;
-    public $m_division;
-    public $m_team;
-
-    public $m_leagueName = 'Test AYSO Region 122';
-    public $m_divisionName = 'U10G';
-    public $m_teamNumber = 25;
-
+class Model_ManagerTest extends Model_TestHelpers {
     public $m_name = 'David Giannini';
     public $m_email = 'david_giannini@hotmail.com';
     public $m_phone = '8058989551';
@@ -21,31 +13,7 @@ class Model_ManagerTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $m_league = NULL;
-        $m_division = NULL;
-        $m_team = NULL;
-
-        $this->m_league = Model_Fields_League::LookupByName($this->m_leagueName, FALSE);
-        if (isset($this->m_league)) {
-            $this->m_division = Model_Fields_Division::LookupByName($this->m_league, $this->m_divisionName, FALSE);
-
-            if (isset($this->m_division)) {
-                $this->m_team = Model_Fields_Team::LookupByNumber($this->m_division, $this->m_teamNumber, FALSE);
-            }
-
-            if (isset($this->m_team)) {
-                Model_Fields_Team::Delete($this->m_division, $this->m_teamNumber);
-            }
-            if (isset($this->m_division)) {
-                Model_Fields_Division::Delete($this->m_league, $this->m_divisionName);
-            }
-
-            Model_Fields_League::Delete($this->m_leagueName);
-        }
-
-        $this->m_league = Model_Fields_League::Create($this->m_leagueName);
-        $this->m_division = Model_Fields_Division::Create($this->m_league, $this->m_divisionName, 1);
-        $this->m_team = Model_Fields_Team::Create($this->m_division, $this->m_teamNumber, 'Thunder');
+        $this->primeDatabase();
     }
 
     /**

@@ -24,8 +24,14 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
      * @param $teamId - unique team identifier
      * @param string $startTime - start time of reservation
      * @param string $endTime - end time of reservation
+     * @param string $daysOfWeek - 7 character string
+     *                             daysOfWeek[0] == 1 then Sunday selected
+     *                             ...
+     *                             daysOfWeek[6] == 1 then Saturday selected
      */
-    public function __construct($season = NULL, $field = NULL, $team = NULL, $id = NULL, $seasonId = NULL, $fieldId = NULL, $teamId = NULL, $startTime = '', $endTime = '') {
+    public function __construct($season = NULL, $field = NULL, $team = NULL, $id = NULL, $seasonId = NULL, $fieldId = NULL, $teamId = NULL, $startTime = '', $endTime = '', $daysOfWeek = '0000000') {
+        precondition(strlen($daysOfWeek) == 7, "daysOfWeek length of " . strlen($daysOfWeek) . " is invalid.  Must be 7");
+
         parent::__construct('Model_Fields_ReservationDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->m_season = $season;
@@ -37,10 +43,22 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
         $this->{Model_Fields_ReservationDB::DB_COLUMN_TEAM_ID} = $teamId;
         $this->{Model_Fields_ReservationDB::DB_COLUMN_START_TIME} = $startTime;
         $this->{Model_Fields_ReservationDB::DB_COLUMN_END_TIME} = $endTime;
+        $this->{Model_Fields_ReservationDB::DB_COLUMN_DAYS_OF_WEEK} = $daysOfWeek;
 
         $this->_setSeason();
         $this->_setField();
         $this->_setTeam();
+    }
+
+    /**
+     * @brief Check to see if the day is selected in the reservation
+     *
+     * @param int $day - Number from 0 to 6.  0 is Monday, 6 is Sunday
+     *
+     * @return bool - Return TRUE if the days is selected; FALSE otherwise
+     */
+    public function isDaySelected($day) {
+        return $this->{Model_Fields_ReservationDB::DB_COLUMN_DAYS_OF_WEEK}[$day] == '1';
     }
 
     /**
@@ -134,7 +152,8 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
             $dataObject->{Model_Fields_ReservationDB::DB_COLUMN_FIELD_ID},
             $dataObject->{Model_Fields_ReservationDB::DB_COLUMN_TEAM_ID},
             $dataObject->{Model_Fields_ReservationDB::DB_COLUMN_START_TIME},
-            $dataObject->{Model_Fields_ReservationDB::DB_COLUMN_END_TIME});
+            $dataObject->{Model_Fields_ReservationDB::DB_COLUMN_END_TIME},
+            $dataObject->{Model_Fields_ReservationDB::DB_COLUMN_DAYS_OF_WEEK});
 
         $reservation->setLoaded();
 
@@ -149,13 +168,21 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
      * @param $team - Model_Fields_Team instance
      * @param $startTime
      * @param $endTime - end time of reservation
+     * @param string $daysOfWeek - 7 character string
+     *                             daysOfWeek[0] == 1 then Sunday selected
+     *                             ...
+     *                             daysOfWeek[6] == 1 then Saturday selected
      *
      * @return Model_Fields_Reservation
      * @throws AssertionException
      */
-    public static function Create($season, $field, $team, $startTime, $endTime) {
+    public static function Create($season, $field, $team, $startTime, $endTime, $daysOfWeek) {
+        precondition(strlen($daysOfWeek) == 7, "daysOfWeek length of " . strlen($daysOfWeek) . " is invalid.  Must be 7");
+        precondition(Model_Fields_Reservation::getOverlapping($season, $field, $startTime, $endTime, $daysOfWeek) == NULL,
+            "This new reservation overlaps with an existing reservation");
+
         $dbHandle = new Model_Fields_ReservationDB();
-        $dataObject = $dbHandle->create($season, $field, $team, $startTime, $endTime);
+        $dataObject = $dbHandle->create($season, $field, $team, $startTime, $endTime, $daysOfWeek);
         assertion(!empty($dataObject), "Unable to create Reservation with startTime:'$startTime', endTime:'$endTime'");
 
         return Model_Fields_Reservation::GetInstance($dataObject, $season, $field, $team);
@@ -233,6 +260,48 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
     }
 
     /**
+     * @brief Get the overlapping reservation if any
+     *
+     * @param $season - Season being checked
+     * @param $field - Field being checked
+     * @param $startTime - Start time of reservation being checked
+     * @param $endTime - End time of reservation being checked
+     * @param $daysOfWeek - Days of week for reservation being checked
+     *
+     * @return NULL if no overlap found; otherwise return reservation that overlaps
+     */
+    public static function getOverlapping($season, $field, $startTime, $endTime, $daysOfWeek) {
+        // Get existing reservations for field
+        $reservations = Model_Fields_Reservation::LookupByField($season, $field, FALSE);
+
+        // Return the first overlapping reservation found
+        foreach ($reservations as $reservation) {
+            for ($i = 0; $i < 7; ++$i) {
+                // If same day of week then check for overlap
+                if ($daysOfWeek[$i] == 1 and $reservation->daysOfWeek[$i] == 1) {
+                    // Check if this reservation starts sooner but ends after next starts
+                    if ($startTime <= $reservation->startTime and $endTime > $reservation->startTime) {
+                        return $reservation;
+                    }
+
+                    // Check if this reservation starts on or after but ends on or before next end
+                    if ($startTime >= $reservation->startTime and $endTime <= $reservation->endTime) {
+                        return $reservation;
+                    }
+
+                    // Check if this reservation starts before next ends but ends on or after next ends
+                    if ($startTime < $reservation->endTime and $endTime >= $reservation->endTime) {
+                        return $reservation;
+                    }
+                }
+            }
+        }
+
+        // No overlapping reservation found
+        return NULL;
+    }
+
+    /**
      * @brief: Delete if exists
      *
      * @param $season - Model_Fields_Season instance
@@ -244,5 +313,15 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
         foreach ($reservations as $reservation) {
             $reservation->_delete();
         }
+    }
+
+    /**
+     * @brief: Delete by Identifier
+     *
+     * @param $reservationId - Model_Fields_Reservation identifier
+     */
+    public static function DeleteById($reservationId) {
+        $reservation = Model_Fields_Reservation::LookupById($reservationId);
+        $reservation->_delete();
     }
 }

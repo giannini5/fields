@@ -1,10 +1,9 @@
 <?php
 require_once '../../../autoLoader.php';
+require_once 'helper.php';
 
-class Model_FacilityTest extends PHPUnit_Framework_TestCase {
+class Model_FacilityTest extends Model_TestHelpers {
 
-    public $m_leagueName = 'Test AYSO Region 122';
-    public $m_league;
     public $m_name = 'Girsh Park';
     public $m_address1 = '2910 Paseo del Refugio';
     public $m_address2 = 'Backyard';
@@ -24,13 +23,8 @@ class Model_FacilityTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->m_league = Model_Fields_League::LookupByName($this->m_leagueName, FALSE);
-        if (isset($this->m_league)) {
-            Model_Fields_Facility::Delete($this->m_league, $this->m_name);
-            Model_Fields_League::Delete($this->m_leagueName);
-        }
-
-        $this->m_league = Model_Fields_League::Create($this->m_leagueName);
+        $this->primeDatabase();
+        $this->m_facility->_delete();
     }
 
     /**

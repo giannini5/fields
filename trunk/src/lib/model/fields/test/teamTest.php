@@ -1,13 +1,9 @@
 <?php
 require_once '../../../autoLoader.php';
+require_once 'helper.php';
 
-class Model_TeamTest extends PHPUnit_Framework_TestCase {
+class Model_TeamTest extends Model_TestHelpers {
 
-    public $m_leagueName = 'Test AYSO Region 122';
-    public $m_league;
-    public $m_divisionName = 'U10 Girls';
-    public $m_division;
-    public $m_teamNumber = 9;
     public $m_name = 'Flying Hawks';
 
     /**
@@ -15,19 +11,12 @@ class Model_TeamTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->m_league = Model_Fields_League::LookupByName($this->m_leagueName, FALSE);
-        if (isset($this->m_league)) {
-            $this->m_division = Model_Fields_Division::LookupByName($this->m_league, $this->m_divisionName, FALSE);
-            if (isset($this->m_division)) {
-                Model_Fields_Team::Delete($this->m_division, $this->m_teamNumber);
-                Model_Fields_Division::Delete($this->m_league, $this->m_divisionName);
-            }
+        $this->primeDatabase();
 
-            Model_Fields_League::Delete($this->m_leagueName);
+        $team = Model_Fields_Team::LookupByCoach($this->m_coach, $this->m_gender, FALSE);
+        if (isset($team)) {
+            $team->_delete();
         }
-
-        $this->m_league = Model_Fields_League::Create($this->m_leagueName);
-        $this->m_division = Model_Fields_Division::Create($this->m_league, $this->m_divisionName, 1);
     }
 
     /**
@@ -36,30 +25,36 @@ class Model_TeamTest extends PHPUnit_Framework_TestCase {
     public function testStaticMethods()
     {
         // Test Create
-        $team = Model_Fields_Team::Create($this->m_division, $this->m_teamNumber, $this->m_name);
+        $team = Model_Fields_Team::Create($this->m_division, $this->m_coach, $this->m_gender, $this->m_name);
         $id = $team->id;
         $this->assertEquals($team->divisionId, $this->m_division->id);
-        $this->assertEquals($team->teamNumber, $this->m_teamNumber);
+        $this->assertEquals($team->coachId, $this->m_coach->id);
+        $this->assertEquals($team->gender, $this->m_gender);
         $this->assertEquals($team->name, $this->m_name);
         $this->assertEquals($team->m_division->name, $this->m_division->name);
-        $this->assertTrue($team->isLoaded());
-        $this->assertFalse($team->isModified());
-
-        // Test LookupByNumber
-        $team = Model_Fields_Team::LookupByNumber($this->m_division, $this->m_teamNumber);
-        $this->assertEquals($team->divisionId, $this->m_division->id);
-        $this->assertEquals($team->teamNumber, $this->m_teamNumber);
-        $this->assertEquals($team->name, $this->m_name);
-        $this->assertEquals($team->m_division->name, $this->m_division->name);
+        $this->assertEquals($team->m_coach->name, $this->m_coach->name);
         $this->assertTrue($team->isLoaded());
         $this->assertFalse($team->isModified());
 
         // Test LookupById
         $team = Model_Fields_Team::LookupById($id);
         $this->assertEquals($team->divisionId, $this->m_division->id);
-        $this->assertEquals($team->teamNumber, $this->m_teamNumber);
+        $this->assertEquals($team->coachId, $this->m_coach->id);
+        $this->assertEquals($team->gender, $this->m_gender);
         $this->assertEquals($team->name, $this->m_name);
         $this->assertEquals($team->m_division->name, $this->m_division->name);
+        $this->assertEquals($team->m_coach->name, $this->m_coach->name);
+        $this->assertTrue($team->isLoaded());
+        $this->assertFalse($team->isModified());
+
+        // Test LookupByCoach
+        $team = Model_Fields_Team::LookupByCoach($this->m_coach, $this->m_gender);
+        $this->assertEquals($team->divisionId, $this->m_division->id);
+        $this->assertEquals($team->coachId, $this->m_coach->id);
+        $this->assertEquals($team->gender, $this->m_gender);
+        $this->assertEquals($team->name, $this->m_name);
+        $this->assertEquals($team->m_division->name, $this->m_division->name);
+        $this->assertEquals($team->m_coach->name, $this->m_coach->name);
         $this->assertTrue($team->isLoaded());
         $this->assertFalse($team->isModified());
 

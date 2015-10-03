@@ -3,6 +3,7 @@ create table session (
     creationDate datetime default now(),
     userId       bigint not NULL,
     userType     tinyInt,
+    teamId       bigint not NULL,
     PRIMARY KEY (id),
-    unique key ux_user (userId, userType)
+    unique key ux_user (userId, userType, teamId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -1,8 +1,9 @@
 create table team (
     id           bigint auto_increment,
     divisionId   bigint not NULL,
-    teamNumber   int not NULL,
+    coachId      bigint not NULL,
+    gender       char not NULL,
     name         varchar(60) not NULL,
     PRIMARY KEY (id),
-    unique index ux_divisionTeam(divisionId, teamNumber)
+    unique key ux_divisionCoach(divisionId, coachId, gender)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

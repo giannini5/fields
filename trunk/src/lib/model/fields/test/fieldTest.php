@@ -1,36 +1,18 @@
 <?php
 require_once '../../../autoLoader.php';
+require_once 'helper.php';
 
-class Model_FieldTest extends PHPUnit_Framework_TestCase {
-
-
-    public $m_leagueName = 'Test AYSO Region 122';
-    public $m_league;
-    public $m_facilityName = 'Girsh Park';
-    public $m_facility;
+class Model_FieldTest extends Model_TestHelpers {
     public $m_name = 'Field B';
     public $m_enabled = 1;
-
 
     /**
      * Prepare to run test
      */
     protected function setUp()
     {
-        $this->m_league = Model_Fields_League::LookupByName($this->m_leagueName, FALSE);
-        if (isset($this->m_league)) {
-            $this->m_facility = Model_Fields_Facility::LookupByName($this->m_league, $this->m_facilityName, FALSE);
-            if (isset($this->m_facility)) {
-                Model_Fields_Field::Delete($this->m_facility, $this->m_name);
-                Model_Fields_Facility::Delete($this->m_league, $this->m_facilityName);
-            }
-
-            Model_Fields_League::Delete($this->m_leagueName);
-        }
-
-        $this->m_league = Model_Fields_League::Create($this->m_leagueName);
-        $this->m_facility = Model_Fields_Facility::Create($this->m_league, $this->m_facilityName,
-            'address1', 'address2', 'city', 'state', 'p-code', 'country', 'contactName', 'contactEmail', 'contactPhone', 'image', 1);
+        $this->primeDatabase();
+        $this->m_field->_delete();
     }
 
     /**

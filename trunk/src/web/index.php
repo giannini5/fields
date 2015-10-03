@@ -18,29 +18,36 @@ class Web_Index
     {
         $this->m_requestPage = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : self::WELCOME;
 
+        // Strip off the URI Params if any
+        $position = strpos($this->m_requestPage, "?");
+        if (!is_bool($position)) {
+            $data = str_split($this->m_requestPage, $position);
+            $this->m_requestPage = $data[0];
+        }
+
         switch($this->m_requestPage) {
             case View_Base::WELCOME_PAGE:
-                $this->m_controller = new Controller_Welcome();
+                $this->m_controller = new Controller_Fields_Welcome();
                 break;
 
             case View_Base::LOGIN_PAGE:
-                $this->m_controller = new Controller_Login();
+                $this->m_controller = new Controller_Fields_Login();
                 break;
 
             case View_Base::SHOW_RESERVATION_PAGE:
-                $this->m_controller = new Controller_ShowReservation();
+                $this->m_controller = new Controller_Fields_ShowReservation();
                 break;
 
             case View_Base::SELECT_FACILITY_PAGE:
-                $this->m_controller = new Controller_SelectFacility();
+                $this->m_controller = new Controller_Fields_SelectFacility();
                 break;
 
-            case View_Base::SELECT_DAY_TIME_PAGE:
-                $this->m_controller = new Controller_SelectDayTime();
+            case View_Base::ADMIN_HOME_PAGE:
+                $this->m_controller = new Controller_Admin_Home();
                 break;
 
             default:
-                $this->m_controller = new Controller_Welcome();
+                $this->m_controller = new Controller_Fields_Welcome();
                 break;
         }
     }

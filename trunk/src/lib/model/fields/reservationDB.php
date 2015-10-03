@@ -14,12 +14,13 @@ class Model_Fields_ReservationDB extends Model_Fields_BaseDB {
     const DB_TABLE_NAME = 'reservation';
 
     // Columns constant
-    const DB_COLUMN_ID         = 'id';
-    const DB_COLUMN_SEASON_ID  = 'seasonId';
-    const DB_COLUMN_FIELD_ID   = 'fieldId';
-    const DB_COLUMN_TEAM_ID    = 'teamId';
-    const DB_COLUMN_START_TIME = 'startTime';
-    const DB_COLUMN_END_TIME   = 'endTime';
+    const DB_COLUMN_ID           = 'id';
+    const DB_COLUMN_SEASON_ID    = 'seasonId';
+    const DB_COLUMN_FIELD_ID     = 'fieldId';
+    const DB_COLUMN_TEAM_ID      = 'teamId';
+    const DB_COLUMN_START_TIME   = 'startTime';
+    const DB_COLUMN_END_TIME     = 'endTime';
+    const DB_COLUMN_DAYS_OF_WEEK = 'daysOfWeek';
 
     /**
      * @brief: Constructor
@@ -79,13 +80,14 @@ class Model_Fields_ReservationDB extends Model_Fields_BaseDB {
      *
      * @return DataObject[]
      */
-    public function create($season, $field, $team, $startTime, $endTime) {
+    public function create($season, $field, $team, $startTime, $endTime, $daysOfWeek) {
         $dataObject = new DataObject();
         $dataObject->{self::DB_COLUMN_SEASON_ID} = $season->id;
         $dataObject->{self::DB_COLUMN_FIELD_ID} = $field->id;
         $dataObject->{self::DB_COLUMN_TEAM_ID} = $team->id;
         $dataObject->{self::DB_COLUMN_START_TIME} = $startTime;
         $dataObject->{self::DB_COLUMN_END_TIME} = $endTime;
+        $dataObject->{self::DB_COLUMN_DAYS_OF_WEEK} = $daysOfWeek;
 
         $id = $this->insert($dataObject);
 

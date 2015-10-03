@@ -8,31 +8,59 @@
  *          - Abstract methods must be implemented by child classes
  */
 abstract class View_Base {
-    # Pages
+    # Administrator Pages
+    const ADMIN_LOGIN_PAGE    = '/admin_login';
+    const ADMIN_HOME_PAGE     = '/admin_home';
+    const ADMIN_SEASON_PAGE   = '/admin_season';
+    const ADMIN_DIVISION_PAGE = '/admin_division';
+    const ADMIN_LOCATION_PAGE = '/admin_location';
+    const ADMIN_FACILITY_PAGE = '/admin_facility';
+    const ADMIN_FIELD_PAGE    = '/admin_field';
+
+    # Coach/Manager Pages
     const WELCOME_PAGE          = '/welcome';
     const LOGIN_PAGE            = '/login';
     const SHOW_RESERVATION_PAGE = '/showReservation';
     const SELECT_FACILITY_PAGE  = '/selectFacility';
-    const SELECT_DAY_TIME_PAGE  = '/selectDayTime';
 
     # Operations
     const SUBMIT           = 'submit';
 
     # Operation Values
     const CREATE_ACCOUNT   = 'Create Account';
-    const LOGIN            = 'Login';
+    const SIGN_IN          = 'Sign In';
+    const SIGN_OUT         = 'Sign Out';
     const SELECT           = 'Select';
+    const DELETE           = 'Delete';
+    const FILTER           = 'Filter';
 
     # Post Attribute Names
-    const SESSION_ID    = 'sessionId';
-    const FACILITY_ID   = 'facilityId';
+    const SESSION_ID                = 'sessionId';
+    const FACILITY_ID               = 'facilityId';
+    const FIELD_ID                  = 'fieldId';
+    const MONDAY                    = 'Monday';
+    const TUESDAY                   = 'Tuesday';
+    const WEDNESDAY                 = 'Wednesday';
+    const THURSDAY                  = 'Thursday';
+    const FRIDAY                    = 'Friday';
+    const SATURDAY                  = 'Saturday';
+    const SUNDAY                    = 'Sunday';
+    const START_TIME                = 'startTime';
+    const END_TIME                  = 'endTime';
+    const RESERVATION_ID            = 'reservationId';
+    const FILTER_FACILITY_ID        = 'filterFacilityId';
+    const FILTER_DIVISION_ID        = 'filterDivisionId';
+    const FILTER_LOCATION_ID        = 'filterGeographicAreaId';
+
+    # Request Attributes
+    const NEW_SELECTION = 'newSelection';
 
     # Member variables
     protected $m_urlParams;
     protected $m_controller;
 
-    private $m_pageName;
-    private $m_styles;
+    protected $m_pageName;
+    protected $m_styles;
 
     /**
      * @brief: Construct a new instance of this base class.
@@ -49,52 +77,6 @@ abstract class View_Base {
     }
 
     /**
-     * @brief: Print out HTML to display this page.  Derived classes must implement
-     *         the "render()" method to print out their page content.
-     */
-    public function displayPage()
-    {
-        print '
-            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-
-
-        print '
-            <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">';
-
-        $this->m_styles->render();
-
-        print '
-            <head>
-                <title>Practice Fields</title>
-                <script type="text/JavaScript" src="../js/scw.js"></script>
-            </head>
-
-            <body bgcolor="#FFFFFF">
-                <div id="wrap">
-                <div id="leftHeader">
-                    <img src="images/aysoLogo.jpeg" alt="AYSO" width="75" height="75">
-                </div>
-                <div id="rightHeader">
-                    <h1><font color="darkblue">AYSO Region 122: </font>Practice Field Reservation System</h1>
-                </div>';
-
-        $this->displayHeaderNavigation();
-        $this->render();
-
-        print '
-                <br>';
-
-// print htmlFormatArray($_REQUEST);
-print $this->htmlFormatArray($_POST);
-// print htmlFormatArray($this->m_tableData);
-// print htmlFormatArray($this->m_tableSummaryData);
-
-        print "
-            </body>
-        </html>";
-    }
-
-    /**
      * @brief: Display an input box used inside of a form to get data.
      *
      * @param: $request - String that describes the data being requested.
@@ -106,9 +88,9 @@ print $this->htmlFormatArray($_POST);
         $requiredString = empty($requiredString) ? '&nbsp' : $requiredString;
         print "
                 <tr>
-                    <td align='right'><font color='lightblue'><b>$request</b></font></td>
-                    <td align='right'>
-                        <input style='text-align:left' type='$type' name='$name' placeholder='$placeHolder'>
+                    <td align='left'><font color='lightblue'><b>$request</b></font></td>
+                    <td align='left'>
+                        <input style='width: 135px' type='$type' name='$name' placeholder='$placeHolder'>
                     </td>
                     <td>
                         <span class='error'>$requiredString</span>
@@ -127,11 +109,11 @@ print $this->htmlFormatArray($_POST);
     public function displaySelector($selectorTitle, $selectorName, $defaultSelection, $selectorData) {
         print "
             <tr>
-                <td align='right'><font color='lightblue'><b>$selectorTitle</b></font></td>
-                <td align='right'>";
+                <td align='left'><font color='lightblue'><b>$selectorTitle</b></font></td>
+                <td align='left'>";
 
         print "
-                    <select name='$selectorName' required>
+                    <select style='width: 140px' name='$selectorName' required>
                         <option value=''>$defaultSelection</option>";
 
         foreach ($selectorData as $identifier=>$data) {
@@ -145,23 +127,6 @@ print $this->htmlFormatArray($_POST);
         print "
                 </td>
             </tr>";
-    }
-
-
-    /**
-     * @brief Display Header Navigation (Welcome, Show Reservatio, etc.)
-     */
-    protected function displayHeaderNavigation() {
-        /*
-        print '
-                <ul id="nav">'
-            . ($this->m_pageName == self::WELCOME_PAGE || $this->m_pageName == self::LOGIN_PAGE ?
-                '<li><div>HOME</div></li>' : '<li><a href="$this->m_pageName">HOME</a></li>')
-            . ($this->m_pageName == self::SHOW_RESERVATION_PAGE ?
-                '<li><div>RESERVATION</div></li>' : '<li><a href="' . self::SHOW_RESERVATION_PAGE . '">RESERVATION</a></li>')
-            . '
-               </ul>';
-        */
     }
 
     /**
@@ -183,5 +148,19 @@ print $this->htmlFormatArray($_POST);
         return $retStr;
     }
 
+    /**
+     * @brief: Print out HTML to display this page.  Derived classes must implement
+     *         the "render()" method to print out their page content.
+     */
+    abstract function displayPage();
+
+    /**
+     * @brief Display Header Navigation (Welcome, Show Reservatio, etc.)
+     */
+    abstract function displayHeaderNavigation();
+
+    /**
+     * @brief Render the contents of the page
+     */
     abstract function render();
 }
