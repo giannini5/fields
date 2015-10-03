@@ -1,16 +1,15 @@
 <?php
 require_once '../../../autoLoader.php';
+require_once 'helper.php';
 
-class Model_LeagueTest extends PHPUnit_Framework_TestCase
+class Model_LeagueTest extends Model_TestHelpers
 {
-    public $leagueName = 'Test AYSO Region 122';
-
     /**
      * Prepare to run test
      */
     protected function setUp()
     {
-        Model_Fields_League::Delete($this->leagueName);
+        $this->clearEntities();
     }
 
     /**
@@ -18,16 +17,16 @@ class Model_LeagueTest extends PHPUnit_Framework_TestCase
      */
     public function testStaticMethods()
     {
-        $league = Model_Fields_League::Create($this->leagueName);
+        $league = Model_Fields_League::Create($this->m_leagueName);
         $leagueId = $league->id;
-        $this->assertEquals($league->name, $this->leagueName);
+        $this->assertEquals($league->name, $this->m_leagueName);
 
-        $league = Model_Fields_League::LookupByName($this->leagueName);
-        $this->assertEquals($league->name, $this->leagueName);
+        $league = Model_Fields_League::LookupByName($this->m_leagueName);
+        $this->assertEquals($league->name, $this->m_leagueName);
         $this->assertEquals($league->id, $leagueId);
 
         $league = Model_Fields_League::LookupById($leagueId);
-        $this->assertEquals($league->name, $this->leagueName);
+        $this->assertEquals($league->name, $this->m_leagueName);
         $this->assertEquals($league->id, $leagueId);
     }
 }

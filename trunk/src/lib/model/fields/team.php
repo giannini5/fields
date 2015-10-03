@@ -9,25 +9,31 @@
 class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface {
 
     public $m_division;
+    public $m_coach;
 
     /**
      * @brief: Constructor
      *
      * @param $division - Model_Fields_Division instance
+     * @param $coach - Model_Fields_Coach instance
      * @param $id - unique identifier
      * @param $divisionId - unique division identifier
-     * @param $teamNumber - unique team number within the division
+     * @param $coachId - unique coach identifier
+     * @param $gender - B for Boys; G for girls
      * @param string $name - name of the field
      */
-    public function __construct($division = NULL, $id = NULL, $divisionId = NULL, $teamNumber = 0, $name = '') {
+    public function __construct($division = NULL, $coach = NULL, $id = NULL, $divisionId = NULL, $coachId = NULL, $gender = 0, $name = '') {
         parent::__construct('Model_Fields_TeamDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->m_division = $division;
+        $this->m_coach = $coach;
         $this->{Model_Fields_TeamDB::DB_COLUMN_ID}   = $id;
         $this->{Model_Fields_TeamDB::DB_COLUMN_DIVISION_ID} = $divisionId;
-        $this->{Model_Fields_TeamDB::DB_COLUMN_TEAM_NUMBER} = $teamNumber;
+        $this->{Model_Fields_TeamDB::DB_COLUMN_COACH_ID} = $coachId;
+        $this->{Model_Fields_TeamDB::DB_COLUMN_GENDER} = $gender;
         $this->{Model_Fields_TeamDB::DB_COLUMN_NAME} = $name;
         $this->_setDivision();
+        $this->_setCoach();
     }
 
     /**
@@ -47,17 +53,12 @@ class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface 
         if (!is_null($this->{Model_Fields_TeamDB::DB_COLUMN_ID})) {
             $dataObj = $dbHandle->getById($this->{Model_Fields_TeamDB::DB_COLUMN_ID});
 
-        } else if (!is_null($this->{Model_Fields_TeamDB::DB_COLUMN_TEAM_NUMBER})) {
-            $dataObj = $dbHandle->getByNumber(
-                NULL,
-                $this->{Model_Fields_TeamDB::DB_COLUMN_TEAM_NUMBER},
-                TRUE,
-                $this->{Model_Fields_TeamDB::DB_COLUMN_DIVISION_ID});
         }
 
         if (!empty($dataObj)) {
             $this->assignModel($dataObj);
             $this->_setDivision();
+            $this->_setCoach();
             return TRUE;
         }
 
@@ -70,6 +71,15 @@ class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface 
     private function _setDivision() {
         if (!isset($this->m_division)) {
             $this->m_division = Model_Fields_Division::LookupById($this->{Model_Fields_TeamDB::DB_COLUMN_DIVISION_ID});
+        }
+    }
+
+    /**
+     * @brief: Set the coach member variable if not already set
+     */
+    private function _setCoach() {
+        if (!isset($this->m_coach)) {
+            $this->m_coach = Model_Fields_Coach::LookupById($this->{Model_Fields_TeamDB::DB_COLUMN_COACH_ID});
         }
     }
 
@@ -90,12 +100,14 @@ class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface 
      *
      * @return Model_Fields_Team
      */
-    public static function GetInstance($dataObject, $division = NULL) {
+    public static function GetInstance($dataObject, $division = NULL, $coach = NULL) {
         $team = new Model_Fields_Team(
             $division,
+            $coach,
             $dataObject->{Model_Fields_TeamDB::DB_COLUMN_ID},
             $dataObject->{Model_Fields_TeamDB::DB_COLUMN_DIVISION_ID},
-            $dataObject->{Model_Fields_TeamDB::DB_COLUMN_TEAM_NUMBER},
+            $dataObject->{Model_Fields_TeamDB::DB_COLUMN_COACH_ID},
+            $dataObject->{Model_Fields_TeamDB::DB_COLUMN_GENDER},
             $dataObject->{Model_Fields_TeamDB::DB_COLUMN_NAME});
 
         $team->setLoaded();
@@ -107,18 +119,18 @@ class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface 
      * @brief: Create a new Field
      *
      * @param $division - Model_Fields_Division instance
-     * @param int $teamNumber - Unique team number within the division
+     * @param int $gender - B for boys; G for girls
      * @param string $name - name of the team
      *
      * @return Model_Fields_Team
      * @throws AssertionException
      */
-    public static function Create($division, $teamNumber, $name) {
+    public static function Create($division, $coach, $gender, $name) {
         $dbHandle = new Model_Fields_TeamDB();
-        $dataObject = $dbHandle->create($division, $teamNumber, $name);
-        assertion(!empty($dataObject), "Unable to create Team with name:'$name', number:'$teamNumber'");
+        $dataObject = $dbHandle->create($division, $coach, $gender, $name);
+        assertion(!empty($dataObject), "Unable to create Team with name:'$name', gender:'$gender'");
 
-        return Model_Fields_Team::GetInstance($dataObject, $division);
+        return Model_Fields_Team::GetInstance($dataObject, $division, $coach);
     }
 
     /**
@@ -137,38 +149,21 @@ class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface 
     }
 
     /**
-     * @brief: Get Model_Fields_Team instance for the specified Team division and name
+     * @brief: Get Model_Fields_Team instance for the specified Coach
      *
-     * @param $division - Model_Fields_Division instance
-     * @param $teamNumber - Unique team number within the division
-     * @param $assertIfNotFound - If TRUE then assert object if found.  Otherwise return NULL when object not found
+     * @param bigint $coachId: Unique Coach identifier
+     * @param char $gender: Gender - B for Boys, G for Girls
      *
-     * @return Model_Fields_Team or NULL if object not found and $assertIfNotFound is FALSE
-     * @throws AssertionException
+     * @return Model_Fields_Team or NULL if team not found
      */
-    public static function LookupByNumber($division, $teamNumber, $assertIfNotFound = TRUE, $divisionId = NULL) {
+    public static function LookupByCoach($coach, $gender) {
         $dbHandle = new Model_Fields_TeamDB();
-        $dataObject = $dbHandle->getByNumber($division, $teamNumber, $divisionId);
+        $dataObject = $dbHandle->getByCoach($coach, $gender);
 
-        if ($assertIfNotFound) {
-            assertion(!empty($dataObject), "Team row for team number: '$teamNumber' not found");
-        } else if (empty($dataObject)) {
+        if (!isset($dataObject)) {
             return NULL;
         }
 
-        return Model_Fields_Team::GetInstance($dataObject, $division);
-    }
-
-    /**
-     * @brief: Delete if exists
-     *
-     * @param $division - Model_Fields_Division instance
-     * @param $teamNumber - Team's number
-     */
-    public static function Delete($division, $teamNumber) {
-        $team = Model_Fields_Team::LookupByNumber($division, $teamNumber, FALSE);
-        if (isset($team)) {
-            $team->_delete();
-        }
+        return Model_Fields_Team::GetInstance($dataObject);
     }
 }

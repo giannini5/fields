@@ -163,6 +163,24 @@ class Model_Fields_PracticeFieldCoordinator extends Model_Fields_Base implements
     }
 
     /**
+     * @brief: Get list of Model_Fields_PracticeFieldCoordinator instances for the specified PracticeFieldCoordinator league
+     *
+     * @param $league : Model_Fields_League instance
+     *
+     * @return array of Model_Fields_PracticeFieldCoordinator empty array if none found
+     */
+    public static function LookupByLeague($league) {
+        $dbHandle = new Model_Fields_PracticeFieldCoordinatorDB();
+        $dataObjects = $dbHandle->getByLeague($league);
+
+        $practiceFieldCoordinators = array();
+        foreach ($dataObjects as $dataObject) {
+            $practiceFieldCoordinators[] = Model_Fields_PracticeFieldCoordinator::LookupById($dataObject->{Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_ID});
+        }
+        return $practiceFieldCoordinators;
+    }
+
+    /**
      * @brief: Delete if exists
      *
      * @param $league : Model_Fields_League instance

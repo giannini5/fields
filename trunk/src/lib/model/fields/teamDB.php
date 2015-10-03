@@ -16,7 +16,8 @@ class Model_Fields_TeamDB extends Model_Fields_BaseDB {
     // Columns constant
     const DB_COLUMN_ID            = 'id';
     const DB_COLUMN_DIVISION_ID   = 'divisionId';
-    const DB_COLUMN_TEAM_NUMBER   = 'teamNumber';
+    const DB_COLUMN_COACH_ID      = 'coachId';
+    const DB_COLUMN_GENDER        = 'gender';
     const DB_COLUMN_NAME          = 'name';
 
     /**
@@ -35,7 +36,8 @@ class Model_Fields_TeamDB extends Model_Fields_BaseDB {
      */
     protected function _checkPreconditions(DataObject $dataObject) {
         precondition(!empty($dataObject->{self::DB_COLUMN_DIVISION_ID}), "fields.team." . self::DB_COLUMN_DIVISION_ID . " not set");
-        precondition(!empty($dataObject->{self::DB_COLUMN_TEAM_NUMBER}), "fields.team." . self::DB_COLUMN_TEAM_NUMBER . " not set");
+        precondition(!empty($dataObject->{self::DB_COLUMN_COACH_ID}), "fields.team." . self::DB_COLUMN_COACH_ID . " not set");
+        precondition(!empty($dataObject->{self::DB_COLUMN_GENDER}), "fields.team." . self::DB_COLUMN_GENDER . " not set");
     }
 
     /**
@@ -67,20 +69,22 @@ class Model_Fields_TeamDB extends Model_Fields_BaseDB {
      * create a new team
      *
      * @param $division - Model_Fields_Division instance
-     * @param string $teamNumber - Unique number for the team in the division
+     * @param $coach - Model_Fields_Coach instance
+     * @param string $gender - Unique number for the team in the division
      * @param string $name - name of the team
      *
      * @return DataObject[]
      */
-    public function create($division, $teamNumber, $name) {
+    public function create($division, $coach, $gender, $name) {
         $dataObject = new DataObject();
         $dataObject->{self::DB_COLUMN_DIVISION_ID} = $division->id;
-        $dataObject->{self::DB_COLUMN_TEAM_NUMBER} = $teamNumber;
+        $dataObject->{self::DB_COLUMN_COACH_ID} = $coach->id;
+        $dataObject->{self::DB_COLUMN_GENDER} = $gender;
         $dataObject->{self::DB_COLUMN_NAME} = $name;
 
-        $this->insert($dataObject);
+        $id = $this->insert($dataObject);
 
-        return $this->getByNumber($division, $teamNumber);
+        return $this->getById($id);
     }
 
     /**
@@ -96,17 +100,17 @@ class Model_Fields_TeamDB extends Model_Fields_BaseDB {
     }
 
     /**
-     * getByNumber retrieves the team by unique division/teamNumber
+     * getByCoach retrieves the team by coach and gender
      *
-     * @param $division - The division that the practice field coordinator represents
-     * @param $teamNumber - Team's unique number within the division
-     * @param $divisionId - Optional division identifier
+     * @param $coach - Model_Fields_Coach instance
+     * @param $gender - B for boys, G for girls, C for coed
      *
      * @return DataObject found or NULL if none found
      */
-    public function getByNumber($division, $teamNumber, $divisionId = NULL) {
-        $divisionId = isset($divisionId) ? $divisionId : $division->id;
-        $dataObjectArray = $this->getWhere(self::DB_COLUMN_DIVISION_ID . " = '" . $divisionId . "' and " . self::DB_COLUMN_TEAM_NUMBER . " ='" . $teamNumber . "'");
+    public function getByCoach($coach, $gender) {
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_DIVISION_ID . "=" . $coach->divisionId
+            . ' and ' . self::DB_COLUMN_COACH_ID . "=" . $coach->id
+            . ' and ' . self::DB_COLUMN_GENDER . "='" . $gender . "'");
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
     }
 }

@@ -19,14 +19,16 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
      * @param $creationDate - Date the session was created
      * @param int $userId - ID of user
      * @param int $userType - Type of the user
+     * @param int $teamId - Team identifier
      */
-    public function __construct($id = NULL, $creationDate = NULL, $userId = NULL, $userType = NULL) {
+    public function __construct($id = NULL, $creationDate = NULL, $userId = NULL, $userType = NULL, $teamId = NULL) {
         parent::__construct('Model_Fields_SessionDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->{Model_Fields_SessionDB::DB_COLUMN_ID}   = $id;
         $this->{Model_Fields_SessionDB::DB_COLUMN_CREATION_DATE} = $creationDate;
         $this->{Model_Fields_SessionDB::DB_COLUMN_USER_ID} = $userId;
         $this->{Model_Fields_SessionDB::DB_COLUMN_USER_TYPE} = $userType;
+        $this->{Model_Fields_SessionDB::DB_COLUMN_TEAM_ID} = $teamId;
     }
 
     /**
@@ -47,10 +49,12 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
             $dataObj = $dbHandle->getById($this->{Model_Fields_SessionDB::DB_COLUMN_ID});
 
         } else if (!is_null($this->{Model_Fields_SessionDB::DB_COLUMN_USER_ID}) and
-            !is_null($this->{Model_Fields_SessionDB::DB_COLUMN_USER_TYPE})) {
+            !is_null($this->{Model_Fields_SessionDB::DB_COLUMN_USER_TYPE}) and
+            !is_null($this->{Model_Fields_SessionDB::DB_COLUMN_TEAM_ID})) {
             $dataObj = $dbHandle->getByUser(
                 $this->{Model_Fields_SessionDB::DB_COLUMN_USER_ID},
-                $this->{Model_Fields_SessionDB::DB_COLUMN_USER_TYPE});
+                $this->{Model_Fields_SessionDB::DB_COLUMN_USER_TYPE},
+                $this->{Model_Fields_SessionDB::DB_COLUMN_TEAM_ID});
         }
 
         if (!empty($dataObj)) {
@@ -71,13 +75,19 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
     }
 
     /**
-     * Check to see if this session is valid
+     * Check to see if this session is valid.  Session is valid if creation date is within the last week.
      *
      * @return TRUE if the session is valid, FALSE otherwise.
      */
     public function isValid() {
-        // TODO: Return FALSE if the session is older than X hours
-        return TRUE;
+        $sessionDateTime = DateTime::createFromFormat('Y-m-d H:i:s', $this->{Model_Fields_SessionDB::DB_COLUMN_CREATION_DATE});
+        $now = new DateTime();
+
+        $diff = $sessionDateTime->diff($now);
+        $hoursSinceSessionCreated = $diff->h + ($diff->days*24);
+        // print 'Hours since session created: ' . $hoursSinceSessionCreated . '<br>';
+
+        return $hoursSinceSessionCreated <= (24 * 7);
     }
 
     /**
@@ -86,8 +96,10 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
      * @return TRUE if the session is valid, FALSE otherwise.
      */
     public function renew() {
-        // TODO: Update the session creation_date to the current date/time
-        return;
+        $now = new DateTime();
+        $this->{Model_Fields_SessionDB::DB_COLUMN_CREATION_DATE} = $now->format('Y-m-d H:i:s');
+        $this->setModified();
+        $this->saveModel();
     }
 
     /**
@@ -102,7 +114,8 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
             $dataObject->{Model_Fields_SessionDB::DB_COLUMN_ID},
             $dataObject->{Model_Fields_SessionDB::DB_COLUMN_CREATION_DATE},
             $dataObject->{Model_Fields_SessionDB::DB_COLUMN_USER_ID},
-            $dataObject->{Model_Fields_SessionDB::DB_COLUMN_USER_TYPE});
+            $dataObject->{Model_Fields_SessionDB::DB_COLUMN_USER_TYPE},
+            $dataObject->{Model_Fields_SessionDB::DB_COLUMN_TEAM_ID});
 
         $session->setLoaded();
 
@@ -114,14 +127,15 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
      *
      * @param int $userId - ID of user
      * @param int $userType - Type of the user
+     * @param int $teamId - ID of team
      *
      * @return Model_Fields_Session
      * @throws AssertionException
      */
-    public static function Create($userId, $userType) {
+    public static function Create($userId, $userType, $teamId) {
         $dbHandle = new Model_Fields_SessionDB();
-        $dataObject = $dbHandle->create($userId, $userType);
-        assertion(!empty($dataObject), "Unable to create Session with userId:'$userId' and userType:'$userType'");
+        $dataObject = $dbHandle->create($userId, $userType, $teamId);
+        assertion(!empty($dataObject), "Unable to create Session with userId:'$userId' and userType:'$userType' and teamId:'$teamId'");
 
         return Model_Fields_Session::GetInstance($dataObject);
     }
@@ -130,14 +144,19 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
      * @brief: Get Model_Fields_Session instance for the specified Session identifier
      *
      * @param bigint $sessionId: Unique Session identifier
+     * @param bool $assertIfNotFound - defaults to TRUE
      *
      * @return Model_Fields_Session
      */
-    public static function LookupById($sessionId) {
+    public static function LookupById($sessionId, $assertIfNotFound = TRUE) {
         $dbHandle = new Model_Fields_SessionDB();
         $dataObject = $dbHandle->getById($sessionId);
-        assertion(!empty($dataObject), "Session row for id: '$sessionId' not found");
 
+        if (empty($dataObject) and !$assertIfNotFound) {
+            return NULL;
+        }
+
+        assertion(!empty($dataObject), "Session row for id: '$sessionId' not found");
         return Model_Fields_Session::GetInstance($dataObject);
     }
 
@@ -146,13 +165,14 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
      *
      * @param int $userId - ID of user
      * @param int $userType - Type of the user
+     * @param int $teamId - ID of team
      *
      * @return Model_Fields_Session or NULL if object not found and $assertIfNotFound is FALSE
      * @throws AssertionException
      */
-    public static function LookupByUser($userId, $userType, $assertIfNotFound = TRUE) {
+    public static function LookupByUser($userId, $userType, $teamId, $assertIfNotFound = TRUE) {
         $dbHandle = new Model_Fields_SessionDB();
-        $dataObject = $dbHandle->getByUser($userId, $userType);
+        $dataObject = $dbHandle->getByUser($userId, $userType, $teamId);
 
         if ($assertIfNotFound) {
             assertion(!empty($dataObject), "Session row for userId: $userId, userType: $userType not found");
@@ -169,8 +189,8 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
      * @param int $userId - ID of user
      * @param int $userType - Type of the user
      */
-    public static function Delete($userId, $userType) {
-        $session = Model_Fields_Session::LookupByUser($userId, $userType, FALSE);
+    public static function Delete($userId, $userType, $teamId) {
+        $session = Model_Fields_Session::LookupByUser($userId, $userType, $teamId, FALSE);
         if (isset($session)) {
             $session->_delete();
         }

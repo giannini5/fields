@@ -1,26 +1,19 @@
 <?php
 require_once '../../../autoLoader.php';
+require_once 'helper.php';
 
-class Model_SeasonTest extends PHPUnit_Framework_TestCase {
+class Model_SeasonTest extends Model_TestHelpers {
 
-    public $m_leagueName = 'Test AYSO Region 122';
-    public $m_league;
     public $m_name = 'Fall 2010';
     public $m_enabled = 1;
-
 
     /**
      * Prepare to run test
      */
     protected function setUp()
     {
-        $this->m_league = Model_Fields_League::LookupByName($this->m_leagueName, FALSE);
-        if (isset($this->m_league)) {
-            Model_Fields_Season::Delete($this->m_league, $this->m_name);
-            Model_Fields_League::Delete($this->m_leagueName);
-        }
-
-        $this->m_league = Model_Fields_League::Create($this->m_leagueName);
+        $this->primeDatabase();
+        $this->m_season->_delete();
     }
 
     /**

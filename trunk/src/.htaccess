@@ -55,7 +55,10 @@ DirectoryIndex index.php
     RewriteRule .? - [L]
 
     # Rewrite all other queries to the front controller.
-    RewriteRule ^index\.php(/(.*)|$) web/index.php/$2 [L]
+    # RewriteRule ^index\.php(/(.*)|$) web/index.php/$2 [L]
+    # RewriteRule ^(/(.*)|$) web/index.php/$2 [L]
+    # RewriteRule ^$ web/index.php [L]
+    # RewriteRule ^(/(.*)|$) web/index.php/$2 [L]
     RewriteRule .? web/index.php [L]
 </IfModule>
 

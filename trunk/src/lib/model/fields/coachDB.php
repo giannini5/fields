@@ -16,7 +16,8 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB
 
     // Columns constant
     const DB_COLUMN_ID = 'id';
-    const DB_COLUMN_TEAM_ID = 'teamId';
+    const DB_COLUMN_SEASON_ID = 'seasonId';
+    const DB_COLUMN_DIVISION_ID = 'divisionId';
     const DB_COLUMN_NAME = 'name';
     const DB_COLUMN_EMAIL = 'email';
     const DB_COLUMN_PHONE = 'phone';
@@ -41,10 +42,6 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB
      */
     protected function _checkPreconditions(DataObject $dataObject)
     {
-        precondition(
-            !empty($dataObject->{self::DB_COLUMN_TEAM_ID}),
-            "fields.coach.".self::DB_COLUMN_TEAM_ID." not set"
-        );
         precondition(!empty($dataObject->{self::DB_COLUMN_NAME}), "fields.coach.".self::DB_COLUMN_NAME." not set");
     }
 
@@ -79,26 +76,27 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB
     /**
      * create a new coach
      *
-     * @param $team - Model_Fields_Team instance
+     * @param $seasonId - Unique season identifier
+     * @param $divisionId - Unique division identifier
      * @param $name - Name for the Coach
      * @param $email - Email for the Coach
      * @param $phone - Phone Number for the Coach
      * @param $password - Password for the Coach
-     *
      * @return DataObject[]
      */
-    public function create($team, $name, $email, $phone, $password)
+    public function create($seasonId, $divisionId, $name, $email, $phone, $password)
     {
         $dataObject = new DataObject();
-        $dataObject->{self::DB_COLUMN_TEAM_ID} = $team->id;
+        $dataObject->{self::DB_COLUMN_SEASON_ID} = $seasonId;
+        $dataObject->{self::DB_COLUMN_DIVISION_ID} = $divisionId;
         $dataObject->{self::DB_COLUMN_NAME} = $name;
         $dataObject->{self::DB_COLUMN_EMAIL} = $email;
         $dataObject->{self::DB_COLUMN_PHONE} = $phone;
         $dataObject->{self::DB_COLUMN_PASSWORD} = $password;
 
-        $this->insert($dataObject);
+        $id = $this->insert($dataObject);
 
-        return $this->getByEmail($team, $email);
+        return $this->getById($id);
     }
 
     /**
@@ -118,38 +116,35 @@ class Model_Fields_CoachDB extends Model_Fields_BaseDB
     /**
      * getByEmail retrieves the coach by unique team and coach email
      *
-     * @param $team - Team associated with the coach
+     * @param $seasonId - Unique identifier for the season
+     * @param $divisionId - Unique identifier for the division
      * @param $email - Email for the Coach
-     * @param $teamId - Optional team identifier
-     *
      * @return DataObject found or NULL if none found
      */
-    public function getByEmail($team, $email, $teamId = null)
+    public function getByEmail($seasonId, $divisionId, $email)
     {
-        $teamId = isset($teamId) ? $teamId : $team->id;
-
         $dataObjectArray = $this->getWhere(
-            self::DB_COLUMN_TEAM_ID." = ".$teamId
-            ." and ".self::DB_COLUMN_EMAIL." = '".$email."'"
+            self::DB_COLUMN_SEASON_ID . " = " . $seasonId
+            . " and " . self::DB_COLUMN_DIVISION_ID . " = " . $divisionId
+            . " and " . self::DB_COLUMN_EMAIL . " = '" . $email . "'"
         );
 
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : null;
     }
 
     /**
-     * getByTeam retrieves the coach by unique team
+     * getBySeason retrieves the coaches for the specified seasonId
      *
-     * @param $team - Team associated with the coach
-     * @param $teamId - Optional team identifier
+     * @param $seasonId - Unique identifier for the season
      *
-     * @return DataObject found or NULL if none found
+     * @return DataObjects found or empty array if non found
      */
-    public function getByTeam($team, $teamId = null)
+    public function getBySeason($seasonId)
     {
-        $teamId = isset($teamId) ? $teamId : $team->id;
+        $dataObjectArray = $this->getWhere(
+            self::DB_COLUMN_SEASON_ID . " = " . $seasonId
+        );
 
-        $dataObjectArray = $this->getWhere(self::DB_COLUMN_TEAM_ID." = ".$teamId);
-
-        return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : null;
+        return $dataObjectArray;
     }
 }

@@ -1,10 +1,8 @@
 <?php
 require_once '../../../autoLoader.php';
+require_once 'helper.php';
 
-class Model_PracticeFieldCoordinatorTest extends PHPUnit_Framework_TestCase {
-
-    public $m_leagueName = 'Test AYSO Region 122';
-    public $m_league;
+class Model_PracticeFieldCoordinatorTest extends Model_TestHelpers {
     public $m_email = 'david_giannini@hotmail.com';
     public $m_name = 'David Giannini';
     public $m_password = 'Be 3arefu1';
@@ -14,13 +12,7 @@ class Model_PracticeFieldCoordinatorTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->m_league = Model_Fields_League::LookupByName($this->m_leagueName, FALSE);
-        if (isset($this->m_league)) {
-            Model_Fields_PracticeFieldCoordinator::Delete($this->m_league, $this->m_email);
-            Model_Fields_League::Delete($this->m_leagueName);
-        }
-
-        $this->m_league = Model_Fields_League::Create($this->m_leagueName);
+        $this->primeDatabase();
     }
 
     /**

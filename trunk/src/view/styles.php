@@ -9,8 +9,10 @@ class View_Styles {
 
     /**
      * @brief Render the CSS data
+     *
+     * @param int $facilityCount count of facilities
      */
-    public function render() {
+    public function render($facilityCount) {
         print '
             <META charset="utf-8">
             <META HTTP-EQUIV="EXPIRES" CONTENT="Thu, 12 Apr 2007 08:21:57 GMT">
@@ -655,5 +657,60 @@ class View_Styles {
                   background: #ffffff;
                 }
             </style>';
+
+        $this->_collapsibleCSS($facilityCount);
+        $this->_collapsibleJS($facilityCount);
+    }
+
+    /**
+     * @brief Render the CSS needed to mark a table collapsible and
+     *        start in the collapsed position.
+     *
+     * @param $facilityCount - Count of facilities
+     */
+    private function _collapsibleCSS($facilityCount) {
+        print "
+            <style>
+                table, tr, td, th
+                {
+                    border-collapse:collapse;
+                }";
+
+        for ($index = 1; $index <= $facilityCount; $index++) {
+            print "
+                .expandContract$index
+                {
+                    cursor:pointer;
+                    text-decoration: underline;
+                    color: darkblue;
+                    font-size: 175%;
+                }";
+        }
+
+        for ($index = 1; $index <= $facilityCount; $index++) {
+            print "
+                .collapsible$index { display: none;
+                }";
+        }
+
+        print "
+            </style>";
+    }
+
+    private function _collapsibleJS($facilityCount) {
+        print '
+            <script>
+                $(document).ready(function(){';
+
+        for ($index = 1; $index <= $facilityCount; $index++) {
+            print '
+                    $(".expandContract' . $index . '").click(function(){
+                        $(".collapsible' . $index . '").toggle(500);
+                    });';
+        }
+
+        print "
+                });
+            </script>";
     }
 }

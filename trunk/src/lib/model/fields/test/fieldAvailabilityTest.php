@@ -1,46 +1,19 @@
 <?php
 require_once '../../../autoLoader.php';
+require_once 'helper.php';
 
-class Model_FieldAvailabilityTest extends PHPUnit_Framework_TestCase {
-
-
-    public $m_leagueName = 'Test AYSO Region 122';
-    public $m_league;
-    public $m_facilityName = 'Girsh Park';
-    public $m_facility;
-    public $m_fieldName = 'Field B';
-    public $m_field;
-
+class Model_FieldAvailabilityTest extends Model_TestHelpers {
     public $m_startDate = '2015-01-15';
     public $m_endDate = '2015-06-30';
     public $m_startTime = '15:30:00';
     public $m_endTime = '19:00:00';
-
 
     /**
      * Prepare to run test
      */
     protected function setUp()
     {
-        $this->m_league = Model_Fields_League::LookupByName($this->m_leagueName, FALSE);
-        if (isset($this->m_league)) {
-            $this->m_facility = Model_Fields_Facility::LookupByName($this->m_league, $this->m_facilityName, FALSE);
-            if (isset($this->m_facility)) {
-                $this->m_field = Model_Fields_Field::LookupByName($this->m_facility, $this->m_fieldName, FALSE);
-                if (isset($this->m_field)) {
-                    Model_Fields_FieldAvailability::Delete($this->m_field);
-                }
-                Model_Fields_Field::Delete($this->m_facility, $this->m_fieldName);
-                Model_Fields_Facility::Delete($this->m_league, $this->m_facilityName);
-            }
-
-            Model_Fields_League::Delete($this->m_leagueName);
-        }
-
-        $this->m_league = Model_Fields_League::Create($this->m_leagueName);
-        $this->m_facility = Model_Fields_Facility::Create($this->m_league, $this->m_facilityName,
-            'address1', 'address2', 'city', 'state', 'p-code', 'country', 'contactName', 'contactEmail', 'contactPhone', 'image', 1);
-        $this->m_field = Model_Fields_Field::Create($this->m_facility, $this->m_fieldName, 1);
+        $this->primeDatabase();
     }
 
     /**

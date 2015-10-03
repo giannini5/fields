@@ -160,6 +160,25 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
     }
 
     /**
+     * @brief: Get Model_Fields_Season instances for the specified league
+     *
+     * @param $league - Model_Fields_League instance
+     *
+     * @return array of Model_Fields_Seasons emtpy array if none found
+     */
+    public static function LookupByLeague($league) {
+        $dbHandle = new Model_Fields_SeasonDB();
+        $dataObjects = $dbHandle->getByLeague($league);
+
+        $seasons = array();
+        foreach ($dataObjects as $dataObject) {
+            $seasons[] = Model_Fields_Season::LookupById($dataObject->{Model_Fields_SeasonDB::DB_COLUMN_ID});
+        }
+
+        return $seasons;
+    }
+
+    /**
      * @brief: Delete if exists
      *
      * @param $league - Model_Fields_League instance

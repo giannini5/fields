@@ -62,6 +62,50 @@ class Model_Fields_League extends Model_Fields_Base implements SaveModelInterfac
     }
 
     /**
+     * @brief: Delete everything in this league and then delete this league
+     */
+    public function delete() {
+        $practiceFieldCoordinators = Model_Fields_PracticeFieldCoordinator::LookupByLeague($this);
+        foreach ($practiceFieldCoordinators as $practiceFieldCoordinator) {
+            $practiceFieldCoordinator->_delete();
+        }
+
+        $this->deleteCoaches();
+
+        $facilities = Model_Fields_Facility::LookupByLeague($this);
+        foreach ($facilities as $facilities) {
+            $facilities->_delete();
+        }
+
+        $seasons = Model_Fields_Season::LookupByLeague($this);
+        foreach ($seasons as $season) {
+            $season->_delete();
+        }
+
+        $divisions = Model_Fields_Division::GitList($this);
+        foreach ($divisions as $division) {
+            $division->_delete();
+        }
+
+        $locations = Model_Fields_Location::GetLocations($this->id);
+        foreach ($locations as $location) {
+            $location->_delete();
+        }
+
+        $this->_delete();
+    }
+
+    /**
+     * @brief: Delete all coaches for the leage
+     */
+    public function deleteCoaches() {
+        $coaches = Model_Fields_Coach::GetCoaches($this);
+        foreach ($coaches as $coach) {
+            $coach->_delete();
+        }
+    }
+
+    /**
      * @brief: Get and instance of this object from databaes data.
      *
      * @param DataObject $dataObject - data object representing the content of the object
@@ -126,17 +170,5 @@ class Model_Fields_League extends Model_Fields_Base implements SaveModelInterfac
         }
 
         return Model_Fields_League::GetInstance($dataObject);
-    }
-
-    /**
-     * @brief: Delete if exists
-     *
-     * @param string $name: Unique league name
-     */
-    public static function Delete($name) {
-        $league = Model_Fields_League::LookupByName($name, FALSE);
-        if (isset($league)) {
-            $league->_delete();
-        }
     }
 }

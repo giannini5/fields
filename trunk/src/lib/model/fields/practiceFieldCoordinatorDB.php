@@ -114,4 +114,16 @@ class Model_Fields_PracticeFieldCoordinatorDB extends Model_Fields_BaseDB {
         $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $league->id . "' and " . self::DB_COLUMN_EMAIL . " ='" . $email . "'");
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
     }
+
+    /**
+     * getByLeague retrieves all of the practiceFieldCoordinator for the league
+     *
+     * @param $league - The league that the practice field coordinator represents
+     *
+     * @return array of DataObjects empty array if none found
+     */
+    public function getByLeague($league) {
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = " . $league->id);
+        return $dataObjectArray;
+    }
 }

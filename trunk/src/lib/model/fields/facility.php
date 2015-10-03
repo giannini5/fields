@@ -58,6 +58,48 @@ class Model_Fields_Facility extends Model_Fields_Base implements SaveModelInterf
     }
 
     /**
+     * @brief: Check to see if the facility is in the specified location
+     *
+     * @param $locationId : Identifier of the location
+     *
+     * @return TRUE if facility is in the location; FALSE otherwise
+     */
+    public function isInLocation($locationId) {
+        $facilityLocations = Model_Fields_FacilityLocation::GetLocations($this->id);
+        foreach ($facilityLocations as $location) {
+            if ($location->id == $locationId) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * @brief Check to see if this facility has any fields for the specified division
+     *
+     * @param $divisionId - Division's unique identifier
+     *
+     * @return bool - TRUE if fields found; FALSE otherwise
+     */
+    public function hasFieldsInDivision($divisionId) {
+        $facilityFields = Model_Fields_DivisionField::GetFacilityFields($divisionId, $this->id);
+        return (count($facilityFields) > 0);
+    }
+
+    /**
+     * @brief Get the fields from this facility that are supported for the specified division
+     *
+     * @param $divisionId - Division's unique identifier
+     *
+     * @return array of Model_Fields_Field
+     */
+    public function getFieldsInDivision($divisionId) {
+        $facilityFields = Model_Fields_DivisionField::GetFacilityFields($divisionId, $this->id);
+        return $facilityFields;
+    }
+
+    /**
      * @brief: _load will load the object from the data storage.
      *
      * @return bool - TRUE if successfully loaded model, else FALSE

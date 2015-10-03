@@ -34,7 +34,7 @@ spl_autoload_register('dag_autoloader');
 /**
  * dag_autoloader will do the auto loading of models.
  *
- * @param string $className is the class name and must adhere to the followig format:
+ * @param string $className is the class name and must adhere to the following format:
  *                          class DIR_DIR2_Name => dir1/dir2/.../dirN/Name.php
  */
 function dag_autoloader($className)
