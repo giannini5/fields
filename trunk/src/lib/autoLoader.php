@@ -41,6 +41,7 @@ function dag_autoloader($className)
 {
     $bits = explode('_', $className);
     $fileName = array_pop($bits);
+    $fileName = lcfirst($fileName);
     $path = strtolower(implode('/', $bits));
     $filePath = (!empty($path)) ? "$path/$fileName.php" : "$fileName.php";
 

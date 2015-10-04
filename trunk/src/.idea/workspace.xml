@@ -1,79 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="Login, Create, Reserve and Show Reservations all working.  Still need admin interface to administer fields.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/admin/base.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/fields/base.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/admin/base.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/fields/base.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/divisionField.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/fields/tables/divisionField.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/divisionFieldDB.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/test/divisionFieldTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/css/dynamicTable.css" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/facilityLocation.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/fields/tables/facilityLocation.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/facilityLocationDB.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/test/facilityLocationTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/test/helper.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/admin/home.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/location.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/fields/tables/location.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/locationDB.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/model/fields/test/locationTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/fields/login.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/fields/selectFacility.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/fields/selectFacility.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/setup.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/fields/showReservation.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/fields/showReservation.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/fields/welcome.php" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/controller/login.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/controller/selectDayTime.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/controller/selectFacility.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/controller/showReservation.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/controller/welcome.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/view/selectDayTime.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/view/selectFacility.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/view/showReservation.php" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/login.php" afterPath="$PROJECT_DIR$/view/fields/login.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/welcome.php" afterPath="$PROJECT_DIR$/view/fields/welcome.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.htaccess" afterPath="$PROJECT_DIR$/.htaccess" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/autoLoader.php" afterPath="$PROJECT_DIR$/lib/autoLoader.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/base.php" afterPath="$PROJECT_DIR$/controller/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/base.php" afterPath="$PROJECT_DIR$/view/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/coach.php" afterPath="$PROJECT_DIR$/lib/model/fields/coach.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/fields/tables/coach.sql" afterPath="$PROJECT_DIR$/db/fields/tables/coach.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/coachDB.php" afterPath="$PROJECT_DIR$/lib/model/fields/coachDB.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/coachTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/coachTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/divisionTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/divisionTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/facility.php" afterPath="$PROJECT_DIR$/lib/model/fields/facility.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/facilityTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/facilityTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/fieldAvailabilityTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/fieldAvailabilityTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/fieldTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/fieldTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/index.php" afterPath="$PROJECT_DIR$/web/index.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/league.php" afterPath="$PROJECT_DIR$/lib/model/fields/league.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/leagueTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/leagueTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/managerTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/managerTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/practiceFieldCoordinator.php" afterPath="$PROJECT_DIR$/lib/model/fields/practiceFieldCoordinator.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/practiceFieldCoordinatorDB.php" afterPath="$PROJECT_DIR$/lib/model/fields/practiceFieldCoordinatorDB.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/practiceFieldCoordinatorTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/practiceFieldCoordinatorTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/reservation.php" afterPath="$PROJECT_DIR$/lib/model/fields/reservation.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/fields/tables/reservation.sql" afterPath="$PROJECT_DIR$/db/fields/tables/reservation.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/reservationDB.php" afterPath="$PROJECT_DIR$/lib/model/fields/reservationDB.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/reservationTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/reservationTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/season.php" afterPath="$PROJECT_DIR$/lib/model/fields/season.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/seasonDB.php" afterPath="$PROJECT_DIR$/lib/model/fields/seasonDB.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/seasonTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/seasonTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/session.php" afterPath="$PROJECT_DIR$/lib/model/fields/session.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/fields/tables/session.sql" afterPath="$PROJECT_DIR$/db/fields/tables/session.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/sessionDB.php" afterPath="$PROJECT_DIR$/lib/model/fields/sessionDB.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/sessionTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/sessionTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/styles.php" afterPath="$PROJECT_DIR$/view/styles.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/team.php" afterPath="$PROJECT_DIR$/lib/model/fields/team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/fields/tables/team.sql" afterPath="$PROJECT_DIR$/db/fields/tables/team.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/teamDB.php" afterPath="$PROJECT_DIR$/lib/model/fields/teamDB.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/test/teamTest.php" afterPath="$PROJECT_DIR$/lib/model/fields/test/teamTest.php" />
+    <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="src.iws" />
@@ -476,6 +404,13 @@
       <option name="number" value="Default" />
       <updated>1423835910346</updated>
     </task>
+    <task id="LOCAL-00001" summary="Login, Create, Reserve and Show Reservations all working.  Still need admin interface to administer fields.">
+      <created>1443881954552</created>
+      <option name="number" value="00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1443881954552</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TodoView" selected-index="4">
@@ -507,7 +442,7 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32965517" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32784638" sideWeight="0.5003595" order="3" side_tool="true" content_ui="tabs" x="1489" y="553" width="1730" height="396" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32784638" sideWeight="0.5003595" order="3" side_tool="true" content_ui="tabs" x="1489" y="553" width="1730" height="396" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2240216" sideWeight="0.5003509" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20382634" sideWeight="0.5103448" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32921812" sideWeight="0.49964055" order="7" side_tool="false" content_ui="tabs" />
