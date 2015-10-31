@@ -17,6 +17,8 @@ class View_Fields_ShowReservation extends View_Fields_Base {
      * @brief Render data for display on the page.
      */
     public function render() {
+        $this->_printConfirmationMessage();
+
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
@@ -49,15 +51,7 @@ class View_Fields_ShowReservation extends View_Fields_Base {
                     </tr>";
             }
 
-            $daysSelected = '';
-            for ($i = 0; $i < 7; ++$i) {
-                if ($reservation->isDaySelected($i)) {
-                    if (!empty($daysSelected)) {
-                        $daysSelected .= ", ";
-                    }
-                    $daysSelected .= $this->_getDayOfWeek($i);
-                }
-            }
+            $daysSelected = $this->m_controller->getDaysSelectedString($reservation);
 
             print "
                     <tr>
@@ -103,30 +97,18 @@ class View_Fields_ShowReservation extends View_Fields_Base {
     }
 
     /**
-     * @brief Return the string version of the passed in integer
-     *
-     * @param int $day - 0 is Monday, 6 is Sunday
-     *
-     * @return string (Monday, Tuesday, ..., Sunday)
+     * @brief Print a confirmation message (no op if no message)
      */
-    private function _getDayOfWeek($day) {
-        switch ($day) {
-            case 0:
-                return 'Monday';
-            case 1:
-                return 'Tuesday';
-            case 2:
-                return 'Wednesday';
-            case 3:
-                return 'Thursday';
-            case 4:
-                return 'Friday';
-            case 5:
-                return 'Saturday';
-            case 6:
-                return 'Sunday';
-            default:
-                return 'ERROR';
+    private function _printConfirmationMessage() {
+        if (! empty($this->m_controller->m_reservationConfirmationMessage)) {
+            $message = $this->m_controller->m_reservationConfirmationMessage;
+
+            print "
+            <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <td><h1 align='left'><font color='green' size='4'>$message</font></h1></td>
+                </tr>
+            </table>";
         }
     }
 }

@@ -4,5 +4,6 @@ create table divisionField (
     facilityId  bigint not null,
     fieldId     bigint not null,
     PRIMARY KEY (id),
-    unique index ux_divisionField(divisionId, facilityId, fieldId)
+    unique index ux_divisionField(divisionId, facilityId, fieldId),
+    index ix_facilityField(facilityId, fieldId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

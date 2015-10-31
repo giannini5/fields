@@ -62,7 +62,7 @@ class Controller_Fields_Login extends Controller_Fields_Base {
         $this->m_division = Model_Fields_Division::LookupById($this->m_divisionId);
         $this->m_coach = Model_Fields_Coach::LookupByEmail($this->m_season, $this->m_division, $this->m_email, FALSE);
 
-        if (isset($this->m_coach) and $this->m_coach->password != $this->m_password) {
+        if (View_Fields_Base::REQUIRE_PASSWORD and isset($this->m_coach) and $this->m_coach->password != $this->m_password) {
             $this->_reset();
             $this->m_password = "* Incorrect password - try again";
             $view = new View_Fields_Login($this);

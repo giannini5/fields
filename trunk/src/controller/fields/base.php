@@ -41,6 +41,7 @@ abstract class Controller_Fields_Base extends Controller_Base
     # Other attributes constructed from above based on controller
     public $m_creatingAccount;
     public $m_createReservationError;
+    public $m_reservationConfirmationMessage;
 
     public function __construct()
     {
@@ -116,7 +117,7 @@ abstract class Controller_Fields_Base extends Controller_Base
      */
     private function _constructFromSessionId($sessionId) {
         $this->m_session = Model_Fields_Session::LookupById($sessionId, FALSE);
-        if (isset($this->m_session)) {
+        if (isset($this->m_session) and $this->m_session->userType == Model_Fields_Session::COACH_USER_TYPE) {
             $this->m_coach = Model_Fields_Coach::LookupById($this->m_session->userId);
             $this->m_division = Model_Fields_Division::LookupById($this->m_coach->divisionId);
             $this->m_team = Model_Fields_Team::LookupById($this->m_session->teamId);
@@ -215,6 +216,7 @@ abstract class Controller_Fields_Base extends Controller_Base
 
         $this->m_creatingAccount = FALSE;
         $this->m_createReservationError = '';
+        $this->m_reservationConfirmationMessage = '';
     }
 
     /**
@@ -285,5 +287,54 @@ abstract class Controller_Fields_Base extends Controller_Base
         }
 
         return array();
+    }
+
+    /**
+     * @brief Return a comma separated list of days selected in the reservation.
+     *
+     * @param $reservation
+     *
+     * @return string : comma separated list of days string: "Monday, Tuesday, ..., Friday"
+     */
+    public function getDaysSelectedString($reservation) {
+        $daysSelected = '';
+        for ($i = 0; $i < 7; ++$i) {
+            if ($reservation->isDaySelected($i)) {
+                if (!empty($daysSelected)) {
+                    $daysSelected .= ", ";
+                }
+                $daysSelected .= $this->_getDayOfWeek($i);
+            }
+        }
+
+        return $daysSelected;
+    }
+
+    /**
+     * @brief Return the string version of the passed in integer
+     *
+     * @param int $day - 0 is Monday, 6 is Sunday
+     *
+     * @return string (Monday, Tuesday, ..., Sunday)
+     */
+    private function _getDayOfWeek($day) {
+        switch ($day) {
+            case 0:
+                return 'Monday';
+            case 1:
+                return 'Tuesday';
+            case 2:
+                return 'Wednesday';
+            case 3:
+                return 'Thursday';
+            case 4:
+                return 'Friday';
+            case 5:
+                return 'Saturday';
+            case 6:
+                return 'Sunday';
+            default:
+                return 'ERROR';
+        }
     }
 }

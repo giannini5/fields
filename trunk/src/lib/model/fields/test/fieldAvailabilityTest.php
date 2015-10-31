@@ -3,10 +3,6 @@ require_once '../../../autoLoader.php';
 require_once 'helper.php';
 
 class Model_FieldAvailabilityTest extends Model_TestHelpers {
-    public $m_startDate = '2015-01-15';
-    public $m_endDate = '2015-06-30';
-    public $m_startTime = '15:30:00';
-    public $m_endTime = '19:00:00';
 
     /**
      * Prepare to run test

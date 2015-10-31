@@ -64,6 +64,7 @@ class Model_CoachTest extends Model_TestHelpers {
         $coach->name = 'Dolores Giannini';
         $coach->setModified();
         $this->assertTrue($coach->isModified());
+        $coach->setModified();
         $coach->saveModel();
         $coach = Model_Fields_Coach::LookupById($id);
         $this->assertEquals($coach->name, 'Dolores Giannini');

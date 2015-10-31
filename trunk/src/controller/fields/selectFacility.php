@@ -87,6 +87,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         // 4. Reservation does not overlap with another team's reservation
         // 5. At most two days are select (1 for teams that are only allowed to practice one day
         //    per week.
+        // 6. Times selected are within times available for the field.
 
         // 1. StartTime is less then EndTime
         $startDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $this->m_startTime" . ":00");
@@ -136,9 +137,93 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             return FALSE;
         }
 
+        // 6. Times selected are within times available for the field.
+        $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
+        if ($this->m_startTime < $fieldAvailability->startTime) {
+            $this->m_createReservationError = "ERROR 6:<br>Invalid start time of $this->m_startTime.<br>Field is only available from $fieldAvailability->startTime to $fieldAvailability->endTime.";
+            $this->m_createReservationError .= "<br>Please try again.";
+            return FALSE;
+        }
+        if ($this->m_endTime > $fieldAvailability->endTime) {
+            $this->m_createReservationError = "ERROR 6:<br>Invalid end time of $this->m_endTime.<br>Field is only available from $fieldAvailability->startTime to $fieldAvailability->endTime.";
+            $this->m_createReservationError .= "<br>Please try again.";
+            return FALSE;
+        }
+
         // All is good, create the reservation
-        $this->m_reservations[] = Model_Fields_Reservation::Create($this->m_season, $this->m_field, $this->m_team, $this->m_startTime, $this->m_endTime, $daysSelectedString);
+        $reservation = Model_Fields_Reservation::Create($this->m_season, $this->m_field, $this->m_team, $this->m_startTime, $this->m_endTime, $daysSelectedString);
+        $this->m_reservations[] = $reservation;
+
+        // Send confirmation email
+        $this->_sendConfirmationEmail($reservation);
 
         return TRUE;
+    }
+
+    /**
+     * @brief Send a reservation confirmation email from the Practice Field Coordinator to the Coach.
+     *
+     * @param $reservation
+     */
+    private function _sendConfirmationEmail($reservation) {
+        $practiceFieldCoordinators = Model_Fields_PracticeFieldCoordinator::LookupByLeague($this->m_league);
+        assertion(count($practiceFieldCoordinators) >= 1, "ERROR: Zero Practice Field Coordinators found for league: " . $this->m_league->name);
+
+        $practiceFieldCoordinatorName = $practiceFieldCoordinators[0]->name;
+        $fromAddress = $practiceFieldCoordinators[0]->email;
+        $toAddress = $this->m_coach->email;
+        $subject = 'AYSO Practice Field Approval';
+        $coachName = $this->m_coach->name;
+        $divisionName = $this->m_division->name;
+        $gender = $this->m_team->gender;
+        $facilityName = $this->m_facility->name;
+        $fieldName = $this->m_field->name;
+        $imageURL = $this->m_facility->image;
+        $daysSelected = $this->getDaysSelectedString($reservation);
+        $times = "$reservation->startTime - $reservation->endTime";
+        $title = $this->m_league->name . " Practice Field Coordinator";
+
+        $headers = "From: $fromAddress\r\n";
+        $headers .= "To: $toAddress\r\n";
+        $headers .= "Reply-To: $fromAddress\r\n";
+        $headers .= "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
+
+        $message = "
+            <html>
+                <body>
+                    <p>
+                        Hey $coachName ($divisionName-$gender),
+                        <br>
+                        <br>
+                        Your team's practice field request has been approved.
+                        <br>
+                    </p>
+                    <table border='0'>
+                        <tr>
+                            <td><b>Space:</b></td>
+                            <td>$facilityName (<a href='$imageURL'>Field $fieldName</a>)</td>
+                        </tr>
+                        <tr>
+                            <td><b>Days:</b></td>
+                            <td>$daysSelected</td>
+                        </tr>
+                        <tr>
+                            <td><b>Times:</b></td>
+                            <td>$times</td>
+                        </tr>
+                    </table>
+                    <p>
+                        <br>
+                        $practiceFieldCoordinatorName
+                        <br>
+                        $title
+                    </p>
+                </body>
+            </html>";
+
+        $result = mail($toAddress, $subject, $message, $headers);
+        $resultString = $result ? "Success" : "Failure";
+        $this->m_reservationConfirmationMessage = "Confirmation email has been sent to $toAddress";
     }
 }

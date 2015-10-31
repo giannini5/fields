@@ -264,7 +264,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
 
         print "<tr class='$collapsible'><td>&nbsp</td></tr>";
         $this->_printFieldSelector($maxColumns, $fields, $collapsible);
-        $this->_printTimeSelectors($maxColumns, $fields, $collapsible);
+        $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00', $collapsible);
         $this->_printDaySelector($maxColumns, $collapsible);
 
         // Print Submit button and end form
@@ -289,13 +289,14 @@ class View_Fields_SelectFacility extends View_Fields_Base {
      * @param $collapsible - Collapsible java script class
      */
     private function _printFacilityInfo($maxColumns, $facility, $expandContract, $collapsible) {
-        $image = $facility->image;
-
+        $result = strpos($facility->image, 'http://');
+        $image = is_bool($result) ? 'images/' . $facility->image : $facility->image;
 
         print "
                 <tr class='$expandContract'>
                     <th align='center'colspan='$maxColumns'>
                         $facility->name
+                    </th>
                 </tr>
                 <tr>
                     <td align='left'colspan='$maxColumns'>
@@ -307,7 +308,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
                 </tr>
                 <tr class='$collapsible'>
                     <td colspan='$maxColumns'>
-                        <img src='images/$image' alt='$image' width='600' height='300'>
+                        <img src='$image' alt='$image' width='600' height='300'>
                     </td>
                 </tr>";
     }
@@ -346,14 +347,17 @@ class View_Fields_SelectFacility extends View_Fields_Base {
 
         foreach ($fields as $field) {
             $reservations = $this->m_controller->getReservationsForField($field);
-            $timeRowSpan = count($this->m_times);
+            $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($field->id);
+            $times = $this->_getTimes($fieldAvailability);
+            // $times = $this->m_times;
+            $timeRowSpan = count($times);
 
             print "
                     <tr>
                         <td align='center' rowspan='$timeRowSpan'>$field->name</td>";
             $rowStarted = true;
 
-            foreach ($this->m_times as $time=>$timeRange) {
+            foreach ($times as $time=>$timeRange) {
                 if (!$rowStarted) {
                     print "
                     <tr>";
@@ -378,6 +382,51 @@ class View_Fields_SelectFacility extends View_Fields_Base {
     }
 
     /**
+     * @brief Get the list of times that the field is available that can be used for selection
+     *
+     * @param $fieldAvailability - Model_Fields_FieldAvailability instance
+     *
+     * @return array() of (time=>timeRange) values.  For example: ('3:00' => '3:00 - 3:30')
+     */
+    private function _getTimes($fieldAvailability) {
+        $times = array();
+        $startTime = $fieldAvailability->startTime;
+        $endTime = $fieldAvailability-> endTime;
+
+        assertion($startTime < $endTime, "startTime: $startTime must be less than endTime: $endTime");
+
+        $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $startTime");
+        $startHour = sprintf('%d', $dateTime->format('H'));
+        $startMinute = sprintf('%d', $dateTime->format('i'));
+
+        $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $endTime");
+        $endHour = sprintf('%d', $dateTime->format('H'));
+        $endMinute = sprintf('%d', $dateTime->format('i'));
+
+        $currentHour = $startHour;
+        while ($currentHour <= $endHour) {
+            $currentMinute = ($currentHour == $startHour ? $startMinute : 0);
+            $untilMinute = ($currentHour == $endHour ? $endMinute : 60);
+
+            while ($currentMinute < $untilMinute) {
+                $time = sprintf("%d:%02d", $currentHour, $currentMinute);
+                if ($currentMinute + 15 < 60) {
+                    $timeRange = sprintf("%d:%02d - %d:%02d", $currentHour, $currentMinute, $currentHour, $currentMinute + 15);
+                }
+                else {
+                    $timeRange = sprintf("%d:%02d - %d:%02d", $currentHour, $currentMinute, $currentHour + 1, 0);
+                }
+
+                $times[$time] = $timeRange;
+                $currentMinute = $currentMinute + 15;
+            }
+            $currentHour = $currentHour + 1;
+        }
+
+        return $times;
+    }
+
+    /**
      * @brief Print drop-down field selector list
      *
      * @param $maxColumns - For colspan of field assignments table
@@ -395,48 +444,8 @@ class View_Fields_SelectFacility extends View_Fields_Base {
 
         print "
                 <tr class='$collapsible'>
-                    <td><font color='#069'><b>Field:&nbsp</b></font></td>
+                    <td><font color='" . View_Base::AQUA . "'><b>Field:&nbsp</b></font></td>
                     <td><select name=\"fieldId\">" . $fieldSectionHTML . "</select></td>
-                </tr>";
-    }
-
-    /**
-     * @brief Print start time and end time selectors
-     *
-     * @param $maxColumns   - For colspan of field assignments table
-     * @param $fields       - List of fields
-     * @param $collapsible  - Collapsible CSS
-     */
-    private function _printTimeSelectors($maxColumns, $fields, $collapsible)
-    {
-        $startTimeSectionHTML = '';
-        $endTimeSectionHTML = '';
-        $minute = 30;
-        for ($hour = 3; $hour <= 7; ++$hour) {
-            while ($minute <= 45) {
-                $time = sprintf("%d:%02d", $hour, $minute);
-                // Populate the start and stop end drop downs
-                $startTimeSectionHTML .= '<option value="'.$time.'"';
-                $startTimeSectionHTML .= ' ';
-                $startTimeSectionHTML .= '>'.$time.' </option>';
-
-                $endTimeSectionHTML .= '<option value="'.$time.'"';
-                $endTimeSectionHTML .= ' ';
-                $endTimeSectionHTML .= '>'.$time.' </option>';
-
-                $minute += 15;
-            }
-            $minute = 0;
-        }
-
-        print "
-                <tr class='$collapsible'>
-                    <td><font color='#069'><b>Start Time:&nbsp</b></font></td>
-                    <td><select name=\"startTime\">" . $startTimeSectionHTML . "</select></td>
-                </tr>
-                <tr class='$collapsible'>
-                    <td><font color='#069'><b>End Time:&nbsp</b></font></td>
-                    <td><select name=\"endTime\">" . $endTimeSectionHTML . "</select></td>
                 </tr>";
     }
 
@@ -455,7 +464,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
 
         print "
                 <tr class='$collapsible'>
-                    <td><font color='#069'><b>Days:&nbsp</b></font></td>
+                    <td><font color='" . View_Base::AQUA . "'><b>Days:&nbsp</b></font></td>
                     <td nowrap>
 <nobr><input type=checkbox name='Monday' id='Monday' value='Monday' $mondayChecked>Monday</nobr>
 <nobr><input type=checkbox name='Tuesday' id='Tuesday' value='Tuesday' $tuesdayChecked>Tuesday</nobr>

@@ -13,11 +13,22 @@ class View_Styles {
      * @param int $facilityCount count of facilities
      */
     public function render($facilityCount) {
+        // <link rel="stylesheet" src="css/lightbox.css" type="text/css" media="screen" />
+        // <script language="javascript" type="text/javascript" src="js/lightbox.js"></script>
+
+        // Try these when you get a chance:
+        // <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+        // <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+
         print '
             <META charset="utf-8">
             <META HTTP-EQUIV="EXPIRES" CONTENT="Thu, 12 Apr 2007 08:21:57 GMT">
             <link rel="stylesheet" src="css/jquery-ui-1.10.3.custom.min.css" rel="stylesheet"/>
-            <link rel="stylesheet" src="css/lightbox.css" type="text/css" media="screen" />
+
+            <script language="javascript" type="text/javascript" src="js/jquery-1.9.1.js"></script>
+            <script language="javascript" type="text/javascript" src="js/jquery-ui-1.10.3.custom.js"></script>
+            <script src="js/sorttable.js"></script>
 
             <style>
                 body{
@@ -577,9 +588,6 @@ class View_Styles {
                 }
 
             </style>
-            <script language="javascript" type="text/javascript" src="js/jquery-1.9.1.js"></script>
-            <script language="javascript" type="text/javascript" src="js/jquery-ui-1.10.3.custom.js"></script>
-            <script language="javascript" type="text/javascript" src="js/lightbox.js"></script>
     <!--
             <script>
                 $(function() {
@@ -640,9 +648,23 @@ class View_Styles {
                 });
 
             </script>
-            -->
 
-            <script src="js/sorttable.js"></script>
+            <script>
+                $(function() {
+                    var selected
+                    $( "#startDate" ).datepicker({currentText: "Now", showButtonPanel: true});
+                    $( "#startDate" ).datepicker( "option", "dateFormat", "yy-mm-dd");
+                    $( "#startDate" ).datepicker( "option", "dateFormat", "yy-mm-dd");
+                    $( "#startDate" ).datepicker( "setDate", "2015-01-01");
+
+
+                    $( "#endDate" ).datepicker({currentText: "Now",showButtonPanel: true});
+                    $( "#endDate" ).datepicker( "option", "dateFormat", "yy-mm-dd");
+                    $( "#endDate" ).datepicker( "option", "dateFormat", "yy-mm-dd");
+                    $( "#endDate" ).datepicker( "setDate", "2016-01-01");
+                });
+            </script>
+            -->
 
             <style>
                 table.sortable th {
@@ -683,7 +705,7 @@ class View_Styles {
                     cursor:pointer;
                     text-decoration: underline;
                     color: darkblue;
-                    font-size: 175%;
+                    font-size: 125%;
                 }";
         }
 

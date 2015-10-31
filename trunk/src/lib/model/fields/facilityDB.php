@@ -148,7 +148,7 @@ class Model_Fields_FacilityDB extends Model_Fields_BaseDB {
      * @return Array of DataObject (empty array if non found)
      */
     public function getByLeague($league) {
-        $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $league->id . "'");
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $league->id . "' order by name");
         return $dataObjectArray;
     }
 }

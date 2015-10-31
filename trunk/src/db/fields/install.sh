@@ -52,8 +52,7 @@ fi
 if [ $4 = "-t" ]; then
     echo "Sorry, no tests yet."
 else
-    echo "Sorry, no upgrades, views, routines or content yet."
-    #installScript $1 $2 $3  $database "./upgrade/*.sql"
+    installScript $1 $2 $3  $database "./upgrade/*.sql"
     #installScript $1 $2 $3  $database "./views/*.sql"
     #installScript $1 $2 $3  $database "./routines/*.sql"
     #installScript $1 $2 $3  $database "./content/*.sql"
