@@ -37,7 +37,7 @@ function upgradeDatabase( )
 
 function createConfigFile( )
 {
-    configFile="../lib/config.sh"
+    configFile="../lib/config.php"
     m4ConfigFile="../lib/config.m4"
     m4DefinesFile="../lib/defines-$USER.m4"
     m4DefaultDefinesFile="../lib/defines.m4"
@@ -48,7 +48,7 @@ function createConfigFile( )
         m4DefinesFile=$m4DefaultDefinesFile
     fi
 
-    m4 $m4DefinesFile $m4ConfigFile > $configFile
+    m4 $m4DefinesFile $m4ConfigFile | sed 's/M4_PHP_DEFINE/define/g' > $configFile
     exitOnError $? "Failure creating $configFile from $m4DefinesFile and $m4ConfigFile" 
 
     grep "M4_" $configFile
@@ -68,11 +68,11 @@ function installWeb()
     documentRoot=$2
 
     # Backup current
-    if [ -d "html" ]; then
+    if [ -d "$documentRoot" ]; then
         rm -rf ${documentRoot}_backp
         exitOnError $? "Problem trying to delete backup web: ${documentRoot}_backp"
 
-        mv htm $documentRoot ${documentRoot}_backup
+        mv $documentRoot ${documentRoot}_backup
         exitOnError $? "Problem trying mv $documentRoot to ${documentRoot}_backup"
     fi
 
@@ -109,7 +109,7 @@ echo "----------------------------------------------"
 
 createConfigFile
 upgradeDatabase
-installWeb ../.. /var/www/sb.webyouthsoccer.com
+installWeb ../../src /var/www/sb.webyouthsoccer.com/html
 
 echo ""
 echo "Done. All is well."
