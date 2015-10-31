@@ -46,6 +46,26 @@ class Web_Index
                 $this->m_controller = new Controller_Admin_Home();
                 break;
 
+            case View_Base::ADMIN_SEASON_PAGE:
+                $this->m_controller = new Controller_Admin_Season();
+                break;
+
+            case View_Base::ADMIN_DIVISION_PAGE:
+                $this->m_controller = new Controller_Admin_Division();
+                break;
+
+            case View_Base::ADMIN_FACILITY_PAGE:
+                $this->m_controller = new Controller_Admin_Facility();
+                break;
+
+            case View_Base::ADMIN_FIELD_PAGE:
+                $this->m_controller = new Controller_Admin_Field();
+                break;
+
+            case View_Base::ADMIN_LOCATION_PAGE:
+                $this->m_controller = new Controller_Admin_Location();
+                break;
+
             default:
                 $this->m_controller = new Controller_Fields_Welcome();
                 break;

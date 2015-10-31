@@ -118,7 +118,7 @@ class Model_Fields_FieldDB extends Model_Fields_BaseDB {
      * @return Array of DataObjects found empty array if none found
      */
     public function getByFacility($facility) {
-        $facilityId = isset($facilityId) ? $facilityId : $facility->id;
+        $facilityId = $facility->id;
         $dataObjectArray = $this->getWhere(self::DB_COLUMN_FACILITY_ID . " = '" . $facilityId . "'");
         return $dataObjectArray;
     }

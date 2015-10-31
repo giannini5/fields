@@ -115,12 +115,15 @@ class Model_Fields_DivisionDB extends Model_Fields_BaseDB {
      * getList retrieves a list of divisions for the league
      *
      * @param $league - The league that the practice field coordinator represents
+     * @param $enabledOnly - If TRUE then only get the list of enabled divisions
      *
      * @return DataObject list
      */
-    public function getList($league) {
+    public function getList($league, $enabledOnly = TRUE) {
         $leagueId = $league->id;
-        $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $leagueId . "' and " . self::DB_COLUMN_ENABLED . " = '1' order by " . self::DB_COLUMN_ID);
+        $enabledFilter = $enabledOnly ? " and " . self::DB_COLUMN_ENABLED . " = '1'" : '';
+
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $leagueId . "'" . $enabledFilter . " order by " . self::DB_COLUMN_ID);
         return $dataObjectArray;
     }
 }

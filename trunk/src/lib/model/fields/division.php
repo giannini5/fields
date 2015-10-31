@@ -163,12 +163,13 @@ class Model_Fields_Division extends Model_Fields_Base implements SaveModelInterf
      * @brief: Get list of Model_Fields_Division instances for the specified Division league
      *
      * @param $league - Model_Fields_League instance
+     * @param $enabledOnly - If TRUE then only get the list of enabled divisions
      *
      * @return Model_Fields_Division list
      */
-    public static function GitList($league) {
+    public static function GitList($league, $enabledOnly = TRUE) {
         $dbHandle = new Model_Fields_DivisionDB();
-        $dataObjects = $dbHandle->getList($league);
+        $dataObjects = $dbHandle->getList($league, $enabledOnly);
 
         $divisions = array();
         foreach ($dataObjects as $dataObject) {

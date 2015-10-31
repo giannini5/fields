@@ -16,7 +16,27 @@ class View_Admin_Home extends View_Admin_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render() {
+    public function render()
+    {
+        if ($this->m_controller->m_isAuthenticated) {
+            $this->renderHome();
+        } else {
+            $this->renderLogin();
+        }
+    }
+
+    /**
+     * @brief Render instructions for how to administer practice fields
+     */
+    public function renderHome() {
+        print "
+            <p>Welcome ... let's administer</p>";
+    }
+
+    /**
+     * @brief Render sign-in screen
+     */
+    public function renderLogin() {
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
             <tr><td>
@@ -31,14 +51,13 @@ class View_Admin_Home extends View_Admin_Base {
                     <td colspan='2' style='font-size:24px'><font color='darkblue'><b>Sign In</b></font></td>
                 </tr>";
 
-        $this->displayInput('Email Address:', 'text', Model_Fields_PracticeFieldCoordinator::DB_COLUMN_EMAIL, 'email address', $this->m_controller->m_email);
-        $this->displayInput('Password:', 'text', Model_Fields_PracticeFieldCoordinator::DB_COLUMN_PASSWORD, 'password', $this->m_controller->m_password);
+        $this->displayInput('Email Address:', 'text', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_EMAIL, 'email address', $this->m_controller->m_email);
+        $this->displayInput('Password:', 'text', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_PASSWORD, 'password', $this->m_controller->m_password);
 
         print "
                 <tr>
                     <td colspan='2' align='right'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
-                        <input type='hidden' id='date' name='region' value='122'>
                     </td>
                     <td>&nbsp</td>
                 </tr>

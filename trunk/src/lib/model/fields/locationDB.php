@@ -118,7 +118,7 @@ class Model_Fields_LocationDB extends Model_Fields_BaseDB {
      * @return DataObject found or NULL if none found
      */
     public function getByLeague($leagueId) {
-        $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $leagueId . "'");
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $leagueId . "' order by name");
         return $dataObjectArray;
     }
 }

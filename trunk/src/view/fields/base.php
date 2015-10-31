@@ -5,6 +5,8 @@
  */
 abstract class View_Fields_Base extends View_Base {
 
+    const REQUIRE_PASSWORD = FALSE;
+
     /**
      * @brief: Construct a new instance of this base class.
      *
@@ -90,7 +92,7 @@ abstract class View_Fields_Base extends View_Base {
         print '
                 <ul id="nav">'
             . ($this->m_pageName == self::WELCOME_PAGE || $this->m_pageName == self::LOGIN_PAGE ?
-                '<li><div>HOME</div></li>' : '<li><a href="$this->m_pageName">HOME</a></li>')
+                '<li><div>HOME</div></li>' : '<li><a href="' . $this->m_pageName . '">HOME</a></li>')
             . ($this->m_pageName == self::SELECT_FACILITY_PAGE ?
                 '<li><div>SELECT</div></li>' : '<li><a href="' . self::SELECT_FACILITY_PAGE . '?newSelection=1">SELECT</a></li>')
             . ($this->m_pageName == self::SHOW_RESERVATION_PAGE ?

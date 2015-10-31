@@ -39,13 +39,21 @@ class View_Fields_Welcome extends View_Fields_Base {
         $this->displayInput('Name:', 'text', Model_Fields_CoachDB::DB_COLUMN_NAME, 'firstName lastName', $this->m_controller->m_name);
         $this->displayInput('Email Address:', 'text', Model_Fields_CoachDB::DB_COLUMN_EMAIL, 'email address', $this->m_controller->m_email);
         $this->displayInput('Phone Number:', 'text', Model_Fields_CoachDB::DB_COLUMN_PHONE, 'phone number', $this->m_controller->m_phone);
-        $this->displayInput('Password:', 'text', Model_Fields_CoachDB::DB_COLUMN_PASSWORD, 'password', $this->m_controller->m_password);
+
+        $passwordInput = '';
+        if (self::REQUIRE_PASSWORD) {
+            $this->displayInput('Password:', 'text', Model_Fields_CoachDB::DB_COLUMN_PASSWORD, 'password', $this->m_controller->m_password);
+        } else {
+            $password = rand(1000, 9999);
+            $passwordInput = "<input type='hidden' id='" . Model_Fields_CoachDB::DB_COLUMN_PASSWORD . "' name='" . Model_Fields_CoachDB::DB_COLUMN_PASSWORD . "' value='$password'>";
+        }
 
         print "
                 <tr>
                     <td colspan='2' align='right'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
-                        <input type='hidden' id='date' name='region' value='122'>
+                        <input type='hidden' id='region' name='region' value='122'>
+                        $passwordInput
                     </td>
                     <td>&nbsp</td>
                 </tr>

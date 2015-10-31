@@ -12,10 +12,13 @@ select * from reservation;
 select * from location;
 select * from facilityLocation;
 select * from divisionField;
+select * from practiceFieldCoordinator;
 
 select * from field as f join facility as l on l.id = f.facilityId join league as g on g.id = l.leagueId and g.id = 1;
 
 insert into league (name) values ('AYSO Region 122');
+insert into practiceFieldCoordinator (leagueId, email, name, password) values (1, 'dave@giannini5.com', 'David Giannini', '1234');
+
 insert into location (leagueId, name) values (1, 'Goleta');
 insert into location (leagueId, name) values (1, 'Santa Barbara');
 insert into location (leagueId, name) values (1, 'Montecito');
@@ -91,13 +94,13 @@ insert into divisionField (divisionId, facilityId, fieldId) values (9, 1, 9); --
 
 insert into divisionField (divisionId, facilityId, fieldId) values (5, 2, 9); -- Mountain View 1A
 insert into divisionField (divisionId, facilityId, fieldId) values (5, 2, 10); -- Mountain View 1B
-insert into divisionField (divisionId, facilityId, fieldId) values (5, 2, 9); -- Mountain View 1A
-insert into divisionField (divisionId, facilityId, fieldId) values (6, 2, 10); -- Mountain View 1B
 insert into divisionField (divisionId, facilityId, fieldId) values (6, 2, 9); -- Mountain View 1A
-insert into divisionField (divisionId, facilityId, fieldId) values (7, 2, 10); -- Mountain View 1B
+insert into divisionField (divisionId, facilityId, fieldId) values (6, 2, 10); -- Mountain View 1B
 insert into divisionField (divisionId, facilityId, fieldId) values (7, 2, 9); -- Mountain View 1A
+insert into divisionField (divisionId, facilityId, fieldId) values (7, 2, 10); -- Mountain View 1B
+insert into divisionField (divisionId, facilityId, fieldId) values (8, 2, 9); -- Mountain View 1A
 insert into divisionField (divisionId, facilityId, fieldId) values (8, 2, 10); -- Mountain View 1B
-insert into divisionField (divisionId, facilityId, fieldId) values (8, 2, 11); -- Mountain View 1C
+insert into divisionField (divisionId, facilityId, fieldId) values (3, 2, 11); -- Mountain View 1C
 insert into divisionField (divisionId, facilityId, fieldId) values (3, 2, 12); -- Mountain View 1D
 insert into divisionField (divisionId, facilityId, fieldId) values (4, 2, 11); -- Mountain View 1C
 insert into divisionField (divisionId, facilityId, fieldId) values (4, 2, 12); -- Mountain View 1D

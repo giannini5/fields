@@ -119,10 +119,23 @@ class Model_Fields_DivisionFieldDB extends Model_Fields_BaseDB {
      * @param int $divisionId - Division identifier
      * @param int $facilityId - Facility identifier
      *
-     * @return DataObject found or NULL if none found
+     * @return Array of DataObjects found or empty array if none found
      */
     public function getByDivisionFacility($divisionId, $facilityId) {
         $dataObjectArray = $this->getWhere(self::DB_COLUMN_DIVISION_ID . " = '" . $divisionId . "' and " . self::DB_COLUMN_FACILITY_ID . " = '" . $facilityId . "'");
+        return $dataObjectArray;
+    }
+
+    /**
+     * getByDivisionFacility retrieves the list of field data objects for a division and facility
+     *
+     * @param int $facilityId - Model_Fields_Facility identifier
+     * @param int $fieldId - Model_Fields_Field identifier
+     *
+     * @return Array of DataObjects found or empty array if none found
+     */
+    public function getByFacilityField($facilityId, $fieldId) {
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_FACILITY_ID . " = '" . $facilityId . "' and " . self::DB_COLUMN_FIELD_ID . " = '" . $fieldId . "'");
         return $dataObjectArray;
     }
 }

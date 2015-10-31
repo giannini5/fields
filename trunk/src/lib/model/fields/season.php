@@ -17,15 +17,23 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
      * @param $id - unique identifier
      * @param $leagueId - unique league identifier
      * @param string $name - name of the season
+     * @param string $startDate - Day season becomes available
+     * @param string $endDate - Last day season is available
+     * @param string $startTime - Start time during the day that practice can start
+     * @param string $endTime - End time during the day that practice must end
      * @param bool $enabled - 1 if season is enabled; 0 otherwise
      */
-    public function __construct($league = NULL, $id = NULL, $leagueId = NULL, $name = '', $enabled = 0) {
+    public function __construct($league = NULL, $id = NULL, $leagueId = NULL, $name = '', $startDate = '', $endDate = '', $startTime = '', $endTime = '', $enabled = 0) {
         parent::__construct('Model_Fields_SeasonDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->m_league = $league;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_ID}   = $id;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_LEAGUE_ID}   = $leagueId;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_NAME} = $name;
+        $this->{Model_Fields_SeasonDB::DB_COLUMN_START_DATE} = $startDate;
+        $this->{Model_Fields_SeasonDB::DB_COLUMN_END_DATE} = $endDate;
+        $this->{Model_Fields_SeasonDB::DB_COLUMN_START_TIME} = $startTime;
+        $this->{Model_Fields_SeasonDB::DB_COLUMN_END_TIME} = $endTime;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_ENABLED} = $enabled;
         $this->_setLeague();
     }
@@ -96,6 +104,10 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_ID},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_LEAGUE_ID},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_NAME},
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_START_DATE},
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_END_DATE},
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_START_TIME},
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_END_TIME},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_ENABLED});
 
         $season->setLoaded();
@@ -108,14 +120,18 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
      *
      * @param $league - Model_Fields_League instance
      * @param string $name - name of the season
+     * @param string $startDate - Day season becomes available
+     * @param string $endDate - Last day season is available
+     * @param string $startTime - Start time during the day that practice can start
+     * @param string $endTime - End time during the day that practice must end
      * @param bool $enabled - 1 if season is enabled; 0 otherwise
      *
      * @return Model_Fields_Season
      * @throws AssertionException
      */
-    public static function Create($league, $name, $enabled) {
+    public static function Create($league, $name, $startDate, $endDate, $startTime, $endTime, $enabled) {
         $dbHandle = new Model_Fields_SeasonDB();
-        $dataObject = $dbHandle->create($league, $name, $enabled);
+        $dataObject = $dbHandle->create($league, $name, $startDate, $endDate, $startTime, $endTime, $enabled);
         assertion(!empty($dataObject), "Unable to create Season with name:'$name'");
 
         return Model_Fields_Season::GetInstance($dataObject, $league);
@@ -164,7 +180,7 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
      *
      * @param $league - Model_Fields_League instance
      *
-     * @return array of Model_Fields_Seasons emtpy array if none found
+     * @return array of Model_Fields_Seasons empty array if none found
      */
     public static function LookupByLeague($league) {
         $dbHandle = new Model_Fields_SeasonDB();
@@ -176,6 +192,21 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
         }
 
         return $seasons;
+    }
+
+    /**
+     * @brief: Get the enabled Model_Fields_Season instances for the specified league
+     *
+     * @param $league - Model_Fields_League instance
+     *
+     * @return Model_Fields_Season that is enabled
+     */
+    public static function GetEnabledSeason($league) {
+        $dbHandle = new Model_Fields_SeasonDB();
+        $dataObject = $dbHandle->getEnabledSeason($league);
+        assertion(!empty($dataObject), "Enabled Season for league: $league->name not found");
+
+        return Model_Fields_Season::GetInstance($dataObject, $league);
     }
 
     /**

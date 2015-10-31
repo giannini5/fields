@@ -22,8 +22,9 @@ abstract class Controller_Base
     protected $m_session;
 
     # Other attributes constructed from above based on controller
-    protected $m_missingAttributes;
+    public $m_missingAttributes;
     public $m_isAuthenticated;
+    public $m_errorString;
 
     public function __construct()
     {
@@ -36,7 +37,7 @@ abstract class Controller_Base
         $this->_getDivisions();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->m_operation = $this->getPostAttribute(View_Base::SUBMIT, '');
+            $this->m_operation = $this->getPostAttribute(View_Base::SUBMIT, '', FALSE);
         }
     }
 
@@ -68,16 +69,38 @@ abstract class Controller_Base
      *
      * @param $attributeName - Name of the POST attribute
      * @param $defaultValue - Default value returned if POST attribute not found
+     * @param $rememberIfMissing - Increments m_missingAttributes if TRUE
+     * @param $isNumeric - TRUE if the attribute is numeric; FALSE by default
      *
      * @return Value associated with attribute name or $defaultValue if attribute not found
      */
-    protected function getPostAttribute($attributeName, $defaultValue) {
+    protected function getPostAttribute($attributeName, $defaultValue, $rememberIfMissing = TRUE, $isNumeric = FALSE) {
+        if (isset($_POST[$attributeName])) {
+            if (!empty($_POST[$attributeName]) or $isNumeric) {
+                return $_POST[$attributeName];
+            }
+        }
+
+        if ($rememberIfMissing) {
+            $this->m_missingAttributes += 1;
+        }
+
+        return $defaultValue;
+    }
+
+    /**
+     * @brief Returns the found POST attribute's array.  Empty array if POST attribute not set.
+     *
+     * @param $attributeName - Name of the POST attribute
+     *
+     * @return array
+     */
+    protected function getPostAttributeArray($attributeName) {
         if (isset($_POST[$attributeName])) {
             return $_POST[$attributeName];
         }
 
-        $this->m_missingAttributes += 1;
-        return $defaultValue;
+        return array();
     }
 
     /**
@@ -139,6 +162,7 @@ abstract class Controller_Base
         $this->m_session = null;
 
         $this->m_isAuthenticated = FALSE;
+        $this->m_errorString = '';
     }
 
     /**

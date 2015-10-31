@@ -72,7 +72,7 @@ class Controller_Fields_Welcome extends Controller_Fields_Base {
         $this->m_coach = Model_Fields_Coach::LookupByEmail($this->m_season, $this->m_division, $this->m_email, FALSE);
 
         // If coach already exists then verify password
-        if (isset($this->m_coach) and $this->m_coach->password != $this->m_password) {
+        if (View_Fields_Base::REQUIRE_PASSWORD and isset($this->m_coach) and $this->m_coach->password != $this->m_password) {
             $this->_reset();
             $this->m_password = "* account already exists";
             $view = new View_Fields_Login($this);

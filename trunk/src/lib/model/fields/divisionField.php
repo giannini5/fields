@@ -131,12 +131,12 @@ class Model_Fields_DivisionField extends Model_Fields_Base implements SaveModelI
     }
 
     /**
-     * @brief: Get Model_Fields_Location instances for the specified division and facility
+     * @brief: Get Model_Fields_Field instances for the specified division and facility
      *
      * @param $divisionId : Identifier of the division used to get locations
      * @param $facilityId : Identifier of the facility used to get locations
      *
-     * @return Array of Model_Fields_Location
+     * @return Array of Model_Fields_Field
      */
     public static function GetFacilityFields($divisionId, $facilityId) {
         $dbHandle = new Model_Fields_DivisionFieldDB();
@@ -148,6 +148,26 @@ class Model_Fields_DivisionField extends Model_Fields_Base implements SaveModelI
         }
 
         return $locations;
+    }
+
+    /**
+     * @brief: Get Model_Fields_Division instances for the specified facility and field
+     *
+     * @param $facilityId : Model_Fields_Facility identifier
+     * @param $fieldId : Model_Fields_Field identifier
+     *
+     * @return Array of Model_Fields_Divisions
+     */
+    public static function GetFacilityFieldDivisions($facilityId, $fieldId) {
+        $dbHandle = new Model_Fields_DivisionFieldDB();
+        $dataObjects = $dbHandle->getByFacilityField($facilityId, $fieldId);
+
+        $divisions = array();
+        foreach ($dataObjects as $dataObject) {
+            $divisions[] = Model_Fields_Division::LookupById($dataObject->{Model_Fields_DivisionFieldDB::DB_COLUMN_DIVISION_ID});
+        }
+
+        return $divisions;
     }
 
     /**

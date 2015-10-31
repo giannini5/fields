@@ -9,13 +9,15 @@
 abstract class Controller_Admin_Base extends Controller_Base
 {
     public $m_coordinator;
+    public $m_email;
+    public $m_password;
 
     public function __construct()
     {
         parent::__construct();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $sessionId = $this->getPostAttribute(View_Base::SESSION_ID, NULL);
+            $sessionId = $this->getPostAttribute(View_Base::SESSION_ID, NULL, FALSE);
             if ($sessionId != NULL) {
                 $this->_constructFromSessionId($sessionId);
             } else {
@@ -56,7 +58,7 @@ abstract class Controller_Admin_Base extends Controller_Base
      */
     private function _constructFromSessionId($sessionId) {
         $this->m_session = Model_Fields_Session::LookupById($sessionId, FALSE);
-        if (isset($this->m_session)) {
+        if (isset($this->m_session) and $this->m_session->userType == Model_Fields_Session::PRACTICE_FIELD_COORDINATOR_USER_TYPE) {
             $this->m_coordinator = Model_Fields_PracticeFieldCoordinator::LookupById($this->m_session->userId);
         }
     }
@@ -84,7 +86,11 @@ abstract class Controller_Admin_Base extends Controller_Base
      */
     protected function _reset() {
         parent::_reset();
+
         $this->m_coordinator = null;
+        $this->m_email = null;
+        $this->m_password = null;
+
     }
 
     /**

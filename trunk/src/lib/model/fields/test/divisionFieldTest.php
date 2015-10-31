@@ -38,5 +38,9 @@ class Model_DivisionFieldTest extends Model_TestHelpers
         $divisionFields = Model_Fields_DivisionField::GetFacilityFields($this->m_division->id, $this->m_facility->id);
         $this->assertEquals(count($divisionFields), 1);
         $this->assertEquals($this->m_field->name, $divisionFields[0]->name);
+
+        $divisions = Model_Fields_DivisionField::GetFacilityFieldDivisions($this->m_facility->id, $this->m_field->id);
+        $this->assertEquals(count($divisions), 1);
+        $this->assertEquals($this->m_division->name, $divisions[0]->name);
     }
 }

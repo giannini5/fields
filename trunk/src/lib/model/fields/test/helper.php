@@ -18,6 +18,11 @@ class Model_TestHelpers extends PHPUnit_Framework_TestCase {
     public $m_email = 'dag@callwave.com';
     public $m_locationName = 'Moon';
 
+    public $m_startDate = '2015-01-15';
+    public $m_endDate = '2015-06-30';
+    public $m_startTime = '15:30:00';
+    public $m_endTime = '19:00:00';
+
     /**
      * Clear out all entities for the test league
      */
@@ -37,7 +42,7 @@ class Model_TestHelpers extends PHPUnit_Framework_TestCase {
         $this->clearEntities();
 
         $this->m_league = Model_Fields_League::Create($this->m_leagueName);
-        $this->m_season = Model_Fields_Season::Create($this->m_league, $this->m_seasonName, 1);
+        $this->m_season = Model_Fields_Season::Create($this->m_league, $this->m_seasonName, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, 1);
         $this->m_division = Model_Fields_Division::Create($this->m_league, $this->m_divisionName, 1);
         $this->m_coach = Model_Fields_Coach::Create($this->m_season, $this->m_division, 'Dave', $this->m_email, '8052523944', 'hello');
         $this->m_team = Model_Fields_Team::Create($this->m_division, $this->m_coach, $this->m_gender, 'Test Team');

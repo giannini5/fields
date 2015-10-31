@@ -105,7 +105,7 @@ class Model_Fields_SessionDB extends Model_Fields_BaseDB
         $dataObjectArray = $this->getWhere(
             self::DB_COLUMN_USER_ID . " = " . $userId .
             " and " . self::DB_COLUMN_USER_TYPE . " = " . $userType .
-            " and " . self::DB_COLUMN_TEAM_ID . " = " . teamId);
+            " and " . self::DB_COLUMN_TEAM_ID . " = " . $teamId);
 
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : null;
     }
