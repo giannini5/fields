@@ -1,0 +1,9 @@
+define(`M4_DB_FIELDS_RW', `fields_rw')dnl
+define(`M4_DATABASE_CONNECTION_TIMEOUT', `15')dnl
+define(`M4_DB_HOST', `localhost')dnl
+define(`M4_DB_PORT', `3306')dnl
+define(`M4_DB_SCHEMA', `fields')dnl
+define(`M4_DB_USER', `dag')dnl
+define(`M4_DB_PASSWORD', `dag')dnl
+define(`M4_DB_TIMEOUT', `5')dnl
+define(`M4_DB_PERSISTANT', `0')dnl
