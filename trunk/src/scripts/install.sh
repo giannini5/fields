@@ -69,8 +69,8 @@ function installWeb()
 
     # Backup current
     if [ -d "$documentRoot" ]; then
-        rm -rf ${documentRoot}_backp
-        exitOnError $? "Problem trying to delete backup web: ${documentRoot}_backp"
+        rm -rf ${documentRoot}_backup
+        exitOnError $? "Problem trying to delete backup web: ${documentRoot}_backup"
 
         mv $documentRoot ${documentRoot}_backup
         exitOnError $? "Problem trying mv $documentRoot to ${documentRoot}_backup"
@@ -109,7 +109,7 @@ echo "----------------------------------------------"
 
 createConfigFile
 upgradeDatabase
-# installWeb ../../src /var/www/sb.webyouthsoccer.com/html
+installWeb ../../src /var/www/sb.webyouthsoccer.com/html
 
 echo ""
 echo "Done. All is well."
