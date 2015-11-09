@@ -260,8 +260,6 @@ class View_Fields_SelectFacility extends View_Fields_Base {
             $fields = $facility->getFieldsInDivision($filterDivisionId);
         }
 
-        $this->_printFieldsAssigned($maxColumns, $fields, $collapsible);
-
         print "<tr class='$collapsible'><td>&nbsp</td></tr>";
         $this->_printFieldSelector($maxColumns, $fields, $collapsible);
         $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00', $collapsible);
@@ -276,7 +274,11 @@ class View_Fields_SelectFacility extends View_Fields_Base {
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
-            </form>
+            </form>";
+
+        $this->_printFieldsAssigned($maxColumns, $fields, $collapsible);
+
+        print "
             </table>";
     }
 

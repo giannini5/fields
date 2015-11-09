@@ -43,7 +43,12 @@ class Controller_Fields_Login extends Controller_Fields_Base {
 
             case View_Base::SIGN_OUT:
                 $this->signOut();
-                $view = new View_Fields_Login($this);
+                $view = new View_Fields_Login($this, View_Base::WELCOME_PAGE);
+                $view->displayPage();
+                break;
+
+            case View_Base::CREATE_ACCOUNT:
+                $view = new View_Fields_CreateAccount($this, View_Base::WELCOME_PAGE);
                 $view->displayPage();
                 break;
 
@@ -84,8 +89,11 @@ class Controller_Fields_Login extends Controller_Fields_Base {
         // from the database.
         $this->m_team = Model_Fields_Team::LookupByCoach($this->m_coach, $this->m_gender);
         if (!isset($this->m_team)) {
+            $loginErrorMessage = "ERROR: No team found for coach: " . $this->m_coach->name . " " . $this->m_division->name . "-" . $this->m_gender;
+            $loginErrorMessage .= "<br>Try again or create an account";
+
             $this->_reset();
-            $this->m_gender = "* Incorrect gender?";
+            $this->m_loginErrorMessage = $loginErrorMessage;
             $view = new View_Fields_Login($this);
             $view->displayPage();
             return;

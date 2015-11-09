@@ -19,6 +19,7 @@ abstract class View_Base {
 
     # Coach/Manager Pages
     const WELCOME_PAGE          = '/welcome';
+    const CREATE_ACCOUNT_PAGE   = '/createAccount';
     const LOGIN_PAGE            = '/login';
     const SHOW_RESERVATION_PAGE = '/showReservation';
     const SELECT_FACILITY_PAGE  = '/selectFacility';

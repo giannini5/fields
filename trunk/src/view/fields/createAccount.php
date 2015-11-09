@@ -1,15 +1,15 @@
 <?php
 
 /**
- * @brief Show the Login page and get the user to login or select he create account button.
+ * @brief Show the CreateAccount page and get the user to either create an account or login.
  */
-class View_Fields_Login extends View_Fields_Base {
+class View_Fields_CreateAccount extends View_Fields_Base {
     /**
      * @brief Construct he View
      *
      * @param $controller - Controller that contains data used when rendering this view.
      */
-    public function __construct($controller, $page = self::LOGIN_PAGE) {
+    public function __construct($controller, $page = self::CREATE_ACCOUNT_PAGE) {
         parent::__construct($page, $controller);
     }
 
@@ -17,20 +17,16 @@ class View_Fields_Login extends View_Fields_Base {
      * @brief Render data for display on the page.
      */
     public function render() {
-        $this->_printLoginError();
-
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
             <tr><td>
             <table align='center' valign='top' border='0' cellpadding='5' cellspacing='0'>";
 
-        // Login To an Existing Account Form
+        // Create account form
         print "
-            <form method='post' action='" . self::LOGIN_PAGE . $this->m_urlParams . "'>";
-
-        print "
+            <form method='post' action='" . self::CREATE_ACCOUNT_PAGE . $this->m_urlParams . "'>
                 <tr>
-                    <td colspan='2' style='font-size:24px'><font color='darkblue'><b>Sign In</b></font></td>
+                    <td colspan='2' style='font-size:24px'><font color='darkblue'><b>Create Account</b></font></td>
                 </tr>";
 
         $divisions = array();
@@ -40,7 +36,9 @@ class View_Fields_Login extends View_Fields_Base {
 
         $this->displaySelector('Division:', Model_Fields_TeamDB::DB_COLUMN_DIVISION_ID, 'select division', $divisions);
         $this->displaySelector('Gender:', Model_Fields_TeamDB::DB_COLUMN_GENDER, 'select gender', $this->m_controller->m_genders);
+        $this->displayInput('Name:', 'text', Model_Fields_CoachDB::DB_COLUMN_NAME, 'firstName lastName', $this->m_controller->m_name);
         $this->displayInput('Email Address:', 'text', Model_Fields_CoachDB::DB_COLUMN_EMAIL, 'email address', $this->m_controller->m_email);
+        $this->displayInput('Phone Number:', 'text', Model_Fields_CoachDB::DB_COLUMN_PHONE, 'phone number', $this->m_controller->m_phone);
 
         $passwordInput = '';
         if (self::REQUIRE_PASSWORD) {
@@ -63,22 +61,7 @@ class View_Fields_Login extends View_Fields_Base {
 
         print "
             </table>
-            </td></tr></table>";
-    }
-
-    /**
-     * @brief Print the error seen with the last login attempt (no op if no error)
-     */
-    private function _printLoginError() {
-        if (! empty($this->m_controller->m_loginErrorMessage)) {
-            $errorString = $this->m_controller->m_loginErrorMessage;
-
-            print "
-            <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <td><h1 align='left'><font color='red' size='4'>$errorString</font></h1></td>
-                </tr>
+            </td></tr>
             </table>";
-        }
     }
 }

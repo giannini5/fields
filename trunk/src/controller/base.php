@@ -166,6 +166,27 @@ abstract class Controller_Base
     }
 
     /**
+     * @brief: Get authenticated - either login or create an account.  If operation not specified then
+     *         show the login view.
+     *
+     * @param $navigationSelection - Selection to highlight in the navigation bar
+     */
+    protected function getAuthenticated($navigationSelection)
+    {
+        switch ($this->m_operation) {
+            case View_Base::CREATE_ACCOUNT:
+                $view = new View_Fields_CreateAccount($this, $navigationSelection);
+                $view->displayPage();
+                break;
+
+            default:
+                $view = new View_Fields_Login($this, $navigationSelection);
+                $view->displayPage();
+                break;
+        }
+    }
+
+    /**
      * @brief Get list of facilities
      *
      * @return Array of facilities; empty array if no facilities found

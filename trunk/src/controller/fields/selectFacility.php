@@ -51,7 +51,8 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
     public function process() {
         // Re-direct to Login page if use is not authenticated
         if (!$this->m_isAuthenticated) {
-            $view = new View_Fields_Login($this);
+            $this->getAuthenticated(View_Base::SELECT_FACILITY_PAGE);
+            return;
         } else {
             switch ($this->m_operation) {
                 case View_Base::SELECT:
@@ -64,6 +65,11 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
 
                 case View_Base::FILTER:
                     $view = new View_Fields_SelectFacility($this);
+                    break;
+
+                case View_Base::SIGN_OUT:
+                    $this->signOut();
+                    $view = new View_Fields_Login($this, View_Base::LOGIN_PAGE);
                     break;
 
                 default:
@@ -182,6 +188,9 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $daysSelected = $this->getDaysSelectedString($reservation);
         $times = "$reservation->startTime - $reservation->endTime";
         $title = $this->m_league->name . " Practice Field Coordinator";
+        $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
+        $startDate = $fieldAvailability->startDate;
+        $endDate = $fieldAvailability->endDate;
 
         $headers = "From: $fromAddress\r\n";
         $headers .= "To: $toAddress\r\n";
@@ -211,6 +220,14 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
                         <tr>
                             <td><b>Times:</b></td>
                             <td>$times</td>
+                        </tr>
+                        <tr>
+                            <td><b>Start Date:</b></td>
+                            <td>$startDate</td>
+                        </tr>
+                        <tr>
+                            <td><b>End Date:</b></td>
+                            <td>$endDate</td>
                         </tr>
                     </table>
                     <p>
