@@ -109,7 +109,7 @@ echo "----------------------------------------------"
 
 createConfigFile
 upgradeDatabase
-installWeb ../../src /var/www/sb.webyouthsoccer.com/html
+# installWeb ../../src /var/www/sb.webyouthsoccer.com/html
 
 echo ""
 echo "Done. All is well."

@@ -29,6 +29,9 @@ class View_Fields_ShowReservation extends View_Fields_Base {
             $field = $reservation->m_field;
             $facility = $reservation->m_field->m_facility;
             $sessionId = $this->m_controller->getSessionId();
+            $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($reservation->m_field->id);
+            $startDate = $fieldAvailability->startDate;
+            $endDate = $fieldAvailability->endDate;
 
             print "
                 <tr>
@@ -57,6 +60,14 @@ class View_Fields_ShowReservation extends View_Fields_Base {
                     <tr>
                         <td align='left'>&nbsp</td>
                         <td align='left'>$facility->city, $facility->state, $facility->postalCode</td>
+                    </tr>
+                    <tr>
+                        <td align='right'><font color='lightblue'>Start Date:&nbsp</font></td>
+                        <td align='left'>$startDate</td>
+                    </tr>
+                    <tr>
+                        <td align='right'><font color='lightblue'>End Date:&nbsp</font></td>
+                        <td align='left'>$endDate</td>
                     </tr>
                     <tr>
                         <td align='right'><font color='lightblue'>Field:&nbsp</font></td>

@@ -26,12 +26,17 @@ class Controller_Fields_ShowReservation extends Controller_Fields_Base {
     public function process() {
         // Re-direct to Login page if use is not authenticated
         if (!$this->m_isAuthenticated) {
-            $view = new View_Fields_Login($this);
-            $view->displayPage();
+            $this->getAuthenticated(View_Base::SHOW_RESERVATION_PAGE);
             return;
         }
 
         switch ($this->m_operation) {
+            case View_Base::SIGN_OUT:
+                $this->signOut();
+                $view = new View_Fields_Login($this, View_Base::LOGIN_PAGE);
+                $view->displayPage();
+                return;
+
             case View_Base::DELETE:
                 Model_Fields_Reservation::DeleteById($this->m_reservationId);
                 break;

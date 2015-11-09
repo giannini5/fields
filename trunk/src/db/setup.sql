@@ -13,6 +13,7 @@ select * from location;
 select * from facilityLocation;
 select * from divisionField;
 select * from practiceFieldCoordinator;
+select * from fieldAvailability;
 
 select * from field as f join facility as l on l.id = f.facilityId join league as g on g.id = l.leagueId and g.id = 1;
 

@@ -30,6 +30,10 @@ class Web_Index
                 $this->m_controller = new Controller_Fields_Welcome();
                 break;
 
+            case View_Base::CREATE_ACCOUNT_PAGE:
+                $this->m_controller = new Controller_Fields_CreateAccount();
+                break;
+
             case View_Base::LOGIN_PAGE:
                 $this->m_controller = new Controller_Fields_Login();
                 break;
