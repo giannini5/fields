@@ -255,9 +255,9 @@ class View_Fields_SelectFacility extends View_Fields_Base {
         $this->_printFacilityInfo($maxColumns, $facility, $expandContract, $collapsible);
 
         if ($filterDivisionId == 0) {
-            $fields = $this->m_controller->getFields($facility);
+            $fields = $this->m_controller->getFields($facility, TRUE);
         } else {
-            $fields = $facility->getFieldsInDivision($filterDivisionId);
+            $fields = $facility->getFieldsInDivision($filterDivisionId, TRUE);
         }
 
         print "<tr class='$collapsible'><td>&nbsp</td></tr>";

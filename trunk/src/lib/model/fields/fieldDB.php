@@ -114,12 +114,15 @@ class Model_Fields_FieldDB extends Model_Fields_BaseDB {
      * getByFacility retrieves a list of fields by facility
      *
      * @param $facility - The facility that the practice field coordinator represents
+     * @param bool $enabledOnly - If TRUE then get enabled fields only; otherwise get all fields
      *
      * @return Array of DataObjects found empty array if none found
      */
-    public function getByFacility($facility) {
+    public function getByFacility($facility, $enabledOnly = FALSE) {
         $facilityId = $facility->id;
-        $dataObjectArray = $this->getWhere(self::DB_COLUMN_FACILITY_ID . " = '" . $facilityId . "'");
+        $enabledFilter = $enabledOnly ? ' and enabled = 1 ' : '';
+
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_FACILITY_ID . " = '" . $facilityId . "'" . $enabledFilter);
         return $dataObjectArray;
     }
 }
