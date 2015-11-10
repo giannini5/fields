@@ -222,7 +222,7 @@ abstract class View_Base {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         $minute = 0;
-        for ($hour = 3; $hour <= 7; ++$hour) {
+        for ($hour = 3; $hour <= 8; ++$hour) {
             while ($minute <= 45) {
                 $time = sprintf("%2d:%02d", $hour, $minute);
 
