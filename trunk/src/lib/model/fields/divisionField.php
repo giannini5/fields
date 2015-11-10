@@ -147,9 +147,7 @@ class Model_Fields_DivisionField extends Model_Fields_Base implements SaveModelI
         foreach ($dataObjects as $dataObject) {
             $field = Model_Fields_Field::LookupById($dataObject->{Model_Fields_DivisionFieldDB::DB_COLUMN_FIELD_ID});
 
-            if ($enabledOnly and $field->enabled == 1) {
-                $locations[] = $field;
-            } else {
+            if (!$enabledOnly or ($enabledOnly and $field->enabled == 1)) {
                 $locations[] = $field;
             }
         }
