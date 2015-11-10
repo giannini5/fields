@@ -212,11 +212,12 @@ abstract class Controller_Base
      * @brief Get list of fields for a specified facility
      *
      * @param $facility - Model_Fields_Facility instance
+     * @param bool $enabledOnly - If TRUE then get enabled fields only; otherwise get all fields
      *
      * @return Array of Model_Fields_Field instances; empty array if no fields found
      */
-    public function getFields($facility) {
-        $fields = Model_Fields_Field::LookupByFacility($facility);
+    public function getFields($facility, $enabledOnly = FALSE) {
+        $fields = Model_Fields_Field::LookupByFacility($facility, $enabledOnly);
 
         return $fields;
     }

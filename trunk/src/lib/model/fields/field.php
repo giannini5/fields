@@ -163,12 +163,13 @@ class Model_Fields_Field extends Model_Fields_Base implements SaveModelInterface
      * @brief: Get list of Model_Fields_Field instances for the specified Field facility
      *
      * @param $facility - Model_Fields_Facility instance
+     * @param bool $enabledOnly - Get enabled fields only if set to TRUE; otherwise get all fields.
      *
      * @return Array of Model_Fields_Field or empty array if none found
      */
-    public static function LookupByFacility($facility) {
+    public static function LookupByFacility($facility, $enabledOnly = FALSE) {
         $dbHandle = new Model_Fields_FieldDB();
-        $dataObjects = $dbHandle->getByFacility($facility);
+        $dataObjects = $dbHandle->getByFacility($facility, $enabledOnly);
 
         $fields = array();
         foreach ($dataObjects as $dataObject) {

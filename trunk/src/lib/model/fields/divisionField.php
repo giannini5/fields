@@ -135,16 +135,23 @@ class Model_Fields_DivisionField extends Model_Fields_Base implements SaveModelI
      *
      * @param $divisionId : Identifier of the division used to get locations
      * @param $facilityId : Identifier of the facility used to get locations
+     * @param $enabledOnly - If TRUE then get enabled fields only; otherwise get all fields
      *
      * @return Array of Model_Fields_Field
      */
-    public static function GetFacilityFields($divisionId, $facilityId) {
+    public static function GetFacilityFields($divisionId, $facilityId, $enabledOnly) {
         $dbHandle = new Model_Fields_DivisionFieldDB();
         $dataObjects = $dbHandle->getByDivisionFacility($divisionId, $facilityId);
 
         $locations = array();
         foreach ($dataObjects as $dataObject) {
-            $locations[] = Model_Fields_Field::LookupById($dataObject->{Model_Fields_DivisionFieldDB::DB_COLUMN_FIELD_ID});
+            $field = Model_Fields_Field::LookupById($dataObject->{Model_Fields_DivisionFieldDB::DB_COLUMN_FIELD_ID});
+
+            if ($enabledOnly and $field->enabled == 1) {
+                $locations[] = $field;
+            } else {
+                $locations[] = $field;
+            }
         }
 
         return $locations;

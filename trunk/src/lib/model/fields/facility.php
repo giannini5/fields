@@ -91,11 +91,12 @@ class Model_Fields_Facility extends Model_Fields_Base implements SaveModelInterf
      * @brief Get the fields from this facility that are supported for the specified division
      *
      * @param $divisionId - Division's unique identifier
+     * @param bool $enabledOnly - If TRUE then get enabled fields only; otherwise get ALL fields
      *
      * @return array of Model_Fields_Field
      */
-    public function getFieldsInDivision($divisionId) {
-        $facilityFields = Model_Fields_DivisionField::GetFacilityFields($divisionId, $this->id);
+    public function getFieldsInDivision($divisionId, $enabledOnly = FALSE) {
+        $facilityFields = Model_Fields_DivisionField::GetFacilityFields($divisionId, $this->id, $enabledOnly);
         return $facilityFields;
     }
 
