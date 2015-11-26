@@ -142,9 +142,9 @@ class View_Fields_SelectFacility extends View_Fields_Base {
             <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . self::SELECT_FACILITY_PAGE . $this->m_urlParams . "'>";
 
-        print $this->_printFacilitySelector($facilities, $filterFacilityId);
-        print $this->_printDivisionSelector($filterDivisionId);
-        print $this->_printGeographicSelector($filterLocationId);
+        print $this->printFacilitySelector($facilities, $filterFacilityId);
+        print $this->printDivisionSelector($filterDivisionId);
+        print $this->printGeographicSelector($filterLocationId);
 
         // Print Filter button and end form
         print "
@@ -158,77 +158,6 @@ class View_Fields_SelectFacility extends View_Fields_Base {
             </table>
             </td></tr>
             </table>";
-    }
-
-    /**
-     * @brief Print the drop down list of facilities for filtering by facility
-     *
-     * @param $facilities - List of facilities for filtering
-     * @param $filterFacilityId - Default to selected facility or All if none selected
-     */
-    private function _printFacilitySelector($facilities, $filterFacilityId) {
-        $selectorHTML = '';
-        $selectorHTML .= "<option value='0'";
-        $selectorHTML .= " ";
-        $selectorHTML .= ">All</option>";
-
-        foreach ($facilities as $facility) {
-            // Populate the facilities drop down
-            $selected = ($facility->id == $filterFacilityId) ? ' selected ' : '';
-            $selectorHTML .= "<option value='$facility->id' $selected>$facility->name</option>";
-        }
-
-        print "
-                <tr>
-                    <td><font color='#069'><b>Location:&nbsp</b></font></td>
-                    <td><select name='" . View_Base::FILTER_FACILITY_ID . "'>" . $selectorHTML . "</select></td>
-                </tr>";
-    }
-
-    /**
-     * @brief Print the drop down list of divisions for filtering by facility
-     *
-     * @param $filterDivisionId - Show selected division or the coaches division if the filter is 0
-     */
-    private function _printDivisionSelector($filterDivisionId) {
-        $selectorHTML = '';
-        $selectorHTML .= "<option value='0' ";
-        $selectorHTML .= ">All</option>";
-
-        foreach ($this->m_controller->m_divisions as $division) {
-            $selected = ($division->id == $filterDivisionId) ? ' selected ' : '';
-            $selectorHTML .= "<option value='$division->id' $selected>$division->name</option>";
-        }
-
-        print "
-                <tr>
-                    <td><font color='#069'><b>Division:&nbsp</b></font></td>
-                    <td><select name='" . View_Base::FILTER_DIVISION_ID . "'>" . $selectorHTML . "</select></td>
-                </tr>";
-    }
-
-    /**
-     * @brief Print the drop down list of geographic selectors for filtering by facility\
-     *
-     * @param int $selectedGeographicAreaId - Default selection
-     */
-    private function _printGeographicSelector($filterLocationId) {
-        $locations = $this->m_controller->getLocations();
-
-        $selectorHTML = '';
-        $selectorHTML .= "<option value='0' ";
-        $selectorHTML .= ">All</option>";
-
-        foreach ($locations as $location) {
-            $selected = ($location->id == $filterLocationId) ? ' selected ' : '';
-            $selectorHTML .= "<option value='$location->id' $selected>$location->name</option>";
-        }
-
-        print "
-                <tr>
-                    <td><font color='#069'><b>Geographic Area:&nbsp</b></font></td>
-                    <td><select name='" . View_Base::FILTER_LOCATION_ID . "'>" . $selectorHTML . "</select></td>
-                </tr>";
     }
 
     /**

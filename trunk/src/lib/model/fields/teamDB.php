@@ -113,4 +113,17 @@ class Model_Fields_TeamDB extends Model_Fields_BaseDB {
             . ' and ' . self::DB_COLUMN_GENDER . "='" . $gender . "'");
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
     }
+
+    /**
+     * getByDivision retrieves the teams for the specified division
+     *
+     * @param $division - Model_Fields_Division instance
+     *
+     * @return array DataObjects found or empty array if none found
+     */
+    public function getByDivision($division) {
+        $dataObjectArray = $this->getWhere(self::DB_COLUMN_DIVISION_ID . "=" . $division->id
+            . ' order by ' . self::DB_COLUMN_GENDER);
+        return $dataObjectArray;
+    }
 }

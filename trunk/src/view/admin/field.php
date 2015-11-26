@@ -155,13 +155,18 @@ class View_Admin_Field extends View_Admin_Base {
                                     <input type='hidden' id='facilityId' name='facilityId' value='$facility->id'>
                                     <input type='hidden' id='fieldId' name='fieldId' value='$field->id'>
                                     <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
-                                </td>
+                                </td>";
+            /*
                                 <td align='left'>
                                     <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::DELETE . "'>
                                     <input type='hidden' id='facilityId' name='facilityId' value='$facility->id'>
                                     <input type='hidden' id='fieldId' name='fieldId' value='$field->id'>
                                     <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                                 </td>
+            Delete not working so well right now because of cascading problems.
+            */
+
+            print "
                             </tr>
                             </form>
                         </table>";

@@ -63,6 +63,20 @@ abstract class Controller_Base
     }
 
     /**
+     * @brief Return a list of teams ordered by Division and gender
+     */
+    public function getTeams()
+    {
+        $teams = array();
+        foreach ($this->m_divisions as $division) {
+            $divisionTeams = Model_Fields_Team::GetTeams($division);
+            $teams = array_merge($teams, $divisionTeams);
+        }
+
+        return $teams;
+    }
+
+    /**
      * @brief Returns the found POST attribute's value.  Returns default value
      *        if attribute not found.  Keeps track of count of attributes not found in
      *        the $m_missingAttributes counter.

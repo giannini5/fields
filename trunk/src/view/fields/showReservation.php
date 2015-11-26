@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @brief Show the current reservation (if any) for the coach/team.
+ * @brief Show the all reservations (if any) for all teams by division.
  */
 class View_Fields_ShowReservation extends View_Fields_Base {
     /**
-     * @brief Construct he View
+     * @brief Construct the View
      *
      * @param $controller - Controller that contains data used when rendering this view.
      */
@@ -17,94 +17,108 @@ class View_Fields_ShowReservation extends View_Fields_Base {
      * @brief Render data for display on the page.
      */
     public function render() {
+        $facilities = $this->m_controller->getFacilities();
+        $filterFacilityId = $this->m_controller->m_filterFacilityId;
+        $filterDivisionId = $this->m_controller->m_filterDivisionId;
+        $filterTeamId = $this->m_controller->m_filterTeamId;
+
         $this->_printConfirmationMessage();
+
+        $this->_printReservationSelectors($facilities, $filterFacilityId, $filterDivisionId, $filterTeamId);
+        print "<h1>&nbsp;</h1>";
+
+        $reservations = $this->_getReservations($filterFacilityId, $filterDivisionId, $filterTeamId);
 
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td align='center' style='font-size:24px'><font color='darkblue'><b>Reservations</b></font></td>
+                    <td colspan=6 align='center' style='font-size:24px'><font color='darkblue'><b>Reservations</b></font></td>
                 </tr>";
 
-        foreach ($this->m_controller->m_reservations as $reservation) {
-            $field = $reservation->m_field;
-            $facility = $reservation->m_field->m_facility;
+        foreach ($reservations as $reservation) {
+            $division = $reservation->m_team->m_division->name . $reservation->m_team->gender;
+            $coach = $reservation->m_team->m_coach->name;
+            $field = $reservation->m_field->m_facility->name . ": Field " . $reservation->m_field->name;
+            $days = $this->m_controller->getDaysSelectedString($reservation);
+            $times = "$reservation->startTime - $reservation->endTime";
             $sessionId = $this->m_controller->getSessionId();
-            $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($reservation->m_field->id);
-            $startDate = $fieldAvailability->startDate;
-            $endDate = $fieldAvailability->endDate;
 
             print "
                 <tr>
-                <td>
-                <table align='center' valign='top' border='0' cellpadding='5' cellspacing='0'>
-                    <tr>
-                        <td align='right'><font color='lightblue'>Facility:&nbsp</font></td>
-                        <td align='left'>$facility->name</td>
-                    </tr>
-                    <tr>
-                        <td align='left'>&nbsp</td>
-                        <td align='left'>$facility->address1</td>
-                    </tr>";
+                    <td>$division</td>
+                    <td>$coach</td>
+                    <td>$field</td>
+                    <td>$days</td>
+                    <td>$times</td>";
 
-            if (!empty($facility->address2)) {
+            if ($this->m_controller->m_team->id == $reservation->m_team->id) {
                 print "
-                    <tr>
-                        <td align='left'>&nbsp</td>
-                        <td align='left'>$facility->address2</td>
-                    </tr>";
+                    <form method='post' action='" . self::SHOW_RESERVATION_PAGE . $this->m_urlParams . "'>
+                    <td>
+                        <input style='background-color: yellow' name=" . self::SUBMIT . " type='submit' value='" . self::DELETE . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        <input type='hidden' id='" . self::RESERVATION_ID . "' name='" . self::RESERVATION_ID . "' value='$reservation->id'>
+                    </td>
+                    </form>";
+            } else {
+                print "
+                    <td>&nbsp</td>";
             }
 
-            $daysSelected = $this->m_controller->getDaysSelectedString($reservation);
-
             print "
-                    <tr>
-                        <td align='left'>&nbsp</td>
-                        <td align='left'>$facility->city, $facility->state, $facility->postalCode</td>
-                    </tr>
-                    <tr>
-                        <td align='right'><font color='lightblue'>Start Date:&nbsp</font></td>
-                        <td align='left'>$startDate</td>
-                    </tr>
-                    <tr>
-                        <td align='right'><font color='lightblue'>End Date:&nbsp</font></td>
-                        <td align='left'>$endDate</td>
-                    </tr>
-                    <tr>
-                        <td align='right'><font color='lightblue'>Field:&nbsp</font></td>
-                        <td align='left'>$field->name</td>
-                    </tr>
-                    <tr>
-                        <td align='right'><font color='lightblue'>Days:&nbsp</font></td>
-                        <td align='left'>$daysSelected</td>
-                        <td>&nbsp</td>
-                    </tr>
-                    <tr>
-                        <td align='right'><font color='lightblue'>Start Time:&nbsp</font></td>
-                        <td align='left'>$reservation->startTime</td>
-                    </tr>
-                    <tr>
-                        <td align='right'><font color='lightblue'>End Time:&nbsp</font></td>
-                        <td align='left'>$reservation->endTime</td>
-                        <td>&nbsp</td>
-                    </tr>
-                    <tr>
-                        <form method='post' action='" . self::SHOW_RESERVATION_PAGE . $this->m_urlParams . "'>
-                        <td nowrap width='100' colspan=3 align='right'>
-                            <input style='background-color: yellow' name=" . self::SUBMIT . " type='submit' value='" . self::DELETE . "'>
-                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
-                            <input type='hidden' id='" . self::RESERVATION_ID . "' name='" . self::RESERVATION_ID . "' value='$reservation->id'>
-                        </td>
-                        </form>
-                    </tr>";
-
-            print "
-                </table>
-                </td>
                 </tr>";
         }
 
         print "
             </table>";
+    }
+
+    /**
+     * @brief Print the filtering selectors
+     *
+     * @param $facilities - List of facilities for filtering
+     * @param $filterFacilityId - Show selected facility or All if none selected
+     * @param $filterDivisionId - Show selected division or All if non selected
+     * @param $filterTeamId - Show selected geographicArea or All if non selected
+     */
+    private function _printReservationSelectors($facilities, $filterFacilityId, $filterDivisionId, $filterTeamId) {
+        $sessionId = $this->m_controller->getSessionId();
+
+        print "
+            <table valign='top' align='center' width='625' border='1' cellpadding='5' cellspacing='0'>
+            <tr><td>
+            <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
+            <form method='post' action='" . self::SHOW_RESERVATION_PAGE . $this->m_urlParams . "'>";
+
+        print $this->printFacilitySelector($facilities, $filterFacilityId);
+        print $this->printDivisionSelector($filterDivisionId);
+        print $this->printTeamSelector($filterTeamId);
+
+        // Print Filter button and end form
+        print "
+            <tr>
+                    <td align='left'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::FILTER . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>
+            </td></tr>
+            </table>";
+    }
+
+    /**
+     * @brief Return a list of reservations based on filter
+     *
+     * @param $filterFacilityId - Only include this facilities if filter enabled
+     * @param $filterDivisionId - Only include this divisions if filter enabled
+     * @param $filterTeamId - Only include this team if filter enabled
+     *
+     * @return array $reservations
+     */
+    private function _getReservations($filterFacilityId, $filterDivisionId, $filterTeamId) {
+        return $this->m_controller->getFilteredReservations($filterFacilityId, $filterDivisionId, $filterTeamId);
     }
 
     /**
