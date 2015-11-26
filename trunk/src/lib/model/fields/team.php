@@ -166,4 +166,22 @@ class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface 
 
         return Model_Fields_Team::GetInstance($dataObject);
     }
-}
+
+    /**
+     * @brief: Get Model_Fields_Team instances for the specified Division
+     *
+     * @param Model_Fields_Division $division
+     *
+     * @return array Model_Fields_Team
+     */
+    public static function GetTeams($division) {
+        $dbHandle = new Model_Fields_TeamDB();
+        $dataObjects = $dbHandle->getByDivision($division);
+
+        $teams = array();
+        foreach ($dataObjects as $dataObject) {
+            $teams[] = Model_Fields_Team::GetInstance($dataObject);
+        }
+
+        return $teams;
+    }}

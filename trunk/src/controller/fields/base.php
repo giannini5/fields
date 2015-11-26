@@ -31,6 +31,7 @@ abstract class Controller_Fields_Base extends Controller_Base
     public $m_filterFacilityId;
     public $m_filterDivisionId;
     public $m_filterLocationId;
+    public $m_filterTeamId;
 
     # Attributes constructed from session
     public $m_coach;
@@ -207,6 +208,7 @@ abstract class Controller_Fields_Base extends Controller_Base
         $this->m_filterFacilityId = 0;
         $this->m_filterDivisionId = 0;
         $this->m_filterLocationId = 0;
+        $this->m_filterTeamId = 0;
 
         $this->m_missingAttributes = 0;
         $this->m_operation = '';
@@ -340,5 +342,47 @@ abstract class Controller_Fields_Base extends Controller_Base
             default:
                 return 'ERROR';
         }
+    }
+
+    /**
+     * @brief Return a list of reservations based on filter
+     *
+     * @param $filterFacilityId - Only include this facilities if filter enabled
+     * @param $filterDivisionId - Only include this divisions if filter enabled
+     * @param $filterTeamId - Only include this team if filter enabled
+     *
+     * @return array $reservations
+     */
+    public function getFilteredReservations($filterFacilityId, $filterDivisionId, $filterTeamId) {
+        $reservations = array();
+
+        foreach ($this->m_divisions as $division) {
+            // Check division filter
+            if ($filterDivisionId != 0 and $filterDivisionId != $division->id) {
+                continue;
+            }
+
+            $teams = Model_Fields_Team::GetTeams($division);
+
+            foreach ($teams as $team) {
+                // Check team filter
+                if ($filterTeamId != 0 and $filterTeamId != $team->id) {
+                    continue;
+                }
+
+                $teamReservations = Model_Fields_Reservation::LookupByTeam($this->m_season, $team, FALSE);
+                foreach ($teamReservations as $teamReservation) {
+                    // Check facility filter
+                    if ($filterFacilityId != 0 and $filterFacilityId != $teamReservation->m_field->m_facility->id) {
+                        continue;
+                    }
+
+                    $reservations[] = $teamReservation;
+                }
+            }
+
+        }
+
+        return $reservations;
     }
 }

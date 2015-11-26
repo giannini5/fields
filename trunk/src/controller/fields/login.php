@@ -105,6 +105,7 @@ class Controller_Fields_Login extends Controller_Fields_Base {
         // If reservation(s) found then show reservation(s); otherwise go to select facility
         $reservations = $this->getReservationsForTeam();
         if (count($reservations) > 0) {
+            $this->m_filterTeamId = $this->m_team->id;
             $view = new View_Fields_ShowReservation($this);
         } else {
             $view = new View_Fields_SelectFacility($this);

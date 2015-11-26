@@ -26,7 +26,8 @@ abstract class View_Fields_Base extends View_Base {
     {
         $sessionId = $this->m_controller->getSessionId();
         $headerButton = $this->m_controller->getHeaderButtonToShow();
-        $nextPage = $this->m_pageName;
+        // $nextPage = $this->m_pageName;
+        $nextPage = self::WELCOME_PAGE;
         $headerImage = "images/aysoLogo.jpeg";
         $coachName = $this->m_controller->getCoachName();
         $divisionName = $this->m_controller->getDivisionName();
@@ -36,7 +37,7 @@ abstract class View_Fields_Base extends View_Base {
         $facilityCount = count($this->m_controller->getFacilities());
         $showLoginButton = ($headerButton == self::CREATE_ACCOUNT
             and !$this->m_controller->m_isAuthenticated
-            and $this->m_pageName == self::WELCOME_PAGE
+            and ($this->m_pageName == self::WELCOME_PAGE or $this->m_pageName == self::SHOW_RESERVATION_PAGE)
             and $this->m_controller->m_operation != self::SIGN_IN) ? TRUE : FALSE;
 
         print "
@@ -109,10 +110,10 @@ abstract class View_Fields_Base extends View_Base {
                 <ul id="nav">'
             . ($this->m_pageName == self::WELCOME_PAGE || $this->m_pageName == self::LOGIN_PAGE ?
                 '<li><div>HOME</div></li>' : '<li><a href="' . self::WELCOME_PAGE . '">HOME</a></li>')
-            . ($this->m_pageName == self::SELECT_FACILITY_PAGE ?
-                '<li><div>SELECT</div></li>' : '<li><a href="' . self::SELECT_FACILITY_PAGE . '?newSelection=1">SELECT</a></li>')
             . ($this->m_pageName == self::SHOW_RESERVATION_PAGE ?
                 '<li><div>RESERVATIONS</div></li>' : '<li><a href="' . self::SHOW_RESERVATION_PAGE . '">RESERVATIONS</a></li>')
+            . ($this->m_pageName == self::SELECT_FACILITY_PAGE ?
+                '<li><div>SELECT</div></li>' : '<li><a href="' . self::SELECT_FACILITY_PAGE . '?newSelection=1">SELECT</a></li>')
             . '
                </ul>';
     }

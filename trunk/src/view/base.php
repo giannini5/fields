@@ -18,11 +18,11 @@ abstract class View_Base {
     const ADMIN_FIELD_PAGE    = '/admin_field';
 
     # Coach/Manager Pages
-    const WELCOME_PAGE          = '/welcome';
-    const CREATE_ACCOUNT_PAGE   = '/createAccount';
-    const LOGIN_PAGE            = '/login';
-    const SHOW_RESERVATION_PAGE = '/showReservation';
-    const SELECT_FACILITY_PAGE  = '/selectFacility';
+    const WELCOME_PAGE               = '/welcome';
+    const CREATE_ACCOUNT_PAGE        = '/createAccount';
+    const LOGIN_PAGE                 = '/login';
+    const SHOW_RESERVATION_PAGE      = '/showReservation';
+    const SELECT_FACILITY_PAGE       = '/selectFacility';
 
     # Operations
     const SUBMIT           = 'submit';
@@ -56,6 +56,7 @@ abstract class View_Base {
     const FILTER_FACILITY_ID        = 'filterFacilityId';
     const FILTER_DIVISION_ID        = 'filterDivisionId';
     const FILTER_LOCATION_ID        = 'filterGeographicAreaId';
+    const FILTER_TEAM_ID            = 'filterTeamId';
 
     const SEASON_ID                 = 'seasonId';
     const DIVISION_ID               = 'divisionId';
@@ -280,6 +281,102 @@ abstract class View_Base {
                     <input type='text' size=11 id='" . View_Base::END_DATE . "' name='" . View_Base::END_DATE . "' value='$defaultEndDate' style='font-size:11px'>
                 </td>
             </tr>";
+    }
+
+    /**
+     * @brief Print the drop down list of facilities for filtering by facility
+     *
+     * @param $facilities - List of facilities for filtering
+     * @param $filterFacilityId - Default to selected facility or All if none selected
+     */
+    public function printFacilitySelector($facilities, $filterFacilityId) {
+        $selectorHTML = '';
+        $selectorHTML .= "<option value='0'";
+        $selectorHTML .= " ";
+        $selectorHTML .= ">All</option>";
+
+        foreach ($facilities as $facility) {
+            // Populate the facilities drop down
+            $selected = ($facility->id == $filterFacilityId) ? ' selected ' : '';
+            $selectorHTML .= "<option value='$facility->id' $selected>$facility->name</option>";
+        }
+
+        print "
+                <tr>
+                    <td><font color='#069'><b>Location:&nbsp</b></font></td>
+                    <td><select name='" . View_Base::FILTER_FACILITY_ID . "'>" . $selectorHTML . "</select></td>
+                </tr>";
+    }
+
+    /**
+     * @brief Print the drop down list of divisions for filtering by facility
+     *
+     * @param $filterDivisionId - Show selected division or the coaches division if the filter is 0
+     */
+    public function printDivisionSelector($filterDivisionId) {
+        $selectorHTML = '';
+        $selectorHTML .= "<option value='0' ";
+        $selectorHTML .= ">All</option>";
+
+        foreach ($this->m_controller->m_divisions as $division) {
+            $selected = ($division->id == $filterDivisionId) ? ' selected ' : '';
+            $selectorHTML .= "<option value='$division->id' $selected>$division->name</option>";
+        }
+
+        print "
+                <tr>
+                    <td><font color='#069'><b>Division:&nbsp</b></font></td>
+                    <td><select name='" . View_Base::FILTER_DIVISION_ID . "'>" . $selectorHTML . "</select></td>
+                </tr>";
+    }
+
+    /**
+     * @brief Print the drop down list of geographic selectors for filtering by facility\
+     *
+     * @param int $filterLocationId - Default selection
+     */
+    public function printGeographicSelector($filterLocationId) {
+        $locations = $this->m_controller->getLocations();
+
+        $selectorHTML = '';
+        $selectorHTML .= "<option value='0' ";
+        $selectorHTML .= ">All</option>";
+
+        foreach ($locations as $location) {
+            $selected = ($location->id == $filterLocationId) ? ' selected ' : '';
+            $selectorHTML .= "<option value='$location->id' $selected>$location->name</option>";
+        }
+
+        print "
+                <tr>
+                    <td><font color='#069'><b>Geographic Area:&nbsp</b></font></td>
+                    <td><select name='" . View_Base::FILTER_LOCATION_ID . "'>" . $selectorHTML . "</select></td>
+                </tr>";
+    }
+
+    /**
+     * @brief Print the drop down list of teams by division with coaches name for selection
+     *
+     * @param int $filterTeamId - Default selection
+     */
+    public function printTeamSelector($filterTeamId) {
+        $teams = $this->m_controller->getTeams();
+
+        $selectorHTML = '';
+        $selectorHTML .= "<option value='0' ";
+        $selectorHTML .= ">All</option>";
+
+        foreach ($teams as $team) {
+            $selected = ($team->id == $filterTeamId) ? ' selected ' : '';
+            $teamName = $team->m_division->name . $team->gender . ': ' . $team->m_coach->name;
+            $selectorHTML .= "<option value='$team->id' $selected>$teamName</option>";
+        }
+
+        print "
+                <tr>
+                    <td><font color='#069'><b>Team:&nbsp</b></font></td>
+                    <td><select name='" . View_Base::FILTER_TEAM_ID . "'>" . $selectorHTML . "</select></td>
+                </tr>";
     }
 
     /**
