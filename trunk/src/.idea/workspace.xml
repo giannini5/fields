@@ -2,18 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/base.php" afterPath="$PROJECT_DIR$/controller/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/fields/base.php" afterPath="$PROJECT_DIR$/controller/fields/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/base.php" afterPath="$PROJECT_DIR$/view/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/base.php" afterPath="$PROJECT_DIR$/view/fields/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/admin/field.php" afterPath="$PROJECT_DIR$/view/admin/field.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/fields/login.php" afterPath="$PROJECT_DIR$/controller/fields/login.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/fields/selectFacility.php" afterPath="$PROJECT_DIR$/controller/fields/selectFacility.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/selectFacility.php" afterPath="$PROJECT_DIR$/view/fields/selectFacility.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/fields/showReservation.php" afterPath="$PROJECT_DIR$/controller/fields/showReservation.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/showReservation.php" afterPath="$PROJECT_DIR$/view/fields/showReservation.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/team.php" afterPath="$PROJECT_DIR$/lib/model/fields/team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/teamDB.php" afterPath="$PROJECT_DIR$/lib/model/fields/teamDB.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="src.iws" />
@@ -38,7 +27,39 @@
     <favorites_list name="src" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="selectFacility.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/controller/fields/selectFacility.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-9.875" vertical-offset="633" max-vertical-offset="3825">
+              <caret line="58" column="53" selection-start-line="58" selection-start-column="53" selection-end-line="58" selection-end-column="53" />
+              <folding>
+                <marker date="1448901450000" expanded="true" signature="9825:11270" placeholder="..." />
+                <marker date="1448901450000" expanded="true" signature="9848:11250" placeholder="..." />
+                <marker date="1448901450000" expanded="true" signature="9872:10126" placeholder="..." />
+                <marker date="1448901450000" expanded="true" signature="10165:11034" placeholder="..." />
+                <marker date="1448901450000" expanded="true" signature="10194:10369" placeholder="..." />
+                <marker date="1448901450000" expanded="true" signature="10398:10529" placeholder="..." />
+                <marker date="1448901450000" expanded="true" signature="10558:10683" placeholder="..." />
+                <marker date="1448901450000" expanded="true" signature="10712:10846" placeholder="..." />
+                <marker date="1448901450000" expanded="true" signature="10875:11005" placeholder="..." />
+                <marker date="1448901450000" expanded="true" signature="11058:11226" placeholder="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="welcome.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/controller/fields/welcome.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.5074627" vertical-offset="20" max-vertical-offset="690">
+              <caret line="24" column="49" selection-start-line="24" selection-start-column="49" selection-end-line="24" selection-end-column="49" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
@@ -92,7 +113,6 @@
         <option value="$PROJECT_DIR$/lib/model/fields/team.php" />
         <option value="$PROJECT_DIR$/lib/model/fields/teamDB.php" />
         <option value="$PROJECT_DIR$/view/fields/selectFacility.php" />
-        <option value="$PROJECT_DIR$/controller/fields/selectFacility.php" />
         <option value="$PROJECT_DIR$/controller/fields/base.php" />
         <option value="$PROJECT_DIR$/view/fields/showAllReservations.php" />
         <option value="$PROJECT_DIR$/controller/fields/showAllReservations.php" />
@@ -102,6 +122,7 @@
         <option value="$PROJECT_DIR$/view/fields/showReservation.php" />
         <option value="$PROJECT_DIR$/view/fields/base.php" />
         <option value="$PROJECT_DIR$/controller/fields/login.php" />
+        <option value="$PROJECT_DIR$/controller/fields/selectFacility.php" />
       </list>
     </option>
   </component>
@@ -217,6 +238,24 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="controller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="fields" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
     </panes>
@@ -308,6 +347,9 @@
       <BehatRunner />
       <method />
     </configuration>
+    <configuration default="true" type="PhpUnitRemoteRunConfigurationType" factoryName="PHPUnit on Server" server_id="06f390f4-73c5-46df-b6db-15eccc1677ca" server_name="Fields">
+      <method />
+    </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
       <node-options />
       <gulpfile />
@@ -315,9 +357,6 @@
       <arguments />
       <pass-parent-envs>true</pass-parent-envs>
       <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="PhpUnitRemoteRunConfigurationType" factoryName="PHPUnit on Server" server_id="06f390f4-73c5-46df-b6db-15eccc1677ca" server_name="Fields">
       <method />
     </configuration>
     <configuration default="false" name="Model Tests" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
@@ -423,7 +462,13 @@
       <option name="project" value="LOCAL" />
       <updated>1447121086435</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Re-worked RESERVATIONS to allow display of all reservations by division.">
+      <created>1448549217247</created>
+      <option name="number" value="00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1448549217247</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TodoView">
@@ -457,20 +502,20 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2490931" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25252524" sideWeight="0.48965517" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25613275" sideWeight="0.48965517" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20382634" sideWeight="0.5103448" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22330096" sideWeight="0.5003509" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32921812" sideWeight="0.49964055" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32965517" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32965517" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25311205" sideWeight="0.5005549" order="3" side_tool="true" content_ui="tabs" x="1489" y="553" width="1730" height="396" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" sideWeight="0.49944505" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31451613" sideWeight="0.58194447" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32965517" sideWeight="0.4518028" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32965517" sideWeight="0.4518028" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.31451613" sideWeight="0.58194447" order="2" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -491,9 +536,9 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2592058" sideWeight="0.48965517" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32965517" sideWeight="0.4518028" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.40055248" sideWeight="0.48447654" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32965517" sideWeight="0.4518028" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -519,7 +564,8 @@
     <MESSAGE value="Bug Fix - create account misspelled" />
     <MESSAGE value="Show enabled fields only" />
     <MESSAGE value="enabledOnly bug fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="enabledOnly bug fix" />
+    <MESSAGE value="Re-worked RESERVATIONS to allow display of all reservations by division." />
+    <option name="LAST_COMMIT_MESSAGE" value="Re-worked RESERVATIONS to allow display of all reservations by division." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -710,6 +756,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1201" max-vertical-offset="4215">
           <caret line="98" column="66" selection-start-line="98" selection-start-column="54" selection-end-line="98" selection-end-column="71" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -780,6 +827,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1052" max-vertical-offset="3870">
           <caret line="75" column="0" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -794,6 +842,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-105.625" vertical-offset="0" max-vertical-offset="2955">
           <caret line="171" column="40" selection-start-line="171" selection-start-column="40" selection-end-line="171" selection-end-column="40" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -815,13 +864,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3323398" vertical-offset="1592" max-vertical-offset="5895">
           <caret line="121" column="21" selection-start-line="121" selection-start-column="21" selection-end-line="121" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/controller/fields/selectFacility.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.80982566" vertical-offset="3194" max-vertical-offset="3825">
-          <caret line="247" column="51" selection-start-line="247" selection-start-column="51" selection-end-line="247" selection-end-column="51" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -836,6 +879,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-1.8237082" vertical-offset="1545" max-vertical-offset="6570">
           <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -843,13 +887,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="2.4392097" vertical-offset="0" max-vertical-offset="1950">
           <caret line="107" column="54" selection-start-line="107" selection-start-column="54" selection-end-line="107" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/controller/fields/welcome.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5365127" vertical-offset="0" max-vertical-offset="690">
-          <caret line="24" column="49" selection-start-line="24" selection-start-column="49" selection-end-line="24" selection-end-column="49" />
         </state>
       </provider>
     </entry>
@@ -871,6 +908,34 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="1.2765957" vertical-offset="0" max-vertical-offset="2160">
           <caret line="56" column="23" selection-start-line="56" selection-start-column="23" selection-end-line="56" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controller/fields/selectFacility.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-9.875" vertical-offset="633" max-vertical-offset="3825">
+          <caret line="58" column="53" selection-start-line="58" selection-start-column="53" selection-end-line="58" selection-end-column="53" />
+          <folding>
+            <marker date="1448901450000" expanded="true" signature="9825:11270" placeholder="..." />
+            <marker date="1448901450000" expanded="true" signature="9848:11250" placeholder="..." />
+            <marker date="1448901450000" expanded="true" signature="9872:10126" placeholder="..." />
+            <marker date="1448901450000" expanded="true" signature="10165:11034" placeholder="..." />
+            <marker date="1448901450000" expanded="true" signature="10194:10369" placeholder="..." />
+            <marker date="1448901450000" expanded="true" signature="10398:10529" placeholder="..." />
+            <marker date="1448901450000" expanded="true" signature="10558:10683" placeholder="..." />
+            <marker date="1448901450000" expanded="true" signature="10712:10846" placeholder="..." />
+            <marker date="1448901450000" expanded="true" signature="10875:11005" placeholder="..." />
+            <marker date="1448901450000" expanded="true" signature="11058:11226" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controller/fields/welcome.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5074627" vertical-offset="20" max-vertical-offset="690">
+          <caret line="24" column="49" selection-start-line="24" selection-start-column="49" selection-end-line="24" selection-end-column="49" />
+          <folding />
         </state>
       </provider>
     </entry>
