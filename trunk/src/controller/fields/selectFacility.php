@@ -61,7 +61,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
                         $this->m_filterDivisionId = 0;
                         $this->m_filterTeamId = $this->m_team->id;
 
-                        $view = new View_Fields_ShowAllReservations($this);
+                        $view = new View_Fields_ShowReservation($this);
                     } else {
                         $view = new View_Fields_SelectFacility($this);
                     }
