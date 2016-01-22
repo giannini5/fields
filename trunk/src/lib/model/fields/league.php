@@ -65,26 +65,20 @@ class Model_Fields_League extends Model_Fields_Base implements SaveModelInterfac
      * @brief: Delete everything in this league and then delete this league
      */
     public function delete() {
-        $practiceFieldCoordinators = Model_Fields_PracticeFieldCoordinator::LookupByLeague($this);
-        foreach ($practiceFieldCoordinators as $practiceFieldCoordinator) {
-            $practiceFieldCoordinator->_delete();
+        // Delete reservations
+        $seasons = Model_Fields_Season::LookupByLeague($this);
+        foreach ($seasons as $season) {
+            Model_Fields_Reservation::DeleteBySeason($season);
+            Model_Fields_ReservationHistory::Delete($season);
         }
 
-        $this->deleteCoaches();
+        // TODO Fields
+        // TODO FacilityLocation
+        // TODO fieldAvailability
 
         $facilities = Model_Fields_Facility::LookupByLeague($this);
         foreach ($facilities as $facilities) {
             $facilities->_delete();
-        }
-
-        $seasons = Model_Fields_Season::LookupByLeague($this);
-        foreach ($seasons as $season) {
-            $season->_delete();
-        }
-
-        $divisions = Model_Fields_Division::GitList($this);
-        foreach ($divisions as $division) {
-            $division->_delete();
         }
 
         $locations = Model_Fields_Location::GetLocations($this->id);
@@ -92,16 +86,46 @@ class Model_Fields_League extends Model_Fields_Base implements SaveModelInterfac
             $location->_delete();
         }
 
+        $this->deleteTeams();
+        $this->deleteCoaches();
+
+        $divisions = Model_Fields_Division::GitList($this);
+        foreach ($divisions as $division) {
+            $division->_delete();
+        }
+
+        foreach ($seasons as $season) {
+            $season->_delete();
+        }
+
+        $practiceFieldCoordinators = Model_Fields_PracticeFieldCoordinator::LookupByLeague($this);
+        foreach ($practiceFieldCoordinators as $practiceFieldCoordinator) {
+            $practiceFieldCoordinator->_delete();
+        }
+
         $this->_delete();
     }
 
     /**
-     * @brief: Delete all coaches for the leage
+     * @brief: Delete all coaches for the league
      */
     public function deleteCoaches() {
         $coaches = Model_Fields_Coach::GetCoaches($this);
         foreach ($coaches as $coach) {
             $coach->_delete();
+        }
+    }
+
+    /**
+     * @brief: Delete all teams for the league
+     */
+    public function deleteTeams() {
+        $divisions = Model_Fields_Division::GitList($this, FALSE);
+        foreach ($divisions as $division) {
+            $teams = Model_Fields_Team::GetTeams($division);
+            foreach ($teams as $team) {
+                $team->_delete();
+            }
         }
     }
 

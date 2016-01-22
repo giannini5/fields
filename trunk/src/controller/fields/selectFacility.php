@@ -92,12 +92,12 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
     private function createReservation() {
         // All of the following must be TRUE or the reservation is denied:
         // 1. StartTime is less then EndTime
-        // 2. Total time for all reservations for team is within limit allowed
-        // 3. At least one day is selected
-        // 4. Reservation does not overlap with another team's reservation
-        // 5. At most two days are select (1 for teams that are only allowed to practice one day
+        // 2. At least one day is selected
+        // 3. At most two days are select (1 for teams that are only allowed to practice one day
         //    per week.
-        // 6. Times selected are within times available for the field.
+        // 4. Times selected are within times available for the field.
+        // 5. Total time for all reservations for team is within limit allowed
+        // 5. Reservation does not overlap with another team's reservation
 
         // 1. StartTime is less then EndTime
         $startDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $this->m_startTime" . ":00");
@@ -114,12 +114,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             return FALSE;
         }
 
-        // 2. Total time for all reservations for team is within limit allowed
-        // TODO: check limit
-        // $this->m_createReservationError = "ERROR 2:<br>Total reservation time would exceed limit for your team.";
-        // $this->m_createReservationError .= "<br>Please try again.";
-
-        // 3. Verify that at least one day is selected
+        // 2. Verify that at least one day is selected
         $daysSelected = 0;
         $daysSelectedString = '';
         foreach ($this->m_daysSelected as $day=>$selected) {
@@ -127,35 +122,53 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             $daysSelected += $selected ? 1 : 0;
         }
         if ($daysSelected <= 0) {
-            $this->m_createReservationError = "ERROR 3:<br>No practices days were selected.";
+            $this->m_createReservationError = "ERROR 2:<br>No practices days were selected.";
             $this->m_createReservationError .= "<br>Please try again.";
             return FALSE;
         }
 
-        // 4. Reservation does not overlap with another team's reservation
-        $overlapReservation = Model_Fields_Reservation::getOverlapping($this->m_season, $this->m_field, $this->m_startTime, $this->m_endTime, $daysSelectedString);
-        if ($overlapReservation != NULL) {
-            $this->m_createReservationError = "ERROR 4:<br>Your selected days and times overlap with an existing reservation.";
-            $this->m_createReservationError .= "<br>Please try again.";
-            return FALSE;
-        }
-
-        // 5. Verify that at most two days are selected
+        // 3. Verify that at most two days are selected
         if ($daysSelected > 2) {
-            $this->m_createReservationError = "ERROR 5:<br>Too many practice days were selected.  Two is the max.";
+            $this->m_createReservationError = "ERROR 3:<br>Too many practice days were selected.  Two is the max.";
             $this->m_createReservationError .= "<br>Please try again.";
             return FALSE;
         }
 
-        // 6. Times selected are within times available for the field.
+        // 4. Times selected are within times available for the field.
         $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
         if ($this->m_startTime < $fieldAvailability->startTime) {
-            $this->m_createReservationError = "ERROR 6:<br>Invalid start time of $this->m_startTime.<br>Field is only available from $fieldAvailability->startTime to $fieldAvailability->endTime.";
+            $this->m_createReservationError = "ERROR 4a:<br>Invalid start time of $this->m_startTime.<br>Field is only available from $fieldAvailability->startTime to $fieldAvailability->endTime.";
             $this->m_createReservationError .= "<br>Please try again.";
             return FALSE;
         }
         if ($this->m_endTime > $fieldAvailability->endTime) {
-            $this->m_createReservationError = "ERROR 6:<br>Invalid end time of $this->m_endTime.<br>Field is only available from $fieldAvailability->startTime to $fieldAvailability->endTime.";
+            $this->m_createReservationError = "ERROR 4b:<br>Invalid end time of $this->m_endTime.<br>Field is only available from $fieldAvailability->startTime to $fieldAvailability->endTime.";
+            $this->m_createReservationError .= "<br>Please try again.";
+            return FALSE;
+        }
+
+        // 5a. Total time for all reservations for team is within limit allowed
+        $currentReservationMinutesPerPractice = ($diff->h * 60 + $diff->i);
+        if ($currentReservationMinutesPerPractice > $this->m_team->m_division->maxMinutesPerPractice) {
+            $hoursPerPractice = $this->m_team->m_division->maxMinutesPerPractice / 60;
+            $this->m_createReservationError = "ERROR 5a:<br>You can practice at most $hoursPerPractice hour(s) per practice.";
+            $this->m_createReservationError .= "<br>Please try again.";
+            return FALSE;
+        }
+
+        // 5b. Total time for all reservations for team is within limit allowed
+        $currentReservationMinutesPerWeek = $currentReservationMinutesPerPractice * $daysSelected;
+        if (!$this->_isUnderTimeLimit($currentReservationMinutesPerWeek)) {
+            $hoursPerWeek = $this->m_team->m_division->maxMinutesPerWeek / 60;
+            $this->m_createReservationError = "ERROR 5b:<br>You can practice at most $hoursPerWeek hour(s) per week.  Click on Reservations tab to cancel existing reservation or create a shorter reservation.";
+            $this->m_createReservationError .= "<br>Please try again.";
+            return FALSE;
+        }
+
+        // 6. Reservation does not overlap with another team's reservation
+        $overlapReservation = Model_Fields_Reservation::getOverlapping($this->m_season, $this->m_field, $this->m_startTime, $this->m_endTime, $daysSelectedString);
+        if ($overlapReservation != NULL) {
+            $this->m_createReservationError = "ERROR 6:<br>Your selected days and times overlap with an existing reservation.";
             $this->m_createReservationError .= "<br>Please try again.";
             return FALSE;
         }
@@ -171,6 +184,31 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
     }
 
     /**
+     * @brief Determine if the total practice time is within the allowed practice time for the division.
+     *
+     * @param $currentReservationMinutes - Minutes for current reservation
+     *
+     * @return bool TRUE if total practice time is <= allowed practice time
+     */
+    private function _isUnderTimeLimit($currentReservationMinutes) {
+        // Get existing reservations for team
+        $reservations = Model_Fields_Reservation::LookupByTeam($this->m_season, $this->m_team, FALSE);
+
+        // Compute total minutes of reservation time for team
+        $minutes = $currentReservationMinutes;
+        foreach ($reservations as $reservation) {
+            $startDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $reservation->startTime");
+            $endDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $reservation->endTime");
+            $diff = $startDateTime->diff($endDateTime);
+            $numberOfDays = $reservation->getNumberOfDays();
+            $minutes += ($diff->h * 60 + $diff->i) * $numberOfDays;
+        }
+
+        // Verify total time is under the weekly minute limit for team
+        return $minutes <= $this->m_team->m_division->maxMinutesPerWeek;
+    }
+
+    /**
      * @brief Send a reservation confirmation email from the Practice Field Coordinator to the Coach.
      *
      * @param $reservation
@@ -182,7 +220,9 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $practiceFieldCoordinatorName = $practiceFieldCoordinators[0]->name;
         $fromAddress = $practiceFieldCoordinators[0]->email;
         $toAddress = $this->m_coach->email;
-        $subject = 'AYSO Practice Field Approval';
+        $preApproved = $this->m_facility->preApproved == 1;
+        $subject = $preApproved ? 'AYSO Practice Field Approval' : 'AYSO Practice Field Pending';
+        $intro = $preApproved ? "Your team's practice field request has been approved." : "Your team's practice field request is pending.";
         $coachName = $this->m_coach->name;
         $divisionName = $this->m_division->name;
         $gender = $this->m_team->gender;
@@ -195,9 +235,12 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
         $startDate = $fieldAvailability->startDate;
         $endDate = $fieldAvailability->endDate;
+        $contactName = $this->m_facility->contactName;
+        $contactEmail = $this->m_facility->contactEmail;
+        $contactPhone = $this->m_facility->contactPhone;
 
         $headers = "From: $fromAddress\r\n";
-        $headers .= "To: $toAddress\r\n";
+        // $headers .= "To: $toAddress\r\n";
         $headers .= "Reply-To: $fromAddress\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
@@ -209,7 +252,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
                         Hey $coachName ($divisionName-$gender),
                         <br>
                         <br>
-                        Your team's practice field request has been approved.
+                        $intro
                         <br>
                     </p>
                     <table border='0'>
@@ -233,7 +276,19 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
                             <td><b>End Date:</b></td>
                             <td>$endDate</td>
                         </tr>
-                    </table>
+                    </table>";
+
+        if (!$preApproved) {
+            $message .= "
+                    <p>
+                        <font color='red'>
+                            <strong>Next Step:</strong> Contact $contactName, $contactEmail, $contactPhone to fill out requested paperwork and pay any fees.
+                            Reply to this message with your receipt for any fees paid along with your name and address and AYSO will reimburse you for the fees.
+                        </font>
+                    </p>";
+        }
+
+        $message .= "
                     <p>
                         <br>
                         $practiceFieldCoordinatorName
@@ -244,7 +299,11 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             </html>";
 
         $result = mail($toAddress, $subject, $message, $headers);
-        $resultString = $result ? "Success" : "Failure";
-        $this->m_reservationConfirmationMessage = "Confirmation email has been sent to $toAddress";
+        $resultString = $result ? "." : "";
+        if ($preApproved) {
+            $this->m_reservationConfirmationMessage = "Confirmation email has been sent to ${toAddress}$resultString";
+        } else {
+            $this->m_reservationConfirmationMessage .= "<font color='red'>Your reservation is pending.  See confirmation email that was sent to $toAddress for next steps$resultString</font>";
+        }
     }
 }

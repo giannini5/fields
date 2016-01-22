@@ -52,7 +52,7 @@ abstract class Controller_Base
      * @brief Get season
      */
     private function _getSeason() {
-        $this->m_season = Model_Fields_Season::LookupByName($this->m_league, "Fall 2015");
+        $this->m_season = Model_Fields_Season::GetEnabledSeason($this->m_league, FALSE);
     }
 
     /**
@@ -247,6 +247,55 @@ abstract class Controller_Base
         }
 
         return 0;
+    }
+
+    /**
+     * @brief Return a comma separated list of days selected in the reservation.
+     *
+     * @param $reservation
+     *
+     * @return string : comma separated list of days string: "Monday, Tuesday, ..., Friday"
+     */
+    public function getDaysSelectedString($reservation) {
+        $daysSelected = '';
+        for ($i = 0; $i < 7; ++$i) {
+            if ($reservation->isDaySelected($i)) {
+                if (!empty($daysSelected)) {
+                    $daysSelected .= ", ";
+                }
+                $daysSelected .= $this->_getDayOfWeek($i);
+            }
+        }
+
+        return $daysSelected;
+    }
+
+    /**
+     * @brief Return the string version of the passed in integer
+     *
+     * @param int $day - 0 is Monday, 6 is Sunday
+     *
+     * @return string (Monday, Tuesday, ..., Sunday)
+     */
+    protected function _getDayOfWeek($day) {
+        switch ($day) {
+            case 0:
+                return 'Monday';
+            case 1:
+                return 'Tuesday';
+            case 2:
+                return 'Wednesday';
+            case 3:
+                return 'Thursday';
+            case 4:
+                return 'Friday';
+            case 5:
+                return 'Saturday';
+            case 6:
+                return 'Sunday';
+            default:
+                return 'ERROR';
+        }
     }
 
     abstract public function process();

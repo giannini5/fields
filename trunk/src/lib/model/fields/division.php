@@ -17,15 +17,19 @@ class Model_Fields_Division extends Model_Fields_Base implements SaveModelInterf
      * @param $id - unique identifier
      * @param $leagueId - unique league identifier
      * @param string $name - name of the division
+     * @param int $maxMinutesPerPractice - Max minutes team can practice in a single practice
+     * @param int $maxMinutesPerWeek - Max minutes team can practice during a week
      * @param bool $enabled - 1 if division is enabled; 0 otherwise
      */
-    public function __construct($league = NULL, $id = NULL, $leagueId = NULL, $name = '', $enabled = 0) {
+    public function __construct($league = NULL, $id = NULL, $leagueId = NULL, $name = '', $maxMinutesPerPractice = NULL, $maxMinutesPerWeek = NULL, $enabled = 0) {
         parent::__construct('Model_Fields_DivisionDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->m_league = $league;
         $this->{Model_Fields_DivisionDB::DB_COLUMN_ID}   = $id;
         $this->{Model_Fields_DivisionDB::DB_COLUMN_LEAGUE_ID}   = $leagueId;
         $this->{Model_Fields_DivisionDB::DB_COLUMN_NAME} = $name;
+        $this->{Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_PRACTICE} = $maxMinutesPerPractice;
+        $this->{Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_WEEK} = $maxMinutesPerWeek;
         $this->{Model_Fields_DivisionDB::DB_COLUMN_ENABLED} = $enabled;
         $this->_setLeague();
     }
@@ -96,6 +100,8 @@ class Model_Fields_Division extends Model_Fields_Base implements SaveModelInterf
             $dataObject->{Model_Fields_DivisionDB::DB_COLUMN_ID},
             $dataObject->{Model_Fields_DivisionDB::DB_COLUMN_LEAGUE_ID},
             $dataObject->{Model_Fields_DivisionDB::DB_COLUMN_NAME},
+            $dataObject->{Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_PRACTICE},
+            $dataObject->{Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_WEEK},
             $dataObject->{Model_Fields_DivisionDB::DB_COLUMN_ENABLED});
 
         $division->setLoaded();
@@ -108,14 +114,16 @@ class Model_Fields_Division extends Model_Fields_Base implements SaveModelInterf
      *
      * @param $league - Model_Fields_League instance
      * @param string $name - name of the division
+     * @param int $maxMinutesPerPractice - Max minutes team can practice in a single practice
+     * @param int $maxMinutesPerWeek - Max minutes team can practice during a week
      * @param bool $enabled - 1 if division is enabled; 0 otherwise
      *
      * @return Model_Fields_Division
      * @throws AssertionException
      */
-    public static function Create($league, $name, $enabled) {
+    public static function Create($league, $name, $maxMinutesPerPractice, $maxMinutesPerWeek, $enabled) {
         $dbHandle = new Model_Fields_DivisionDB();
-        $dataObject = $dbHandle->create($league, $name, $enabled);
+        $dataObject = $dbHandle->create($league, $name, $maxMinutesPerPractice, $maxMinutesPerWeek, $enabled);
         assertion(!empty($dataObject), "Unable to create Division with name:'$name'");
 
         return Model_Fields_Division::GetInstance($dataObject, $league);

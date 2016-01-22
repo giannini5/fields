@@ -77,7 +77,7 @@ abstract class View_Admin_Base extends View_Base {
                 <br>";
 
 // print $this-htmlFormatArray($_REQUEST);
-        print $this->htmlFormatArray($_POST);
+// print $this->htmlFormatArray($_POST);
 // print $this-htmlFormatArray($this->m_tableData);
 // print $this-htmlFormatArray($this->m_tableSummaryData);
 
@@ -104,6 +104,8 @@ abstract class View_Admin_Base extends View_Base {
                 '<li><div>FACILITY</div></li>' : '<li><a href="' . self::ADMIN_FACILITY_PAGE . '">FACILITY</a></li>')
             . ($this->m_pageName == self::ADMIN_FIELD_PAGE ?
                 '<li><div>FIELD</div></li>' : '<li><a href="' . self::ADMIN_FIELD_PAGE . '">FIELD</a></li>')
+            . ($this->m_pageName == self::ADMIN_TRANSACTION_PAGE ?
+                '<li><div>TRANSACTIONS</div></li>' : '<li><a href="' . self::ADMIN_TRANSACTION_PAGE . '">TRANSACTIONS</a></li>')
             . '
                </ul>';
     }

@@ -13,7 +13,7 @@ class Model_CoachTest extends Model_TestHelpers {
      */
     protected function setUp()
     {
-        $this->primeDatabase();
+        $this->primeDatabase(TRUE, TRUE, TRUE, FALSE, FALSE);
 
         $coach = Model_Fields_Coach::LookupByEmail($this->m_season, $this->m_division, $this->m_email, FALSE);
         if (isset($coach)) {

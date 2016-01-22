@@ -236,7 +236,21 @@ class View_Fields_SelectFacility extends View_Fields_Base {
                             $facility->city, $facility->state, $facility->postalCode<br><br>
                         </font>
                     </td>
-                </tr>
+                </tr>";
+
+        if (!$facility->preApproved) {
+            print "
+                <tr class='$collapsible'>
+                    <td align='left'colspan='$maxColumns'>
+                        <font color='red' size='3'>
+                        After you complete your selection below you will receive a confirmation email with additional instructions to fill out a form, pay a fee
+                        and get final approval from the $facility->name field manager.
+                        </font>
+                    </td>
+                </tr>";
+        }
+
+        print "
                 <tr class='$collapsible'>
                     <td colspan='$maxColumns'>
                         <img src='$image' alt='$image' width='600' height='300'>
@@ -278,7 +292,19 @@ class View_Fields_SelectFacility extends View_Fields_Base {
 
         foreach ($fields as $field) {
             $reservations = $this->m_controller->getReservationsForField($field);
-            $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($field->id);
+            $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($field->id, FALSE);
+
+            if (!isset($fieldAvailability)) {
+                $colSpan = count($this->m_days) + 1;
+                print "
+                    <tr>
+                        <td align='center'>$field->name</td>
+                        <td bgcolor='red' colspan='$colSpan'>Uh Oh!!!  Administrator needs to set the field availability</td>
+                    </tr>";
+
+                continue;
+            }
+
             $times = $this->_getTimes($fieldAvailability);
             // $times = $this->m_times;
             $timeRowSpan = count($times);

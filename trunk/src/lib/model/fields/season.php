@@ -199,12 +199,22 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
      *
      * @param $league - Model_Fields_League instance
      *
+     * @param bool $assertIfNotFound - defaults to TRUE
+     *
      * @return Model_Fields_Season that is enabled
+     * @throws AssertionException
      */
-    public static function GetEnabledSeason($league) {
+    public static function GetEnabledSeason($league, $assertIfNotFound = TRUE) {
         $dbHandle = new Model_Fields_SeasonDB();
         $dataObject = $dbHandle->getEnabledSeason($league);
-        assertion(!empty($dataObject), "Enabled Season for league: $league->name not found");
+
+        if ($assertIfNotFound) {
+            assertion(!empty($dataObject), "Enabled Season for league: $league->name not found");
+        }
+
+        if (empty($dataObject)) {
+            return NULL;
+        }
 
         return Model_Fields_Season::GetInstance($dataObject, $league);
     }

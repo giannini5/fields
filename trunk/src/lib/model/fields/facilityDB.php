@@ -27,6 +27,7 @@ class Model_Fields_FacilityDB extends Model_Fields_BaseDB {
     const DB_COLUMN_CONTACT_EMAIL = 'contactEmail';
     const DB_COLUMN_CONTACT_PHONE = 'contactPhone';
     const DB_COLUMN_IMAGE         = 'image';
+    const DB_COLUMN_PRE_APPROVED  = 'preApproved';
     const DB_COLUMN_ENABLED       = 'enabled';
 
     /**
@@ -87,11 +88,13 @@ class Model_Fields_FacilityDB extends Model_Fields_BaseDB {
      * @param string $contactName - Name of person in charge of facility
      * @param string $contactEmail - Email of person in charge of facility
      * @param string $contactPhone - Phone number of person in charge of facility
+     * @param string $image - http path to image
+     * @param string $preApproved - 1 if fields are preApproved !1 if additional approval required
      * @param bool $enabled - 1 if facility is enabled; 0 otherwise
      *
      * @return DataObject[]
      */
-    public function create($league, $name, $address1, $address2, $city, $state, $postalCode, $country, $contactName, $contactEmail, $contactPhone, $image, $enabled) {
+    public function create($league, $name, $address1, $address2, $city, $state, $postalCode, $country, $contactName, $contactEmail, $contactPhone, $image, $preApproved, $enabled) {
         $dataObject = new DataObject();
         $dataObject->{self::DB_COLUMN_LEAGUE_ID} = $league->id;
         $dataObject->{self::DB_COLUMN_NAME} = $name;
@@ -105,6 +108,7 @@ class Model_Fields_FacilityDB extends Model_Fields_BaseDB {
         $dataObject->{self::DB_COLUMN_CONTACT_EMAIL} = $contactEmail;
         $dataObject->{self::DB_COLUMN_CONTACT_PHONE} = $contactPhone;
         $dataObject->{self::DB_COLUMN_IMAGE} = $image;
+        $dataObject->{self::DB_COLUMN_PRE_APPROVED} = $preApproved;
         $dataObject->{self::DB_COLUMN_ENABLED} = $enabled;
 
 

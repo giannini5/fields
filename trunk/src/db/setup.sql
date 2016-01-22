@@ -1,4 +1,20 @@
 use fields;
+truncate table league;
+truncate table season;
+truncate table division;
+truncate table team;
+truncate table coach;
+truncate table session;
+truncate table facility;
+truncate table field;
+truncate table reservation;
+truncate table location;
+truncate table facilityLocation;
+truncate table divisionField;
+truncate table practiceFieldCoordinator;
+truncate table fieldAvailability;
+truncate table reservationHistory;
+
 
 select * from league;
 select * from season;
@@ -14,6 +30,7 @@ select * from facilityLocation;
 select * from divisionField;
 select * from practiceFieldCoordinator;
 select * from fieldAvailability;
+select * from reservationHistory;
 
 select * from field as f join facility as l on l.id = f.facilityId join league as g on g.id = l.leagueId and g.id = 1;
 
@@ -49,16 +66,16 @@ insert into field (facilityId, name, enabled) values (2, 'Field 1B', 1);
 insert into field (facilityId, name, enabled) values (2, 'Field 1C', 1);
 insert into field (facilityId, name, enabled) values (2, 'Field 1D', 1);
 
-insert into division (leagueId, name, enabled) values (1, 'U5', 1);
-insert into division (leagueId, name, enabled) values (1, 'U6', 1);
-insert into division (leagueId, name, enabled) values (1, 'U7', 1);
-insert into division (leagueId, name, enabled) values (1, 'U8', 1);
-insert into division (leagueId, name, enabled) values (1, 'U9', 1);
-insert into division (leagueId, name, enabled) values (1, 'U10', 1);
-insert into division (leagueId, name, enabled) values (1, 'U11', 1);
-insert into division (leagueId, name, enabled) values (1, 'U12', 1);
-insert into division (leagueId, name, enabled) values (1, 'U14', 1);
-insert into division (leagueId, name, enabled) values (1, 'U16-19', 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U5', 60, 60, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U6', 60, 60, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U7', 60, 60, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U8', 60, 60, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U9', 60, 120, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U10', 60, 120, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U11', 90, 180, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U12', 90, 180, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U14', 90, 180, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U16-19', 120, 240, 1);
 
 insert into divisionField (divisionId, facilityId, fieldId) values (6, 1, 1); -- Girsh A
 insert into divisionField (divisionId, facilityId, fieldId) values (6, 1, 2); -- Girsh B

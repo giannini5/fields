@@ -14,10 +14,12 @@ class Model_Fields_DivisionDB extends Model_Fields_BaseDB {
     const DB_TABLE_NAME = 'division';
 
     // Columns constant
-    const DB_COLUMN_ID            = 'id';
-    const DB_COLUMN_LEAGUE_ID     = 'leagueId';
-    const DB_COLUMN_NAME          = 'name';
-    const DB_COLUMN_ENABLED       = 'enabled';
+    const DB_COLUMN_ID                       = 'id';
+    const DB_COLUMN_LEAGUE_ID                = 'leagueId';
+    const DB_COLUMN_NAME                     = 'name';
+    const DB_COLUMN_MAX_MINUTES_PER_PRACTICE = 'maxMinutesPerPractice';
+    const DB_COLUMN_MAX_MINUTES_PER_WEEK     = 'maxMinutesPerWeek';
+    const DB_COLUMN_ENABLED                  = 'enabled';
 
     /**
      * @brief: Constructor
@@ -68,14 +70,18 @@ class Model_Fields_DivisionDB extends Model_Fields_BaseDB {
      *
      * @param $league - Model_Fields_League instance
      * @param string $name - name of the division
+     * @param int $maxMinutesPerPractice - Max minutes team can practice in a single practice
+     * @param int $maxMinutesPerWeek - Max minutes team can practice during a week
      * @param bool $enabled - 1 if division is enabled; 0 otherwise
      *
      * @return DataObject[]
      */
-    public function create($league, $name, $enabled) {
+    public function create($league, $name, $maxMinutesPerPractice, $maxMinutesPerWeek, $enabled) {
         $dataObject = new DataObject();
         $dataObject->{self::DB_COLUMN_LEAGUE_ID} = $league->id;
         $dataObject->{self::DB_COLUMN_NAME} = $name;
+        $dataObject->{self::DB_COLUMN_MAX_MINUTES_PER_PRACTICE} = $maxMinutesPerPractice;
+        $dataObject->{self::DB_COLUMN_MAX_MINUTES_PER_WEEK} = $maxMinutesPerWeek;
         $dataObject->{self::DB_COLUMN_ENABLED} = $enabled;
 
 

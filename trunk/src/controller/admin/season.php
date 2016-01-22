@@ -54,10 +54,13 @@ class Controller_Admin_Season extends Controller_Admin_Base {
             switch ($this->m_operation) {
                 case View_Base::CREATE:
                     $this->_createSeason();
+                    $this->m_seasons = Model_Fields_Season::LookupByLeague($this->m_league);
                     break;
 
                 case View_Base::UPDATE:
                     $this->_updateSeason();
+                    // Reload seasons to get date format correct
+                    $this->m_seasons = Model_Fields_Season::LookupByLeague($this->m_league);
                     break;
             }
         }

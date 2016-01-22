@@ -12,6 +12,7 @@ create table facility (
     contactEmail varchar(128) default '',
     contactPhone varchar(128) default '',
     image        varchar(128) default '',
+    preApproved  tinyint default 1,
     enabled      tinyint default 1,
     PRIMARY KEY (id),
     unique index ux_leagueName(leagueId, name)

@@ -449,7 +449,7 @@ class View_Styles {
 
                     /* This is just styling for this specific page. */
                 body {
-                    background-color: #CCC;
+                    background-color: lightskyblue;
                     font: small/1.3 Arial, Helvetica, sans-serif; }
                 h1 {
                     font-size: 1.2em;
@@ -588,83 +588,6 @@ class View_Styles {
                 }
 
             </style>
-    <!--
-            <script>
-                $(function() {
-                    var icons = {
-                        header: "ui-icon-circle-arrow-e",
-                        activeHeader: "ui-icon-circle-arrow-s"
-                    };
-                    $( "#accordion" ).accordion({
-                        icons: icons
-                    });
-                    $( ".button" ).button();
-                    $( "#radioset" ).buttonset();
-                    $( "#tabs" ).tabs();
-                    $( "#dialog" ).dialog({
-                        autoOpen: false,
-                        width: 400,
-                        buttons: [
-                            {
-                                text: "Ok",
-                                click: function() {
-                                    $( this ).dialog( "close" );
-                                }
-                            }/*,
-                            {
-                                text: "Cancel",
-                                click: function() {
-                                    $( this ).dialog( "close" );
-                                }
-                            }*/
-                        ]
-                    });
-                    // Link to open the dialog
-                    $( "#dialog-link" ).click(function( event ) {
-                        $( "#dialog" ).dialog( "open" );
-                        event.preventDefault();
-                    });
-                    $( "#datepicker" ).datepicker({
-                        showOn: "button",
-                        buttonImage: "http://dwproxy.corp.pinger.com:8082/css/images/date-picker-icon.png",
-                        buttonImageOnly: true
-                    });
-                    $( "#slider" ).slider({
-                        range: true,
-                        values: [ 17, 67 ]
-                    });
-                    $( "#progressbar" ).progressbar({
-                        value: 20
-                    });
-                    // Hover states on the static widgets
-                    $( "#dialog-link, #icons li" ).hover(
-                        function() {
-                            $( this ).addClass( "ui-state-hover" );
-                        },
-                        function() {
-                            $( this ).removeClass( "ui-state-hover" );
-                        }
-                    );
-                });
-
-            </script>
-
-            <script>
-                $(function() {
-                    var selected
-                    $( "#startDate" ).datepicker({currentText: "Now", showButtonPanel: true});
-                    $( "#startDate" ).datepicker( "option", "dateFormat", "yy-mm-dd");
-                    $( "#startDate" ).datepicker( "option", "dateFormat", "yy-mm-dd");
-                    $( "#startDate" ).datepicker( "setDate", "2015-01-01");
-
-
-                    $( "#endDate" ).datepicker({currentText: "Now",showButtonPanel: true});
-                    $( "#endDate" ).datepicker( "option", "dateFormat", "yy-mm-dd");
-                    $( "#endDate" ).datepicker( "option", "dateFormat", "yy-mm-dd");
-                    $( "#endDate" ).datepicker( "setDate", "2016-01-01");
-                });
-            </script>
-            -->
 
             <style>
                 table.sortable th {
