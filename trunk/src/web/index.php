@@ -70,6 +70,10 @@ class Web_Index
                 $this->m_controller = new Controller_Admin_Location();
                 break;
 
+            case View_Base::ADMIN_TRANSACTION_PAGE:
+                $this->m_controller = new Controller_Admin_Transaction();
+                break;
+
             default:
                 $this->m_controller = new Controller_Fields_Welcome();
                 break;

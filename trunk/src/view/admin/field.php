@@ -75,15 +75,16 @@ class View_Admin_Field extends View_Admin_Base {
                     <th align='center'colspan='$maxColumns'>
                         $facility->name
                     </th>
-                </tr>
+                </tr>";
+
+        print "
                 <form method='post' action='" . self::ADMIN_FIELD_PAGE . $this->m_urlParams . "'>";
 
-        $errorString = (isset($this->m_controller->m_fieldId) or $this->m_controller->m_missingAttributes == 0) ? '' : $this->m_controller->m_name;
-
-        $this->displayInput('Field Name:', 'text', Model_Fields_FieldDB::DB_COLUMN_NAME, 'Field Name', $errorString, '', $collapsible);
+        $this->displayInput('Field Name:', 'text', Model_Fields_FieldDB::DB_COLUMN_NAME, 'Field Name new', '', '', $collapsible);
         $this->displayMultiSelector('Divisions', View_Base::DIVISION_IDS, array(), $divisionData, 10, $collapsible);
         $this->displayCalendarSelector($maxColumns, $season->startDate, $season->endDate, $collapsible);
         $this->printTimeSelectors($maxColumns, $season->startTime, $season->endTime, $collapsible);
+        $this->printDaySelector($maxColumns, $collapsible);
         $this->displayRadioSelector('Enabled:', Model_Fields_FieldDB::DB_COLUMN_ENABLED, array(0=>'No', 1=>'Yes'), 'Yes', $collapsible);
 
         // Print Create button and end form
@@ -120,13 +121,6 @@ class View_Admin_Field extends View_Admin_Base {
             $endDate = isset($fieldAvailability) ? $fieldAvailability->endDate : '';
             $startTime = isset($fieldAvailability) ? $fieldAvailability->startTime : '';
             $endTime = isset($fieldAvailability) ? $fieldAvailability->endTime : '';
-/*            $season = $this->m_controller->m_season;
-            $startDate = isset($fieldAvailability) ? $fieldAvailability->startDate : $season->startDate;
-            $endDate = isset($fieldAvailability) ? $fieldAvailability->endDate : $season->endDate;
-            $startTime = isset($fieldAvailability) ? $fieldAvailability->startTime : $season->startTime;
-            $endTime = isset($fieldAvailability) ? $fieldAvailability->endTime : $season->endTime;*/
-
-            $errorString = ($this->m_controller->m_fieldId == $field->id and $this->m_controller->m_missingAttributes > 0) ? $this->m_controller->m_name : '';
 
             print "
                     </td>
@@ -141,10 +135,11 @@ class View_Admin_Field extends View_Admin_Base {
                             </tr>
                             <form method='post' action='" . self::ADMIN_FIELD_PAGE . $this->m_urlParams . "'>";
 
-            $this->displayInput('Field Name:', 'text', Model_Fields_FieldDB::DB_COLUMN_NAME, 'Field Name', $errorString, $field->name, $collapsible);
+            $this->displayInput('Field Name:', 'text', Model_Fields_FieldDB::DB_COLUMN_NAME, 'Field Name', '', $field->name, $collapsible);
             $this->displayMultiSelector('Divisions', View_Base::DIVISION_IDS, $currentDivisions, $divisionData, 10, $collapsible);
             $this->displayCalendarSelector($maxColumns, $startDate, $endDate, $collapsible);
             $this->printTimeSelectors($maxColumns, $startTime, $endTime, $collapsible);
+            $this->printDaySelector($maxColumns, $collapsible, $fieldAvailability->daysOfWeek);
             $this->displayRadioSelector('Enabled:', Model_Fields_FieldDB::DB_COLUMN_ENABLED, array(0=>'No', 1=>'Yes'), $field->enabled ? 'Yes' : 'No', $collapsible);
 
             // Print Submit button and end form

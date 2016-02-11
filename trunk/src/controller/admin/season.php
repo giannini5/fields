@@ -54,10 +54,13 @@ class Controller_Admin_Season extends Controller_Admin_Base {
             switch ($this->m_operation) {
                 case View_Base::CREATE:
                     $this->_createSeason();
+                    $this->m_seasons = Model_Fields_Season::LookupByLeague($this->m_league);
                     break;
 
                 case View_Base::UPDATE:
                     $this->_updateSeason();
+                    // Reload seasons to get date format correct
+                    $this->m_seasons = Model_Fields_Season::LookupByLeague($this->m_league);
                     break;
             }
         }
@@ -83,6 +86,7 @@ class Controller_Admin_Season extends Controller_Admin_Base {
             $this->m_seasons[] = $season;
             if ($this->m_enabled == 1) {
                 $this->_disableSeasons($season->id);
+                $this->updateFieldAvailability($season);
             }
         } else {
             $this->m_errorString = "Season '$this->m_name' already exists<br>Scroll down and update to make a change";
@@ -115,6 +119,7 @@ class Controller_Admin_Season extends Controller_Admin_Base {
 
                 if ($this->m_enabled == 1) {
                     $this->_disableSeasons($season->id);
+                    $this->updateFieldAvailability($season);
                 }
                 return;
             }
@@ -128,10 +133,19 @@ class Controller_Admin_Season extends Controller_Admin_Base {
      */
     private function _disableSeasons($excludeSeasonId) {
         foreach ($this->m_seasons as $season) {
-            if ($season->id != $this->m_seasonId) {
+            if ($season->id != $excludeSeasonId) {
                 $season->enabled = 0;
                 $season->saveModel();
             }
         }
+    }
+
+    /**
+     * @brief Update Field Availability to use season defaults
+     *
+     * @param $excludeSeasonId - Season that should be left enabled
+     */
+    private function updateFieldAvailability($season) {
+        Model_Fields_FieldAvailability::UpdateForNewSeason($season);
     }
 }

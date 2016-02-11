@@ -23,16 +23,16 @@ class View_Fields_SelectFacility extends View_Fields_Base {
         $this->m_days = array();
         $this->m_times = array();
 
-        $this->m_days[View_Base::MONDAY][self::LONG_NAME] = View_Base::MONDAY;
-        $this->m_days[View_Base::MONDAY][self::SHORT_NAME] = 'Mon';
-        $this->m_days[View_Base::TUESDAY][self::LONG_NAME] = View_Base::TUESDAY;
-        $this->m_days[View_Base::TUESDAY][self::SHORT_NAME] = 'Tues';
-        $this->m_days[View_Base::WEDNESDAY][self::LONG_NAME] = View_Base::WEDNESDAY;
-        $this->m_days[View_Base::WEDNESDAY][self::SHORT_NAME] = 'Wed';
-        $this->m_days[View_Base::THURSDAY][self::LONG_NAME] = View_Base::THURSDAY;
-        $this->m_days[View_Base::THURSDAY][self::SHORT_NAME] = 'Thur';
-        $this->m_days[View_Base::FRIDAY][self::LONG_NAME] = View_Base::FRIDAY;
-        $this->m_days[View_Base::FRIDAY][self::SHORT_NAME] = 'Fri';
+        $this->m_days[View_Base::MONDAY][self::LONG_NAME]       = View_Base::MONDAY;
+        $this->m_days[View_Base::MONDAY][self::SHORT_NAME]      = 'Mon';
+        $this->m_days[View_Base::TUESDAY][self::LONG_NAME]      = View_Base::TUESDAY;
+        $this->m_days[View_Base::TUESDAY][self::SHORT_NAME]     = 'Tues';
+        $this->m_days[View_Base::WEDNESDAY][self::LONG_NAME]    = View_Base::WEDNESDAY;
+        $this->m_days[View_Base::WEDNESDAY][self::SHORT_NAME]   = 'Wed';
+        $this->m_days[View_Base::THURSDAY][self::LONG_NAME]     = View_Base::THURSDAY;
+        $this->m_days[View_Base::THURSDAY][self::SHORT_NAME]    = 'Thur';
+        $this->m_days[View_Base::FRIDAY][self::LONG_NAME]       = View_Base::FRIDAY;
+        $this->m_days[View_Base::FRIDAY][self::SHORT_NAME]      = 'Fri';
 
         $this->m_times['3:00'] = '3:00 - 3:30';
         $this->m_times['3:30'] = '3:30 - 4:00';
@@ -192,7 +192,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
         print "<tr class='$collapsible'><td>&nbsp</td></tr>";
         $this->_printFieldSelector($maxColumns, $fields, $collapsible);
         $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00', $collapsible);
-        $this->_printDaySelector($maxColumns, $collapsible);
+        $this->printDaySelector($maxColumns, $collapsible);
 
         // Print Submit button and end form
         print "
@@ -203,6 +203,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
+                <tr><td>&nbsp</td></tr>
             </form>";
 
         $this->_printFieldsAssigned($maxColumns, $fields, $collapsible);
@@ -236,7 +237,21 @@ class View_Fields_SelectFacility extends View_Fields_Base {
                             $facility->city, $facility->state, $facility->postalCode<br><br>
                         </font>
                     </td>
-                </tr>
+                </tr>";
+
+        if (!$facility->preApproved) {
+            print "
+                <tr class='$collapsible'>
+                    <td align='left'colspan='$maxColumns'>
+                        <font color='red' size='3'>
+                        After you complete your selection below you will receive a confirmation email with additional instructions to fill out a form, pay a fee
+                        and get final approval from the $facility->name field manager.
+                        </font>
+                    </td>
+                </tr>";
+        }
+
+        print "
                 <tr class='$collapsible'>
                     <td colspan='$maxColumns'>
                         <img src='$image' alt='$image' width='600' height='300'>
@@ -254,9 +269,13 @@ class View_Fields_SelectFacility extends View_Fields_Base {
     private function _printFieldsAssigned($maxColumns, $fields, $collapsible) {
         print "
             <tr class='$collapsible'>
-                <td align='center'colspan='$maxColumns'>
-                    <font size='$maxColumns' color='darkblue'><b>Availability (white - available, blue - reserved)</b></font>
-                </td>
+                <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
+                    <tr class='$collapsible'>
+                        <td>Available</td>
+                        <td bgcolor='blue'><font color='white'>Reserved</font></td>
+                        <td bgcolor='salmon'>No Permit</td>
+                    </tr>
+                </table>
             </tr>
             <tr class='$collapsible'>
                 <td colspan='$maxColumns'>
@@ -278,7 +297,19 @@ class View_Fields_SelectFacility extends View_Fields_Base {
 
         foreach ($fields as $field) {
             $reservations = $this->m_controller->getReservationsForField($field);
-            $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($field->id);
+            $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($field->id, FALSE);
+
+            if (!isset($fieldAvailability)) {
+                $colSpan = count($this->m_days) + 1;
+                print "
+                    <tr>
+                        <td align='center'>$field->name</td>
+                        <td bgcolor='red' colspan='$colSpan'>Uh Oh!!!  Administrator needs to set the field availability</td>
+                    </tr>";
+
+                continue;
+            }
+
             $times = $this->_getTimes($fieldAvailability);
             // $times = $this->m_times;
             $timeRowSpan = count($times);
@@ -297,7 +328,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
                         <td>$timeRange</td>";
 
                 foreach ($this->m_days as $day => $dayData) {
-                    $bgColor = $this->_getAssignmentBackgroundColor($reservations, $day, $time);
+                    $bgColor = $this->_getAssignmentBackgroundColor($reservations, $day, $time, $fieldAvailability);
                     print "
                         <td bgcolor='$bgColor'>&nbsp;</td>";
                 }
@@ -381,42 +412,23 @@ class View_Fields_SelectFacility extends View_Fields_Base {
     }
 
     /**
-     * @brief Print the days that can be selected
-     *
-     * @param $maxColumns   - For colspan if needed
-     * @param $collapsible  - Collapsible CSS
-     */
-    private function _printDaySelector($maxColumns, $collapsible) {
-        $mondayChecked = '';
-        $tuesdayChecked = '';
-        $wednesdayChecked = '';
-        $thursdayChecked = '';
-        $fridayChecked = '';
-
-        print "
-                <tr class='$collapsible'>
-                    <td><font color='" . View_Base::AQUA . "'><b>Days:&nbsp</b></font></td>
-                    <td nowrap>
-<nobr><input type=checkbox name='Monday' id='Monday' value='Monday' $mondayChecked>Monday</nobr>
-<nobr><input type=checkbox name='Tuesday' id='Tuesday' value='Tuesday' $tuesdayChecked>Tuesday</nobr>
-<nobr><input type=checkbox name='Wednesday' id='Wednesday' value='Wednesday' $wednesdayChecked>Wednesday</nobr>
-<nobr><input type=checkbox name='Thursday' id='Thursday' value='Thursday' $thursdayChecked>Thursday</nobr>
-<nobr><input type=checkbox name='Friday' id='Friday' value='Friday' $fridayChecked>Friday</nobr>
-                    </td>
-                </tr>";
-    }
-
-
-    /**
      * @brief Return blue if slot is reserved; white otherwise
      *
      * @param $reservations - List of reservations for a specific field
      * @param $day - Day being checked
      * @param $time - Start time being checked
+     * @param $fieldAvailability - Days/Times that the field is available
      *
-     * @return blue if slot reserved; white otherwise
+     * @return blue if slot reserved; salmon if slot not available; white if slot is available
      */
-    private function _getAssignmentBackgroundColor($reservations, $day, $time) {
+    private function _getAssignmentBackgroundColor($reservations, $day, $time, $fieldAvailability) {
+        // Check to see if field is available
+        $dayIndex = $this->_getIndexForDay($day);
+        if (!$fieldAvailability->isFieldAvailable($dayIndex)) {
+            return 'salmon';
+        }
+
+        // Check to see if field is reserved
         foreach ($reservations as $index=>$reservation) {
             if ($this->_isReservationOnDay($reservation, $day)) {
                 if ($this->_isReservationOnTime($reservation, $time)) {

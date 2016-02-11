@@ -90,9 +90,9 @@ class View_Fields_ShowReservation extends View_Fields_Base {
             <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . self::SHOW_RESERVATION_PAGE . $this->m_urlParams . "'>";
 
-        print $this->printFacilitySelector($facilities, $filterFacilityId);
-        print $this->printDivisionSelector($filterDivisionId);
-        print $this->printTeamSelector($filterTeamId);
+        $this->printFacilitySelector($facilities, $filterFacilityId);
+        $this->printDivisionSelector($filterDivisionId);
+        $this->printTeamSelector($filterTeamId);
 
         // Print Filter button and end form
         print "

@@ -177,18 +177,6 @@ abstract class Controller_Fields_Base extends Controller_Base
     }
 
     /**
-     * @brief Return TRUE if the day was selected; FALSE otherwise
-     *
-     * @param $day - ViewBase::MONDAY, ...
-     *
-     * @return bool TRUE if day was selected; FALSE otherwise
-     */
-    protected function _isDaySelected($day) {
-        $postValue = $this->getPostAttribute($day, NULL);
-        return isset($postValue);
-    }
-
-    /**
      * @brief Reset attributes to default values
      */
     protected function _reset() {
@@ -293,55 +281,6 @@ abstract class Controller_Fields_Base extends Controller_Base
         }
 
         return array();
-    }
-
-    /**
-     * @brief Return a comma separated list of days selected in the reservation.
-     *
-     * @param $reservation
-     *
-     * @return string : comma separated list of days string: "Monday, Tuesday, ..., Friday"
-     */
-    public function getDaysSelectedString($reservation) {
-        $daysSelected = '';
-        for ($i = 0; $i < 7; ++$i) {
-            if ($reservation->isDaySelected($i)) {
-                if (!empty($daysSelected)) {
-                    $daysSelected .= ", ";
-                }
-                $daysSelected .= $this->_getDayOfWeek($i);
-            }
-        }
-
-        return $daysSelected;
-    }
-
-    /**
-     * @brief Return the string version of the passed in integer
-     *
-     * @param int $day - 0 is Monday, 6 is Sunday
-     *
-     * @return string (Monday, Tuesday, ..., Sunday)
-     */
-    private function _getDayOfWeek($day) {
-        switch ($day) {
-            case 0:
-                return 'Monday';
-            case 1:
-                return 'Tuesday';
-            case 2:
-                return 'Wednesday';
-            case 3:
-                return 'Thursday';
-            case 4:
-                return 'Friday';
-            case 5:
-                return 'Saturday';
-            case 6:
-                return 'Sunday';
-            default:
-                return 'ERROR';
-        }
     }
 
     /**

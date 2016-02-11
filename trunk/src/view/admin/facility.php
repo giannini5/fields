@@ -78,6 +78,7 @@ class View_Admin_Facility extends View_Admin_Base {
      *        - Facility ContactEmail
      *        - Facility ContactPhone
      *        - Facility Image
+     *        - Facility PreApproved
      *        - Enabled radio button
      *
      * @param $maxColumns - Number of columns the form is covering
@@ -108,6 +109,7 @@ class View_Admin_Facility extends View_Admin_Base {
         $this->displayInput('Facility Contact Email:', 'text', Model_Fields_FacilityDB::DB_COLUMN_CONTACT_EMAIL, 'Facility Contact Email', '', '', $collapsible);
         $this->displayInput('Facility Contact Phone:', 'text', Model_Fields_FacilityDB::DB_COLUMN_CONTACT_PHONE, 'Facility Contact Phone', '', '', $collapsible);
         $this->displayInput('Facility Image:', 'text', Model_Fields_FacilityDB::DB_COLUMN_IMAGE, 'Facility Image', '', '', $collapsible);
+        $this->displayRadioSelector('Pre-Approved:', Model_Fields_FacilityDB::DB_COLUMN_PRE_APPROVED, array(0=>'No', 1=>'Yes'), 'Yes', $collapsible);
         $this->displayMultiSelector('Locations', 'locationIds', array(), $locationData, 8, $collapsible);
         $this->displayRadioSelector('Enabled:', Model_Fields_FacilityDB::DB_COLUMN_ENABLED, array(0=>'No', 1=>'Yes'), 'Yes', $collapsible);
 
@@ -135,6 +137,7 @@ class View_Admin_Facility extends View_Admin_Base {
      *        - Facility ContactEmail
      *        - Facility ContactPhone
      *        - Facility Image
+     *        - Facility PreApproved
      *        - Enabled radio button
      *
      * @param $maxColumns - Number of columns the form is covering
@@ -166,6 +169,7 @@ class View_Admin_Facility extends View_Admin_Base {
         $this->displayInput('Facility Contact Email:', 'text', Model_Fields_FacilityDB::DB_COLUMN_CONTACT_EMAIL, 'Facility Contact Email', '', $facility->contactEmail, $collapsible);
         $this->displayInput('Facility Contact Phone:', 'text', Model_Fields_FacilityDB::DB_COLUMN_CONTACT_PHONE, 'Facility Contact Phone', '', $facility->contactPhone, $collapsible);
         $this->displayInput('Facility Image:', 'text', Model_Fields_FacilityDB::DB_COLUMN_IMAGE, 'Facility Image', '', $facility->image, $collapsible);
+        $this->displayRadioSelector('Pre-Approved:', Model_Fields_FacilityDB::DB_COLUMN_PRE_APPROVED, array(0=>'No', 1=>'Yes'), $facility->preApproved ? 'Yes' : 'No', $collapsible);
         $this->displayMultiSelector('Locations', 'locationIds', $currentLocations, $locationData, 8, $collapsible);
         $this->displayRadioSelector('Enabled:', Model_Fields_FacilityDB::DB_COLUMN_ENABLED, array(0=>'No', 1=>'Yes'), $facility->enabled ? 'Yes' : 'No', $collapsible);
 

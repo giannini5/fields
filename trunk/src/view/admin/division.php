@@ -65,6 +65,8 @@ class View_Admin_Division extends View_Admin_Base {
         $errorString = (isset($this->m_controller->m_divisionId) or $this->m_controller->m_missingAttributes == 0) ? '' : $this->m_controller->m_name;
 
         $this->displayInput('Division Name:', 'text', Model_Fields_DivisionDB::DB_COLUMN_NAME, 'Division Name', $errorString);
+        $this->displayInput('Max Minutes Per Practice:', 'number', Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_PRACTICE, 'Max Minutes Per Practice', $errorString);
+        $this->displayInput('Max Minutes Per Week:', 'number', Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_WEEK, 'Max Minutes Per Week', $errorString);
         $this->displayRadioSelector('Enabled:', Model_Fields_DivisionDB::DB_COLUMN_ENABLED, array(0=>'No', 1=>'Yes'), 'Yes');
 
         // Print Create button and end form
@@ -97,6 +99,8 @@ class View_Admin_Division extends View_Admin_Base {
             <form method='post' action='" . self::ADMIN_DIVISION_PAGE . $this->m_urlParams . "'>";
 
         $this->displayInput('Division Name:', 'text', Model_Fields_DivisionDB::DB_COLUMN_NAME, 'Division Name', $errorString, $division->name);
+        $this->displayInput('Max Minutes Per Practice:', 'number', Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_PRACTICE, 'Max Minutes Per Practice', $errorString, $division->maxMinutesPerPractice);
+        $this->displayInput('Max Minutes Per Week:', 'number', Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_WEEK, 'Max Minutes Per Week', $errorString, $division->maxMinutesPerWeek);
         $this->displayRadioSelector('Enabled:', Model_Fields_DivisionDB::DB_COLUMN_ENABLED, array(0=>'No', 1=>'Yes'), $division->enabled ? 'Yes' : 'No');
 
         // Print Submit button and end form

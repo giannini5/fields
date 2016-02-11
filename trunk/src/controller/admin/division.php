@@ -10,6 +10,8 @@ class Controller_Admin_Division extends Controller_Admin_Base {
     public $m_name = NULL;
     public $m_enabled = NULL;
     public $m_divisionId = NULL;
+    public $m_maxMinutesPerPractice = NULL;
+    public $m_maxMinutesPerWeek = NULL;
 
     public function __construct() {
         parent::__construct();
@@ -20,6 +22,14 @@ class Controller_Admin_Division extends Controller_Admin_Base {
             $this->m_name = $this->getPostAttribute(
                 Model_Fields_DivisionDB::DB_COLUMN_NAME,
                 '* Name required'
+            );
+            $this->m_maxMinutesPerPractice = $this->getPostAttribute(
+                Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_PRACTICE,
+                '* Max Minutes Per Practice required'
+            );
+            $this->m_maxMinutesPerWeek = $this->getPostAttribute(
+                Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_WEEK,
+                '* Max Minutes Per Week required'
             );
             $this->m_enabled = $this->getPostAttribute(
                 Model_Fields_DivisionDB::DB_COLUMN_ENABLED,
@@ -68,7 +78,7 @@ class Controller_Admin_Division extends Controller_Admin_Base {
     private function _createDivision() {
         $division = Model_Fields_Division::LookupByName($this->m_league, $this->m_name, FALSE);
         if (!isset($division)) {
-            $division = Model_Fields_Division::Create($this->m_league, $this->m_name, $this->m_enabled);
+            $division = Model_Fields_Division::Create($this->m_league, $this->m_name, $this->m_maxMinutesPerPractice, $this->m_maxMinutesPerWeek, $this->m_enabled);
             $this->m_divisions[] = $division;
         } else {
             $this->m_errorString = "Division '$this->m_name' already exists<br>Scroll down and update to make a change";
@@ -91,6 +101,8 @@ class Controller_Admin_Division extends Controller_Admin_Base {
         foreach ($this->m_divisions as $division) {
             if ($division->id == $this->m_divisionId) {
                 $division->name = $this->m_name;
+                $division->maxMinutesPerPractice = $this->m_maxMinutesPerPractice;
+                $division->maxMinutesPerWeek = $this->m_maxMinutesPerWeek;
                 $division->enabled = $this->m_enabled;
                 $division->saveModel();
                 return;

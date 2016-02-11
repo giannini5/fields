@@ -139,7 +139,7 @@ class Model_Fields_DivisionField extends Model_Fields_Base implements SaveModelI
      *
      * @return Array of Model_Fields_Field
      */
-    public static function GetFacilityFields($divisionId, $facilityId, $enabledOnly) {
+    public static function GetFacilityFields($divisionId, $facilityId, $enabledOnly = FALSE) {
         $dbHandle = new Model_Fields_DivisionFieldDB();
         $dataObjects = $dbHandle->getByDivisionFacility($divisionId, $facilityId);
 

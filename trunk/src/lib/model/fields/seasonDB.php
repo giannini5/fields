@@ -145,6 +145,7 @@ class Model_Fields_SeasonDB extends Model_Fields_BaseDB {
     public function getEnabledSeason($league) {
         $leagueId = $league->id;
         $dataObjectArray = $this->getWhere(self::DB_COLUMN_LEAGUE_ID . " = '" . $leagueId . "' and " . self::DB_COLUMN_ENABLED . " ='1'");
+        assertion(count($dataObjectArray) <= 1, "ERROR: more than one season enabled for league: $league->name");
         return (0 < count($dataObjectArray)) ? $dataObjectArray[0] : NULL;
     }
 }

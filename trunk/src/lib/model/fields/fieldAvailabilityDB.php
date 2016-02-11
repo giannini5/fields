@@ -20,6 +20,7 @@ class Model_Fields_FieldAvailabilityDB extends Model_Fields_BaseDB {
     const DB_COLUMN_END_DATE      = 'endDate';
     const DB_COLUMN_START_TIME    = 'startTime';
     const DB_COLUMN_END_TIME      = 'endTime';
+    const DB_COLUMN_DAYS_OF_WEEK  = 'daysOfWeek';
 
     /**
      * @brief: Constructor
@@ -67,21 +68,23 @@ class Model_Fields_FieldAvailabilityDB extends Model_Fields_BaseDB {
     /**
      * create a new field
      *
-     * @param $field - Model_Fields_Field instance
-     * @param string $startDate - Day field becomes available
-     * @param string $endDate - Last day field is available
-     * @param string $startTime - Start time during the day that the field is available
-     * @param string $endTime - End time during the day that the field is available
+     * @param $field             - Model_Fields_Field instance
+     * @param string $startDate  - Day field becomes available
+     * @param string $endDate    - Last day field is available
+     * @param string $startTime  - Start time during the day that the field is available
+     * @param string $endTime    - End time during the day that the field is available
+     * @param string $daysOfWeek - Days of week field is available.  daysOfWeek[0] = Sunday
      *
      * @return DataObject[]
      */
-    public function create($field, $startDate, $endDate, $startTime, $endTime) {
+    public function create($field, $startDate, $endDate, $startTime, $endTime, $daysOfWeek = '1111100') {
         $dataObject = new DataObject();
-        $dataObject->{self::DB_COLUMN_FIELD_ID} = $field->id;
-        $dataObject->{self::DB_COLUMN_START_DATE} = $startDate;
-        $dataObject->{self::DB_COLUMN_END_DATE} = $endDate;
-        $dataObject->{self::DB_COLUMN_START_TIME} = $startTime;
-        $dataObject->{self::DB_COLUMN_END_TIME} = $endTime;
+        $dataObject->{self::DB_COLUMN_FIELD_ID}     = $field->id;
+        $dataObject->{self::DB_COLUMN_START_DATE}   = $startDate;
+        $dataObject->{self::DB_COLUMN_END_DATE}     = $endDate;
+        $dataObject->{self::DB_COLUMN_START_TIME}   = $startTime;
+        $dataObject->{self::DB_COLUMN_END_TIME}     = $endTime;
+        $dataObject->{self::DB_COLUMN_DAYS_OF_WEEK} = $daysOfWeek;
 
         $this->insert($dataObject);
 

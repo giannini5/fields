@@ -62,6 +62,22 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
     }
 
     /**
+     * @brief Return the count of days selected for the reservation.
+     *
+     * @return int count of days selected in reservation
+     */
+    public function getNumberOfDays() {
+        $count = 0;
+        for ($i = 0; $i < 7; ++$i) {
+            if ($this->isDaySelected($i)) {
+                $count += 1;
+            }
+        }
+
+        return $count;
+    }
+
+    /**
      * @brief: destructor
      */
     public function __destruct() {
@@ -169,9 +185,9 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
      * @param $startTime
      * @param $endTime - end time of reservation
      * @param string $daysOfWeek - 7 character string
-     *                             daysOfWeek[0] == 1 then Sunday selected
+     *                             daysOfWeek[0] == 1 then Monday selected
      *                             ...
-     *                             daysOfWeek[6] == 1 then Saturday selected
+     *                             daysOfWeek[6] == 1 then Sunday selected
      *
      * @return Model_Fields_Reservation
      * @throws AssertionException
@@ -185,7 +201,10 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
         $dataObject = $dbHandle->create($season, $field, $team, $startTime, $endTime, $daysOfWeek);
         assertion(!empty($dataObject), "Unable to create Reservation with startTime:'$startTime', endTime:'$endTime'");
 
-        return Model_Fields_Reservation::GetInstance($dataObject, $season, $field, $team);
+        $reservation = Model_Fields_Reservation::GetInstance($dataObject, $season, $field, $team);
+        Model_Fields_ReservationHistory::Create($reservation, Model_Fields_ReservationHistory::ADD);
+
+        return $reservation;
     }
 
     /**
@@ -201,6 +220,25 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
         assertion(!empty($dataObject), "Reservation row for id: '$reservationId' not found");
 
         return Model_Fields_Reservation::GetInstance($dataObject);
+    }
+
+    /**
+     * @brief: Get Model_Fields_Reservation instances for the specified season
+     *
+     * @param $season - Model_Fields_Season instance
+     *
+     * @return Model_Fields_Reservation array | empty array
+     */
+    public static function LookupBySeason($season) {
+        $dbHandle = new Model_Fields_ReservationDB();
+        $dataObjects = $dbHandle->getBySeason($season);
+        $reservations = array();
+
+        foreach ($dataObjects as $dataObject) {
+            $reservations[] = Model_Fields_Reservation::GetInstance($dataObject, $season, NULL, NULL);
+        }
+
+        return $reservations;
     }
 
     /**
@@ -311,6 +349,22 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
     public static function Delete($season, $team) {
         $reservations = Model_Fields_Reservation::LookupByTeam($season, $team, FALSE);
         foreach ($reservations as $reservation) {
+            Model_Fields_ReservationHistory::Create($reservation, Model_Fields_ReservationHistory::DELETE);
+            $reservation->_delete();
+        }
+    }
+
+    /**
+     * @brief: Delete if exists
+     *
+     * @param $season - Model_Fields_Season instance
+     * @param $field - Model_Fields_Field instance
+     * @param $team - Model_Fields_Team instance
+     */
+    public static function DeleteBySeason($season) {
+        $reservations = Model_Fields_Reservation::LookupBySeason($season, FALSE);
+        foreach ($reservations as $reservation) {
+            Model_Fields_ReservationHistory::Create($reservation, Model_Fields_ReservationHistory::DELETE);
             $reservation->_delete();
         }
     }
@@ -322,6 +376,7 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
      */
     public static function DeleteById($reservationId) {
         $reservation = Model_Fields_Reservation::LookupById($reservationId);
+        Model_Fields_ReservationHistory::Create($reservation, Model_Fields_ReservationHistory::DELETE);
         $reservation->_delete();
     }
 }

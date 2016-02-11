@@ -87,13 +87,23 @@ abstract class View_Fields_Base extends View_Base {
                 </table>";
 
         $this->displayHeaderNavigation();
-        $this->render();
+
+        if (isset($this->m_controller->m_season)) {
+            $this->render();
+        } else {
+            print "
+            <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <td>Sorry, we are in the off season right now.  Come back later.</td>
+                </tr>
+            </table>";
+        }
 
         print "
                 <br>";
 
 // print $this-htmlFormatArray($_REQUEST);
-        print $this->htmlFormatArray($_POST);
+// print $this->htmlFormatArray($_POST);
 // print $this-htmlFormatArray($this->m_tableData);
 // print $this-htmlFormatArray($this->m_tableSummaryData);
 

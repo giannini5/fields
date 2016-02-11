@@ -19,13 +19,14 @@ class Model_FieldAvailabilityTest extends Model_TestHelpers {
     {
         // Test Create
         $fieldAvailability = Model_Fields_FieldAvailability::Create($this->m_field, $this->m_startDate, $this->m_endDate,
-            $this->m_startTime, $this->m_endTime);
+            $this->m_startTime, $this->m_endTime, $this->m_daysOfWeek);
         $id = $fieldAvailability->id;
         $this->assertEquals($fieldAvailability->fieldId, $this->m_field->id);
         $this->assertEquals($fieldAvailability->startDate, $this->m_startDate);
         $this->assertEquals($fieldAvailability->endDate, $this->m_endDate);
         $this->assertEquals($fieldAvailability->startTime, $this->m_startTime);
         $this->assertEquals($fieldAvailability->endTime, $this->m_endTime);
+        $this->assertEquals($fieldAvailability->daysOfWeek, $this->m_daysOfWeek);
         $this->assertEquals($fieldAvailability->m_field->name, $this->m_field->name);
         $this->assertTrue($fieldAvailability->isLoaded());
         $this->assertFalse($fieldAvailability->isModified());
@@ -37,6 +38,7 @@ class Model_FieldAvailabilityTest extends Model_TestHelpers {
         $this->assertEquals($fieldAvailability->endDate, $this->m_endDate);
         $this->assertEquals($fieldAvailability->startTime, $this->m_startTime);
         $this->assertEquals($fieldAvailability->endTime, $this->m_endTime);
+        $this->assertEquals($fieldAvailability->daysOfWeek, $this->m_daysOfWeek);
         $this->assertEquals($fieldAvailability->m_field->name, $this->m_field->name);
         $this->assertTrue($fieldAvailability->isLoaded());
         $this->assertFalse($fieldAvailability->isModified());
@@ -48,6 +50,7 @@ class Model_FieldAvailabilityTest extends Model_TestHelpers {
         $this->assertEquals($fieldAvailability->endDate, $this->m_endDate);
         $this->assertEquals($fieldAvailability->startTime, $this->m_startTime);
         $this->assertEquals($fieldAvailability->endTime, $this->m_endTime);
+        $this->assertEquals($fieldAvailability->daysOfWeek, $this->m_daysOfWeek);
         $this->assertEquals($fieldAvailability->m_field->name, $this->m_field->name);
         $this->assertTrue($fieldAvailability->isLoaded());
         $this->assertFalse($fieldAvailability->isModified());

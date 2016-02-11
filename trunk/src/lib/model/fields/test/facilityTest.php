@@ -15,6 +15,7 @@ class Model_FacilityTest extends Model_TestHelpers {
     public $m_contactEmail = 'david_giannini@hotmail.com';
     public $m_contactPhone = '8058989551';
     public $m_image = 'hello.jpg';
+    public $m_preApproved = 0;
     public $m_enabled = 1;
 
 
@@ -35,7 +36,7 @@ class Model_FacilityTest extends Model_TestHelpers {
         // Test Create
         $facility = Model_Fields_Facility::Create($this->m_league, $this->m_name, $this->m_address1, $this->m_address2,
             $this->m_city, $this->m_state, $this->m_postalCode, $this->m_country, $this->m_contactName, $this->m_contactEmail,
-            $this->m_contactPhone, $this->m_image, 1);
+            $this->m_contactPhone, $this->m_image, $this->m_preApproved, 1);
         $id = $facility->id;
         $this->assertEquals($facility->leagueId, $this->m_league->id);
         $this->assertEquals($facility->name, $this->m_name);
@@ -49,6 +50,7 @@ class Model_FacilityTest extends Model_TestHelpers {
         $this->assertEquals($facility->contactEmail, $this->m_contactEmail);
         $this->assertEquals($facility->contactPhone, $this->m_contactPhone);
         $this->assertEquals($facility->image, $this->m_image);
+        $this->assertEquals($facility->preApproved, $this->m_preApproved);
         $this->assertEquals($facility->enabled, $this->m_enabled);
         $this->assertEquals($facility->m_league->name, $this->m_league->name);
         $this->assertTrue($facility->isLoaded());
@@ -68,6 +70,7 @@ class Model_FacilityTest extends Model_TestHelpers {
         $this->assertEquals($facility->contactEmail, $this->m_contactEmail);
         $this->assertEquals($facility->contactPhone, $this->m_contactPhone);
         $this->assertEquals($facility->image, $this->m_image);
+        $this->assertEquals($facility->preApproved, $this->m_preApproved);
         $this->assertEquals($facility->enabled, $this->m_enabled);
         $this->assertEquals($facility->m_league->name, $this->m_league->name);
         $this->assertTrue($facility->isLoaded());
@@ -87,6 +90,7 @@ class Model_FacilityTest extends Model_TestHelpers {
         $this->assertEquals($facility->contactEmail, $this->m_contactEmail);
         $this->assertEquals($facility->contactPhone, $this->m_contactPhone);
         $this->assertEquals($facility->image, $this->m_image);
+        $this->assertEquals($facility->preApproved, $this->m_preApproved);
         $this->assertEquals($facility->enabled, $this->m_enabled);
         $this->assertEquals($facility->m_league->name, $this->m_league->name);
         $this->assertTrue($facility->isLoaded());
@@ -108,6 +112,7 @@ class Model_FacilityTest extends Model_TestHelpers {
         $this->assertEquals($facility->contactEmail, $this->m_contactEmail);
         $this->assertEquals($facility->contactPhone, $this->m_contactPhone);
         $this->assertEquals($facility->image, $this->m_image);
+        $this->assertEquals($facility->preApproved, $this->m_preApproved);
         $this->assertEquals($facility->enabled, $this->m_enabled);
         $this->assertEquals($facility->m_league->name, $this->m_league->name);
         $this->assertTrue($facility->isLoaded());

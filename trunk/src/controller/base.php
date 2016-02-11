@@ -52,7 +52,7 @@ abstract class Controller_Base
      * @brief Get season
      */
     private function _getSeason() {
-        $this->m_season = Model_Fields_Season::LookupByName($this->m_league, "Fall 2015");
+        $this->m_season = Model_Fields_Season::GetEnabledSeason($this->m_league, FALSE);
     }
 
     /**
@@ -85,10 +85,11 @@ abstract class Controller_Base
      * @param $defaultValue - Default value returned if POST attribute not found
      * @param $rememberIfMissing - Increments m_missingAttributes if TRUE
      * @param $isNumeric - TRUE if the attribute is numeric; FALSE by default
+     * @param $errorMessage - Defaults to empty, if set and remembering errors then concat controller's error string
      *
      * @return Value associated with attribute name or $defaultValue if attribute not found
      */
-    protected function getPostAttribute($attributeName, $defaultValue, $rememberIfMissing = TRUE, $isNumeric = FALSE) {
+    protected function getPostAttribute($attributeName, $defaultValue, $rememberIfMissing = TRUE, $isNumeric = FALSE, $errorMessage = '') {
         if (isset($_POST[$attributeName])) {
             if (!empty($_POST[$attributeName]) or $isNumeric) {
                 return $_POST[$attributeName];
@@ -96,10 +97,22 @@ abstract class Controller_Base
         }
 
         if ($rememberIfMissing) {
-            $this->m_missingAttributes += 1;
+            $this->setErrorString($errorMessage);
         }
 
         return $defaultValue;
+    }
+
+    /**
+     * @brief Increment the number errors found and set the error string for display.
+     *
+     * @param string $errorMessage - Error message to be displayed.  If empty then no message is displayed.
+     */
+    protected function setErrorString($errorMessage) {
+        $this->m_missingAttributes += 1;
+        if ($errorMessage != '') {
+            $this->m_errorString .= empty($this->m_errorString) ? $errorMessage : "<br>$errorMessage";
+        }
     }
 
     /**
@@ -247,6 +260,67 @@ abstract class Controller_Base
         }
 
         return 0;
+    }
+
+    /**
+     * @brief Return TRUE if the day was selected; FALSE otherwise
+     *
+     * @param $day - ViewBase::MONDAY, ...
+     *
+     * @return bool TRUE if day was selected; FALSE otherwise
+     */
+    protected function _isDaySelected($day) {
+        $postValue = $this->getPostAttribute($day, NULL, FALSE);
+        return isset($postValue);
+    }
+
+    /**
+     * @brief Return a comma separated list of days selected in the reservation.
+     *
+     * @param $reservation
+     *
+     * @return string : comma separated list of days string: "Monday, Tuesday, ..., Friday"
+     */
+    public function getDaysSelectedString($reservation) {
+        $daysSelected = '';
+        for ($i = 0; $i < 7; ++$i) {
+            if ($reservation->isDaySelected($i)) {
+                if (!empty($daysSelected)) {
+                    $daysSelected .= ", ";
+                }
+                $daysSelected .= $this->_getDayOfWeek($i);
+            }
+        }
+
+        return $daysSelected;
+    }
+
+    /**
+     * @brief Return the string version of the passed in integer
+     *
+     * @param int $day - 0 is Monday, 6 is Sunday
+     *
+     * @return string (Monday, Tuesday, ..., Sunday)
+     */
+    protected function _getDayOfWeek($day) {
+        switch ($day) {
+            case 0:
+                return 'Monday';
+            case 1:
+                return 'Tuesday';
+            case 2:
+                return 'Wednesday';
+            case 3:
+                return 'Thursday';
+            case 4:
+                return 'Friday';
+            case 5:
+                return 'Saturday';
+            case 6:
+                return 'Sunday';
+            default:
+                return 'ERROR';
+        }
     }
 
     abstract public function process();

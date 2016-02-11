@@ -18,6 +18,7 @@ class Controller_Admin_Field extends Controller_Admin_Base {
     public $m_endDate = NULL;
     public $m_startTime = NULL;
     public $m_endTime = NULL;
+    public $m_daysSelected = array();
 
     public function __construct() {
         parent::__construct();
@@ -34,13 +35,17 @@ class Controller_Admin_Field extends Controller_Admin_Base {
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->m_name = $this->getPostAttribute(
                 Model_Fields_FieldDB::DB_COLUMN_NAME,
-                '* Name required'
+                '',
+                TRUE,
+                FALSE,
+                'Error: Name required'
             );
             $this->m_enabled = $this->getPostAttribute(
                 Model_Fields_FieldDB::DB_COLUMN_ENABLED,
-                '* Enabled required',
+                '',
                 TRUE,
-                TRUE
+                TRUE,
+                'Error: Enabled required'
             );
             $this->m_facilityId = $this->getPostAttribute(
                 View_Base::FACILITY_ID,
@@ -60,6 +65,26 @@ class Controller_Admin_Field extends Controller_Admin_Base {
             $this->m_endDate = $this->getPostAttribute(View_Base::END_DATE, null);
             $this->m_startTime = $this->getPostAttribute(View_Base::START_TIME, null);
             $this->m_endTime = $this->getPostAttribute(View_Base::END_TIME, null);
+
+            $this->m_daysSelected[View_Base::MONDAY]    = $this->_isDaySelected(View_Base::MONDAY);
+            $this->m_daysSelected[View_Base::TUESDAY]   = $this->_isDaySelected(View_Base::TUESDAY);
+            $this->m_daysSelected[View_Base::WEDNESDAY] = $this->_isDaySelected(View_Base::WEDNESDAY);
+            $this->m_daysSelected[View_Base::THURSDAY]  = $this->_isDaySelected(View_Base::THURSDAY);
+            $this->m_daysSelected[View_Base::FRIDAY]    = $this->_isDaySelected(View_Base::FRIDAY);
+            $this->m_daysSelected[View_Base::SATURDAY]  = $this->_isDaySelected(View_Base::SATURDAY);
+            $this->m_daysSelected[View_Base::SUNDAY]    = $this->_isDaySelected(View_Base::SUNDAY);
+
+            // Verify that at least one days was selected
+            if (!$this->m_daysSelected[View_Base::MONDAY]
+                and !$this->m_daysSelected[View_Base::TUESDAY]
+                and !$this->m_daysSelected[View_Base::WEDNESDAY]
+                and !$this->m_daysSelected[View_Base::THURSDAY]
+                and !$this->m_daysSelected[View_Base::FRIDAY]
+                and !$this->m_daysSelected[View_Base::SATURDAY]
+                and !$this->m_daysSelected[View_Base::SUNDAY]) {
+
+                $this->setErrorString('Error: At least one day must be selected');
+            }
         }
     }
 
@@ -190,13 +215,20 @@ class Controller_Admin_Field extends Controller_Admin_Base {
      * @param $field - Model_Fields_Field instance being updated
      */
     private function _setAvailability($field) {
+        // Verify that at least one day is selected
+        $daysSelectedString = '';
+        foreach ($this->m_daysSelected as $day=>$selected) {
+            $daysSelectedString .= $selected ? '1' : '0';
+        }
+
         // Delete current availability for field if different than new availability
         $currentAvailability = Model_Fields_FieldAvailability::LookupByFieldId($field->id, FALSE);
         if (isset($currentAvailability)) {
             if ($currentAvailability->startDate == $this->m_startDate
                 and $currentAvailability->endDate == $this->m_endDate
                 and $currentAvailability->startTime == $this->m_startTime
-                and $currentAvailability->endTime == $this->m_endTime) {
+                and $currentAvailability->endTime == $this->m_endTime
+                and $currentAvailability->daysOfWeek == $daysSelectedString) {
                 // current availability is the same as new so we just return
                 return;
             }
@@ -206,11 +238,11 @@ class Controller_Admin_Field extends Controller_Admin_Base {
         }
 
         // Create new availability
-        Model_Fields_FieldAvailability::Create($field, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime);
+        Model_Fields_FieldAvailability::Create($field, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, $daysSelectedString);
     }
 
     /**
-     * @brief Delete Field.  Set the errorString if the Field cannot be updated.
+     * @brief Delete Field.
      */
     private function _deleteField() {
         $facility = Model_Fields_Facility::LookupById($this->m_facilityId);

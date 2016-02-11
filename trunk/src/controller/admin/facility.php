@@ -18,6 +18,7 @@ class Controller_Admin_Facility extends Controller_Admin_Base {
     public $m_contactEmail;
     public $m_contactPhone;
     public $m_image;
+    public $m_preApproved;
     public $m_enabled = NULL;
     public $m_facilityId = NULL;
     public $m_selectedLocations = array();
@@ -81,6 +82,12 @@ class Controller_Admin_Facility extends Controller_Admin_Base {
                 Model_Fields_FacilityDB::DB_COLUMN_IMAGE,
                 '',
                 FALSE
+            );
+            $this->m_preApproved = $this->getPostAttribute(
+                Model_Fields_FacilityDB::DB_COLUMN_PRE_APPROVED,
+                '* Pre-Approved required',
+                TRUE,
+                TRUE
             );
             $this->m_enabled = $this->getPostAttribute(
                 Model_Fields_FacilityDB::DB_COLUMN_ENABLED,
@@ -156,6 +163,7 @@ class Controller_Admin_Facility extends Controller_Admin_Base {
                 $this->m_contactEmail,
                 $this->m_contactPhone,
                 $this->m_image,
+                $this->m_preApproved,
                 $this->m_enabled);
             $this->m_facilities[] = $facility;
 
@@ -191,6 +199,7 @@ class Controller_Admin_Facility extends Controller_Admin_Base {
                 $facility->contactEmail = $this->m_contactEmail;
                 $facility->contactPhone = $this->m_contactPhone;
                 $facility->image = $this->m_image;
+                $facility->preApproved = $this->m_preApproved;
                 $facility->enabled = $this->m_enabled;
                 $facility->saveModel();
 
