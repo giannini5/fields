@@ -30,7 +30,7 @@ class View_Admin_Transactions extends View_Admin_Base {
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <th colspan=8 align='center' style='font-size:24px'><font color='darkblue'><b>Transaction History</b></font></th>
+                    <th colspan=9 align='center' style='font-size:24px'><font color='darkblue'><b>Transaction History</b></font></th>
                 </tr>
                 <tr>
                     <th title='Date and time transaction performed'>Creation Date</th>
@@ -40,6 +40,7 @@ class View_Admin_Transactions extends View_Admin_Base {
                     <th title='Field reserved'>Field</th>
                     <th title='Days reserved'>Days</th>
                     <th title='Times reserved'>Times</th>
+                    <th title='Approved or Pending'>Status</th>
                 </tr>";
 
         foreach ($transactions as $transaction) {
@@ -51,6 +52,7 @@ class View_Admin_Transactions extends View_Admin_Base {
             $field = $transaction->m_field->m_facility->name . ": Field " . $transaction->m_field->name;
             $days = $this->m_controller->getDaysSelectedString($transaction);
             $times = "$transaction->startTime - $transaction->endTime";
+            $status = $transaction->m_field->m_facility->preApproved ? 'Approved' : 'Pending';
 
             print "
                 <tr>
@@ -61,6 +63,7 @@ class View_Admin_Transactions extends View_Admin_Base {
                     <td>$field</td>
                     <td>$days</td>
                     <td>$times</td>
+                    <td>$status</td>
                 </tr>";
         }
 

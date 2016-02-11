@@ -177,18 +177,6 @@ abstract class Controller_Fields_Base extends Controller_Base
     }
 
     /**
-     * @brief Return TRUE if the day was selected; FALSE otherwise
-     *
-     * @param $day - ViewBase::MONDAY, ...
-     *
-     * @return bool TRUE if day was selected; FALSE otherwise
-     */
-    protected function _isDaySelected($day) {
-        $postValue = $this->getPostAttribute($day, NULL);
-        return isset($postValue);
-    }
-
-    /**
      * @brief Reset attributes to default values
      */
     protected function _reset() {

@@ -13,24 +13,26 @@ class Model_Fields_FieldAvailability extends Model_Fields_Base implements SaveMo
     /**
      * @brief: Constructor
      *
-     * @param $field - Model_Fields_Field instance
-     * @param $id - unique identifier
-     * @param $fieldId - unique field identifier
-     * @param string $startDate - Day fieldAvailability becomes available
-     * @param string $endDate - Last day fieldAvailability is available
-     * @param string $startTime - Start time during the day that the fieldAvailability is available
-     * @param string $endTime - End time during the day that the fieldAvailability is available
+     * @param $field             - Model_Fields_Field instance
+     * @param $id                - unique identifier
+     * @param $fieldId           - unique field identifier
+     * @param string $startDate  - Day fieldAvailability becomes available
+     * @param string $endDate    - Last day fieldAvailability is available
+     * @param string $startTime  - Start time during the day that the fieldAvailability is available
+     * @param string $endTime    - End time during the day that the fieldAvailability is available
+     * @param string $daysOfWeek - Days of week field is available.  daysOfWeek[0] = Monday
      */
-    public function __construct($field = NULL, $id = NULL, $fieldId = NULL, $startDate = '', $endDate = '', $startTime = '', $endTime = '') {
+    public function __construct($field = NULL, $id = NULL, $fieldId = NULL, $startDate = '', $endDate = '', $startTime = '', $endTime = '', $daysOfWeek = '0111110') {
         parent::__construct('Model_Fields_FieldAvailabilityDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->m_field = $field;
-        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_ID}   = $id;
-        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_FIELD_ID}   = $fieldId;
-        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_START_DATE} = $startDate;
-        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_END_DATE} = $endDate;
-        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_START_TIME} = $startTime;
-        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_END_TIME} = $endTime;
+        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_ID}           = $id;
+        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_FIELD_ID}     = $fieldId;
+        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_START_DATE}   = $startDate;
+        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_END_DATE}     = $endDate;
+        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_START_TIME}   = $startTime;
+        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_END_TIME}     = $endTime;
+        $this->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_DAYS_OF_WEEK} = $daysOfWeek;
         $this->_setField();
     }
 
@@ -97,7 +99,8 @@ class Model_Fields_FieldAvailability extends Model_Fields_Base implements SaveMo
             $dataObject->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_START_DATE},
             $dataObject->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_END_DATE},
             $dataObject->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_START_TIME},
-            $dataObject->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_END_TIME});
+            $dataObject->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_END_TIME},
+            $dataObject->{Model_Fields_FieldAvailabilityDB::DB_COLUMN_DAYS_OF_WEEK});
 
         $fieldAvailability->setLoaded();
 
@@ -107,18 +110,19 @@ class Model_Fields_FieldAvailability extends Model_Fields_Base implements SaveMo
     /**
      * @brief: Create a new FieldAvailability
      *
-     * @param $field - Model_Fields_Field instance
-     * @param string $startDate - Day fieldAvailability becomes available
-     * @param string $endDate - Last day fieldAvailability is available
-     * @param string $startTime - Start time during the day that the fieldAvailability is available
-     * @param string $endTime - End time during the day that the fieldAvailability is available
+     * @param $field             - Model_Fields_Field instance
+     * @param string $startDate  - Day fieldAvailability becomes available
+     * @param string $endDate    - Last day fieldAvailability is available
+     * @param string $startTime  - Start time during the day that the fieldAvailability is available
+     * @param string $endTime    - End time during the day that the fieldAvailability is available
+     * @param string $daysOfWeek - Days of week field is available.  daysOfWeek[0] = Monday
      *
      * @return Model_Fields_Field
      * @throws AssertionException
      */
-    public static function Create($field, $startDate, $endDate, $startTime, $endTime) {
+    public static function Create($field, $startDate, $endDate, $startTime, $endTime, $daysOfWeek = '1111100') {
         $dbHandle = new Model_Fields_FieldAvailabilityDB();
-        $dataObject = $dbHandle->create($field, $startDate, $endDate, $startTime, $endTime);
+        $dataObject = $dbHandle->create($field, $startDate, $endDate, $startTime, $endTime, $daysOfWeek);
         assertion(!empty($dataObject), "Unable to create FieldAvailability with field name:'$field->name'");
 
         return Model_Fields_FieldAvailability::GetInstance($dataObject, $field);
@@ -159,6 +163,51 @@ class Model_Fields_FieldAvailability extends Model_Fields_Base implements SaveMo
         }
 
         return Model_Fields_FieldAvailability::GetInstance($dataObject);
+    }
+
+    /**
+     * @brief Update start date, start time, end date, end time for all Model_Field_Availability instances
+     *
+     * @param $season
+     */
+    public static function UpdateForNewSeason($season) {
+        $facilities = Model_Fields_Facility::LookupByLeague($season->m_league);
+        foreach($facilities as $facility) {
+
+            $fields = Model_Fields_Field::LookupByFacility($facility);
+            foreach ($fields as $field) {
+
+                $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($field->id, FALSE);
+                if (isset($fieldAvailability)) {
+                    $fieldAvailability->startDate = $season->startDate;
+                    $fieldAvailability->endDate   = $season->endDate;
+
+                    // Only update times for pre-approved facilities.  Facilities that require pre-approval
+                    // need a contract with the start/end time that are more limited than our pre-approved facilities
+                    if ($facility->preApproved) {
+                        $fieldAvailability->startTime  = $season->startTime;
+                        $fieldAvailability->endTime    = $season->endTime;
+                        $fieldAvailability->daysOfWeek = $season->daysOfWeek;
+                    }
+
+                    $fieldAvailability->setModified();
+                    $fieldAvailability->saveModel();
+                }
+            }
+        }
+    }
+
+    /**
+     * @brief Check to see if field is available for reserving on the specified day of week
+     *
+     * @param $dayOfWeekIndex - 0 for Monday
+     *
+     * @return TRUE if field is reservable; FALSE otherwise
+     */
+    public function isFieldAvailable($dayOfWeekIndex) {
+        precondition($dayOfWeekIndex >= 0 and $dayOfWeekIndex <= 6, "Error, invalid dayOfWeekIndex: $dayOfWeekIndex");
+
+        return $this->daysOfWeek[$dayOfWeekIndex] == 1;
     }
 
     /**

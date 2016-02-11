@@ -185,9 +185,9 @@ class Model_Fields_Reservation extends Model_Fields_Base implements SaveModelInt
      * @param $startTime
      * @param $endTime - end time of reservation
      * @param string $daysOfWeek - 7 character string
-     *                             daysOfWeek[0] == 1 then Sunday selected
+     *                             daysOfWeek[0] == 1 then Monday selected
      *                             ...
-     *                             daysOfWeek[6] == 1 then Saturday selected
+     *                             daysOfWeek[6] == 1 then Sunday selected
      *
      * @return Model_Fields_Reservation
      * @throws AssertionException

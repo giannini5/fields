@@ -23,13 +23,13 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             $this->m_startTime = $this->getPostAttribute(View_Base::START_TIME, null);
             $this->m_endTime = $this->getPostAttribute(View_Base::END_TIME, null);
 
-            $this->m_daysSelected[View_Base::MONDAY] = $this->_isDaySelected(View_Base::MONDAY);
-            $this->m_daysSelected[View_Base::TUESDAY] = $this->_isDaySelected(View_Base::TUESDAY);
+            $this->m_daysSelected[View_Base::MONDAY]    = $this->_isDaySelected(View_Base::MONDAY);
+            $this->m_daysSelected[View_Base::TUESDAY]   = $this->_isDaySelected(View_Base::TUESDAY);
             $this->m_daysSelected[View_Base::WEDNESDAY] = $this->_isDaySelected(View_Base::WEDNESDAY);
-            $this->m_daysSelected[View_Base::THURSDAY] = $this->_isDaySelected(View_Base::THURSDAY);
-            $this->m_daysSelected[View_Base::FRIDAY] = $this->_isDaySelected(View_Base::FRIDAY);
-            $this->m_daysSelected[View_Base::SATURDAY] = $this->_isDaySelected(View_Base::SATURDAY);
-            $this->m_daysSelected[View_Base::SUNDAY] = $this->_isDaySelected(View_Base::SUNDAY);
+            $this->m_daysSelected[View_Base::THURSDAY]  = $this->_isDaySelected(View_Base::THURSDAY);
+            $this->m_daysSelected[View_Base::FRIDAY]    = $this->_isDaySelected(View_Base::FRIDAY);
+            $this->m_daysSelected[View_Base::SATURDAY]  = $this->_isDaySelected(View_Base::SATURDAY);
+            $this->m_daysSelected[View_Base::SUNDAY]    = $this->_isDaySelected(View_Base::SUNDAY);
 
             $this->m_filterFacilityId = $this->getPostAttribute(View_Base::FILTER_FACILITY_ID, 0);
             $this->m_filterDivisionId = $this->getPostAttribute(View_Base::FILTER_DIVISION_ID, 0);
@@ -97,7 +97,8 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         //    per week.
         // 4. Times selected are within times available for the field.
         // 5. Total time for all reservations for team is within limit allowed
-        // 5. Reservation does not overlap with another team's reservation
+        // 6. Reservation does not overlap with another team's reservation
+        // 7. Division is allowed to practice at selected field
 
         // 1. StartTime is less then EndTime
         $startDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $this->m_startTime" . ":00");
@@ -114,12 +115,22 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             return FALSE;
         }
 
-        // 2. Verify that at least one day is selected
+        // 2. Verify that at least one day is selected and that the day selected is available for reserving
+        $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
         $daysSelected = 0;
+        $dayOfWeekIndex = 0;
         $daysSelectedString = '';
         foreach ($this->m_daysSelected as $day=>$selected) {
             $daysSelectedString .= $selected ? '1' : '0';
             $daysSelected += $selected ? 1 : 0;
+            if ($selected) {
+                if (!$fieldAvailability->isFieldAvailable($dayOfWeekIndex)) {
+                    $this->m_createReservationError = "ERROR 2:<br>Permit not available on day selected.";
+                    $this->m_createReservationError .= "<br>Please try again.";
+                    return FALSE;
+                }
+            }
+            $dayOfWeekIndex += 1;
         }
         if ($daysSelected <= 0) {
             $this->m_createReservationError = "ERROR 2:<br>No practices days were selected.";
@@ -135,7 +146,6 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         }
 
         // 4. Times selected are within times available for the field.
-        $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
         if ($this->m_startTime < $fieldAvailability->startTime) {
             $this->m_createReservationError = "ERROR 4a:<br>Invalid start time of $this->m_startTime.<br>Field is only available from $fieldAvailability->startTime to $fieldAvailability->endTime.";
             $this->m_createReservationError .= "<br>Please try again.";
@@ -169,6 +179,15 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $overlapReservation = Model_Fields_Reservation::getOverlapping($this->m_season, $this->m_field, $this->m_startTime, $this->m_endTime, $daysSelectedString);
         if ($overlapReservation != NULL) {
             $this->m_createReservationError = "ERROR 6:<br>Your selected days and times overlap with an existing reservation.";
+            $this->m_createReservationError .= "<br>Please try again.";
+            return FALSE;
+        }
+
+        // 7. Team's division is allowed to practice at the selected field
+        $divisionField = Model_Fields_DivisionField::LookupByDivisionField($this->m_team->m_division->id, $this->m_facility->id, $this->m_field->id);
+        if (!isset($divisionField)) {
+            $divisionName = $this->m_team->m_division->name;
+            $this->m_createReservationError = "ERROR 7:<br>Select field is not currently availabe for the $divisionName division.";
             $this->m_createReservationError .= "<br>Please try again.";
             return FALSE;
         }

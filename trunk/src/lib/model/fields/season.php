@@ -124,7 +124,7 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
      * @param string $endDate - Last day season is available
      * @param string $startTime - Start time during the day that practice can start
      * @param string $endTime - End time during the day that practice must end
-     * @param bool $enabled - 1 if season is enabled; 0 otherwise
+     * @param int $enabled - 1 if season is enabled; 0 otherwise
      *
      * @return Model_Fields_Season
      * @throws AssertionException

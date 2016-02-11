@@ -24,6 +24,7 @@ class Model_TestHelpers extends PHPUnit_Framework_TestCase {
     public $m_endDate = '2015-06-30';
     public $m_startTime = '15:30:00';
     public $m_endTime = '19:00:00';
+    public $m_daysOfWeek = '1100110';
 
     /**
      * Clear out all entities for the test league

@@ -77,6 +77,7 @@ class Model_Fields_ReservationDB extends Model_Fields_BaseDB {
      * @param $team - Model_Fields_Team instance
      * @param $startTime - Start time of reservation
      * @param $endTime - End time of reservation
+     * @param string $daysOfWeek - Days of week field is available.  daysOfWeek[0] = Sunday
      *
      * @return DataObject[]
      */

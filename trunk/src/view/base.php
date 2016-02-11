@@ -101,15 +101,15 @@ abstract class View_Base {
      * @param: $requiredString - String to show just after input box
      * @param: $collapsible -  - Collapsible java script class - defaults to NULL
      */
-    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = '', $collapsible = NULL) {
+    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = '', $collapsible = NULL, $colspan = 1) {
         $requiredString = empty($requiredString) ? '&nbsp' : $requiredString;
         $valueString = empty($value) ? '' : ", value='$value'";
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         print "
                 <tr $collapsibleClass>
-                    <td align='left'><font color='" . View_Base::AQUA . "'><b>$request</b></font></td>
-                    <td align='left'>
+                    <td align='left' nowrap><font color='" . View_Base::AQUA . "'><b>$request</b></font></td>
+                    <td align='left' colspan='$colspan'>
                         <input style='width: 135px' type='$type' name='$name' placeholder='$placeHolder'$valueString>
                     </td>
                     <td>
@@ -162,8 +162,9 @@ abstract class View_Base {
      * @param: $selectorData - Array of data identifier=>string where the identifier is the value selected
      * @param: $size - Size of the selector
      * @param: $collapsible -  - Collapsible java script class - defaults to NULL
+     * @param: $colspan - Number of columns to span
      */
-    public function displayMultiSelector($selectorTitle, $selectorName, $defaultSelections, $selectorData, $size, $collapsible = NULL) {
+    public function displayMultiSelector($selectorTitle, $selectorName, $defaultSelections, $selectorData, $size, $collapsible = NULL, $colspan = 1) {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         $dropDownHTML = '';
@@ -175,7 +176,7 @@ abstract class View_Base {
         print "
             <tr $collapsibleClass>
                 <td align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
-                <td align='left'>
+                <td align='left' colspan='$colspan'>
                     <select size=$size name='" . $selectorName . "[]' multiple='multiple'>$dropDownHTML</select>
                 </td>
             </tr>";
@@ -189,14 +190,15 @@ abstract class View_Base {
      * @param: $selectorData - Array of data identifier=>string where the identifier is the value selected
      * @param: $currentSelection - Current selection (if any) defaults to empty string
      * @param: $collapsible -  - Collapsible java script class - defaults to NULL
+     * @param: $colspan - Number of columns to span
      */
-    public function displayRadioSelector($selectorTitle, $selectorName, $selectorData, $currentSelection = '', $collapsible = NULL) {
+    public function displayRadioSelector($selectorTitle, $selectorName, $selectorData, $currentSelection = '', $collapsible = NULL, $colspan = 1) {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         print "
             <tr $collapsibleClass>
                 <td align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
-                <td align='left'>";
+                <td align='left' colspan='$colspan'>";
 
         foreach ($selectorData as $identifier=>$data) {
             $checked = $currentSelection == $data ? ' checked ' : '';
@@ -216,8 +218,9 @@ abstract class View_Base {
      * @param $collapsible - Collapsible CSS
      * @param string $defaultStartTime - Default selection for startTime HH:MM:SS (defaults to 03:30:00)
      * @param string $defaultEndTime - Default selection for endTime HH:MM:SS (defaults to 07:00:00)
+     * @param $colspan - Number of columns to span
      */
-    public function printTimeSelectors($maxColumns, $defaultStartTime='03:30:00', $defaultEndTime='07:00:00', $collapsible = NULL)
+    public function printTimeSelectors($maxColumns, $defaultStartTime='03:30:00', $defaultEndTime='07:00:00', $collapsible = NULL, $colspan = 1)
     {
         $startTimeSectionHTML = '';
         $endTimeSectionHTML = '';
@@ -247,13 +250,41 @@ abstract class View_Base {
         print "
                 <tr $collapsibleClass>
                     <td><font color='" . View_Base::AQUA . "'><b>Start Time:&nbsp</b></font></td>
-                    <td><select name=" . View_Base::START_TIME . ">$startTimeSectionHTML</select></td>
+                    <td colspan='$colspan'><select name=" . View_Base::START_TIME . ">$startTimeSectionHTML</select></td>
                 </tr>
                 <tr $collapsibleClass>
                     <td><font color='" . View_Base::AQUA . "'><b>End Time:&nbsp</b></font></td>
-                    <td><select name=" . View_Base::END_TIME . ">$endTimeSectionHTML</select></td>
+                    <td colspan='$colspan'><select name=" . View_Base::END_TIME . ">$endTimeSectionHTML</select></td>
                 </tr>";
     }
+
+    /**
+     * @brief Print the days that can be selected
+     *
+     * @param $maxColumns  - For colspan if needed
+     * @param $collapsible - Collapsible CSS
+     * @param $daysOfWeek  - Days of week selected $daysOfWeek[0] is Monday
+     */
+    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '') {
+        $monChecked = (isset($daysOfWeek[0]) and $daysOfWeek[0] == 1) ? 'checked' : '';
+        $tueChecked = (isset($daysOfWeek[1]) and $daysOfWeek[1] == 1) ? 'checked' : '';
+        $wedChecked = (isset($daysOfWeek[2]) and $daysOfWeek[2] == 1) ? 'checked' : '';
+        $thuChecked = (isset($daysOfWeek[3]) and $daysOfWeek[3] == 1) ? 'checked' : '';
+        $friChecked = (isset($daysOfWeek[4]) and $daysOfWeek[4] == 1) ? 'checked' : '';
+
+        print "
+                <tr class='$collapsible'>
+                    <td><font color='" . View_Base::AQUA . "'><b>Days:&nbsp</b></font></td>
+                    <td nowrap>
+                        <nobr><input type=checkbox name='Monday'    id='Monday'    value='Monday'    $monChecked>Monday</nobr>
+                        <nobr><input type=checkbox name='Tuesday'   id='Tuesday'   value='Tuesday'   $tueChecked>Tuesday</nobr>
+                        <nobr><input type=checkbox name='Wednesday' id='Wednesday' value='Wednesday' $wedChecked>Wednesday</nobr>
+                        <nobr><input type=checkbox name='Thursday'  id='Thursday'  value='Thursday'  $thuChecked>Thursday</nobr>
+                        <nobr><input type=checkbox name='Friday'    id='Friday'    value='Friday'    $friChecked>Friday</nobr>
+                    </td>
+                </tr>";
+    }
+
 
     /**
      * @brief: Display Calendar Date Selector
@@ -264,21 +295,22 @@ abstract class View_Base {
      * @param string $defaultStartDate - Default selection for startDate
      * @param string $defaultEndDate - Default selection for endDate
      * @param $collapsible - Collapsible CSS
+     * @param $colspan - Number of columns to span
      */
-    protected function displayCalendarSelector($maxColumns, $defaultStartDate, $defaultEndDate, $collapsible = NULL)
+    protected function displayCalendarSelector($maxColumns, $defaultStartDate, $defaultEndDate, $collapsible = NULL, $colspan = 1)
     {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         print "
             <tr $collapsibleClass>
                 <td><font color='" . View_Base::AQUA . "'><b>From:</b></font></td>
-                <td>
+                <td colpan='$colspan'>
                     <input type='text' size=11 id='" . View_Base::START_DATE . "' name='" . View_Base::START_DATE . "' value='$defaultStartDate' style='font-size:11px'>
                 </td>
             </tr>
             <tr $collapsibleClass>
                 <td><font color='" . View_Base::AQUA . "'><b>To:</b></font></td>
-                <td>
+                <td colpan='$colspan'>
                     <input type='text' size=11 id='" . View_Base::END_DATE . "' name='" . View_Base::END_DATE . "' value='$defaultEndDate' style='font-size:11px'>
                 </td>
             </tr>";
@@ -381,7 +413,7 @@ abstract class View_Base {
     }
 
     /**
-     * @brief Print the error seen with the last reservation attempt (no op if no error)
+     * @brief Print the error seen with the last transaction (no op if no error)
      */
     protected function printError() {
         if (isset($this->m_controller->m_errorString) and !empty($this->m_controller->m_errorString)) {

@@ -127,7 +127,7 @@ class Model_Fields_DivisionFieldDB extends Model_Fields_BaseDB {
     }
 
     /**
-     * getByDivisionFacility retrieves the list of field data objects for a division and facility
+     * getByFacilityField retrieves the list of field data objects for a facility and field
      *
      * @param int $facilityId - Model_Fields_Facility identifier
      * @param int $fieldId - Model_Fields_Field identifier
