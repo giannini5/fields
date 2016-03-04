@@ -26,6 +26,10 @@ class Web_Index
         }
 
         switch($this->m_requestPage) {
+            case View_Base::TEST_POST_PAGE:
+                $this->m_controller = new Controller_Fields_TestPost();
+                break;
+
             case View_Base::WELCOME_PAGE:
                 $this->m_controller = new Controller_Fields_Welcome();
                 break;

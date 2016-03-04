@@ -54,7 +54,7 @@ if [ $4 = "-t" ]; then
 else
     installScript $1 $2 $3  $database "./upgrade/*.sql"
     #installScript $1 $2 $3  $database "./views/*.sql"
-    #installScript $1 $2 $3  $database "./routines/*.sql"
+    installScript $1 $2 $3  $database "./routines/*.sql"
     #installScript $1 $2 $3  $database "./content/*.sql"
 fi
 

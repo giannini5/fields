@@ -259,7 +259,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $contactPhone = $this->m_facility->contactPhone;
 
         $headers = "From: $fromAddress\r\n";
-        // $headers .= "To: $toAddress\r\n";
+        $headers .= "To: $toAddress\r\n";
         $headers .= "Reply-To: $fromAddress\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
