@@ -605,6 +605,7 @@ class View_Styles {
 
         $this->_collapsibleCSS($facilityCount);
         $this->_collapsibleJS($facilityCount);
+        $this->_accordion();
     }
 
     /**
@@ -657,5 +658,86 @@ class View_Styles {
         print "
                 });
             </script>";
+    }
+
+    private function _accordion() {
+        // <link rel='stylesheet' type='text/css' href='/apps/test_harness/css/style.css'>
+
+        print "
+        <script type='text/javascript' src='http://code.jquery.com/jquery-1.6.2.js'></script>
+
+        <script type='text/javascript' src='http://cdn.jquerytools.org/1.2.5/full/jquery.tools.min.js'></script>
+        <link rel='stylesheet' type='text/css' href='http://static.flowplayer.org/tools/css/standalone.css'>
+        <style type='text/css'>
+            /* root element for accordion. decorated with rounded borders and gradient background image */
+            .accordion {
+                background:#ffffff;
+                margin: auto;
+                position: relative;
+                width: 635px;
+                border:1px solid #333;
+                -background:#666;
+            }
+
+            /* accordion header */
+            .accordion h2 {
+                background:#99ccff;
+                margin:0;
+                padding:5px 15px;
+                font-size:14px;
+                font-weight:normal;
+                border:1px solid #fff;
+                border-bottom:1px solid #ddd;
+                cursor:pointer;
+                : #000;
+            }
+
+            /* currently active header */
+            .accordion h2.current {
+              cursor:default;
+              background-color:#6699ff;
+            }
+
+            /* accordion pane */
+            .accordion .pane {
+              display:none;
+              padding:15px;
+              color:#333;
+              font-size:12px;
+            }
+
+            /* a title inside pane */
+            .accordion .pane h3 {
+              font-weight:normal;
+              margin:0 0 -5px 0;
+              font-size:16px;
+              color:#999;
+            }
+        </style>
+
+        <script type='text/javascript'>//<![CDATA[
+
+            $(document).ready(function() {
+              //Initialising Accordion
+              $('.accordion').tabs('.pane', {
+                tabs: '> h2',
+                effect: 'slide',
+                initialIndex: null
+              });
+
+              //The click to hide function
+              $('.accordion > h2').click(function() {
+                if ($(this).hasClass('current') && $(this).next().queue().length === 0) {
+                  $(this).next().slideUp();
+                  $(this).removeClass('current');
+                } else if (!$(this).hasClass('current') && $(this).next().queue().length === 0) {
+                  $(this).next().slideDown();
+                  $(this).addClass('current');
+                }
+              });
+            });
+            //]]>
+        </script>
+        ";
     }
 }

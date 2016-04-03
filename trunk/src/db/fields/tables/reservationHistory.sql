@@ -7,7 +7,7 @@ create table reservationHistory (
     startTime    time not NULL,
     endTime      time not NULL,
     daysOfWeek   char(8),
-    creationDate datetime not NULL default now(),
+    creationDate datetime not NULL default CURRENT_TIMESTAMP,
     type         char(1) not NULL,
     PRIMARY KEY (id),
     index ix_coachId(seasonId, coachId),
