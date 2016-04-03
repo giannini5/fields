@@ -25,7 +25,7 @@ insert into location (leagueId, name) values (1, 'Santa Barbara');
 insert into location (leagueId, name) values (1, 'Montecito');
 insert into location (leagueId, name) values (1, 'Between Santa Barbara and Goleta');
 
-insert into season (leagueId, name, startDate, endDate, startTime, endTime, enabled) values (1, 'Fall 2015', '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', 1);
+insert into season (id, leagueId, name, startDate, endDate, startTime, endTime, enabled) values (1, 1, 'Fall 2015', '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', 1);
 insert into facility (leagueId, name, address1, address2, city, state, postalCode, country, contactName, contactEmail, contactPhone, image, enabled) values
     (1, 'Girsh Park', '2910 Paseo del Refugio', '', 'Santa Barbara', 'CA', '93105', 'USA', 'David Giannini', 'ayso122Fields@gmail.com', '8052523944', 'GirshParkFields_zps37ac68d3.jpg', 1);
 insert into facility (leagueId, name, address1, address2, city, state, postalCode, country, contactName, contactEmail, contactPhone, image, enabled) values
@@ -107,26 +107,28 @@ insert into divisionField (divisionId, facilityId, fieldId) values (4, 2, 11); -
 insert into divisionField (divisionId, facilityId, fieldId) values (4, 2, 12); -- Mountain View 1D
 
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (1, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (1, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (2, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (2, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (3, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (3, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (4, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (4, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (5, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (5, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (6, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (6, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (7, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (7, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (8, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (8, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (9, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (9, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (10, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (10, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (11, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (11, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
 insert into fieldAvailability (fieldId, startDate, endDate, startTime, endTime, daysOfWeek)
-    values (12, '2015-08-24', '2015-11-19', '15:00:00', '07:00:00', '1111100');
+    values (12, '2015-08-24', '2015-11-19', '03:00:00', '07:00:00', '1111100');
+
+truncate table fieldAvailability;

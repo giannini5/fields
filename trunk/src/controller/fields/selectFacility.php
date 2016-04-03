@@ -63,12 +63,14 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
 
                         $view = new View_Fields_ShowReservation($this);
                     } else {
-                        $view = new View_Fields_SelectFacility($this);
+                        // $view = new View_Fields_SelectFacility($this);
+                        $view = new View_Fields_SelectField($this);
                     }
                     break;
 
                 case View_Base::FILTER:
-                    $view = new View_Fields_SelectFacility($this);
+                    // $view = new View_Fields_SelectFacility($this);
+                    $view = new View_Fields_SelectField($this);
                     break;
 
                 case View_Base::SIGN_OUT:
@@ -80,7 +82,8 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
                     if (count($this->m_reservations) > 0 and !$this->m_newSelection) {
                         $view = new View_Fields_ShowReservation($this);
                     } else {
-                        $view = new View_Fields_SelectFacility($this);
+                        // $view = new View_Fields_SelectFacility($this);
+                        $view = new View_Fields_SelectField($this);
                     }
                     break;
             }
@@ -247,7 +250,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $gender = $this->m_team->gender;
         $facilityName = $this->m_facility->name;
         $fieldName = $this->m_field->name;
-        $imageURL = $this->m_facility->image;
+        $imageURL = $this->getImageURL($this->m_facility->image);
         $daysSelected = $this->getDaysSelectedString($reservation);
         $times = "$reservation->startTime - $reservation->endTime";
         $title = $this->m_league->name . " Practice Field Coordinator";
@@ -324,5 +327,22 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         } else {
             $this->m_reservationConfirmationMessage .= "<font color='red'>Your reservation is pending.  See confirmation email that was sent to $toAddress for next steps$resultString</font>";
         }
+    }
+
+    /**
+     * Return a URL for the Image so that it can be clicked on in an email for display.
+     *
+     * @param  string   $image    - Facility image
+     * @return string   $imageURL - URL to facility image
+     */
+    private function getImageURL($image) {
+        $imageURL = $image;
+
+        $result = strpos($image, 'http://');
+        if (is_bool($result)) {
+            $imageURL = $_SERVER['HTTP_HOST'] . "?image=$image";
+        }
+
+        return $imageURL;
     }
 }

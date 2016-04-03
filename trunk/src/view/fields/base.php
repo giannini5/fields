@@ -44,12 +44,14 @@ abstract class View_Fields_Base extends View_Base {
             <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
             <html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en'>";
 
-        $this->m_styles->render($facilityCount);
-
         print "
             <head>
                 <title>Practice Fields</title>
-                <script type='text/JavaScript' src='../js/scw.js'></script>
+                <script type='text/JavaScript' src='../js/scw.js'></script>";
+
+        $this->m_styles->render($facilityCount);
+
+        print "
             </head>
 
             <body bgcolor='#FFFFFF'>

@@ -24,6 +24,8 @@ abstract class View_Base {
     const LOGIN_PAGE                 = '/login';
     const SHOW_RESERVATION_PAGE      = '/showReservation';
     const SELECT_FACILITY_PAGE       = '/selectFacility';
+    const SELECT_FIELD_PAGE          = '/selectField';
+    const IMAGE_PAGE                 = '/image';
     const TEST_POST_PAGE             = '/testPost';
 
     # Operations
@@ -68,6 +70,7 @@ abstract class View_Base {
 
     # Request Attributes
     const NEW_SELECTION = 'newSelection';
+    const IMAGE         = 'image';
 
     # Colors
     const AQUA = '#069';

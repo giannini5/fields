@@ -52,63 +52,31 @@ class View_Fields_Welcome extends View_Fields_Base {
                             <td style="text-align: center;">Age</td>
                             <td style="text-align: center;">Number of Practices <br />Per Week</td>
                             <td style="text-align: center;">Maximum Time <br />Allowed Per Practice</td>
-                        </tr>
+                        </tr>';
+
+        foreach ($this->m_controller->m_divisions as $division) {
+            $maxPractices = $division->maxMinutesPerWeek / $division->maxMinutesPerPractice;
+            $maxHoursPerPractice = $division->maxMinutesPerPractice / 60;
+            $hours = $maxHoursPerPractice > 1 ? 'hours' : 'hour';
+
+            print "
                         <tr>
-                            <td style="text-align: center;">U6</td>
-                            <td style="text-align: center;">1</td>
-                            <td style="text-align: center;">1 hour</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: center;">U7</td>
-                            <td style="text-align: center;">1</td>
-                            <td>1 hour</td>
-                        </tr>
-                        <tr>
-                            <td>U8</td>
-                            <td>1</td>
-                            <td>1 hour</td>
-                        </tr>
-                        <tr>
-                            <td>U9</td>
-                            <td>2</td>
-                            <td>1.5 hours</td>
-                        </tr>
-                        <tr>
-                            <td>U10</td>
-                            <td>2</td>
-                            <td>1.5 hours</td>
-                        </tr>
-                        <tr>
-                        </tr>
-                        <tr>
-                            <td>U11</td>
-                            <td>2</td>
-                            <td>1.5 hours</td>
-                        </tr>
-                        <tr>
-                            <td>U12</td>
-                            <td>2</td>
-                            <td>1.5 hours</td>
-                        </tr>
-                        <tr>
-                            <td>U14</td>
-                            <td>2</td>
-                            <td>1.5 hours</td>
-                        </tr>
-                        <tr>
-                            <td>U16/U19</td>
-                            <td>2</td>
-                            <td>2 hours</td>
-                        </tr>
+                            <td style='text-align: center;'>$division->name</td>
+                            <td style='text-align: center;'>$maxPractices</td>
+                            <td style='text-align: center;'>" . number_format($maxHoursPerPractice, 1) . " $hours</td>
+                        </tr>";
+        }
+
+        print '
                     </tbody>
                 </table>
 
                 <p style="text-align: center;"> </p>
-                <p style="text-align: center;"><strong>AYSO National has requested that 1 adult of each gender be in attendance at each practice.</strong></p>
+                <p style="color: red; text-align: center;"><strong>AYSO National has requested that 1 adult of each gender be in attendance at each practice.</strong></p>
                 <p style="text-align: left;"><span style="line-height: 1.3em;">In some cases, more than one team is assigned the same field as the same time. For example, </span><span style="line-height: 1.3em;">full soccer fields are divided in half for practice; school fields are divided into sections to </span><span style="line-height: 1.3em;">accommodate more than one team.</span></p>
                 <p style="text-align: left;">Please be courteous to other coaches and teams.</p>
                 <br><p style="text-align: left;"><strong>Field Reservations:</strong></p>
-                <p style="text-align: left;">Field reservations are handled in the order received.  Click on the RESERVATION tab to start the process (you may need to login or create an account if this is your first time.)</p>
+                <p style="text-align: left;">Field reservations are handled in the order received.  Click on the SELECT tab to start the process (you may need to login or create an account if this is your first time.)</p>
                 <p style="text-align: left;"><strong><em>Please do not make direct contact with any of the practice facilities until you’ve received a confirmation email from AYSO. Your confirmation email will give you follow-on instructions for facilities that require additional processing.  In many cases AYSO approval is all you need.</em></strong></p>
                 <p style="text-align: left;"><strong>Schools that require additional processing:</strong></p>
                 <p style="padding-left: 90px; text-align: left;">Adams<br />Peabody<br />Hope<br />Monte Vista<br />Vieja Valley<br />Cold Springs<br />Montecito Union</p>

@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @brief Select the Facility for the reservation.
+ * @brief Select the Facility/Field for the reservation.
  *
  * @param $controller - Controller that contains data used when rendering this view.
  */
-class View_Fields_SelectFacility extends View_Fields_Base {
+class View_Fields_SelectField extends View_Fields_Base {
     const LONG_NAME     = 'long';
     const SHORT_NAME    = 'short';
 
@@ -18,7 +18,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
      * @param $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
-        parent::__construct(self::SELECT_FACILITY_PAGE, $controller);
+        parent::__construct(self::SELECT_FIELD_PAGE, $controller);
 
         $this->m_days = array();
         $this->m_times = array();
@@ -65,7 +65,8 @@ class View_Fields_SelectFacility extends View_Fields_Base {
 
         $this->_printReservationError();
         $this->_printFacilitySelectors($facilities, $filterFacilityId, $filterDivisionId, $filterLocationId);
-        print "<h1>&nbsp;</h1>";
+        // print "<p>&nbsp;</p>";
+        print "<br>";
 
         $javaScriptClassIdentifier = 0;
         foreach ($facilities as $facility) {
@@ -93,19 +94,25 @@ class View_Fields_SelectFacility extends View_Fields_Base {
                 }
             }
 
+            print "<div class='accordion'>";
+/*
             print "
             <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td>";
+*/
 
             $this->_printSelectFieldForm(4, $facility, $filterDivisionId,
                 "expandContract$javaScriptClassIdentifier", "collapsible$javaScriptClassIdentifier");
 
+/*
             print "
                     </td>
                 </tr>
             </table>
             <br>";
+*/
+            print "</div>";
         }
     }
 
@@ -140,7 +147,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
             <table valign='top' align='center' width='625' border='1' cellpadding='5' cellspacing='0'>
             <tr><td>
             <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
-            <form method='post' action='" . self::SELECT_FACILITY_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . self::SELECT_FIELD_PAGE . $this->m_urlParams . "'>";
 
         print $this->printFacilitySelector($facilities, $filterFacilityId);
         print $this->printDivisionSelector($filterDivisionId);
@@ -177,9 +184,11 @@ class View_Fields_SelectFacility extends View_Fields_Base {
         $sessionId = $this->m_controller->getSessionId();
 
         // Print the start of the form to select a facility
+        print "<h2 style='text-decoration: underline'><b>$facility->name</b></h2>";
+        print "<div class='pane'>";
         print "
-            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
-            <form method='post' action='" . self::SELECT_FACILITY_PAGE . $this->m_urlParams . "'>";
+            <table id='viewTable' class='table' valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
+            <form method='post' action='" . self::SELECT_FIELD_PAGE . $this->m_urlParams . "'>";
 
         $this->_printFacilityInfo($maxColumns, $facility, $expandContract, $collapsible);
 
@@ -190,20 +199,20 @@ class View_Fields_SelectFacility extends View_Fields_Base {
         }
 
         // print "<tr class='$collapsible'><td>&nbsp</td></tr>";
-        $this->_printFieldSelector($maxColumns, $fields, $collapsible);
-        $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00', $collapsible);
-        $this->printDaySelector($maxColumns, $collapsible);
+        $this->_printFieldSelector($maxColumns, $fields, NULL);
+        $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00', NULL);
+        $this->printDaySelector($maxColumns, NULL);
 
         // Print Submit button and end form
         print "
-                <tr class='$collapsible'>
+                <tr>
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SELECT . "'>
                         <input type='hidden' id='facilityId' name='facilityId' value='$facility->id'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
-                <tr class='$collapsible'>
+                <tr>
                     <td>&nbsp</td>
                 </tr>
             </form>";
@@ -212,6 +221,8 @@ class View_Fields_SelectFacility extends View_Fields_Base {
 
         print "
             </table>";
+
+        print "</div>";
 
     }
 
@@ -228,11 +239,6 @@ class View_Fields_SelectFacility extends View_Fields_Base {
         $image = is_bool($result) ? 'images/' . $facility->image : $facility->image;
 
         print "
-                <tr class='$expandContract'>
-                    <th align='center'colspan='$maxColumns'>
-                        $facility->name
-                    </th>
-                </tr>
                 <tr>
                     <td align='left'colspan='$maxColumns'>
                         <font size='3'>
@@ -244,7 +250,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
 
         if (!$facility->preApproved) {
             print "
-                <tr class='$collapsible'>
+                <tr>
                     <td align='left'colspan='$maxColumns'>
                         <font color='red' size='3'>
                         After you complete your selection below you will receive a confirmation email with additional instructions to fill out a form, pay a fee
@@ -255,7 +261,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
         }
 
         print "
-                <tr class='$collapsible'>
+                <tr>
                     <td colspan='$maxColumns'>
                         <img src='$image' alt='$image' width='600' height='300'>
                     </td>
@@ -271,10 +277,10 @@ class View_Fields_SelectFacility extends View_Fields_Base {
      */
     private function _printFieldsAssigned($maxColumns, $fields, $collapsible) {
         print "
-            <tr class='$collapsible'>
+            <tr>
                 <td colspan='$maxColumns'>
                     <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
-                        <tr class='$collapsible'>
+                        <tr>
                             <td>Available</td>
                             <td bgcolor='blue'><font color='white'>Reserved</font></td>
                             <td bgcolor='salmon'>No Permit</td>
@@ -282,7 +288,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
                     </table>
                 </td>
             </tr>
-            <tr class='$collapsible'>
+            <tr>
                 <td colspan='$maxColumns'>
                 <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
                     <thead>
@@ -412,7 +418,7 @@ class View_Fields_SelectFacility extends View_Fields_Base {
         }
 
         print "
-                <tr class='$collapsible'>
+                <tr>
                     <td><font color='" . View_Base::AQUA . "'><b>Field:&nbsp</b></font></td>
                     <td><select name=\"fieldId\">" . $fieldSectionHTML . "</select></td>
                 </tr>";

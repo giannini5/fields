@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @brief Show the Login page and get the user to login or select he create account button.
+ * @brief Show the Test Post page
  */
 class View_Fields_TestPost extends View_Fields_Base {
     /**
