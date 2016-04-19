@@ -341,7 +341,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
 
         $result = strpos($image, 'http://');
         if (is_bool($result)) {
-            $imageURL = $_SERVER['HTTP_HOST'] . "image?image=$image";
+            $imageURL = $_SERVER['HTTP_HOST'] . "/image?image=$image";
         }
 
         return $imageURL;
