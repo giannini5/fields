@@ -262,7 +262,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $contactPhone = $this->m_facility->contactPhone;
 
         $headers = "From: region122@webyouthsoccer.com\r\n";
-        $headers .= "To: $toAddress\r\n";
+        // $headers .= "To: $toAddress\r\n";
         $headers .= "Reply-To: $fromAddress\r\n";
         $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
         $headers .= "MIME-Version: 1.0\r\n";
@@ -341,7 +341,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
 
         $result = strpos($image, 'http://');
         if (is_bool($result)) {
-            $imageURL = $_SERVER['HTTP_HOST'] . "?image=$image";
+            $imageURL = $_SERVER['HTTP_HOST'] . "image?image=$image";
         }
 
         return $imageURL;
