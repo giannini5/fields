@@ -26,6 +26,7 @@ abstract class View_Base {
     const SELECT_FACILITY_PAGE       = '/selectFacility';
     const SELECT_FIELD_PAGE          = '/selectField';
     const IMAGE_PAGE                 = '/image';
+    const HELP_PAGE                  = '/help';
     const TEST_POST_PAGE             = '/testPost';
 
     # Operations
@@ -67,6 +68,10 @@ abstract class View_Base {
     const DIVISION_IDS              = 'divisionIds';
     const LOCATION_ID               = 'locationId';
     const LOCATION_IDS              = 'locationIds';
+
+    const EMAIL_ADDRESS             = 'emailAddress';
+    const SUBJECT                   = 'subject';
+    const HELP_REQUEST              = 'helpRequest';
 
     # Request Attributes
     const NEW_SELECTION = 'newSelection';
