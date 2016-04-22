@@ -126,6 +126,8 @@ abstract class View_Fields_Base extends View_Base {
                 '<li><div>RESERVATIONS</div></li>' : '<li><a href="' . self::SHOW_RESERVATION_PAGE . '">RESERVATIONS</a></li>')
             . ($this->m_pageName == self::SELECT_FACILITY_PAGE ?
                 '<li><div>SELECT</div></li>' : '<li><a href="' . self::SELECT_FACILITY_PAGE . '?newSelection=1">SELECT</a></li>')
+            . ($this->m_pageName == self::HELP_PAGE ?
+                '<li><div>HELP</div></li>' : '<li><a href="' . self::HELP_PAGE . '">HELP</a></li>')
             . '
                </ul>';
     }

@@ -4,6 +4,15 @@ error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
 
 require_once '../lib/autoLoader.php';
 
+
+class ControllerException extends DAG_Exception
+{
+    public function __construct($message, $exception) {
+        parent::__construct($message, 0, $exception);
+    }
+}
+
+
 /**
  * Class Web_Index
  *
@@ -58,6 +67,10 @@ class Web_Index
                 $this->m_controller = new Controller_Fields_Image();
                 break;
 
+            case View_Base::HELP_PAGE:
+                $this->m_controller = new Controller_Fields_Help();
+                break;
+
             case View_Base::ADMIN_HOME_PAGE:
                 $this->m_controller = new Controller_Admin_Home();
                 break;
@@ -92,8 +105,29 @@ class Web_Index
         }
     }
 
+    public function htmlFormatArray($arr) {
+        $retStr = "";
+        if (is_array($arr)) {
+            foreach ($arr as $key=>$val) {
+                if (is_array($val)){
+                    $retStr .= $key . ' => ' . $this->htmlFormatArray($val) . "\n";
+                }
+                else {
+                    $retStr .= $key . ' => ' . $val . "\n";
+                }
+            }
+        }
+        return $retStr;
+    }
+
     public function process() {
-        $this->m_controller->process();
+        try {
+            $this->m_controller->process();
+        } catch (Exception $e) {
+            $postString = $this->htmlFormatArray($_POST);
+            $message = "Post data: $postString\n";
+            throw new ControllerException($message, $e);
+        }
     }
 }
 
