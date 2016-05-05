@@ -37,8 +37,17 @@ class View_Fields_Welcome extends View_Fields_Base {
     }
 
     public function renderInfo() {
+        $beginReservations = '';
+        if (!$this->m_controller->m_season->okayToReserveField()) {
+            $beginDateTime = DateTime::createFromFormat('Y-m-d H:i:s', $this->m_controller->m_season->beginReservationsDate);
+            $beginDateString = $beginDateTime->format('m-d-Y H:i:s');
+            $beginReservations = "<p style='color: red'><strong>The earliest you can use this tool to select a field for practice is $beginDateString.  Feel free to give is go now so you know how it works when the time is right.</strong></p>";
+        }
+
         print '
                 <h1 align="center">Practice Field Info &amp; Etiquette</h1>
+
+                ' . $beginReservations . '
 
                 <p style="text-align: left;">Real-estate, being a precious resource in our beautiful part of the world, leaves us with limited practice field availability. Because of the limited availability, AYSO prioritizes premium field usage for our older divisions (U12, U14, U16-19).</p>
                 <br><p style="text-align: left;"><strong>Insurance:</strong></p>

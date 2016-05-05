@@ -53,6 +53,7 @@ abstract class View_Base {
     const FRIDAY                    = 'Friday';
     const SATURDAY                  = 'Saturday';
     const SUNDAY                    = 'Sunday';
+    const BEGIN_RESERVATION_DATE    = 'beginReservationDate';
     const START_DATE                = 'startDate';
     const END_DATE                  = 'endDate';
     const START_TIME                = 'startTime';
@@ -308,19 +309,32 @@ abstract class View_Base {
      */
     protected function displayCalendarSelector($maxColumns, $defaultStartDate, $defaultEndDate, $collapsible = NULL, $colspan = 1)
     {
+        $this->displayCalendarDateSelector($maxColumns, View_Base::START_DATE, 'From', $defaultStartDate, $collapsible, $colspan);
+        $this->displayCalendarDateSelector($maxColumns, View_Base::END_DATE, 'To', $defaultEndDate, $collapsible, $colspan);
+    }
+
+    /**
+     * @brief: Display Calendar Date Selector
+     *          - Start Date
+     *          - End Date
+     *
+     * @param $maxColumns - For colspan of field assignments table
+     * @param string $id - field identifier
+     * @param string $tag - Input tag
+     * @param string $defaultDate - Default selection for date
+     * @param string $defaultEndDate - Default selection for endDate
+     * @param $collapsible - Collapsible CSS
+     * @param $colspan - Number of columns to span
+     */
+    protected function displayCalendarDateSelector($maxColumns, $id, $tag, $defaultDate, $collapsible = NULL, $colspan = 1)
+    {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         print "
             <tr $collapsibleClass>
-                <td><font color='" . View_Base::AQUA . "'><b>From:</b></font></td>
+                <td><font color='" . View_Base::AQUA . "'><b>$tag:</b></font></td>
                 <td colpan='$colspan'>
-                    <input type='text' size=11 id='" . View_Base::START_DATE . "' name='" . View_Base::START_DATE . "' value='$defaultStartDate' style='font-size:11px'>
-                </td>
-            </tr>
-            <tr $collapsibleClass>
-                <td><font color='" . View_Base::AQUA . "'><b>To:</b></font></td>
-                <td colpan='$colspan'>
-                    <input type='text' size=11 id='" . View_Base::END_DATE . "' name='" . View_Base::END_DATE . "' value='$defaultEndDate' style='font-size:11px'>
+                    <input type='text' size=11 id='$id' name='$id' value='$defaultDate' style='font-size:11px'>
                 </td>
             </tr>";
     }

@@ -184,9 +184,11 @@ call sp_addField(@leagueName, @facilityName, '2', 1);
 call sp_addDivisionField(@leagueName, @u5, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u6, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u7, @facilityName, '1');
+call sp_addDivisionField(@leagueName, @u8, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u5, @facilityName, '2');
 call sp_addDivisionField(@leagueName, @u6, @facilityName, '2');
 call sp_addDivisionField(@leagueName, @u7, @facilityName, '2');
+call sp_addDivisionField(@leagueName, @u8, @facilityName, '2');
 call sp_addFieldAvailability(@leagueName, @facilityName, '1', @startDate, @endDate, @startTime, @endTime, @practiceDays);
 call sp_addFieldAvailability(@leagueName, @facilityName, '2', @startDate, @endDate, @startTime, @endTime, @practiceDays);
 
@@ -208,6 +210,7 @@ call sp_addField(@leagueName, @facilityName, '1', 1);
 call sp_addDivisionField(@leagueName, @u5, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u6, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u7, @facilityName, '1');
+call sp_addDivisionField(@leagueName, @u8, @facilityName, '1');
 call sp_addFieldAvailability(@leagueName, @facilityName, '1', @startDate, @endDate, @startTime, @endTime, @practiceDays);
 
 set @facilityName = 'Pilgram Terrace Park';
@@ -218,6 +221,7 @@ call sp_addField(@leagueName, @facilityName, '1', 1);
 call sp_addDivisionField(@leagueName, @u5, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u6, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u7, @facilityName, '1');
+call sp_addDivisionField(@leagueName, @u8, @facilityName, '1');
 call sp_addFieldAvailability(@leagueName, @facilityName, '1', @startDate, @endDate, @startTime, @endTime, @practiceDays);
 
 set @facilityName = 'Plaza Vera Cruz Park';
@@ -247,6 +251,7 @@ call sp_addField(@leagueName, @facilityName, '1', 1);
 call sp_addDivisionField(@leagueName, @u5, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u6, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u7, @facilityName, '1');
+call sp_addDivisionField(@leagueName, @u8, @facilityName, '1');
 call sp_addFieldAvailability(@leagueName, @facilityName, '1', @startDate, @endDate, @startTime, @endTime, @practiceDays);
 
 set @facilityName = 'Shoreline Park';
@@ -284,9 +289,11 @@ call sp_addField(@leagueName, @facilityName, '2', 1);
 call sp_addDivisionField(@leagueName, @u5, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u6, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u7, @facilityName, '1');
+call sp_addDivisionField(@leagueName, @u8, @facilityName, '1');
 call sp_addDivisionField(@leagueName, @u5, @facilityName, '2');
 call sp_addDivisionField(@leagueName, @u6, @facilityName, '2');
 call sp_addDivisionField(@leagueName, @u7, @facilityName, '2');
+call sp_addDivisionField(@leagueName, @u8, @facilityName, '2');
 call sp_addFieldAvailability(@leagueName, @facilityName, '1', @startDate, @endDate, @startTime, @endTime, @practiceDays);
 call sp_addFieldAvailability(@leagueName, @facilityName, '2', @startDate, @endDate, @startTime, @endTime, @practiceDays);
 

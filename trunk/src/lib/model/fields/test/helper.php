@@ -13,6 +13,7 @@ class Model_TestHelpers extends PHPUnit_Framework_TestCase {
 
     public $m_leagueName = 'Test AYSO Region 122';
     public $m_seasonName = 'Test 2015';
+    public $m_beginReservationDate = '2015-01-02';
     public $m_divisionName = 'U10';
     public $m_divisionMaxMinutesPerPractice = 25;
     public $m_divisionMaxMinutesPerWeek = 250;
@@ -57,7 +58,7 @@ class Model_TestHelpers extends PHPUnit_Framework_TestCase {
             $this->m_league = Model_Fields_League::Create($this->m_leagueName);
 
             if ($createSeason) {
-                $this->m_season = Model_Fields_Season::Create($this->m_league, $this->m_seasonName, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, 1);
+                $this->m_season = Model_Fields_Season::Create($this->m_league, $this->m_seasonName, $this->m_beginReservationDate, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, 1);
 
                 if ($createDivision) {
                     $this->m_division = Model_Fields_Division::Create($this->m_league, $this->m_divisionName, $this->m_divisionMaxMinutesPerPractice, $this->m_divisionMaxMinutesPerWeek, 1);
