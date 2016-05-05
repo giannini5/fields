@@ -94,6 +94,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
 
     private function createReservation() {
         // All of the following must be TRUE or the reservation is denied:
+        // 0. Season is open for practice field reservations
         // 1. StartTime is less then EndTime
         // 2. At least one day is selected
         // 3. At most two days are select (1 for teams that are only allowed to practice one day
@@ -102,6 +103,14 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         // 5. Total time for all reservations for team is within limit allowed
         // 6. Reservation does not overlap with another team's reservation
         // 7. Division is allowed to practice at selected field
+
+        // 0. Make sure we are taking reservations
+        if (!$this->m_season->okayToReserveField()) {
+            $beginDateTime = DateTime::createFromFormat('Y-m-d H:i:s', $this->m_season->beginReservationsDate);
+            $beginDateString = $beginDateTime->format('m-d-Y');
+            $this->m_createReservationError =  "The earliest you can use this tool to select a field for practice is<br>$beginDateString.";
+            return FALSE;
+        }
 
         // 1. StartTime is less then EndTime
         $startDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $this->m_startTime" . ":00");

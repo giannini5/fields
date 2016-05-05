@@ -22,7 +22,7 @@ class Model_Fields_FieldAvailability extends Model_Fields_Base implements SaveMo
      * @param string $endTime    - End time during the day that the fieldAvailability is available
      * @param string $daysOfWeek - Days of week field is available.  daysOfWeek[0] = Monday
      */
-    public function __construct($field = NULL, $id = NULL, $fieldId = NULL, $startDate = '', $endDate = '', $startTime = '', $endTime = '', $daysOfWeek = '0111110') {
+    public function __construct($field = NULL, $id = NULL, $fieldId = NULL, $startDate = '', $endDate = '', $startTime = '', $endTime = '', $daysOfWeek = '1111100') {
         parent::__construct('Model_Fields_FieldAvailabilityDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->m_field = $field;

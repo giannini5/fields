@@ -17,23 +17,27 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
      * @param $id - unique identifier
      * @param $leagueId - unique league identifier
      * @param string $name - name of the season
+     * @param string $beginReservationDate - Date reservtion selection can begin
      * @param string $startDate - Day season becomes available
      * @param string $endDate - Last day season is available
      * @param string $startTime - Start time during the day that practice can start
      * @param string $endTime - End time during the day that practice must end
      * @param bool $enabled - 1 if season is enabled; 0 otherwise
+     * @param string $daysOfWeek - Default practice days of week.  daysOfWeek[0] = Monday
      */
-    public function __construct($league = NULL, $id = NULL, $leagueId = NULL, $name = '', $startDate = '', $endDate = '', $startTime = '', $endTime = '', $enabled = 0) {
+    public function __construct($league = NULL, $id = NULL, $leagueId = NULL, $name = '', $beginReservationDate = '', $startDate = '', $endDate = '', $startTime = '', $endTime = '', $enabled = 0, $daysOfWeek = '1111100') {
         parent::__construct('Model_Fields_SeasonDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->m_league = $league;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_ID}   = $id;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_LEAGUE_ID}   = $leagueId;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_NAME} = $name;
+        $this->{Model_Fields_SeasonDB::DB_COLUMN_BEGIN_RESERVATION_DATE} = $beginReservationDate;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_START_DATE} = $startDate;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_END_DATE} = $endDate;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_START_TIME} = $startTime;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_END_TIME} = $endTime;
+        $this->{Model_Fields_SeasonDB::DB_COLUMN_DAYS_OF_WEEK} = $daysOfWeek;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_ENABLED} = $enabled;
         $this->_setLeague();
     }
@@ -60,7 +64,7 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
                 NULL,
                 $this->{Model_Fields_SeasonDB::DB_COLUMN_NAME},
                 TRUE,
-                $this->{Model_Fields_SeasonDB::DB_COLUMN_LEAUGE_ID});
+                $this->{Model_Fields_SeasonDB::DB_COLUMN_LEAGUE_ID});
         }
 
         if (!empty($dataObj)) {
@@ -70,6 +74,21 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
         }
 
         return FALSE;
+    }
+
+    /**
+     * Check to see if it is too soon to reserve a field.
+     *
+     * @return bool - true if reservations are open; false otherwise
+     */
+    public function okayToReserveField() {
+        $beginDateTime = DateTime::createFromFormat('Y-m-d H:i:s', $this->beginReservationsDate);
+        $now = new DateTime();
+
+        $nowString = $now->format('Y-m-d H:i:s');
+        $beginDateString = $beginDateTime->format('Y-m-d H:i:s');
+
+        return $now >= $beginDateTime;
     }
 
     /**
@@ -104,11 +123,13 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_ID},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_LEAGUE_ID},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_NAME},
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_BEGIN_RESERVATION_DATE},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_START_DATE},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_END_DATE},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_START_TIME},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_END_TIME},
-            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_ENABLED});
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_ENABLED},
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_DAYS_OF_WEEK});
 
         $season->setLoaded();
 
@@ -120,18 +141,20 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
      *
      * @param $league - Model_Fields_League instance
      * @param string $name - name of the season
+     * @param string $beginReservationDate - Date reservation selection can begin
      * @param string $startDate - Day season becomes available
      * @param string $endDate - Last day season is available
      * @param string $startTime - Start time during the day that practice can start
      * @param string $endTime - End time during the day that practice must end
      * @param int $enabled - 1 if season is enabled; 0 otherwise
+     * @param string $daysOfWeek - Default practice days of week.  daysOfWeek[0] = Monday
      *
      * @return Model_Fields_Season
      * @throws AssertionException
      */
-    public static function Create($league, $name, $startDate, $endDate, $startTime, $endTime, $enabled) {
+    public static function Create($league, $name, $beginReservationDate, $startDate, $endDate, $startTime, $endTime, $enabled, $daysOfWeek = '1111100') {
         $dbHandle = new Model_Fields_SeasonDB();
-        $dataObject = $dbHandle->create($league, $name, $startDate, $endDate, $startTime, $endTime, $enabled);
+        $dataObject = $dbHandle->create($league, $name, $beginReservationDate, $startDate, $endDate, $startTime, $endTime, $enabled, $daysOfWeek);
         assertion(!empty($dataObject), "Unable to create Season with name:'$name'");
 
         return Model_Fields_Season::GetInstance($dataObject, $league);

@@ -67,8 +67,10 @@ class View_Admin_Season extends View_Admin_Base {
         $errorString = (isset($this->m_controller->m_seasonId) or $this->m_controller->m_missingAttributes == 0) ? '' : $this->m_controller->m_name;
 
         $this->displayInput('Season Name:', 'text', Model_Fields_SeasonDB::DB_COLUMN_NAME, 'Season Name', $errorString);
+        $this->displayCalendarDateSelector($maxColumns, View_Base::BEGIN_RESERVATION_DATE, 'Reservation Start', '2016-07-15');
         $this->displayCalendarSelector($maxColumns, '2015-01-01', '2016-01-01');
         $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00');
+        $this->printDaySelector($maxColumns, NULL);
         $this->displayRadioSelector('Enabled:', Model_Fields_SeasonDB::DB_COLUMN_ENABLED, array(0=>'No', 1=>'Yes'), 'Yes');
 
         // Print Create button and end form
@@ -101,8 +103,10 @@ class View_Admin_Season extends View_Admin_Base {
             <form method='post' action='" . self::ADMIN_SEASON_PAGE . $this->m_urlParams . "'>";
 
         $this->displayInput('Season Name:', 'text', Model_Fields_SeasonDB::DB_COLUMN_NAME, 'Season Name', $errorString, $season->name);
+        $this->displayCalendarDateSelector($maxColumns, View_Base::BEGIN_RESERVATION_DATE, 'Reservation Start', $season->beginReservationsDate);
         $this->displayCalendarSelector($maxColumns, $season->startDate, $season->endDate);
         $this->printTimeSelectors($maxColumns, $season->startTime, $season->endTime);
+        $this->printDaySelector($maxColumns, NULL, $season->daysOfWeek);
         $this->displayRadioSelector('Enabled:', Model_Fields_SeasonDB::DB_COLUMN_ENABLED, array(0=>'No', 1=>'Yes'), $season->enabled ? 'Yes' : 'No');
 
         // Print Submit button and end form

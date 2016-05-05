@@ -8,12 +8,15 @@
 class Controller_Admin_Season extends Controller_Admin_Base {
     public $m_seasons = NULL;
     public $m_name = NULL;
+    public $m_beginReservationsDate = NULL;
     public $m_enabled = NULL;
     public $m_seasonId = NULL;
     public $m_startDate = NULL;
     public $m_endDate = NULL;
     public $m_startTime = NULL;
     public $m_endTime = NULL;
+    public $m_daysSelected = array();
+    public $m_daysSelectedString = '';
 
     public function __construct() {
         parent::__construct();
@@ -26,6 +29,7 @@ class Controller_Admin_Season extends Controller_Admin_Base {
                 '* Name required'
             );
 
+            $this->m_beginReservationsDate = $this->getPostAttribute(View_Base::BEGIN_RESERVATION_DATE, null);
             $this->m_startDate = $this->getPostAttribute(View_Base::START_DATE, null);
             $this->m_endDate = $this->getPostAttribute(View_Base::END_DATE, null);
             $this->m_startTime = $this->getPostAttribute(View_Base::START_TIME, null);
@@ -42,6 +46,30 @@ class Controller_Admin_Season extends Controller_Admin_Base {
                 NULL,
                 FALSE
             );
+
+            $this->m_daysSelected[View_Base::MONDAY]    = $this->_isDaySelected(View_Base::MONDAY);
+            $this->m_daysSelected[View_Base::TUESDAY]   = $this->_isDaySelected(View_Base::TUESDAY);
+            $this->m_daysSelected[View_Base::WEDNESDAY] = $this->_isDaySelected(View_Base::WEDNESDAY);
+            $this->m_daysSelected[View_Base::THURSDAY]  = $this->_isDaySelected(View_Base::THURSDAY);
+            $this->m_daysSelected[View_Base::FRIDAY]    = $this->_isDaySelected(View_Base::FRIDAY);
+            $this->m_daysSelected[View_Base::SATURDAY]  = $this->_isDaySelected(View_Base::SATURDAY);
+            $this->m_daysSelected[View_Base::SUNDAY]    = $this->_isDaySelected(View_Base::SUNDAY);
+
+            // Verify that at least one days was selected
+            if (!$this->m_daysSelected[View_Base::MONDAY]
+                and !$this->m_daysSelected[View_Base::TUESDAY]
+                and !$this->m_daysSelected[View_Base::WEDNESDAY]
+                and !$this->m_daysSelected[View_Base::THURSDAY]
+                and !$this->m_daysSelected[View_Base::FRIDAY]
+                and !$this->m_daysSelected[View_Base::SATURDAY]
+                and !$this->m_daysSelected[View_Base::SUNDAY]) {
+
+                $this->setErrorString('Error: At least one day must be selected');
+            }
+
+            foreach ($this->m_daysSelected as $day=>$selected) {
+                $this->m_daysSelectedString .= $selected ? '1' : '0';
+            }
         }
     }
 
@@ -82,7 +110,7 @@ class Controller_Admin_Season extends Controller_Admin_Base {
     private function _createSeason() {
         $season = Model_Fields_Season::LookupByName($this->m_league, $this->m_name, FALSE);
         if (!isset($season)) {
-            $season = Model_Fields_Season::Create($this->m_league, $this->m_name, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, $this->m_enabled);
+            $season = Model_Fields_Season::Create($this->m_league, $this->m_name, $this->m_beginReservationsDate, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, $this->m_enabled, $this->m_daysSelectedString);
             $this->m_seasons[] = $season;
             if ($this->m_enabled == 1) {
                 $this->_disableSeasons($season->id);
@@ -110,10 +138,12 @@ class Controller_Admin_Season extends Controller_Admin_Base {
         foreach ($this->m_seasons as $season) {
             if ($season->id == $this->m_seasonId) {
                 $season->name = $this->m_name;
+                $season->beginReservationsDate = $this->m_beginReservationsDate;
                 $season->startDate = $this->m_startDate;
                 $season->endDate = $this->m_endDate;
                 $season->startTime = $this->m_startTime;
                 $season->endTime = $this->m_endTime;
+                $season->daysOfWeek = $this->m_daysSelectedString;
                 $season->enabled = $this->m_enabled;
                 $season->saveModel();
 

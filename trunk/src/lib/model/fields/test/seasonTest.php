@@ -22,14 +22,16 @@ class Model_SeasonTest extends Model_TestHelpers {
     public function testStaticMethods()
     {
         // Test Create
-        $season = Model_Fields_Season::Create($this->m_league, $this->m_name, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, 1);
+        $season = Model_Fields_Season::Create($this->m_league, $this->m_name, $this->m_beginReservationDate, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, 1, $this->m_daysOfWeek);
         $id = $season->id;
         $this->assertEquals($season->leagueId, $this->m_league->id);
         $this->assertEquals($season->name, $this->m_name);
+        $this->assertEquals($season->beginReservationsDate, $this->m_beginReservationDate);
         $this->assertEquals($season->startDate, $this->m_startDate);
         $this->assertEquals($season->endDate, $this->m_endDate);
         $this->assertEquals($season->startTime, $this->m_startTime);
         $this->assertEquals($season->endTime, $this->m_endTime);
+        $this->assertEquals($season->daysOfWeek, $this->m_daysOfWeek);
         $this->assertEquals($season->enabled, $this->m_enabled);
         $this->assertEquals($season->m_league->name, $this->m_league->name);
         $this->assertTrue($season->isLoaded());
@@ -39,10 +41,12 @@ class Model_SeasonTest extends Model_TestHelpers {
         $season = Model_Fields_Season::LookupByName($this->m_league, $this->m_name);
         $this->assertEquals($season->leagueId, $this->m_league->id);
         $this->assertEquals($season->name, $this->m_name);
+        $this->assertEquals($season->beginReservationsDate, $this->m_beginReservationDate);
         $this->assertEquals($season->startDate, $this->m_startDate);
         $this->assertEquals($season->endDate, $this->m_endDate);
         $this->assertEquals($season->startTime, $this->m_startTime);
         $this->assertEquals($season->endTime, $this->m_endTime);
+        $this->assertEquals($season->daysOfWeek, $this->m_daysOfWeek);
         $this->assertEquals($season->enabled, $this->m_enabled);
         $this->assertEquals($season->m_league->name, $this->m_league->name);
         $this->assertTrue($season->isLoaded());
@@ -52,10 +56,12 @@ class Model_SeasonTest extends Model_TestHelpers {
         $season = Model_Fields_Season::LookupById($id);
         $this->assertEquals($season->leagueId, $this->m_league->id);
         $this->assertEquals($season->name, $this->m_name);
+        $this->assertEquals($season->beginReservationsDate, $this->m_beginReservationDate);
         $this->assertEquals($season->startDate, $this->m_startDate);
         $this->assertEquals($season->endDate, $this->m_endDate);
         $this->assertEquals($season->startTime, $this->m_startTime);
         $this->assertEquals($season->endTime, $this->m_endTime);
+        $this->assertEquals($season->daysOfWeek, $this->m_daysOfWeek);
         $this->assertEquals($season->enabled, $this->m_enabled);
         $this->assertEquals($season->m_league->name, $this->m_league->name);
         $this->assertTrue($season->isLoaded());
@@ -65,10 +71,12 @@ class Model_SeasonTest extends Model_TestHelpers {
         $season = Model_Fields_Season::GetEnabledSeason($this->m_league);
         $this->assertEquals($season->leagueId, $this->m_league->id);
         $this->assertEquals($season->name, $this->m_name);
+        $this->assertEquals($season->beginReservationsDate, $this->m_beginReservationDate);
         $this->assertEquals($season->startDate, $this->m_startDate);
         $this->assertEquals($season->endDate, $this->m_endDate);
         $this->assertEquals($season->startTime, $this->m_startTime);
         $this->assertEquals($season->endTime, $this->m_endTime);
+        $this->assertEquals($season->daysOfWeek, $this->m_daysOfWeek);
         $this->assertEquals($season->enabled, $this->m_enabled);
         $this->assertEquals($season->m_league->name, $this->m_league->name);
         $this->assertTrue($season->isLoaded());

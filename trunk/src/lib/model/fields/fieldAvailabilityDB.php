@@ -73,7 +73,7 @@ class Model_Fields_FieldAvailabilityDB extends Model_Fields_BaseDB {
      * @param string $endDate    - Last day field is available
      * @param string $startTime  - Start time during the day that the field is available
      * @param string $endTime    - End time during the day that the field is available
-     * @param string $daysOfWeek - Days of week field is available.  daysOfWeek[0] = Sunday
+     * @param string $daysOfWeek - Days of week field is available.  daysOfWeek[0] = Monday
      *
      * @return DataObject[]
      */

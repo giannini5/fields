@@ -14,14 +14,16 @@ class Model_Fields_SeasonDB extends Model_Fields_BaseDB {
     const DB_TABLE_NAME = 'season';
 
     // Columns constant
-    const DB_COLUMN_ID            = 'id';
-    const DB_COLUMN_LEAGUE_ID     = 'leagueId';
-    const DB_COLUMN_NAME          = 'name';
-    const DB_COLUMN_ENABLED       = 'enabled';
-    const DB_COLUMN_START_DATE    = 'startDate';
-    const DB_COLUMN_END_DATE      = 'endDate';
-    const DB_COLUMN_START_TIME    = 'startTime';
-    const DB_COLUMN_END_TIME      = 'endTime';
+    const DB_COLUMN_ID                      = 'id';
+    const DB_COLUMN_LEAGUE_ID               = 'leagueId';
+    const DB_COLUMN_NAME                    = 'name';
+    const DB_COLUMN_BEGIN_RESERVATION_DATE  = 'beginReservationsDate';
+    const DB_COLUMN_ENABLED                 = 'enabled';
+    const DB_COLUMN_START_DATE              = 'startDate';
+    const DB_COLUMN_END_DATE                = 'endDate';
+    const DB_COLUMN_START_TIME              = 'startTime';
+    const DB_COLUMN_END_TIME                = 'endTime';
+    const DB_COLUMN_DAYS_OF_WEEK            = 'daysOfWeek';
 
     /**
      * @brief: Constructor
@@ -72,22 +74,26 @@ class Model_Fields_SeasonDB extends Model_Fields_BaseDB {
      *
      * @param $league - Model_Fields_League instance
      * @param string $name - name of the season
+     * @param string $beginReservationDate - Date reservations selection can begin
      * @param string $startDate - Day season becomes available
      * @param string $endDate - Last day season is available
      * @param string $startTime - Start time during the day that practice can start
      * @param string $endTime - End time during the day that practice must end
      * @param bool $enabled - 1 if season is enabled; 0 otherwise
+     * @param string $daysOfWeek - Default practice days of week.  daysOfWeek[0] = Monday
      *
      * @return DataObject[]
      */
-    public function create($league, $name, $startDate, $endDate, $startTime, $endTime, $enabled) {
+    public function create($league, $name, $beginReservationDate, $startDate, $endDate, $startTime, $endTime, $enabled, $daysOfWeek = '1111100') {
         $dataObject = new DataObject();
         $dataObject->{self::DB_COLUMN_LEAGUE_ID} = $league->id;
         $dataObject->{self::DB_COLUMN_NAME} = $name;
+        $dataObject->{self::DB_COLUMN_BEGIN_RESERVATION_DATE} = $beginReservationDate;
         $dataObject->{self::DB_COLUMN_START_DATE} = $startDate;
         $dataObject->{self::DB_COLUMN_END_DATE} = $endDate;
         $dataObject->{self::DB_COLUMN_START_TIME} = $startTime;
         $dataObject->{self::DB_COLUMN_END_TIME} = $endTime;
+        $dataObject->{self::DB_COLUMN_DAYS_OF_WEEK} = $daysOfWeek;
         $dataObject->{self::DB_COLUMN_ENABLED} = $enabled;
 
 
