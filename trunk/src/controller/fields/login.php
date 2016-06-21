@@ -108,7 +108,7 @@ class Controller_Fields_Login extends Controller_Fields_Base {
             $this->m_filterTeamId = $this->m_team->id;
             $view = new View_Fields_ShowReservation($this);
         } else {
-            $view = new View_Fields_SelectFacility($this);
+            $view = new View_Fields_SelectField($this);
         }
 
         $view->displayPage();

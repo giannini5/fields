@@ -51,7 +51,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
     public function process() {
         // Re-direct to Login page if use is not authenticated
         if (!$this->m_isAuthenticated) {
-            $this->getAuthenticated(View_Base::SELECT_FACILITY_PAGE);
+            $this->getAuthenticated(View_Base::SELECT_FIELD_PAGE);
             return;
         } else {
             switch ($this->m_operation) {

@@ -56,7 +56,7 @@ class Controller_Fields_CreateAccount extends Controller_Fields_Base {
                 } elseif ($this->m_facility != NULL) {
                     $view = new View_Fields_ShowReservation($this);
                 } else {
-                    $view = new View_Fields_SelectFacility($this);
+                    $view = new View_Fields_SelectField($this);
                 }
 
                 $view->displayPage();
@@ -94,7 +94,7 @@ class Controller_Fields_CreateAccount extends Controller_Fields_Base {
         // Create session for coach
         $this->createSession($this->m_coach->id, Model_Fields_Session::COACH_USER_TYPE, $this->m_team->id);
 
-        $view = new View_Fields_SelectFacility($this);
+        $view = new View_Fields_SelectField($this);
         $view->displayPage();
     }
 }

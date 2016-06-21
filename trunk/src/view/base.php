@@ -23,7 +23,6 @@ abstract class View_Base {
     const CREATE_ACCOUNT_PAGE        = '/createAccount';
     const LOGIN_PAGE                 = '/login';
     const SHOW_RESERVATION_PAGE      = '/showReservation';
-    const SELECT_FACILITY_PAGE       = '/selectFacility';
     const SELECT_FIELD_PAGE          = '/selectField';
     const IMAGE_PAGE                 = '/image';
     const HELP_PAGE                  = '/help';
