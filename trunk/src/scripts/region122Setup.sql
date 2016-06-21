@@ -140,6 +140,21 @@ call sp_addFieldAvailability(@leagueName, @facilityName, '1', @startDate, @endDa
 call sp_addFieldAvailability(@leagueName, @facilityName, '2', @startDate, @endDate, @startTime, @endTime, @practiceDays);
 call sp_addFieldAvailability(@leagueName, @facilityName, 'A', @startDate, @endDate, @startTime, @endTime, @practiceDays);
 
+set @facilityName = 'Alameda Park';
+call sp_addFacility(@leagueName, @facilityName, 'Corner of Micheltorena St. and Santa Barbara St.', '', @santaBarbara, 'CA', '93101', @usa,
+    'contactName', 'contactEmail', 'contactPhone', 'image', 1, 1);
+call sp_addFacilityLocation(@leagueName, @facilityName, @santaBarbara);
+call sp_addField(@leagueName, @facilityName, '1', 1);
+call sp_addField(@leagueName, @facilityName, '2', 1);
+call sp_addDivisionField(@leagueName, @u8, @facilityName, '1');
+call sp_addDivisionField(@leagueName, @u9, @facilityName, '1');
+call sp_addDivisionField(@leagueName, @u10, @facilityName, '1');
+call sp_addDivisionField(@leagueName, @u8, @facilityName, '2');
+call sp_addDivisionField(@leagueName, @u9, @facilityName, '2');
+call sp_addDivisionField(@leagueName, @u10, @facilityName, '2');
+call sp_addFieldAvailability(@leagueName, @facilityName, '1', @startDate, @endDate, @startTime, @endTime, @practiceDays);
+call sp_addFieldAvailability(@leagueName, @facilityName, '2', @startDate, @endDate, @startTime, @endTime, @practiceDays);
+
 set @facilityName = 'East Side Neighborhood Park';
 call sp_addFacility(@leagueName, @facilityName, '1258 E Yanonali St', '', @santaBarbara, 'CA', '93103', @usa,
     'contactName', 'contactEmail', 'contactPhone', 'EastsideNeighborhoodPark.jpg', 1, 1);

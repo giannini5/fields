@@ -55,10 +55,6 @@ class Web_Index
                 $this->m_controller = new Controller_Fields_ShowReservation();
                 break;
 
-            case View_Base::SELECT_FACILITY_PAGE:
-                $this->m_controller = new Controller_Fields_SelectFacility();
-                break;
-
             case View_Base::SELECT_FIELD_PAGE:
                 $this->m_controller = new Controller_Fields_SelectFacility();
                 break;

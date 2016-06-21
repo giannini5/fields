@@ -41,7 +41,7 @@ class View_Fields_Welcome extends View_Fields_Base {
         if (!$this->m_controller->m_season->okayToReserveField()) {
             $beginDateTime = DateTime::createFromFormat('Y-m-d H:i:s', $this->m_controller->m_season->beginReservationsDate);
             $beginDateString = $beginDateTime->format('m-d-Y H:i:s');
-            $beginReservations = "<p style='color: red'><strong>The earliest you can use this tool to select a field for practice is $beginDateString.  Feel free to give is go now so you know how it works when the time is right.</strong></p>";
+            $beginReservations = "<p style='color: red'><strong>The earliest you can use this tool to select a field for practice is $beginDateString.  Feel free to give it a go now so you know how it works when the time is right.</strong></p>";
         }
 
         print '
@@ -82,7 +82,7 @@ class View_Fields_Welcome extends View_Fields_Base {
 
                 <p style="text-align: center;"> </p>
                 <p style="color: red; text-align: center;"><strong>AYSO National has requested that 1 adult of each gender be in attendance at each practice.</strong></p>
-                <p style="text-align: left;"><span style="line-height: 1.3em;">In some cases, more than one team is assigned the same field as the same time. For example, </span><span style="line-height: 1.3em;">full soccer fields are divided in half for practice; school fields are divided into sections to </span><span style="line-height: 1.3em;">accommodate more than one team.</span></p>
+                <p style="text-align: left;"><span style="line-height: 1.3em;">In some cases, more than one team is assigned the same field at the same time. For example, </span><span style="line-height: 1.3em;">full soccer fields are divided in half for practice; school fields are divided into sections to </span><span style="line-height: 1.3em;">accommodate more than one team.</span></p>
                 <p style="text-align: left;">Please be courteous to other coaches and teams.</p>
                 <br><p style="text-align: left;"><strong>Field Reservations:</strong></p>
                 <p style="text-align: left;">Field reservations are handled in the order received.  Click on the SELECT tab to start the process (you may need to login or create an account if this is your first time.)</p>
