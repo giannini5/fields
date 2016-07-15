@@ -105,6 +105,8 @@ abstract class Controller_Fields_Base extends Controller_Base
     public function getHeaderButtonToShow() {
         if ($this->m_isAuthenticated) {
             return View_Base::SIGN_OUT;
+        } else if (!$this->m_season->loginAllowed) {
+            return View_Base::NO_BUTTON;
         } elseif ($this->m_creatingAccount or $this->m_operation == View_Base::CREATE_ACCOUNT) {
             return View_Base::SIGN_IN;
         } elseif ($this->m_operation == View_Base::SIGN_IN) {

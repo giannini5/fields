@@ -42,6 +42,8 @@ class View_Fields_Welcome extends View_Fields_Base {
             $beginDateTime = DateTime::createFromFormat('Y-m-d H:i:s', $this->m_controller->m_season->beginReservationsDate);
             $beginDateString = $beginDateTime->format('m-d-Y H:i:s');
             $beginReservations = "<p style='color: red'><strong>The earliest you can use this tool to select a field for practice is $beginDateString.  Feel free to give it a go now so you know how it works when the time is right.</strong></p>";
+        } else {
+            $beginReservations = "<p style='color: red'><strong>Read the instructions below and then click on the SELECT tab to select a practice field.</strong></p>";
         }
 
         print '
@@ -85,7 +87,7 @@ class View_Fields_Welcome extends View_Fields_Base {
                 <p style="text-align: left;"><span style="line-height: 1.3em;">In some cases, more than one team is assigned the same field at the same time. For example, </span><span style="line-height: 1.3em;">full soccer fields are divided in half for practice; school fields are divided into sections to </span><span style="line-height: 1.3em;">accommodate more than one team.</span></p>
                 <p style="text-align: left;">Please be courteous to other coaches and teams.</p>
                 <br><p style="text-align: left;"><strong>Field Reservations:</strong></p>
-                <p style="text-align: left;">Field reservations are handled in the order received.  Click on the SELECT tab to start the process (you may need to login or create an account if this is your first time.)</p>
+                <p style="text-align: left;">Field reservations are handled in the order received.  Click on the SELECT tab to start the process (follow the authentication instructions on this page).</p>
                 <p style="text-align: left;"><strong><em>Please do not make direct contact with any of the practice facilities until you’ve received a confirmation email from AYSO. Your confirmation email will give you follow-on instructions for facilities that require additional processing.  In many cases AYSO approval is all you need.</em></strong></p>
                 <p style="text-align: left;"><strong>Schools that require additional processing:</strong></p>
                 <p style="padding-left: 90px; text-align: left;">Adams<br />Peabody<br />Hope<br />Monte Vista<br />Vieja Valley<br />Cold Springs<br />Montecito Union</p>

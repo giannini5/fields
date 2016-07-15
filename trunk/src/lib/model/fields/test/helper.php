@@ -13,7 +13,7 @@ class Model_TestHelpers extends PHPUnit_Framework_TestCase {
 
     public $m_leagueName = 'Test AYSO Region 122';
     public $m_seasonName = 'Test 2015';
-    public $m_beginReservationDate = '2015-01-02';
+    public $m_beginReservationDate = '2015-01-02 00:00:00';
     public $m_divisionName = 'U10';
     public $m_divisionMaxMinutesPerPractice = 25;
     public $m_divisionMaxMinutesPerWeek = 250;
@@ -26,6 +26,8 @@ class Model_TestHelpers extends PHPUnit_Framework_TestCase {
     public $m_startTime = '15:30:00';
     public $m_endTime = '19:00:00';
     public $m_daysOfWeek = '1100110';
+    public $m_loginAllowed = 1;
+    public $m_createAllowed = 1;
 
     /**
      * Clear out all entities for the test league

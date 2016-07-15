@@ -417,10 +417,15 @@ class View_Fields_SelectField extends View_Fields_Base {
             $fieldSectionHTML .= '>' . $field->name . ' </option>';
         }
 
+        $message = '';
+        if (count($fields) == 0) {
+            $message = '<font color=red><strong> No fields at this time.  Permits pending, check back later.</strong></font>';
+        }
+
         print "
                 <tr>
                     <td><font color='" . View_Base::AQUA . "'><b>Field:&nbsp</b></font></td>
-                    <td><select name=\"fieldId\">" . $fieldSectionHTML . "</select></td>
+                    <td><select name=\"fieldId\">" . $fieldSectionHTML . "</select>$message</td>
                 </tr>";
     }
 

@@ -16,7 +16,19 @@ class View_Fields_CreateAccount extends View_Fields_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render() {
+    public function render()
+    {
+        if ($this->m_controller->m_season->createAllowed) {
+            $this->renderCreateAccountView();
+        } else {
+            $this->renderAuthenticateView();
+        }
+    }
+
+    /**
+     * @brief Render data for display create account dialog on the page.
+     */
+    public function renderCreateAccountView() {
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
             <tr><td>

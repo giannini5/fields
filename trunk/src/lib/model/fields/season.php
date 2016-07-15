@@ -24,8 +24,10 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
      * @param string $endTime - End time during the day that practice must end
      * @param bool $enabled - 1 if season is enabled; 0 otherwise
      * @param string $daysOfWeek - Default practice days of week.  daysOfWeek[0] = Monday
+     * @param int $loginAllowed - Default to 1.  Login not allowed if 0
+     * @param int $createAllowed - Default to 1.  Create account not allowed if 0
      */
-    public function __construct($league = NULL, $id = NULL, $leagueId = NULL, $name = '', $beginReservationDate = '', $startDate = '', $endDate = '', $startTime = '', $endTime = '', $enabled = 0, $daysOfWeek = '1111100') {
+    public function __construct($league = NULL, $id = NULL, $leagueId = NULL, $name = '', $beginReservationDate = '', $startDate = '', $endDate = '', $startTime = '', $endTime = '', $enabled = 0, $daysOfWeek = '1111100', $loginAllowed = 1, $createAllowed = 0) {
         parent::__construct('Model_Fields_SeasonDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);
 
         $this->m_league = $league;
@@ -38,6 +40,8 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
         $this->{Model_Fields_SeasonDB::DB_COLUMN_START_TIME} = $startTime;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_END_TIME} = $endTime;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_DAYS_OF_WEEK} = $daysOfWeek;
+        $this->{Model_Fields_SeasonDB::DB_COLUMN_LOGIN_ALLOWED} = $loginAllowed;
+        $this->{Model_Fields_SeasonDB::DB_COLUMN_CREATE_ALLOWED} = $createAllowed;
         $this->{Model_Fields_SeasonDB::DB_COLUMN_ENABLED} = $enabled;
         $this->_setLeague();
     }
@@ -129,7 +133,9 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_START_TIME},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_END_TIME},
             $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_ENABLED},
-            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_DAYS_OF_WEEK});
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_DAYS_OF_WEEK},
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_LOGIN_ALLOWED},
+            $dataObject->{Model_Fields_SeasonDB::DB_COLUMN_CREATE_ALLOWED});
 
         $season->setLoaded();
 
@@ -148,13 +154,16 @@ class Model_Fields_Season extends Model_Fields_Base implements SaveModelInterfac
      * @param string $endTime - End time during the day that practice must end
      * @param int $enabled - 1 if season is enabled; 0 otherwise
      * @param string $daysOfWeek - Default practice days of week.  daysOfWeek[0] = Monday
+     * @param int $loginAllowed - Default to 1.  Login not allowed if 0
+     * @param int $createAllowed - Default to 1.  Create account not allowed if 0
+     *
      *
      * @return Model_Fields_Season
      * @throws AssertionException
      */
-    public static function Create($league, $name, $beginReservationDate, $startDate, $endDate, $startTime, $endTime, $enabled, $daysOfWeek = '1111100') {
+    public static function Create($league, $name, $beginReservationDate, $startDate, $endDate, $startTime, $endTime, $enabled, $daysOfWeek = '1111100', $loginAllowed = 1, $createAllowed = 1) {
         $dbHandle = new Model_Fields_SeasonDB();
-        $dataObject = $dbHandle->create($league, $name, $beginReservationDate, $startDate, $endDate, $startTime, $endTime, $enabled, $daysOfWeek);
+        $dataObject = $dbHandle->create($league, $name, $beginReservationDate, $startDate, $endDate, $startTime, $endTime, $enabled, $daysOfWeek, $loginAllowed, $createAllowed);
         assertion(!empty($dataObject), "Unable to create Season with name:'$name'");
 
         return Model_Fields_Season::GetInstance($dataObject, $league);

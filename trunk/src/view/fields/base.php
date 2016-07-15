@@ -40,6 +40,8 @@ abstract class View_Fields_Base extends View_Base {
             and ($this->m_pageName == self::WELCOME_PAGE or $this->m_pageName == self::SHOW_RESERVATION_PAGE)
             and $this->m_controller->m_operation != self::SIGN_IN) ? TRUE : FALSE;
 
+        $hideButtons = $headerButton == View_Base::NO_BUTTON;
+
         print "
             <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
             <html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en'>";
@@ -61,7 +63,7 @@ abstract class View_Fields_Base extends View_Base {
                         <td width='50'><img src='$headerImage' alt='Organization Icon' width='75' height='75'></td>
                         <td align='left'><h1>$headerTitle</h1><br></td>";
 
-        if ($showLoginButton) {
+        if (!$hideButtons and $showLoginButton) {
             print "
                         <form method='post' action='${nextPage}$this->m_urlParams'>
                             <td colspan='3' nowrap width='100' align='right'>
@@ -71,11 +73,13 @@ abstract class View_Fields_Base extends View_Base {
                         </form>";
         }
 
-        print "
+        if (!$hideButtons) {
+            print "
                         <form method='post' action='${nextPage}$this->m_urlParams'>
                             <td nowrap width='100' align='right'>
                                 $coachInfo<br>
                                 <input style='background-color: yellow' name=" . self::SUBMIT . " type='submit' value='$headerButton'>";
+        }
 
         if (isset($sessionId) and $sessionId > 0) {
             print "
@@ -130,5 +134,45 @@ abstract class View_Fields_Base extends View_Base {
                 '<li><div>HELP</div></li>' : '<li><a href="' . self::HELP_PAGE . '">HELP</a></li>')
             . '
                </ul>';
+    }
+
+
+    /**
+     * @brief Render data for display how to authenticate instruction on the page.
+     */
+    public function renderAuthenticateView() {
+        print "
+            <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0' style='max-width:900px;'>
+            <tr><td>
+            <table align='center' valign='top' border='0' cellpadding='5' cellspacing='0'>";
+
+        print "
+                <tr>";
+
+        $this->renderAuthenticateInfo();
+
+        print "
+                </tr>";
+
+        print "
+            </table>
+            </td></tr>
+            </table>";
+    }
+
+    public function renderAuthenticateInfo() {
+        print "
+                <h1 align='center'>Ah, first time User - Welcome!</h1>
+
+                <p style='text-align: left;'>Here's how to access this site so that I know your team information:</p>
+                <ol>
+                    <li>Go to <a href='https://r122.webyouthsoccer.com/login.php'>Region 122 WebYouthSoccer</a></li>
+                    <li>Login</li>
+                    <li>Click on <strong>Coach</strong><font color='red'>*</font></li>
+                    <li>Select your team<font color='red'>**</font></li>
+                    <li>Click on Practice Field link to get back to this site to select a practice space</li>
+                </ol>
+                <p style='text-align: left;'>Go to the HELP tab if you have questions.</p>
+                <p style='text-align: left;'><font color='red'>*</font> You must be a coach to select a practice field<br><font color='red'>**</font> Team selection only required if you coach multiple teams</p>";
     }
 }

@@ -37,6 +37,7 @@ abstract class View_Base {
     const UPDATE           = 'Update';
     const SIGN_IN          = 'Sign In';
     const SIGN_OUT         = 'Sign Out';
+    const NO_BUTTON        = 'NoButton';
     const SELECT           = 'Select';
     const DELETE           = 'Delete';
     const FILTER           = 'Filter';
