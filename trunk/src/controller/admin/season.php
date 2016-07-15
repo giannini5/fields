@@ -17,6 +17,8 @@ class Controller_Admin_Season extends Controller_Admin_Base {
     public $m_endTime = NULL;
     public $m_daysSelected = array();
     public $m_daysSelectedString = '';
+    public $m_loginAllowed = NULL;
+    public $m_createAllowed = NULL;
 
     public function __construct() {
         parent::__construct();
@@ -34,6 +36,9 @@ class Controller_Admin_Season extends Controller_Admin_Base {
             $this->m_endDate = $this->getPostAttribute(View_Base::END_DATE, null);
             $this->m_startTime = $this->getPostAttribute(View_Base::START_TIME, null);
             $this->m_endTime = $this->getPostAttribute(View_Base::END_TIME, null);
+
+            $this->m_loginAllowed = $this->getPostAttribute(Model_Fields_SeasonDB::DB_COLUMN_CREATE_ALLOWED, 1, FALSE, TRUE);
+            $this->m_createAllowed = $this->getPostAttribute(Model_Fields_SeasonDB::DB_COLUMN_CREATE_ALLOWED, 1, FALSE, TRUE);
 
             $this->m_enabled = $this->getPostAttribute(
                 Model_Fields_SeasonDB::DB_COLUMN_ENABLED,
@@ -110,7 +115,7 @@ class Controller_Admin_Season extends Controller_Admin_Base {
     private function _createSeason() {
         $season = Model_Fields_Season::LookupByName($this->m_league, $this->m_name, FALSE);
         if (!isset($season)) {
-            $season = Model_Fields_Season::Create($this->m_league, $this->m_name, $this->m_beginReservationsDate, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, $this->m_enabled, $this->m_daysSelectedString);
+            $season = Model_Fields_Season::Create($this->m_league, $this->m_name, $this->m_beginReservationsDate, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, $this->m_enabled, $this->m_daysSelectedString, $this->m_loginAllowed, $this->m_createAllowed);
             $this->m_seasons[] = $season;
             if ($this->m_enabled == 1) {
                 $this->_disableSeasons($season->id);
@@ -144,6 +149,8 @@ class Controller_Admin_Season extends Controller_Admin_Base {
                 $season->startTime = $this->m_startTime;
                 $season->endTime = $this->m_endTime;
                 $season->daysOfWeek = $this->m_daysSelectedString;
+                $season->loginAllowed = $this->m_loginAllowed;
+                $season->createAllowed = $this->m_createAllowed;
                 $season->enabled = $this->m_enabled;
                 $season->saveModel();
 

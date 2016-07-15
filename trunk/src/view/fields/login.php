@@ -16,7 +16,19 @@ class View_Fields_Login extends View_Fields_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render() {
+    public function render()
+    {
+        if ($this->m_controller->m_season->createAllowed) {
+            $this->renderLoginView();
+        } else {
+            $this->renderAuthenticateView();
+        }
+    }
+
+    /**
+     * @brief Render login form for display on the page.
+     */
+    public function renderLoginView() {
         $this->_printLoginError();
 
         print "

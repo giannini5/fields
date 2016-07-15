@@ -8,6 +8,8 @@ create table season (
     startTime             time not NULL,
     endTime               time not NULL,
     daysOfWeek            char(8) default '1111100',
+    loginAllowed          tinyint default 1,
+    createAllowed         tinyint default 1,
     enabled               tinyint default 1,
 
     PRIMARY KEY (id),
