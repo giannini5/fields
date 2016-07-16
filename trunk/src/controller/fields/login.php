@@ -77,7 +77,7 @@ class Controller_Fields_Login extends Controller_Fields_Base {
 
         if (!isset($this->m_coach)) {
             $this->_reset();
-            $this->m_email = "* Incorrect email - try again";
+            $this->m_email = "* Incorrect email - try again<br>or you need to create an account<br>coaches must create an account at<br>the beginning of each season";
             $view = new View_Fields_Login($this);
             $view->displayPage();
             return;
