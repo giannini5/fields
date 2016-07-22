@@ -96,7 +96,7 @@ class View_Fields_ShowReservation extends View_Fields_Base {
 
         // Print Filter button and end form
         print "
-            <tr>
+                <tr>
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::FILTER . "'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
