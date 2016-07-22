@@ -27,10 +27,31 @@ class View_Admin_Transactions extends View_Admin_Base {
 
         $transactions = $this->_getTransactions($filterFacilityId, $filterDivisionId, $filterTeamId);
 
+        $reservationCount = 0;
+        $deletedCount     = 0;
+        $pendingCount     = 0;
+        foreach ($transactions as $transaction) {
+            if ($transaction->type == Model_Fields_ReservationHistory::ADD) {
+                $reservationCount += 1;
+                if (!$transaction->m_field->m_facility->preApproved) {
+                    $pendingCount += 1;
+                }
+            } else {
+                $deletedCount += 1;
+                $reservationCount -= 1;
+                if (!$transaction->m_field->m_facility->preApproved) {
+                    $pendingCount -= 1;
+                }
+            }
+        }
+
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <th colspan=9 align='center' style='font-size:24px'><font color='darkblue'><b>Transaction History</b></font></th>
+                </tr>
+                <tr>
+                    <th colspan=9 align='center'><font color='darkblue'>Reservations: $reservationCount ($pendingCount pending) Deletes: $deletedCount</font></th>
                 </tr>
                 <tr>
                     <th title='Date and time transaction performed'>Creation Date</th>
@@ -46,24 +67,25 @@ class View_Admin_Transactions extends View_Admin_Base {
         foreach ($transactions as $transaction) {
             $creationDate = $transaction->creationDate;
             $type = $transaction->type == Model_Fields_ReservationHistory::ADD ? 'Add' : 'Delete';
-            $bgColor = $transaction->type == Model_Fields_ReservationHistory::ADD ? 'lightgreen' : 'lightsalmon';
+            $typeBgColor = $transaction->type == Model_Fields_ReservationHistory::ADD ? 'lightgreen' : 'lightsalmon';
             $division = $transaction->m_team->m_division->name . $transaction->m_team->gender;
             $coach = $transaction->m_team->m_coach->name;
             $field = $transaction->m_field->m_facility->name . ": Field " . $transaction->m_field->name;
             $days = $this->m_controller->getDaysSelectedString($transaction);
             $times = "$transaction->startTime - $transaction->endTime";
             $status = $transaction->m_field->m_facility->preApproved ? 'Approved' : 'Pending';
+            $statusBgColor = $transaction->m_field->m_facility->preApproved ? 'white' : 'yellow';
 
-            print "
+                print "
                 <tr>
                     <td>$creationDate</td>
-                    <td bgcolor='$bgColor'>$type</td>
+                    <td bgcolor='$typeBgColor'>$type</td>
                     <td>$division</td>
                     <td>$coach</td>
                     <td>$field</td>
                     <td>$days</td>
                     <td>$times</td>
-                    <td>$status</td>
+                    <td bgcolor='$statusBgColor'>$status</td>
                 </tr>";
         }
 

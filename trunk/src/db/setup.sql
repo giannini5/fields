@@ -49,7 +49,7 @@ insert into field (facilityId, name, enabled) values (2, 'Field 1B', 1);
 insert into field (facilityId, name, enabled) values (2, 'Field 1C', 1);
 insert into field (facilityId, name, enabled) values (2, 'Field 1D', 1);
 
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U5', 60, 60, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U5', 30, 30, 1);
 insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U6', 60, 60, 1);
 insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U7', 60, 60, 1);
 insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U8', 60, 60, 1);
