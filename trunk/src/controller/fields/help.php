@@ -53,7 +53,7 @@ class Controller_Fields_Help extends Controller_Fields_Base {
         $headers .= "MIME-Version: 1.0\r\n";
         $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
 
-        mail($this->m_emailAddress, $this->m_subject, $this->m_helpRequest, $headers);
+        mail('ayso122.fields@gmail.com', $this->m_subject, $this->m_helpRequest, $headers);
 
         return;
     }
