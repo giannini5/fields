@@ -106,6 +106,8 @@ abstract class View_Admin_Base extends View_Base {
                 '<li><div>FIELD</div></li>' : '<li><a href="' . self::ADMIN_FIELD_PAGE . '">FIELD</a></li>')
             . ($this->m_pageName == self::ADMIN_TRANSACTION_PAGE ?
                 '<li><div>TRANSACTIONS</div></li>' : '<li><a href="' . self::ADMIN_TRANSACTION_PAGE . '">TRANSACTIONS</a></li>')
+            . ($this->m_pageName == self::ADMIN_RESERVATIONS_PAGE ?
+                '<li><div>RESERVATIONS</div></li>' : '<li><a href="' . self::ADMIN_RESERVATIONS_PAGE . '">RESERVATIONS</a></li>')
             . '
                </ul>';
     }

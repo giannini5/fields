@@ -8,7 +8,8 @@
  */
 abstract class Controller_Base
 {
-    const SESSION_COOKIE = 'session';
+    # Session Cookie name
+    protected $m_cookieName;
 
     # Attributes constructed from League
     public $m_league;
@@ -26,8 +27,15 @@ abstract class Controller_Base
     public $m_isAuthenticated;
     public $m_errorString;
 
-    public function __construct()
+    # Filters for reservations
+    public $m_filterFacilityId;
+    public $m_filterDivisionId;
+    public $m_filterTeamId;
+
+    public function __construct($cookieName)
     {
+        $this->m_cookieName = $cookieName;
+
         $this->_reset();
 
         $this->m_divisions = array();
@@ -176,7 +184,7 @@ abstract class Controller_Base
             $this->m_session->renew();
             $this->m_isAuthenticated = TRUE;
 
-            setcookie(self::SESSION_COOKIE, $this->m_session->id, time()+60*60*24*7, "/"); // Expire in 7 days
+            setcookie($this->m_cookieName, $this->m_session->id, time()+60*60*24*7, "/"); // Expire in 7 days
         }
     }
 
@@ -321,6 +329,48 @@ abstract class Controller_Base
             default:
                 return 'ERROR';
         }
+    }
+
+    /**
+     * @brief Return a list of reservations based on filter
+     *
+     * @param $filterFacilityId - Only include this facilities if filter enabled
+     * @param $filterDivisionId - Only include this divisions if filter enabled
+     * @param $filterTeamId - Only include this team if filter enabled
+     *
+     * @return array $reservations
+     */
+    public function getFilteredReservations($filterFacilityId, $filterDivisionId, $filterTeamId) {
+        $reservations = array();
+
+        foreach ($this->m_divisions as $division) {
+            // Check division filter
+            if ($filterDivisionId != 0 and $filterDivisionId != $division->id) {
+                continue;
+            }
+
+            $teams = Model_Fields_Team::GetTeams($division);
+
+            foreach ($teams as $team) {
+                // Check team filter
+                if ($filterTeamId != 0 and $filterTeamId != $team->id) {
+                    continue;
+                }
+
+                $teamReservations = Model_Fields_Reservation::LookupByTeam($this->m_season, $team, FALSE);
+                foreach ($teamReservations as $teamReservation) {
+                    // Check facility filter
+                    if ($filterFacilityId != 0 and $filterFacilityId != $teamReservation->m_field->m_facility->id) {
+                        continue;
+                    }
+
+                    $reservations[] = $teamReservation;
+                }
+            }
+
+        }
+
+        return $reservations;
     }
 
     abstract public function process();

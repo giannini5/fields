@@ -8,7 +8,7 @@
  */
 abstract class Controller_Fields_Base extends Controller_Base
 {
-    const SESSION_COOKIE = 'session';
+    const SESSION_FIELD_COOKIE = 'session';
 
     # Attributes constructed from League
     public $m_genders;
@@ -28,10 +28,7 @@ abstract class Controller_Fields_Base extends Controller_Base
     public $m_endTime;
     public $m_daysSelected;
     public $m_reservationId;
-    public $m_filterFacilityId;
-    public $m_filterDivisionId;
     public $m_filterLocationId;
-    public $m_filterTeamId;
 
     # Attributes constructed from session
     public $m_coach;
@@ -48,7 +45,7 @@ abstract class Controller_Fields_Base extends Controller_Base
     public function __construct()
     {
         $this->_reset();
-        parent::__construct();
+        parent::__construct(self::SESSION_FIELD_COOKIE);
 
         $this->m_genders = array();
 
@@ -68,8 +65,8 @@ abstract class Controller_Fields_Base extends Controller_Base
             }
 
             $this->m_operation = $this->getPostAttribute(View_Base::SUBMIT, '');
-        } elseif (isset($_COOKIE[self::SESSION_COOKIE])) {
-            $this->_constructFromSessionId($_COOKIE[self::SESSION_COOKIE]);
+        } elseif (isset($_COOKIE[$this->m_cookieName])) {
+            $this->_constructFromSessionId($_COOKIE[$this->m_cookieName]);
         }
 
         $this->setAuthentication();
@@ -88,9 +85,9 @@ abstract class Controller_Fields_Base extends Controller_Base
         $this->m_isAuthenticated = NULL;
 
         // Delete cooking if it exists
-        if (isset($_COOKIE[self::SESSION_COOKIE])) {
-            unset($_COOKIE[self::SESSION_COOKIE]);
-            setcookie(self::SESSION_COOKIE, null, -1, '/');
+        if (isset($_COOKIE[$this->m_cookieName])) {
+            unset($_COOKIE[$this->m_cookieName]);
+            setcookie($this->m_cookieName, null, -1, '/');
         }
     }
 
@@ -283,47 +280,5 @@ abstract class Controller_Fields_Base extends Controller_Base
         }
 
         return array();
-    }
-
-    /**
-     * @brief Return a list of reservations based on filter
-     *
-     * @param $filterFacilityId - Only include this facilities if filter enabled
-     * @param $filterDivisionId - Only include this divisions if filter enabled
-     * @param $filterTeamId - Only include this team if filter enabled
-     *
-     * @return array $reservations
-     */
-    public function getFilteredReservations($filterFacilityId, $filterDivisionId, $filterTeamId) {
-        $reservations = array();
-
-        foreach ($this->m_divisions as $division) {
-            // Check division filter
-            if ($filterDivisionId != 0 and $filterDivisionId != $division->id) {
-                continue;
-            }
-
-            $teams = Model_Fields_Team::GetTeams($division);
-
-            foreach ($teams as $team) {
-                // Check team filter
-                if ($filterTeamId != 0 and $filterTeamId != $team->id) {
-                    continue;
-                }
-
-                $teamReservations = Model_Fields_Reservation::LookupByTeam($this->m_season, $team, FALSE);
-                foreach ($teamReservations as $teamReservation) {
-                    // Check facility filter
-                    if ($filterFacilityId != 0 and $filterFacilityId != $teamReservation->m_field->m_facility->id) {
-                        continue;
-                    }
-
-                    $reservations[] = $teamReservation;
-                }
-            }
-
-        }
-
-        return $reservations;
     }
 }

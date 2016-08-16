@@ -25,7 +25,7 @@ class View_Admin_Facility extends View_Admin_Base {
 
         print "
             <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
-                <tr>
+                <tr bgcolor='lightyellow'>
                     <td>";
 
         $this->_printCreateFacilityForm($maxColumns, $expandContract, $collapsible);
