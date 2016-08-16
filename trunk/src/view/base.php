@@ -9,14 +9,15 @@
  */
 abstract class View_Base {
     # Administrator Pages
-    const ADMIN_LOGIN_PAGE       = '/admin_login';
-    const ADMIN_HOME_PAGE        = '/admin_home';
-    const ADMIN_SEASON_PAGE      = '/admin_season';
-    const ADMIN_DIVISION_PAGE    = '/admin_division';
-    const ADMIN_LOCATION_PAGE    = '/admin_location';
-    const ADMIN_FACILITY_PAGE    = '/admin_facility';
-    const ADMIN_FIELD_PAGE       = '/admin_field';
-    const ADMIN_TRANSACTION_PAGE = '/admin_transaction';
+    const ADMIN_LOGIN_PAGE        = '/admin_login';
+    const ADMIN_HOME_PAGE         = '/admin_home';
+    const ADMIN_SEASON_PAGE       = '/admin_season';
+    const ADMIN_DIVISION_PAGE     = '/admin_division';
+    const ADMIN_LOCATION_PAGE     = '/admin_location';
+    const ADMIN_FACILITY_PAGE     = '/admin_facility';
+    const ADMIN_FIELD_PAGE        = '/admin_field';
+    const ADMIN_TRANSACTION_PAGE  = '/admin_transaction';
+    const ADMIN_RESERVATIONS_PAGE = '/admin_reservations';
 
     # Coach/Manager Pages
     const WELCOME_PAGE               = '/welcome';

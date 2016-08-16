@@ -8,13 +8,15 @@
  */
 abstract class Controller_Admin_Base extends Controller_Base
 {
+    const SESSION_ADMIN_COOKIE = 'session_admin';
+
     public $m_coordinator;
     public $m_email;
     public $m_password;
 
     public function __construct()
     {
-        parent::__construct();
+        parent::__construct(self::SESSION_ADMIN_COOKIE);
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
             $sessionId = $this->getPostAttribute(View_Base::SESSION_ID, NULL, FALSE);
@@ -25,8 +27,8 @@ abstract class Controller_Admin_Base extends Controller_Base
             }
 
             $this->m_operation = $this->getPostAttribute(View_Base::SUBMIT, '');
-        } elseif (isset($_COOKIE[self::SESSION_COOKIE])) {
-            $this->_constructFromSessionId($_COOKIE[self::SESSION_COOKIE]);
+        } elseif (isset($_COOKIE[$this->m_cookieName])) {
+            $this->_constructFromSessionId($_COOKIE[$this->m_cookieName]);
         }
 
         $this->setAuthentication();
@@ -45,9 +47,9 @@ abstract class Controller_Admin_Base extends Controller_Base
         $this->m_isAuthenticated = NULL;
 
         // Delete cooking if it exists
-        if (isset($_COOKIE[self::SESSION_COOKIE])) {
-            unset($_COOKIE[self::SESSION_COOKIE]);
-            setcookie(self::SESSION_COOKIE, null, -1, '/');
+        if (isset($_COOKIE[$this->m_cookieName])) {
+            unset($_COOKIE[$this->m_cookieName]);
+            setcookie($this->m_cookieName, null, -1, '/');
         }
     }
 
