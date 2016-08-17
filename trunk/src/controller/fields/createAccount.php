@@ -41,26 +41,31 @@ class Controller_Fields_CreateAccount extends Controller_Fields_Base {
      *        On POST, complete login or create account
      */
     public function process() {
-        switch ($this->m_operation) {
-            case View_Base::SUBMIT:
-                $this->_createAccount();
-                break;
+        if ($this->m_missingAttributes > 0) {
+            $view = new View_Fields_CreateAccount($this);
+            $view->displayPage();
+        } else {
+            switch ($this->m_operation) {
+                case View_Base::SUBMIT:
+                    $this->_createAccount();
+                    break;
 
-            default:
-                // If not authenticated then go to create account page
-                // If facility not selected then go to select facility page
-                // else go to show reservation page
-                if (!$this->m_isAuthenticated) {
-                    $this->m_creatingAccount = TRUE;
-                    $view = new View_Fields_CreateAccount($this);
-                } elseif ($this->m_facility != NULL) {
-                    $view = new View_Fields_ShowReservation($this);
-                } else {
-                    $view = new View_Fields_SelectField($this);
-                }
+                default:
+                    // If not authenticated then go to create account page
+                    // If facility not selected then go to select facility page
+                    // else go to show reservation page
+                    if (!$this->m_isAuthenticated) {
+                        $this->m_creatingAccount = TRUE;
+                        $view = new View_Fields_CreateAccount($this);
+                    } elseif ($this->m_facility != NULL) {
+                        $view = new View_Fields_ShowReservation($this);
+                    } else {
+                        $view = new View_Fields_SelectField($this);
+                    }
 
-                $view->displayPage();
-                break;
+                    $view->displayPage();
+                    break;
+            }
         }
     }
 

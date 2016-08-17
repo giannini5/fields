@@ -23,10 +23,12 @@ class Controller_Fields_Login extends Controller_Fields_Base {
                     Model_Fields_CoachDB::DB_COLUMN_EMAIL,
                     '* Email Address is required'
                 );
-                $this->m_password = $this->getPostAttribute(
-                    Model_Fields_CoachDB::DB_COLUMN_PASSWORD,
-                    '* Password is required'
-                );
+                if (View_Fields_Base::REQUIRE_PASSWORD) {
+                    $this->m_password = $this->getPostAttribute(
+                        Model_Fields_CoachDB::DB_COLUMN_PASSWORD,
+                        '* Password is required'
+                    );
+                }
             }
         }
     }
@@ -36,27 +38,32 @@ class Controller_Fields_Login extends Controller_Fields_Base {
      *        On POST, complete login or create account
      */
     public function process() {
-        switch ($this->m_operation) {
-            case View_Base::SUBMIT:
-                $this->_login();
-                break;
+        if ($this->m_missingAttributes > 0) {
+            $view = new View_Fields_Login($this);
+            $view->displayPage();
+        } else {
+            switch ($this->m_operation) {
+                case View_Base::SUBMIT:
+                    $this->_login();
+                    break;
 
-            case View_Base::SIGN_OUT:
-                $this->signOut();
-                $view = new View_Fields_Login($this, View_Base::WELCOME_PAGE);
-                $view->displayPage();
-                break;
+                case View_Base::SIGN_OUT:
+                    $this->signOut();
+                    $view = new View_Fields_Login($this, View_Base::WELCOME_PAGE);
+                    $view->displayPage();
+                    break;
 
-            case View_Base::CREATE_ACCOUNT:
-                $view = new View_Fields_CreateAccount($this, View_Base::WELCOME_PAGE);
-                $view->displayPage();
-                break;
+                case View_Base::CREATE_ACCOUNT:
+                    $view = new View_Fields_CreateAccount($this, View_Base::WELCOME_PAGE);
+                    $view->displayPage();
+                    break;
 
-            case View_Base::SIGN_IN:
-            default:
-                $view = new View_Fields_Login($this);
-                $view->displayPage();
-                break;
+                case View_Base::SIGN_IN:
+                default:
+                    $view = new View_Fields_Login($this);
+                    $view->displayPage();
+                    break;
+            }
         }
     }
 

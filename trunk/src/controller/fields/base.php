@@ -52,14 +52,14 @@ abstract class Controller_Fields_Base extends Controller_Base
         $this->_getGenders();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $sessionId = $this->getPostAttribute(View_Base::SESSION_ID, NULL);
+            $sessionId = $this->getPostAttribute(View_Base::SESSION_ID, NULL, false);
             if ($sessionId != NULL) {
                 $this->_constructFromSessionId($sessionId);
             } else {
                 $this->_init();
             }
 
-            $facilityId = $this->getPostAttribute(View_Base::FACILITY_ID, NULL);
+            $facilityId = $this->getPostAttribute(View_Base::FACILITY_ID, NULL, false);
             if ($facilityId != NULL) {
                 $this->m_facility = Model_Fields_Facility::LookupById($facilityId);
             }
