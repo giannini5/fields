@@ -7,8 +7,14 @@
  *        On POST, show filtered reservations.
  */
 class Controller_Fields_ShowReservation extends Controller_Fields_Base {
+    public $m_show = false;
+
     public function __construct() {
         parent::__construct();
+
+        if (isset($_REQUEST['show'])) {
+            $this->m_show = true;
+        }
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->m_filterFacilityId = $this->getPostAttribute(View_Base::FILTER_FACILITY_ID, 0);
