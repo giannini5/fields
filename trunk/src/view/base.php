@@ -472,6 +472,28 @@ abstract class View_Base {
     }
 
     /**
+     * @brief: Return the unique set of teams based on gener
+     *
+     * @param array $reservations - list of reservations
+     * @param char $gender - Gender 'B' or 'G'
+     * @return int - Count of teams
+     */
+    public function getTeamCount($reservations, $gender) {
+        $teams = array();
+        foreach ($reservations as $reservation) {
+            if ($reservation->m_team->gender == $gender) {
+                if (!isset($teams[$reservation->m_team->id])) {
+                    $teams[$reservation->m_team->id] = 0;
+                }
+                $teams[$reservation->m_team->id] += 1;
+
+            }
+        }
+
+        return count($teams);
+    }
+
+    /**
      * @brief: Print out HTML to display this page.  Derived classes must implement
      *         the "render()" method to print out their page content.
      */

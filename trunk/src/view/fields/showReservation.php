@@ -28,17 +28,43 @@ class View_Fields_ShowReservation extends View_Fields_Base {
         print "<h1>&nbsp;</h1>";
 
         $reservations = $this->_getReservations($filterFacilityId, $filterDivisionId, $filterTeamId);
+        $boyTeamCount = $this->getTeamCount($reservations, 'B');
+        $girlTeamCount = $this->getTeamCount($reservations, 'G');
+        $teamCount = $boyTeamCount + $girlTeamCount;
+
+        $colspan = $this->m_controller->m_show ? 9 : 7;
 
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <td colspan=6 align='center' style='font-size:24px'><font color='darkblue'><b>Reservations</b></font></td>
-                </tr>";
+                <tr bgcolor='lightskyblue'>
+                    <td colspan=$colspan align='center' style='font-size:24px'><font color='darkblue'><b>Reservations</b></font><br><font size='2'>$teamCount (Boys: $boyTeamCount, Girls: $girlTeamCount)</font></td>
+                </tr>
+                <tr bgcolor='lightskyblue'>
+                    <th>Division</th>
+                    <th>Coach</th>";
+
+        if ($this->m_controller->m_show) {
+            print "
+                    <th>Email</th>
+                    <th>Phone</th>";
+        }
+
+        print "
+                    <th>Facility</th>
+                    <th>Field</th>
+                    <th>Days</th>
+                    <th>Times</th>
+                    <th>&nbsp</th>
+                </tr>
+        ";
 
         foreach ($reservations as $reservation) {
             $division = $reservation->m_team->m_division->name . $reservation->m_team->gender;
             $coach = $reservation->m_team->m_coach->name;
-            $field = $reservation->m_field->m_facility->name . ": Field " . $reservation->m_field->name;
+            $email = $reservation->m_team->m_coach->email;
+            $phone = $reservation->m_team->m_coach->phone;
+            $facility = $reservation->m_field->m_facility->name;
+            $field = "Field " . $reservation->m_field->name;
             $days = $this->m_controller->getDaysSelectedString($reservation);
             $times = "$reservation->startTime - $reservation->endTime";
             $sessionId = $this->m_controller->getSessionId();
@@ -46,7 +72,16 @@ class View_Fields_ShowReservation extends View_Fields_Base {
             print "
                 <tr>
                     <td>$division</td>
-                    <td>$coach</td>
+                    <td>$coach</td>";
+
+            if ($this->m_controller->m_show) {
+                print "
+                    <td>$email</td>
+                    <td>$phone</td>";
+            }
+
+            print "
+                    <td>$facility</td>
                     <td>$field</td>
                     <td>$days</td>
                     <td>$times</td>";
