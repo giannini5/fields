@@ -19,7 +19,7 @@ class View_Admin_Division extends View_Admin_Base {
     public function render()
     {
         print "
-            <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
+            <table bgcolor='lightyellow' valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td>";
 
@@ -59,7 +59,7 @@ class View_Admin_Division extends View_Admin_Base {
 
         // Print the start of the form to select a facility
         print "
-            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
+            <table top' align='center' border='0' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . self::ADMIN_DIVISION_PAGE . $this->m_urlParams . "'>";
 
         $errorString = (isset($this->m_controller->m_divisionId) or $this->m_controller->m_missingAttributes == 0) ? '' : $this->m_controller->m_name;
@@ -107,7 +107,7 @@ class View_Admin_Division extends View_Admin_Base {
         print "
                 <tr>
                     <td align='left'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
+                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
                         <input type='hidden' id='divisionId' name='divisionId' value='$division->id'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>

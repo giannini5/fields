@@ -21,7 +21,7 @@ class View_Admin_Season extends View_Admin_Base {
         $maxColumns = 4;
 
         print "
-            <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
+            <table bgcolor='lightyellow' valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td>";
 
@@ -99,7 +99,7 @@ class View_Admin_Season extends View_Admin_Base {
         $errorString = ($this->m_controller->m_seasonId == $season->id and $this->m_controller->m_missingAttributes > 0) ? $this->m_controller->m_name : '';
 
         // Print the start of the form to select a facility
-        $bgColor = $season->enabled ? "bgcolor='lightyellow'" : "";
+        $bgColor = $season->enabled ? "bgcolor='lightblue'" : "";
         print "
             <table $bgColor valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . self::ADMIN_SEASON_PAGE . $this->m_urlParams . "'>";
@@ -116,7 +116,7 @@ class View_Admin_Season extends View_Admin_Base {
         print "
                 <tr>
                     <td align='left'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
+                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
                         <input type='hidden' id='seasonId' name='seasonId' value='$season->id'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>

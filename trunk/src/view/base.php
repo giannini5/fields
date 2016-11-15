@@ -29,6 +29,15 @@ abstract class View_Base {
     const HELP_PAGE                  = '/help';
     const TEST_POST_PAGE             = '/testPost';
 
+    # Schedule Page
+    const SCHEDULE_HOME_PAGE        = '/schedule_home';
+    const SCHEDULE_SEASON_PAGE      = '/schedule_season';
+    const SCHEDULE_FIELDS_PAGE      = '/schedule_fields';
+    const SCHEDULE_TEAMS_PAGE       = '/schedule_teams';
+    const SCHEDULE_PLAYERS_PAGE     = '/schedule_players';
+    const SCHEDULE_DIVISIONS_PAGE   = '/schedule_divisions';
+    const SCHEDULE_SCHEDULES_PAGE   = '/schedule_schedules';
+
     # Operations
     const SUBMIT           = 'submit';
 
@@ -42,6 +51,7 @@ abstract class View_Base {
     const SELECT           = 'Select';
     const DELETE           = 'Delete';
     const FILTER           = 'Filter';
+    const UPLOAD_FILE      = 'Upload File';
 
     # Post Attribute Names
     const SESSION_ID                = 'sessionId';
@@ -64,6 +74,8 @@ abstract class View_Base {
     const FILTER_DIVISION_ID        = 'filterDivisionId';
     const FILTER_LOCATION_ID        = 'filterGeographicAreaId';
     const FILTER_TEAM_ID            = 'filterTeamId';
+    const NAME                      = 'name';
+    const ENABLED                   = 'enabled';
 
     const SEASON_ID                 = 'seasonId';
     const DIVISION_ID               = 'divisionId';
@@ -107,7 +119,7 @@ abstract class View_Base {
      * @brief: Display an input box used inside of a form to get data.
      *
      * @param: $request - String that describes the data being requested.
-     * @param: $type - Type of input being requested (string, int, etc)
+     * @param: $type - Type of input being requested (string, int, password, etc)
      * @param: $placeHolder - Placeholder input to show in input box
      * @param: $requiredString - String to show just after input box
      * @param: $collapsible -  - Collapsible java script class - defaults to NULL
@@ -208,7 +220,7 @@ abstract class View_Base {
 
         print "
             <tr $collapsibleClass>
-                <td align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
+                <td nowrap align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
                 <td align='left' colspan='$colspan'>";
 
         foreach ($selectorData as $identifier=>$data) {
@@ -226,12 +238,21 @@ abstract class View_Base {
      * @brief Print start time and end time selectors
      *
      * @param $maxColumns - For colspan of field assignments table
-     * @param $collapsible - Collapsible CSS
      * @param string $defaultStartTime - Default selection for startTime HH:MM:SS (defaults to 03:30:00)
      * @param string $defaultEndTime - Default selection for endTime HH:MM:SS (defaults to 07:00:00)
-     * @param $colspan - Number of columns to span
+     * @param $collapsible - Collapsible CSS
+     * @param int $colspan - Number of columns to span
+     * @param string $startTimeLabel
+     * @param string $endTimeLabel
      */
-    public function printTimeSelectors($maxColumns, $defaultStartTime='03:30:00', $defaultEndTime='07:00:00', $collapsible = NULL, $colspan = 1)
+    public function printTimeSelectors(
+        $maxColumns,
+        $defaultStartTime='03:30:00',
+        $defaultEndTime='07:00:00',
+        $collapsible = NULL,
+        $colspan = 1,
+        $startTimeLabel = 'Start Time',
+        $endTimeLabel = 'End Time')
     {
         $startTimeSectionHTML = '';
         $endTimeSectionHTML = '';
@@ -260,11 +281,67 @@ abstract class View_Base {
 
         print "
                 <tr $collapsibleClass>
-                    <td><font color='" . View_Base::AQUA . "'><b>Start Time:&nbsp</b></font></td>
+                    <td><font color='" . View_Base::AQUA . "'><b>$startTimeLabel:&nbsp</b></font></td>
                     <td colspan='$colspan'><select name=" . View_Base::START_TIME . ">$startTimeSectionHTML</select></td>
                 </tr>
                 <tr $collapsibleClass>
-                    <td><font color='" . View_Base::AQUA . "'><b>End Time:&nbsp</b></font></td>
+                    <td><font color='" . View_Base::AQUA . "'><b>$endTimeLabel:&nbsp</b></font></td>
+                    <td colspan='$colspan'><select name=" . View_Base::END_TIME . ">$endTimeSectionHTML</select></td>
+                </tr>";
+    }
+
+    /**
+     * @brief Print start time and end time selectors
+     *
+     * @param $maxColumns - For colspan of field assignments table
+     * @param string $defaultStartTime - Default selection for startTime HH:MM:SS (defaults to 03:30:00)
+     * @param string $defaultEndTime - Default selection for endTime HH:MM:SS (defaults to 07:00:00)
+     * @param $collapsible - Collapsible CSS
+     * @param int $colspan - Number of columns to span
+     * @param string $startTimeLabel
+     * @param string $endTimeLabel
+     */
+    public function printGameTimeSelectors(
+        $maxColumns,
+        $defaultStartTime='08:00:00',
+        $defaultEndTime='17:00:00',
+        $collapsible = NULL,
+        $colspan = 1,
+        $startTimeLabel,
+        $endTimeLabel)
+    {
+        $startTimeSectionHTML = '';
+        $endTimeSectionHTML = '';
+        $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
+
+        $minute = 0;
+        for ($hour = 8; $hour <= 17; ++$hour) {
+            while ($minute <= 45) {
+                $time = sprintf("%2d:%02d", $hour, $minute);
+
+                // Normalize the time to check if it is a selected time
+                $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $time" . ":00");
+                $timeToCheck = $dateTime->format('H:i:s');
+
+                $startTimeSelected = ($timeToCheck == $defaultStartTime) ? ' selected ' : '';
+                $endTimeSelected = ($timeToCheck == $defaultEndTime) ? ' selected ' : '';
+
+                // Populate the start and stop end drop downs
+                $startTimeSectionHTML .= "<option value='$time'$startTimeSelected>$time</option>";
+                $endTimeSectionHTML .= "<option value='$time'$endTimeSelected>$time</option>";
+
+                $minute += 15;
+            }
+            $minute = 0;
+        }
+
+        print "
+                <tr $collapsibleClass>
+                    <td nowrap><font color='" . View_Base::AQUA . "'><b>$startTimeLabel:&nbsp</b></font></td>
+                    <td colspan='$colspan'><select name=" . View_Base::START_TIME . ">$startTimeSectionHTML</select></td>
+                </tr>
+                <tr $collapsibleClass>
+                    <td><font color='" . View_Base::AQUA . "'><b>$endTimeLabel:&nbsp</b></font></td>
                     <td colspan='$colspan'><select name=" . View_Base::END_TIME . ">$endTimeSectionHTML</select></td>
                 </tr>";
     }
@@ -275,23 +352,28 @@ abstract class View_Base {
      * @param $maxColumns  - For colspan if needed
      * @param $collapsible - Collapsible CSS
      * @param $daysOfWeek  - Days of week selected $daysOfWeek[0] is Monday
+     * @param $label       - Label for input
      */
-    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '') {
+    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '', $label = 'Days') {
         $monChecked = (isset($daysOfWeek[0]) and $daysOfWeek[0] == 1) ? 'checked' : '';
         $tueChecked = (isset($daysOfWeek[1]) and $daysOfWeek[1] == 1) ? 'checked' : '';
         $wedChecked = (isset($daysOfWeek[2]) and $daysOfWeek[2] == 1) ? 'checked' : '';
         $thuChecked = (isset($daysOfWeek[3]) and $daysOfWeek[3] == 1) ? 'checked' : '';
         $friChecked = (isset($daysOfWeek[4]) and $daysOfWeek[4] == 1) ? 'checked' : '';
+        $satChecked = (isset($daysOfWeek[5]) and $daysOfWeek[5] == 1) ? 'checked' : '';
+        $sunChecked = (isset($daysOfWeek[6]) and $daysOfWeek[5] == 1) ? 'checked' : '';
 
         print "
                 <tr class='$collapsible'>
-                    <td><font color='" . View_Base::AQUA . "'><b>Days:&nbsp</b></font></td>
+                    <td nowrap><font color='" . View_Base::AQUA . "'><b>$label:&nbsp</b></font></td>
                     <td nowrap>
                         <nobr><input type=checkbox name='Monday'    id='Monday'    value='Monday'    $monChecked>Monday</nobr>
                         <nobr><input type=checkbox name='Tuesday'   id='Tuesday'   value='Tuesday'   $tueChecked>Tuesday</nobr>
                         <nobr><input type=checkbox name='Wednesday' id='Wednesday' value='Wednesday' $wedChecked>Wednesday</nobr>
                         <nobr><input type=checkbox name='Thursday'  id='Thursday'  value='Thursday'  $thuChecked>Thursday</nobr>
                         <nobr><input type=checkbox name='Friday'    id='Friday'    value='Friday'    $friChecked>Friday</nobr>
+                        <nobr><input type=checkbox name='Saturday'  id='Saturday'  value='Saturday'  $satChecked>Saturday</nobr>
+                        <nobr><input type=checkbox name='Sunday'    id='Sunday'    value='Sunday'    $sunChecked>Sunday</nobr>
                     </td>
                 </tr>";
     }
@@ -333,7 +415,7 @@ abstract class View_Base {
 
         print "
             <tr $collapsibleClass>
-                <td><font color='" . View_Base::AQUA . "'><b>$tag:</b></font></td>
+                <td nowrap><font color='" . View_Base::AQUA . "'><b>$tag:</b></font></td>
                 <td colpan='$colspan'>
                     <input type='text' size=11 id='$id' name='$id' value='$defaultDate' style='font-size:11px'>
                 </td>

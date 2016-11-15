@@ -177,7 +177,7 @@ class View_Admin_Facility extends View_Admin_Base {
         print "
                 <tr class='$collapsible'>
                     <td align='left'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
+                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
                         <input type='hidden' id='facilityId' name='facilityId' value='$facility->id'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>

@@ -1,31 +1,31 @@
 <?php
-require_once '../../autoLoader.php';
+require_once '../../autoload.php';
 
 class ExceptionTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @expectedException PreconditionException
+     * @expectedException PreException
      */
-    public function testPreconditionException()
+    public function testPreException()
     {
         // Test No Exception
         precondition(TRUE, "Force a Failure");
 
         // Test Exception
-        $this->setExpectedException('PreconditionException');
+        $this->setExpectedException('PreException');
         precondition(FALSE, "Force a Failure");
     }
 
     /**
-     * @expectedException AssertionException
+     * @expectedException AssertException
      */
-    public function testAssertionException()
+    public function testAssertException()
     {
         // Test No Exception
         assertion(TRUE, "Force a Failure");
 
         // Test Exception
-        $this->setExpectedException('AssertionException');
+        $this->setExpectedException('AssertException');
         assertion(FALSE, "Force a Failure");
     }
 }

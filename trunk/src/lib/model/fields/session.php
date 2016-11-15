@@ -11,6 +11,7 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
     const COACH_USER_TYPE = 0;
     const MANAGER_USER_TYPE = 1;
     const PRACTICE_FIELD_COORDINATOR_USER_TYPE = 2;
+    const SCHEDULE_COORDINATOR_USER_TYPE = 3;
 
     /**
      * @brief: Constructor

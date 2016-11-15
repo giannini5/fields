@@ -21,6 +21,8 @@ class View_Fields_Help extends View_Fields_Base {
         $emailAddress = View_Base::EMAIL_ADDRESS;
         $subject      = View_Base::SUBJECT;
         $helpRequest  = View_Base::HELP_REQUEST;
+        $coach = $this->m_controller->m_coach;
+        $optionalValue = isset($coach->email) ? "optional value='$coach->email'" : "";
 
         if (!empty($this->m_controller->m_headerMessage)) {
             $headerMessage = $this->m_controller->m_headerMessage;
@@ -36,7 +38,7 @@ class View_Fields_Help extends View_Fields_Base {
                     <form method='post' action='" . self::HELP_PAGE . $this->m_urlParams . "'>
                         <tr>
                             <td>
-                                <p>Email: <input style='text-align:left' type='text' name='$emailAddress' autofocus=1 required=1 size=30 maxlength=60 placeholder='Email Address'></p>
+                                <p>Email: <input style='text-align:left' type='text' name='$emailAddress' autofocus=1 required=1 size=30 maxlength=60 placeholder='Email Address' $optionalValue></p>
                             </td>
                         </tr>
                         <tr>

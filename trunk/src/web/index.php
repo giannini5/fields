@@ -2,7 +2,7 @@
 ini_set('display_errors', '1');
 error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
 
-require_once '../lib/autoLoader.php';
+require_once '../lib/autoload.php';
 
 
 class ControllerException extends DAG_Exception
@@ -97,6 +97,34 @@ class Web_Index
 
             case View_Base::ADMIN_RESERVATIONS_PAGE:
                 $this->m_controller = new Controller_Admin_Reservations();
+                break;
+
+            case View_Base::SCHEDULE_HOME_PAGE:
+                $this->m_controller = new Controller_Schedules_Home();
+                break;
+
+            case View_Base::SCHEDULE_SEASON_PAGE:
+                $this->m_controller = new Controller_Schedules_Season();
+                break;
+
+            case View_Base::SCHEDULE_FIELDS_PAGE:
+                $this->m_controller = new Controller_Schedules_Field();
+                break;
+
+            case View_Base::SCHEDULE_TEAMS_PAGE:
+                $this->m_controller = new Controller_Schedules_Team();
+                break;
+
+            case View_Base::SCHEDULE_DIVISIONS_PAGE:
+                $this->m_controller = new Controller_Schedules_Division();
+                break;
+
+            case View_Base::SCHEDULE_PLAYERS_PAGE:
+                $this->m_controller = new Controller_Schedules_Player();
+                break;
+
+            case View_Base::SCHEDULE_SCHEDULES_PAGE:
+                $this->m_controller = new Controller_Schedules_Schedule();
                 break;
 
             default:

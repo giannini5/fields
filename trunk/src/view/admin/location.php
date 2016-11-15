@@ -19,7 +19,7 @@ class View_Admin_Location extends View_Admin_Base {
     public function render()
     {
         print "
-            <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
+            <table bgcolor='lightyellow' valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td>";
 
@@ -99,7 +99,7 @@ class View_Admin_Location extends View_Admin_Base {
         print "
                 <tr>
                     <td align='left'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
+                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
                         <input type='hidden' id='locationId' name='locationId' value='$location->id'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
