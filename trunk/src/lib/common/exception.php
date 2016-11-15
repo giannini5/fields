@@ -151,14 +151,14 @@ class DAG_Exception extends Exception
 
 
 /**
- * PreconditionException is fired from the preconditon function.
+ * PreException is fired from the preconditon function.
  *
- * @param string  - $message      - Message to be included in PreconditionException
+ * @param string  - $message      - Message to be included in PreException
  * @param string  - $fileName     - Name of the file where the precondition is being checked
  * @param int     - $lineNumber   - Line number in file where precondition is being checked
- * @param int     - $code         - Error code to be included in PreconditionException (defaults to -1)
+ * @param int     - $code         - Error code to be included in PreException (defaults to -1)
  */
-class PreconditionException extends DAG_Exception
+class PreException extends DAG_Exception
 {
     public function __construct($message, $fileName, $lineNumber, $code = -1) {
         parent::__construct($message, $code, null);
@@ -169,14 +169,14 @@ class PreconditionException extends DAG_Exception
 
 
 /**
- * AssertionException is fired from the assertion function.
+ * AssertException is fired from the assertion function.
  *
- * @param string  - $message      - Message to be included in PreconditionException
+ * @param string  - $message      - Message to be included in PreException
  * @param string  - $fileName     - Name of the file where the precondition is being checked
  * @param int     - $lineNumber   - Line number in file where precondition is being checked
- * @param int     - $code         - Error code to be included in PreconditionException (defaults to -1)
+ * @param int     - $code         - Error code to be included in PreException (defaults to -1)
  */
-class AssertionException extends DAG_Exception
+class AssertException extends DAG_Exception
 {
     public function __construct($message, $fileName, $lineNumber, $code = -1) {
         parent::__construct($message, $code, null);
@@ -190,7 +190,7 @@ class AssertionException extends DAG_Exception
  * the caught exception (if any) for simplified debugging.
  *
  * @param object  - $previous     - Previous excetpion (defauts to null)
- * @param int     - $code         - Error code to be included in PreconditionException (defaults to -1)
+ * @param int     - $code         - Error code to be included in PreException (defaults to -1)
  */
 class UnexpectedException extends DAG_Exception
 {
@@ -204,18 +204,18 @@ class UnexpectedException extends DAG_Exception
  * Preconditions are used to verify input parameter's or other conditions that need to be valid
  * prior to a method's execution.
  *
- * @param boolean - $expression   - Boolean expression.  If false then PreconditionException is thrown
- * @param string  - $message      - Message to be included in PreconditionException
- * @param int     - $code         - Error code to be included in PreconditionException (defaults to -1)
+ * @param boolean - $expression   - Boolean expression.  If false then PreException is thrown
+ * @param string  - $message      - Message to be included in PreException
+ * @param int     - $code         - Error code to be included in PreException (defaults to -1)
  *
- * @raises object - PreconditionException
- * @throws PreconditionException
+ * @raises object - PreException
+ * @throws PreException
  */
 function precondition($expression, $message, $code = -1) {
     if (!$expression) {
 	    $backtrace = debug_backtrace();
 	    $lastCall = $backtrace[0];
-        throw new PreconditionException($message, $lastCall['file'], $lastCall['line'], $code);
+        throw new PreException($message, $lastCall['file'], $lastCall['line'], $code);
     }
 }
 
@@ -223,18 +223,18 @@ function precondition($expression, $message, $code = -1) {
 /**
  * Assertions are used to assert correctness after execution of a method has begun.
  *
- * @param boolean - $expression   - Boolean expression.  If false then AssertionException is thrown
- * @param string  - $message      - Message to be included in AssertionException
- * @param int     - $code         - Error code to be included in AssertionException (defaults to -1)
+ * @param boolean - $expression   - Boolean expression.  If false then AssertException is thrown
+ * @param string  - $message      - Message to be included in AssertException
+ * @param int     - $code         - Error code to be included in AssertException (defaults to -1)
  *
- * @raises object - AssertionException
- * @throws AssertionException
+ * @raises object - AssertException
+ * @throws AssertException
  */
 function assertion($expression, $message, $code = -1) {
     if (!$expression) {
 	    $backtrace = debug_backtrace();
 	    $lastCall = $backtrace[0];
-        throw new AssertionException($message, $lastCall['file'], $lastCall['line'], $code);
+        throw new AssertException($message, $lastCall['file'], $lastCall['line'], $code);
     }
 }
 

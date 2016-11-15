@@ -52,21 +52,21 @@ abstract class Controller_Base
     /**
      * @brief Get league
      */
-    private function _getLeague() {
+    protected function _getLeague() {
         $this->m_league = Model_Fields_League::LookupByName('AYSO Region 122');
     }
 
     /**
      * @brief Get season
      */
-    private function _getSeason() {
+    protected function _getSeason() {
         $this->m_season = Model_Fields_Season::GetEnabledSeason($this->m_league, FALSE);
     }
 
     /**
      * @brief Get list of divisions for selector
      */
-    private function _getDivisions() {
+    protected function _getDivisions() {
         $this->m_divisions = Model_Fields_Division::GitList($this->m_league);
     }
 

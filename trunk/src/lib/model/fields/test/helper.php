@@ -1,5 +1,5 @@
 <?php
-require_once '../../../autoLoader.php';
+require_once dirname(dirname(dirname(dirname(__FILE__)))) . '/autoload.php';
 
 class Model_TestHelpers extends PHPUnit_Framework_TestCase {
     public $m_league;

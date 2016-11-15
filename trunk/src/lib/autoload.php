@@ -4,6 +4,7 @@
  * All classes called will be automatically required into the system
  */
 
+
 // Define path to the base path directory
 defined('SRC_LIB') || define('SRC_LIB', realpath(dirname(__FILE__)) . '/');
 defined('SRC') || define('SRC', SRC_LIB . '../');
@@ -28,6 +29,18 @@ require_once('common/databaseConfig.php');
 require_once('common/database.php');
 require_once('common/factory.php');
 
+/* New Framework */
+require_once SRC . 'src/Framework/Exception/DAGException.php';
+require_once SRC . 'src/Framework/Exception/PreconditionException.php';
+require_once SRC . 'src/Framework/Exception/AssertionException.php';
+
+// The vendor autoloading file
+if (!file_exists(SRC . 'vendor/autoload.php')) {
+    die('Please run `composer install` to generate your vendor directory');
+}
+require_once SRC . '/vendor/autoload.php';
+
+
 // Register the auto loader
 spl_autoload_register('dag_autoloader');
 
@@ -51,4 +64,3 @@ function dag_autoloader($className)
         require_once $filePath;
     }
 }
-?>
