@@ -113,7 +113,7 @@ echo 'Executing master install script. Bash version ' $BASH_VERSION
 echo "Current dir $(pwd)"
 
 installSubsystem $hostname $user $password $option "fields"
-installSubsystem $hostname $user $password $option "shcedule"
+installSubsystem $hostname $user $password $option "schedule"
 
 echo ""
 echo "Done. All is well."
