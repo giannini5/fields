@@ -76,7 +76,11 @@ class View_Schedules_Team extends View_Schedules_Base {
                     </tr>
                 </thead>";
 
-        $divisions = Division::lookupBySeason($this->m_controller->m_season);
+        $divisions = [];
+        if (isset($this->m_controller->m_season)) {
+            $divisions = Division::lookupBySeason($this->m_controller->m_season);
+        }
+
         foreach ($divisions as $division) {
             $teams = Team::lookupByDivision($division);
             foreach ($teams as $team) {
