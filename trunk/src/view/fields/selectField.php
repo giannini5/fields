@@ -206,7 +206,7 @@ class View_Fields_SelectField extends View_Fields_Base {
         // print "<tr class='$collapsible'><td>&nbsp</td></tr>";
         $this->_printFieldSelector($maxColumns, $fields, NULL);
         $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00', NULL);
-        $this->printDaySelector($maxColumns, NULL);
+        $this->printDaySelector($maxColumns, NULL, '', 'Days', false);
 
         // Print Submit button and end form
         print "
