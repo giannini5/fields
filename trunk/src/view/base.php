@@ -349,12 +349,13 @@ abstract class View_Base {
     /**
      * @brief Print the days that can be selected
      *
-     * @param $maxColumns  - For colspan if needed
-     * @param $collapsible - Collapsible CSS
-     * @param $daysOfWeek  - Days of week selected $daysOfWeek[0] is Monday
-     * @param $label       - Label for input
+     * @param $maxColumns       - For colspan if needed
+     * @param $collapsible      - Collapsible CSS
+     * @param $daysOfWeek       - Days of week selected $daysOfWeek[0] is Monday
+     * @param $label            - Label for input
+     * @param $includeWeekend   - Defaults to true
      */
-    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '', $label = 'Days') {
+    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '', $label = 'Days', $includeWeekend = true) {
         $monChecked = (isset($daysOfWeek[0]) and $daysOfWeek[0] == 1) ? 'checked' : '';
         $tueChecked = (isset($daysOfWeek[1]) and $daysOfWeek[1] == 1) ? 'checked' : '';
         $wedChecked = (isset($daysOfWeek[2]) and $daysOfWeek[2] == 1) ? 'checked' : '';
@@ -371,9 +372,15 @@ abstract class View_Base {
                         <nobr><input type=checkbox name='Tuesday'   id='Tuesday'   value='Tuesday'   $tueChecked>Tuesday</nobr>
                         <nobr><input type=checkbox name='Wednesday' id='Wednesday' value='Wednesday' $wedChecked>Wednesday</nobr>
                         <nobr><input type=checkbox name='Thursday'  id='Thursday'  value='Thursday'  $thuChecked>Thursday</nobr>
-                        <nobr><input type=checkbox name='Friday'    id='Friday'    value='Friday'    $friChecked>Friday</nobr>
+                        <nobr><input type=checkbox name='Friday'    id='Friday'    value='Friday'    $friChecked>Friday</nobr>";
+
+        if ($includeWeekend)  {
+            print "
                         <nobr><input type=checkbox name='Saturday'  id='Saturday'  value='Saturday'  $satChecked>Saturday</nobr>
-                        <nobr><input type=checkbox name='Sunday'    id='Sunday'    value='Sunday'    $sunChecked>Sunday</nobr>
+                        <nobr><input type=checkbox name='Sunday'    id='Sunday'    value='Sunday'    $sunChecked>Sunday</nobr>";
+        }
+
+        print "
                     </td>
                 </tr>";
     }
