@@ -72,6 +72,11 @@ class View_Fields_SelectField extends View_Fields_Base {
         foreach ($facilities as $facility) {
             $javaScriptClassIdentifier += 1;
 
+            // skip this facility if it is not enabled
+            if ($facility->enabled == 0) {
+                continue;
+            }
+
             // skip this facility if facility filter enabled and facility does not match the filter
             if ($filterFacilityId != 0) {
                 if ($facility->id != $filterFacilityId) {
