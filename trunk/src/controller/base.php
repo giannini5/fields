@@ -14,7 +14,7 @@ abstract class Controller_Base
     # Attributes constructed from League
     public $m_league;
     public $m_season;
-    public $m_divisions;
+    public $m_divisions = [];
 
     # Attributes constructed from POST
     public $m_operation;

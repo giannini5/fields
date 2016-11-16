@@ -140,7 +140,9 @@ abstract class Controller_Schedules_Base extends Controller_Base
      * @brief Get list of divisions for selector
      */
     protected function _getDivisions() {
-        $this->m_divisions = \DAG\Domain\Schedule\Division::lookupBySeason($this->m_season);
+        if (isset($this->m_season)) {
+            $this->m_divisions = \DAG\Domain\Schedule\Division::lookupBySeason($this->m_season);
+        }
     }
 
     /**
