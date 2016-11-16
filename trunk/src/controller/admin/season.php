@@ -156,7 +156,9 @@ class Controller_Admin_Season extends Controller_Admin_Base {
 
                 if ($this->m_enabled == 1) {
                     $this->_disableSeasons($season->id);
-                    $this->updateFieldAvailability($season);
+                    // If line below is run then start times for all fields are adjusted.
+                    // Not desired when making simple updates to an already created Season
+                    // $this->updateFieldAvailability($season);
                 }
                 return;
             }

@@ -226,7 +226,6 @@ class Controller_Admin_Facility extends Controller_Admin_Base {
         }
 
         // Create new locations for facility if they do not already exist
-        $currentLocations = Model_Fields_FacilityLocation::GetLocations($facility->id);
         foreach ($this->m_selectedLocations as $locationId) {
             $facilityLocation = Model_Fields_FacilityLocation::LookupByFacilityLocation($facility->id, $locationId);
             if (!isset($facilityLocation)) {
