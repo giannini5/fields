@@ -31,6 +31,12 @@ class PlayerOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($playerOrm, self::$defaultPlayerOrmAttributes);
     }
 
+    public function test_loadByName()
+    {
+        $playerOrm = PlayerOrm::loadByName($this->defaultPlayerOrm->teamId, $this->defaultPlayerOrm->name);
+        $this->verifyExpectedAttributes($playerOrm, self::$defaultPlayerOrmAttributes);
+    }
+
     public function test_loadByTeam()
     {
         $playerOrms = PlayerOrm::loadByTeamId($this->defaultTeamOrm->id);

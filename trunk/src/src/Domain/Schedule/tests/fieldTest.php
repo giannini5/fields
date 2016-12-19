@@ -57,10 +57,40 @@ class FieldTest extends ORM_TestHelper
         $this->validateField($field, $this->facility, self::$expectedDefaults);
     }
 
+    public function test_lookupByFacility()
+    {
+        $fields = Field::lookupByFacility($this->facility);
+        $this->assertEquals(2, count($fields));
+    }
+
     public function test_lookupByName()
     {
         $field = Field::lookupByName($this->facility, self::$expectedDefaults['name']);
         $this->validateField($field, $this->facility, self::$expectedDefaults);
+    }
+
+    public function test_findByNameTrue()
+    {
+        $result = Field::findByName($this->facility, self::$expectedDefaults['name'], $field);
+        $this->assertTrue($result);
+        $this->validateField($field, $this->facility, self::$expectedDefaults);
+    }
+
+    public function test_findByNameFalse()
+    {
+        $result = Field::findByName($this->facility, 'Not a field name', $field);
+        $this->assertFalse($result);
+    }
+
+    public function test_set()
+    {
+        $field = Field::lookupById($this->fieldsToCleanup[0]->id);
+        $field->name    = $expectedValues['name']     = "New name";
+        $field->enabled = $expectedValues['enabled']  = "0";
+        $this->validateField($field, $this->facility, $expectedValues);
+
+        $field = Field::lookupById($field->id);
+        $this->validateField($field, $this->facility, $expectedValues);
     }
 
     public function validateField($field, $facility, $expectedDefaults)

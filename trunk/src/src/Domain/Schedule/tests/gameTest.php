@@ -14,7 +14,7 @@ require_once dirname(dirname(dirname(__DIR__))) . '/Orm/Schedule/tests/helper.ph
 class GameTest extends ORM_TestHelper
 {
     protected $gamesToCleanup = array();
-    protected $schedule;
+    protected $pool;
     protected $gameTime;
     protected $homeTeam;
     protected $visitingTeam;
@@ -23,7 +23,7 @@ class GameTest extends ORM_TestHelper
     {
         $this->primeDatabase();
 
-        $this->schedule     = Schedule::lookupById($this->defaultScheduleOrm->id);
+        $this->pool         = Pool::lookupById($this->defaultPoolOrm->id);
         $this->gameTime     = GameTime::lookupById($this->defaultGameTimeOrm->id);
         $this->homeTeam     = Team::lookupById($this->defaultTeamOrm->id);
         $this->visitingTeam = Team::lookupById($this->defaultVisitingTeamOrm->id);
@@ -33,10 +33,13 @@ class GameTest extends ORM_TestHelper
         $game->delete();
 
         $this->gamesToCleanup[] = Game::create(
-            $this->schedule,
+            $this->pool,
             $this->gameTime,
             $this->homeTeam,
             $this->visitingTeam);
+
+        // Update again since it changes when Game is deleted/created
+        $this->gameTime     = GameTime::lookupById($this->defaultGameTimeOrm->id);
     }
 
     protected function tearDown()
@@ -60,9 +63,9 @@ class GameTest extends ORM_TestHelper
         $this->validateGame($game);
     }
 
-    public function test_lookupBySchedule()
+    public function test_lookupByPool()
     {
-        $games = Game::lookupBySchedule($this->schedule);
+        $games = Game::lookupByPool($this->pool);
         $this->assertTrue(count($games) == 1);
         $this->validateGame($games[0]);
     }
@@ -87,7 +90,7 @@ class GameTest extends ORM_TestHelper
     public function validateGame($game)
     {
         $this->assertTrue($game->id > 0);
-        $this->assertEquals($this->schedule,        $game->schedule);
+        $this->assertEquals($this->pool,            $game->pool);
         $this->assertEquals($this->gameTime,        $game->gameTime);
         $this->assertEquals($this->homeTeam,        $game->homeTeam);
         $this->assertEquals($this->visitingTeam,    $game->visitingTeam);

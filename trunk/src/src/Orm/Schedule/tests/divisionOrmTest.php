@@ -15,7 +15,10 @@ class DivisionOrmTest extends ORM_TestHelper
      */
     protected static $expectedDefaults =
         [
-            self::NAME => 'TEST Division',
+            self::NAME                  => 'TEST Division',
+            self::GENDER                => 'TEST Boy',
+            self::DISPLAY_ORDER         => '5',
+            self::GAME_DURATION_MINUTES => '25',
         ];
 
     protected function setUp()
@@ -32,7 +35,10 @@ class DivisionOrmTest extends ORM_TestHelper
     {
         $divisionOrm = DivisionOrm::create(
             $this->defaultSeasonOrm->id,
-            self::$expectedDefaults[self::NAME]);
+            self::$expectedDefaults[self::NAME],
+            self::$expectedDefaults[self::GENDER],
+            self::$expectedDefaults[self::GAME_DURATION_MINUTES],
+            self::$expectedDefaults[self::DISPLAY_ORDER]);
 
         $this->verifyExpectedAttributes($divisionOrm, self::$expectedDefaults);
     }
@@ -43,16 +49,29 @@ class DivisionOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($divisionOrm, self::$defaultDivisionOrmAttributes);
     }
 
+    public function test_loadByNameGender()
+    {
+        $divisionOrm = DivisionOrm::loadBySeasonIdAndNameAndGender(
+            $this->defaultSeasonOrm->id,
+            self::$defaultDivisionOrmAttributes[self::NAME],
+            self::$defaultDivisionOrmAttributes[self::GENDER]);
+        $this->verifyExpectedAttributes($divisionOrm, self::$defaultDivisionOrmAttributes);
+    }
+
     public function test_loadByName()
     {
-        $divisionOrm = DivisionOrm::loadBySeasonIdAndName($this->defaultSeasonOrm->id, self::$defaultDivisionOrmAttributes[self::NAME]);
-        $this->verifyExpectedAttributes($divisionOrm, self::$defaultDivisionOrmAttributes);
+        $divisionOrms = DivisionOrm::loadBySeasonIdAndName($this->defaultSeasonOrm->id, self::$defaultDivisionOrmAttributes[self::NAME]);
+        $this->assertEquals(1, count($divisionOrms));
+        $this->verifyExpectedAttributes($divisionOrms[0], self::$defaultDivisionOrmAttributes);
     }
 
     private function verifyExpectedAttributes($divisionOrm, $attributes)
     {
         $this->assertTrue($divisionOrm->id > 0);
-        $this->assertEquals($this->defaultSeasonOrm->id,    $divisionOrm->seasonId);
-        $this->assertEquals($attributes[self::NAME],        $divisionOrm->name);
+        $this->assertEquals($this->defaultSeasonOrm->id,                $divisionOrm->seasonId);
+        $this->assertEquals($attributes[self::NAME],                    $divisionOrm->name);
+        $this->assertEquals($attributes[self::GENDER],                  $divisionOrm->gender);
+        $this->assertEquals($attributes[self::GAME_DURATION_MINUTES],   $divisionOrm->gameDurationMinutes);
+        $this->assertEquals($attributes[self::DISPLAY_ORDER],           $divisionOrm->displayOrder);
     }
 }

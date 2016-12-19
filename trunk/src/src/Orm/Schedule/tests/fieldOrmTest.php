@@ -51,6 +51,13 @@ class FieldOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($fieldOrm, self::$defaultFieldOrmAttributes);
     }
 
+    public function test_loadByFacility()
+    {
+        $fieldOrms = FieldOrm::loadByFacilityId($this->defaultFacilityOrm->id);
+        $this->assertEquals(1, count($fieldOrms));
+        $this->verifyExpectedAttributes($fieldOrms[0], self::$defaultFieldOrmAttributes);
+    }
+
     private function verifyExpectedAttributes($fieldOrm, $attributes)
     {
         $this->assertTrue($fieldOrm->id > 0);

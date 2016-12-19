@@ -9,7 +9,7 @@ use DAG\Framework\Exception\Precondition;
 
 /**
  * @property int        $id
- * @property Division   $division
+ * @property Schedule   $schedule
  * @property string     $name
  */
 class Pool extends Domain
@@ -17,31 +17,31 @@ class Pool extends Domain
     /** @var PoolOrm */
     private $poolOrm;
 
-    /** @var Division */
-    private $division;
+    /** @var Schedule */
+    private $schedule;
 
     /**
      * @param PoolOrm   $poolOrm
-     * @param Division  $division (defaults to null)
+     * @param Schedule  $schedule (defaults to null)
      */
-    protected function __construct(PoolOrm $poolOrm, $division = null)
+    protected function __construct(PoolOrm $poolOrm, $division = null, $schedule = null)
     {
         $this->poolOrm = $poolOrm;
-        $this->division = isset($division) ? $division : Division::lookupById($poolOrm->divisionId);
+        $this->schedule = isset($schedule) ? $schedule : Schedule::lookupById($poolOrm->scheduleId);
     }
 
     /**
-     * @param Division  $division
+     * @param Schedule  $schedule
      * @param string    $name
      *
      * @return Pool
      */
     public static function create(
-        $division,
+        $schedule,
         $name)
     {
-        $poolOrm = PoolOrm::create($division->id, $name);
-        return new static($poolOrm, $division);
+        $poolOrm = PoolOrm::create($schedule->id, $name);
+        return new static($poolOrm, $schedule);
     }
 
     /**
@@ -56,16 +56,33 @@ class Pool extends Domain
     }
 
     /**
-     * @param Division  $division
+     * @param Schedule  $schedule
      * @param string    $name
      *
      * @return Pool
      */
-    public static function lookupByName($division, $name)
+    public static function lookupByScheduleName($schedule, $name)
     {
         Precondition::isNonEmpty($name, 'name should not be empty');
-        $poolOrm = PoolOrm::loadByDivisionIdAndName($division->id, $name);
-        return new static($poolOrm, $division);
+        $poolOrm = PoolOrm::loadByScheduleIdAndName($schedule->id, $name);
+        return new static($poolOrm, null, $schedule);
+    }
+
+    /**
+     * @param Schedule  $schedule
+     *
+     * @return Pool[]
+     */
+    public static function lookupBySchedule($schedule)
+    {
+        $pools = [];
+
+        $poolOrms = PoolOrm::loadByScheduleId($schedule->id);
+        foreach ($poolOrms as $poolOrm) {
+            $pools[] = new static($poolOrm, null, $schedule);
+        }
+
+        return $pools;
     }
 
     /**
@@ -79,7 +96,7 @@ class Pool extends Domain
             case "name":
                 return $this->poolOrm->{$propertyName};
 
-            case "division":
+            case "schedule":
                 return $this->{$propertyName};
 
             default:
@@ -89,10 +106,16 @@ class Pool extends Domain
 
     /**
      *  Delete the pool
-     *  TODO: Change to cascading delete
      */
     public function delete()
     {
+        // Delete all games
+        $games = Game::lookupByPool($this);
+        foreach ($games as $game) {
+            $game->delete();
+        }
+
+        // Delete pool
         $this->poolOrm->delete();
     }
 }

@@ -38,6 +38,13 @@ class AssistantCoachOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($assistantCoachOrms[0], self::$defaultAssistantCoachOrmAttributes);
     }
 
+    public function test_loadBySeason()
+    {
+        $assistantCoachOrms = AssistantCoachOrm::loadBySeasonId($this->defaultSeasonOrm->id);
+        $this->assertEquals(1, count($assistantCoachOrms));
+        $this->verifyExpectedAttributes($assistantCoachOrms[0], self::$defaultAssistantCoachOrmAttributes);
+    }
+
     public function test_loadByTeamAndName()
     {
         $assistantCoachOrm = AssistantCoachOrm::loadByTeamIdAndName($this->defaultTeamOrm->id, $this->defaultAssistantCoachOrm->name);

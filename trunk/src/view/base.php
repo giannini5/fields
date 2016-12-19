@@ -32,9 +32,11 @@ abstract class View_Base {
     # Schedule Page
     const SCHEDULE_HOME_PAGE        = '/schedule_home';
     const SCHEDULE_SEASON_PAGE      = '/schedule_season';
+    const SCHEDULE_GAME_DATE_PAGE   = '/schedule_gameDate';
+    const SCHEDULE_FACILITIES_PAGE  = '/schedule_facilities';
     const SCHEDULE_FIELDS_PAGE      = '/schedule_fields';
     const SCHEDULE_TEAMS_PAGE       = '/schedule_teams';
-    const SCHEDULE_PLAYERS_PAGE     = '/schedule_players';
+    const SCHEDULE_FAMILY_PAGE      = '/schedule_families';
     const SCHEDULE_DIVISIONS_PAGE   = '/schedule_divisions';
     const SCHEDULE_SCHEDULES_PAGE   = '/schedule_schedules';
 
@@ -42,21 +44,29 @@ abstract class View_Base {
     const SUBMIT           = 'submit';
 
     # Operation Values
-    const CREATE_ACCOUNT   = 'Create Account';
-    const CREATE           = 'Create';
-    const UPDATE           = 'Update';
-    const SIGN_IN          = 'Sign In';
-    const SIGN_OUT         = 'Sign Out';
-    const NO_BUTTON        = 'NoButton';
-    const SELECT           = 'Select';
-    const DELETE           = 'Delete';
-    const FILTER           = 'Filter';
-    const UPLOAD_FILE      = 'Upload File';
+    const CREATE_ACCOUNT        = 'Create Account';
+    const CREATE                = 'Create';
+    const VIEW                  = 'View';
+    const UPDATE                = 'Update';
+    const SIGN_IN               = 'Sign In';
+    const SIGN_OUT              = 'Sign Out';
+    const NO_BUTTON             = 'NoButton';
+    const SELECT                = 'Select';
+    const DELETE                = 'Delete';
+    const FILTER                = 'Filter';
+    const UPLOAD_FILE           = 'Upload File';
+    const UPLOAD_PLAYER_FILE    = 'Upload Player File';
+    const UPLOAD_FACILITY_FILE  = 'Upload Facility File';
+    const UPLOAD_FIELD_FILE     = 'Upload Field File';
+
+    # Checkbox Names
+    const SHOW_PLAYERS          = 'showPlayers';
 
     # Post Attribute Names
     const SESSION_ID                = 'sessionId';
     const FACILITY_ID               = 'facilityId';
     const FIELD_ID                  = 'fieldId';
+    const GAME_DATE_ID              = 'gameDateId';
     const MONDAY                    = 'Monday';
     const TUESDAY                   = 'Tuesday';
     const WEDNESDAY                 = 'Wednesday';
@@ -65,6 +75,7 @@ abstract class View_Base {
     const SATURDAY                  = 'Saturday';
     const SUNDAY                    = 'Sunday';
     const BEGIN_RESERVATION_DATE    = 'beginReservationDate';
+    const DAY                       = 'day';
     const START_DATE                = 'startDate';
     const END_DATE                  = 'endDate';
     const START_TIME                = 'startTime';
@@ -74,14 +85,30 @@ abstract class View_Base {
     const FILTER_DIVISION_ID        = 'filterDivisionId';
     const FILTER_LOCATION_ID        = 'filterGeographicAreaId';
     const FILTER_TEAM_ID            = 'filterTeamId';
+    const FILTER_COACH_ID           = 'filterCoachId';
     const NAME                      = 'name';
     const ENABLED                   = 'enabled';
+    const ADDRESS1                  = 'address1';
+    const ADDRESS2                  = 'address2';
+    const CITY                      = 'city';
+    const STATE                     = 'state';
+    const POSTAL_CODE               = 'postalCode';
+    const CONTACT_NAME              = 'contactName';
+    const CONTACT_EMAIL             = 'contactEmail';
+    const CONTACT_PHONE             = 'contactPhone';
+    const FIELD_UPDATE_DATA         = 'fieldUpdateData';
+    const TEAM_POOL_UPDATE_DATA     = 'teamPoolUpdateDate';
+    const GAMES_PER_TEAM            = 'gamesPerTeam';
 
     const SEASON_ID                 = 'seasonId';
     const DIVISION_ID               = 'divisionId';
     const DIVISION_IDS              = 'divisionIds';
+    const DIVISION_NAMES            = 'divisionNames';
+    const DIVISION_NAME             = 'divisionName';
     const LOCATION_ID               = 'locationId';
     const LOCATION_IDS              = 'locationIds';
+    const SCHEDULE_ID               = 'scheduleId';
+    const POOL_ID                   = 'poolIds';
 
     const EMAIL_ADDRESS             = 'emailAddress';
     const SUBJECT                   = 'subject';
@@ -118,49 +145,73 @@ abstract class View_Base {
     /**
      * @brief: Display an input box used inside of a form to get data.
      *
-     * @param: $request - String that describes the data being requested.
-     * @param: $type - Type of input being requested (string, int, password, etc)
-     * @param: $placeHolder - Placeholder input to show in input box
-     * @param: $requiredString - String to show just after input box
-     * @param: $collapsible -  - Collapsible java script class - defaults to NULL
+     * @param: $request         - String that describes the data being requested.
+     * @param: $type            - Type of input being requested (string, int, password, etc)
+     * @param: $placeHolder     - Placeholder input to show in input box
+     * @param: $requiredString  - String to show just after input box
+     * @param: $collapsible     - Collapsible java script class - defaults to NULL
+     * @param: $newRow          - Defaults to true
      */
-    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = '', $collapsible = NULL, $colspan = 1) {
+    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = '', $collapsible = NULL, $colspan = 1, $newRow = true) {
         $requiredString = empty($requiredString) ? '&nbsp' : $requiredString;
         $valueString = empty($value) ? '' : ", value='$value'";
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
+        if ($newRow) {
+            print "
+                <tr $collapsibleClass>";
+        }
+
+        if (!empty($request)) {
+            print "
+                    <td align='left' nowrap><font color='" . View_Base::AQUA . "'><b>$request</b></font></td>";
+        }
+
         print "
-                <tr $collapsibleClass>
-                    <td align='left' nowrap><font color='" . View_Base::AQUA . "'><b>$request</b></font></td>
                     <td align='left' colspan='$colspan'>
                         <input style='width: 135px' type='$type' name='$name' placeholder='$placeHolder'$valueString>
                     </td>
                     <td>
                         <span class='error'>$requiredString</span>
-                    </td>
+                    </td>";
+
+        if ($newRow) {
+            print "
                 </tr>";
+        }
     }
 
     /**
      * @brief: Display a selector drop down.
      *
-     * @param: $selectorTitle - Describes the data being selected
-     * @param: $selectorName - Name for selector (used when processing POST)
-     * @param: $defaultSelection - Default selection to show
-     * @param: $selectorData - Array of data identifier=>string where the identifier is the value selected
-     * @param: $currentSelection - Current selection (if any) defaults to empty string
-     * @param: $collapsible -  - Collapsible java script class - defaults to NULL
+     * @param: $selectorTitle       - Describes the data being selected
+     * @param: $selectorName        - Name for selector (used when processing POST)
+     * @param: $defaultSelection    - Default selection to show
+     * @param: $selectorData        - Array of data identifier=>string where the identifier is the value selected
+     * @param: $currentSelection    - Current selection (if any) defaults to empty string
+     * @param: $collapsible         - Collapsible java script class - defaults to NULL
+     * @param: $newRow              - defaults to true
+     * @param: $width               - defaults to 140 (px)
      */
-    public function displaySelector($selectorTitle, $selectorName, $defaultSelection, $selectorData, $currentSelection = '', $collapsible = NULL) {
+    public function displaySelector($selectorTitle, $selectorName, $defaultSelection, $selectorData, $currentSelection = '', $collapsible = NULL, $newRow = true, $width = 140)
+    {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
-        print "
-            <tr $collapsibleClass>
-                <td align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
-                <td align='left'>";
 
+        if ($newRow) {
+            print "
+            <tr $collapsibleClass>";
+        }
+
+        $width = $width . "px";
         print "
-                    <select style='width: 140px' name='$selectorName' required>
+                <td align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
+                <td align='left'>
+                    <select style='width: $width' name='$selectorName' required>";
+
+        if (!empty($defaultSelection)) {
+            print "
                         <option value=''>$defaultSelection</option>";
+        }
 
         foreach ($selectorData as $identifier=>$data) {
             $selected = $currentSelection == $data ? ' selected ' : '';
@@ -169,59 +220,76 @@ abstract class View_Base {
         }
 
         print "
-                    </select>";
+                    </select>
+                </td>";
 
-        print "
-                </td>
+        if ($newRow) {
+            print "
             </tr>";
+        }
     }
 
     /**
      * @brief: Display a multi-selector drop down.
      *
-     * @param: $selectorTitle - Describes the data being selected
-     * @param: $selectorName - Name for selector (used when processing POST)
-     * @param: $defaultSelections - Array of default selections to pre-select
-     * @param: $selectorData - Array of data identifier=>string where the identifier is the value selected
-     * @param: $size - Size of the selector
-     * @param: $collapsible -  - Collapsible java script class - defaults to NULL
-     * @param: $colspan - Number of columns to span
+     * @param: $selectorTitle       - Describes the data being selected
+     * @param: $selectorName        - Name for selector (used when processing POST)
+     * @param: $defaultSelections   - Array of default selections to pre-select
+     * @param: $selectorData        - Array of data identifier=>string where the identifier is the value selected
+     * @param: $size                - Size of the selector
+     * @param: $collapsible         - Collapsible java script class - defaults to NULL
+     * @param: $colspan             - Number of columns to span
+     * @param: $newRow              - defaults to true
      */
-    public function displayMultiSelector($selectorTitle, $selectorName, $defaultSelections, $selectorData, $size, $collapsible = NULL, $colspan = 1) {
+    public function displayMultiSelector($selectorTitle, $selectorName, $defaultSelections, $selectorData, $size, $collapsible = NULL, $colspan = 1, $newRow = true) {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         $dropDownHTML = '';
         foreach ($selectorData as $identifier => $data) {
             $selected = in_array($identifier, $defaultSelections) ? ' selected ' : '';
-            $dropDownHTML .= "<option value='$identifier'$selected>$data</option>";
+            $dropDownHTML .= "<option style='font-size: 8px' value='$identifier'$selected>$data</option>";
+        }
+
+        if ($newRow) {
+            print "
+            <tr $collapsibleClass>";
         }
 
         print "
-            <tr $collapsibleClass>
                 <td align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
                 <td align='left' colspan='$colspan'>
                     <select size=$size name='" . $selectorName . "[]' multiple='multiple'>$dropDownHTML</select>
-                </td>
+                </td>";
+
+        if ($newRow) {
+            print "
             </tr>";
+        }
     }
 
     /**
      * @brief: Display a radio button selector
      *
-     * @param: $selectorTitle - Describes the data being selected
-     * @param: $selectorName - Name for selector (used when processing POST)
-     * @param: $selectorData - Array of data identifier=>string where the identifier is the value selected
-     * @param: $currentSelection - Current selection (if any) defaults to empty string
-     * @param: $collapsible -  - Collapsible java script class - defaults to NULL
-     * @param: $colspan - Number of columns to span
+     * @param: $selectorTitle       - Describes the data being selected
+     * @param: $selectorName        - Name for selector (used when processing POST)
+     * @param: $selectorData        - Array of data identifier=>string where the identifier is the value selected
+     * @param: $currentSelection    - Current selection (if any) defaults to empty string
+     * @param: $collapsible         - Collapsible java script class - defaults to NULL
+     * @param: $colspan             - Number of columns to span
+     * @param: $newRow              - defaults to true
      */
-    public function displayRadioSelector($selectorTitle, $selectorName, $selectorData, $currentSelection = '', $collapsible = NULL, $colspan = 1) {
+    public function displayRadioSelector($selectorTitle, $selectorName, $selectorData, $currentSelection = '', $collapsible = NULL, $colspan = 1, $newRow = true) {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
+        if ($newRow) {
+            print "
+            <tr $collapsibleClass>";
+
+        }
+
         print "
-            <tr $collapsibleClass>
                 <td nowrap align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
-                <td align='left' colspan='$colspan'>";
+                <td nowrap align='left' colspan='$colspan'>";
 
         foreach ($selectorData as $identifier=>$data) {
             $checked = $currentSelection == $data ? ' checked ' : '';
@@ -230,8 +298,12 @@ abstract class View_Base {
         }
 
         print "
-                </td>
+                </td>";
+
+        if ($newRow) {
+            print "
             </tr>";
+        }
     }
 
     /**
@@ -526,16 +598,41 @@ abstract class View_Base {
     }
 
     /**
+     * @brief Print checkbox
+     *
+     * @param $checkboxName - Name of the checkbox
+     * @param $description  - Description of the checkbox
+     * @param $isChecked    - True if box should be checked
+     */
+    public function printCheckboxSelector($checkboxName, $description, $isChecked)
+    {
+        $checked = $isChecked ? 'checked' : '';
+
+        print "
+        <tr>
+            <td>
+                <input type='checkbox' name='$checkboxName' value='checked' $checked> $description
+            </td>
+        </tr>";
+    }
+
+
+    /**
      * @brief Print the error seen with the last transaction (no op if no error)
      */
     protected function printError() {
         if (isset($this->m_controller->m_errorString) and !empty($this->m_controller->m_errorString)) {
-            $errorString = $this->m_controller->m_errorString;
+            $errorStringElements = explode("\n", $this->m_controller->m_errorString);
+            $element = array_shift($errorStringElements);
+            $errorString = "<font color='red' size='3'>$element</font>";
+            foreach ($errorStringElements as $element) {
+                $errorString .= "<br><font color='red' size='1'>$element</font>";
+            }
 
             print "
             <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td><h1 align='left'><font color='red' size='4'>$errorString</font></h1></td>
+                    <td><h1 align='left'><font color='red' size='3'>$errorString</font></h1></td>
                 </tr>
             </table>";
         }

@@ -21,6 +21,8 @@ use DAG\Framework\Exception\Precondition;
  */
 class Season extends Domain
 {
+    public static $phoneNumbersToSkip = ['000-000-0000', '555-555-5555', '805-111-1111', ''];
+
     /** @var SeasonOrm */
     private $seasonOrm;
 
@@ -59,6 +61,8 @@ class Season extends Domain
         $daysOfWeek = "0000011",
         $enabled = 1)
     {
+        Precondition::isTrue($startDate < $endDate, "StartDate ($startDate) must be less than EndDate ($endDate)");
+
         $seasonOrm = SeasonOrm::create($league->id, $name, $startDate, $endDate, $startTime, $endTime, $daysOfWeek, $enabled);
         return new static($seasonOrm, $league);
     }
@@ -137,9 +141,23 @@ class Season extends Domain
     {
         try {
             switch ($propertyName) {
-                case "name":
                 case "startDate":
+                    Precondition::isTrue($value < $this->endDate, "StartDate ($value) must be less than EndDate ($this->endDate)");
+                    if ($this->seasonOrm->{$propertyName} != $value) {
+                        $this->seasonOrm->{$propertyName} = $value;
+                        $this->seasonOrm->save();
+                    }
+                    break;
+
                 case "endDate":
+                    Precondition::isTrue($this->startDate < $value, "StartDate ($this->startDate) must be less than EndDate ($value)");
+                    if ($this->seasonOrm->{$propertyName} != $value) {
+                        $this->seasonOrm->{$propertyName} = $value;
+                        $this->seasonOrm->save();
+                    }
+                    break;
+
+                case "name":
                 case "startTime":
                 case "endTime":
                 case "daysOfWeek":
@@ -182,46 +200,168 @@ class Season extends Domain
      *
      * @param bool  $ignoreHeaderRow - defaults to true
      */
-    public function populateDivisions($data, $ignoreHeaderRow = true)
+    public function populateDivisions($data, $ignoreHeaderRow = true )
     {
-        $lines = explode("\n", $data);
-        $processedLines = 0;
+        try {
+            $lines = explode("\n", $data);
+            $processedLines = 0;
 
-        foreach ($lines as $line) {
-            $processedLines += 1;
+            foreach ($lines as $line) {
+                $processedLines += 1;
 
-            // Skip first line if requested
-            if ($processedLines == 1 and $ignoreHeaderRow) {
-                continue;
+                // Skip first line if requested
+                if ($processedLines == 1 and $ignoreHeaderRow) {
+                    continue;
+                }
+
+                // Skip empty lines
+                if (empty(trim($line))) {
+                    continue;
+                }
+
+                $fields = explode(',', $line);
+                Assertion::isTrue(count($fields) >= 10, "Invalid line: $line");
+
+                $teamNameAttributes = explode('-', $fields[1]);
+                if (count($teamNameAttributes) == 3) {
+                    $teamNameAttributes = explode('--', $fields[1]);
+                }
+                Assertion::isTrue(count($teamNameAttributes) == 2, "Invalid team name: $fields[1]");
+
+                $teamName               = sprintf('%s-%02d', $teamNameAttributes[0], $teamNameAttributes[1]);
+                $gender                 = (strstr($teamName, 'B') == false) ? "Girls" : "Boys";
+                $divisionName           = str_replace('B', '', str_replace('G', '', $teamNameAttributes[0]));
+                $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
+                $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
+
+                $name           = $fields[5];
+                $email          = $fields[8];
+                $phone1         = in_array($fields[6], self::$phoneNumbersToSkip) ? '' : $fields[6];
+                $phone2         = in_array($fields[7], self::$phoneNumbersToSkip) ? '' : $fields[7];
+
+                // Do not store the same phone number a second time for a  coach
+                $phone2 = ($phone1 == $phone2) ? '' : $phone2;
+
+                // Skip teams where team number is 0
+                if ($teamNameAttributes[1] == 0) {
+                    continue;
+                }
+
+                // Skip teams where there is no coach
+                if (empty($name)) {
+                    continue;
+                }
+
+                // Create division, team and coach or assistant coach
+                $division       = Division::create($this, $divisionName, $gender, $gameDurationMinutes, $displayOrder, true);
+                $team           = Team::create($division, null, $teamName, true);
+
+                switch (strtolower($fields[2])) {
+                    case 'coach':
+                        Coach::create($team, null, $name, $email, $phone1, $phone2, true);
+                        break;
+                    default:
+                        AssistantCoach::create($team, null, $name, $email, $phone1, $phone2, true);
+                        break;
+                }
             }
+        } catch (\Exception $e) {
+            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
+        }
+    }
 
-            // Skip empty lines
-            if (empty(trim($line))) {
-                continue;
-            }
+    /**
+     * @param $divisionName
+     * @return int Order Division should be displayed
+     */
+    private function getDivisionDisplayOrder($divisionName)
+    {
+        switch ($divisionName) {
+            case 'U5':
+                return 10;
 
-            $fields = explode(',', $line);
-            Assertion::isTrue(count($fields) >= 10, "Invalid line: $line");
+            case 'U6':
+                return 20;
 
-            $teamNameAttributes = explode('-', $fields[1]);
-            if (count($teamNameAttributes) == 3) {
-                $teamNameAttributes = explode('--', $fields[1]);
-            }
-            Assertion::isTrue(count($teamNameAttributes) == 2, "Invalid team name: $fields[1]");
-            $teamName = sprintf('%s-%02d', $teamNameAttributes[0], $teamNameAttributes[1]);
+            case 'U7':
+                return 30;
 
-            $divisionName   = $teamNameAttributes[0];
-            $division       = Division::create($this, $divisionName, true);
-            $team           = Team::create($division, null, $teamName, true);
+            case 'U8':
+                return 40;
 
-            switch (strtolower($fields[2])) {
-                case 'coach':
-                    Coach::create($team, null, $fields[5], $fields[8], $fields[6], $fields[7], true);
-                    break;
-                default:
-                    AssistantCoach::create($team, null, $fields[5], $fields[8], $fields[6], $fields[7], true);
-                    break;
-            }
+            case 'U9':
+                return 50;
+
+            case 'U10':
+                return 60;
+
+            case 'U11':
+                return 70;
+
+            case 'U12':
+                return 80;
+
+            case 'U13':
+                return 90;
+
+            case 'U14':
+                return 100;
+
+            case 'U15':
+                return 110;
+
+            case 'U16':
+                return 120;
+
+            case 'U17':
+                return 130;
+
+            case 'U18':
+                return 140;
+
+            case 'U19':
+                return 150;
+
+            case 'U16/19':
+                return 160;
+
+            default:
+                return 200;
+        }
+    }
+
+    /**
+     * Return the duration of the game, including half time and time needed after the game before the next game starts.
+     *
+     * @param string $divisionName
+     *
+     * @return int
+     */
+    private function getGameDurationMinutes($divisionName)
+    {
+        switch ($divisionName) {
+            case 'U5':
+            case 'U6':
+            case 'U7':
+            case 'U8':
+                return 60;
+
+            case 'U9':
+            case 'U10':
+                return 75;
+
+            case 'U11':
+            case 'U12':
+            case 'U13':
+            case 'U14':
+            case 'U15':
+            case 'U16':
+            case 'U17':
+            case 'U18':
+            case 'U19':
+            case 'U16/19':
+            default:
+                return 90;
         }
     }
 
@@ -248,24 +388,184 @@ class Season extends Domain
      */
     public function populatePlayers($data, $ignoreHeaderRow = true)
     {
-        $lines = explode("\n", $data);
-        $processedLines = 0;
+        try {
+            $lines = explode("\n", $data);
+            $processedLines = 0;
 
-        foreach ($lines as $line) {
-            $processedLines += 1;
-            if ($processedLines == 1 and $ignoreHeaderRow) {
-                continue;
+            foreach ($lines as $line) {
+                $processedLines += 1;
+                if ($processedLines == 1 and $ignoreHeaderRow) {
+                    continue;
+                }
+
+                $fields = explode(',', $line);
+                Assertion::isTrue(count($fields) == 10, "Invalid line: $line");
+
+                // Skip if team name is empty - registration that is is progress
+                if (empty($fields[1])) {
+                    continue;
+                }
+
+                // Skip if team number is 0 - no coach yet so team is not formed
+                if (empty($fields[2]) or $fields[2] == 0) {
+                    continue;
+                }
+
+                $divisionName           = str_replace('B', '', str_replace('G', '', $fields[1]));
+                $teamName               = sprintf('%s-%02d', $fields[1], $fields[2]);
+                $gender                 = (strstr($teamName, 'B') == false) ? "Girls" : "Boys";
+                $playerName             = ucfirst(str_replace(';', ',', $fields[5]));
+                $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
+                $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
+
+                $division       = Division::create($this, $divisionName, $gender, $gameDurationMinutes, $displayOrder, true);
+                $team           = Team::create($division, null, $teamName, true);
+                $player         = Player::create($team, null, $playerName, '', $fields[6], true);
             }
-
-            $fields = explode(',', $line);
-            Assertion::isTrue(count($fields) == 10, "Invalid line: $line");
-
-            $divisionName   = $fields[1];
-            $teamName       = sprintf('%s-%02d', $fields[1], $fields[2]);
-            $division       = Division::create($this, $divisionName, true);
-            $team           = Team::create($division, null, $teamName, true);
-            $player         = Player::create($team, null, $fields[5], '', $fields[6]);
+        } catch (\Exception $e) {
+            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
         }
+    }
+
+    /**
+     * Populate Facilities
+     *
+     * @param string $data - Expected format:
+     *      FacilityName,Address1,Address2,City,State,ZipCode,ContactName,ContactEmail,ContactPhone,Enabled<br>
+     *
+     *      Multi line data where fields are comma separated
+     *
+     *      where:
+     *          FacilityName    - name of the facility
+     *          Address1        - Address of the facility
+     *          Address2        - Additional address info if any
+     *          City            - City of the facility
+     *          State           - State of the facility
+     *          ZipCode         - Zip code for the facility
+     *          ContactName     - Person to contact to reserve facility
+     *          ContactEmail    - Email address of contact person
+     *          ContactPhone    - Phone number of contact person
+     *          Enabled         - 1 if enabled; 0 if disabled
+     *
+     * @param bool  $ignoreHeaderRow - defaults to true
+     */
+    public function populateFacilities($data, $ignoreHeaderRow = true)
+    {
+        try {
+            $lines = explode("\n", $data);
+            $processedLines = 0;
+
+            foreach ($lines as $line) {
+                $processedLines += 1;
+                if ($processedLines == 1 and $ignoreHeaderRow) {
+                    continue;
+                }
+
+                $fields = explode(',', $line);
+                Assertion::isTrue(count($fields) == 10, "Invalid line: $line");
+
+                $facilityName = $fields[0];
+                $address1       = $fields[1];
+                $address2       = $fields[2];
+                $city           = $fields[3];
+                $state          = $fields[4];
+                $zipCode        = $fields[5];
+                $contactName    = $fields[6];
+                $contactEmail   = $fields[7];
+                $contactPhone   = $fields[8];
+                $enabled        = $fields[9];
+
+                Facility::create($this, $facilityName,$address1, $address2, $city, $state, $zipCode, 'USA', $contactName, $contactEmail, $contactPhone, '', $enabled, true);
+            }
+        } catch (\Exception $e) {
+            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
+        }
+    }
+
+    /**
+     * Populate Fields and DivisionFields
+     *
+     * @param string $data - Expected format:
+     *      FacilityName,FieldName,Enabled,DivisionList
+     *
+     *      Multi line data where fields are comma separated
+     *
+     *      where:
+     *          FacilityName    - Name of the facility
+     *          FieldName       - Name of the field
+     *          Enabled         - 1 if enabled; 0 if disabled
+     *          DivisionList    - List of divisions that can use the facility, ; between division names
+     *
+     * @param bool  $ignoreHeaderRow - defaults to true
+     */
+    public function populateFields($data, $ignoreHeaderRow = true)
+    {
+        try {
+            $lines = explode("\n", $data);
+            $processedLines = 0;
+
+            foreach ($lines as $line) {
+                // Skip header line
+                $processedLines += 1;
+                if ($processedLines == 1 and $ignoreHeaderRow) {
+                    continue;
+                }
+
+                // Skip blank lines
+                if ($line == '') {
+                    continue;
+                }
+
+                $fields = explode(',', $line);
+                Assertion::isTrue(count($fields) == 4, "Invalid line: $line");
+
+                $facilityName   = $fields[0];
+                $fieldName      = $fields[1];
+                $enabled        = $fields[2];
+                $divisionNames  = explode(";", $fields[3]);
+
+                // Create Field
+                $facility   = Facility::lookupByName($this, $facilityName);
+                $field      = Field::create($facility, $fieldName, $enabled, true);
+
+                // Create DivisionFields
+                foreach ($divisionNames as $divisionName) {
+                    $divisions = Division::lookupByName($this, $divisionName);
+                    foreach ($divisions as $division) {
+                        DivisionField::create($division, $field, true);
+                    }
+                }
+
+                // Create GameTimes
+                $this->createGameTimes($field, false);
+            }
+        } catch (\Exception $e) {
+            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
+        }
+    }
+
+    /**
+     * Create GameTimes for Field.  Delete existing GameTimes if requested.
+     *
+     * @param Field $field
+     * @param bool  $deleteExistingGameTimes
+     */
+    public function createGameTimes($field, $deleteExistingGameTimes)
+    {
+        // Delete game times for field.  Exception thrown if a gameTime has an assigned field
+        if ($deleteExistingGameTimes) {
+            $field->deleteGameTimes();
+        }
+
+        // Get the gameDates, startTime and endTime from Season
+        // TODO: Schedule should have these attributes and they should default from Season
+        $gameDates = GameDate::lookupBySeason($this);
+        $startTime = $this->startTime;
+        $endTime   = $this->endTime;
+
+        // Create games times for the field across all of the game dates
+        $ignoreDuplicates = !$deleteExistingGameTimes;
+        GameTime::createByGameDates($gameDates, $field, $startTime, $endTime, $ignoreDuplicates);
     }
 
     /**

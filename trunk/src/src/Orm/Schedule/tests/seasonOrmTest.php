@@ -46,6 +46,24 @@ class SeasonOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($seasonOrm, self::$expectedDefaults);
     }
 
+    public function test_createFail()
+    {
+        try {
+            SeasonOrm::create(
+                $this->defaultLeagueOrm->id,
+                self::$expectedDefaults[self::NAME],
+                '2016-11-01',
+                '2016-10-31',
+                self::$expectedDefaults[self::START_TIME],
+                self::$expectedDefaults[self::END_TIME],
+                self::$expectedDefaults[self::DAYS_OF_WEEK],
+                self::$expectedDefaults[self::ENABLED]);
+            $this->assertTrue(false);
+        } catch (\PreconditionException $e) {
+            $this->assertTrue(true);
+        }
+    }
+
     public function test_loadById()
     {
         $seasonOrm = SeasonOrm::loadById($this->defaultSeasonOrm->id);

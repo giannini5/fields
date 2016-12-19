@@ -2,6 +2,8 @@
 
 namespace DAG\Orm\Schedule;
 
+use DAG\Framework\Orm\DuplicateEntryException;
+
 require_once 'helper.php';
 
 
@@ -15,7 +17,8 @@ class FamilyOrmTest extends ORM_TestHelper
      */
     protected static $expectedDefaults =
         [
-            self::PHONE => '14156890644',
+            self::PHONE1 => '14156890644',
+            self::PHONE2 => '',
         ];
 
     protected function setUp()
@@ -32,9 +35,42 @@ class FamilyOrmTest extends ORM_TestHelper
     {
         $familyOrm = FamilyOrm::create(
             $this->defaultSeasonOrm->id,
-            self::$expectedDefaults[self::PHONE]);
+            self::$expectedDefaults[self::PHONE1]);
 
         $this->verifyExpectedAttributes($familyOrm, self::$expectedDefaults);
+    }
+
+    public function test_createWithTwoPhones()
+    {
+        self::$expectedDefaults[self::PHONE2] = '18058989551';
+
+        $familyOrm = FamilyOrm::create(
+            $this->defaultSeasonOrm->id,
+            self::$expectedDefaults[self::PHONE1],
+            self::$expectedDefaults[self::PHONE2]);
+
+        $this->verifyExpectedAttributes($familyOrm, self::$expectedDefaults);
+    }
+
+    public function test_createWithDuplicate()
+    {
+        self::$expectedDefaults[self::PHONE2] = '18058989551';
+
+        FamilyOrm::create(
+            $this->defaultSeasonOrm->id,
+            self::$expectedDefaults[self::PHONE1],
+            self::$expectedDefaults[self::PHONE2]);
+
+        try {
+            FamilyOrm::create(
+                $this->defaultSeasonOrm->id,
+                self::$expectedDefaults[self::PHONE1],
+                self::$expectedDefaults[self::PHONE2]);
+
+            $this->assertTrue(false, 'Expected DuplicateEntryException');
+        } catch(DuplicateEntryException $e) {
+            // Good
+        }
     }
 
     public function test_loadById()
@@ -45,7 +81,7 @@ class FamilyOrmTest extends ORM_TestHelper
 
     public function test_loadByPhone()
     {
-        $familyOrm = FamilyOrm::loadBySeasonIdAndPhone($this->defaultSeasonOrm->id, self::$defaultFamilyOrmAttributes[self::PHONE]);
+        $familyOrm = FamilyOrm::loadBySeasonIdAndPhone($this->defaultSeasonOrm->id, self::$defaultFamilyOrmAttributes[self::PHONE1]);
         $this->verifyExpectedAttributes($familyOrm, self::$defaultFamilyOrmAttributes);
     }
 
@@ -53,6 +89,7 @@ class FamilyOrmTest extends ORM_TestHelper
     {
         $this->assertTrue($familyOrm->id > 0);
         $this->assertEquals($this->defaultSeasonOrm->id,    $familyOrm->seasonId);
-        $this->assertEquals($attributes[self::PHONE],       $familyOrm->phone);
+        $this->assertEquals($attributes[self::PHONE1],      $familyOrm->phone1);
+        $this->assertEquals($attributes[self::PHONE2],      $familyOrm->phone2);
     }
 }

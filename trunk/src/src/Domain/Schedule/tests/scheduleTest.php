@@ -16,22 +16,25 @@ class ScheduleTest extends ORM_TestHelper
     /**
      * Expected values on create and load
      */
-    protected static $expectedDefaults = array(
-        'name'          => 'TEST Domain schedule name',
-    );
-
+    protected $expectedDefaults;
     protected $schedulesToCleanup = array();
-    protected $pool;
+    protected $division;
 
     protected function setUp()
     {
         $this->primeDatabase();
 
-        $this->pool = Pool::lookupById($this->defaultPoolOrm->id);
+        $this->division = Division::lookupById($this->defaultDivisionOrm->id);
+
+        $this->expectedDefaults = array(
+            'name'          => 'TEST Domain schedule name',
+            'gamesPerTeam'  => 6,
+        );
 
         $this->schedulesToCleanup[] = Schedule::create(
-            $this->pool,
-            self::$expectedDefaults['name']);
+            $this->division,
+            $this->expectedDefaults['name'],
+            $this->expectedDefaults['gamesPerTeam']);
     }
 
     protected function tearDown()
@@ -46,25 +49,43 @@ class ScheduleTest extends ORM_TestHelper
     public function test_create()
     {
         $schedule = $this->schedulesToCleanup[0];
-        $this->validateSchedule($schedule, $this->pool, self::$expectedDefaults);
+        $this->validateSchedule($schedule, $this->division, $this->expectedDefaults);
     }
 
     public function test_lookupById()
     {
         $schedule = Schedule::lookupById($this->schedulesToCleanup[0]->id);
-        $this->validateSchedule($schedule, $this->pool, self::$expectedDefaults);
+        $this->validateSchedule($schedule, $this->division, $this->expectedDefaults);
     }
 
     public function test_lookupByName()
     {
-        $schedule = Schedule::lookupByName($this->pool, self::$expectedDefaults['name']);
-        $this->validateSchedule($schedule, $this->pool, self::$expectedDefaults);
+        $schedule = Schedule::lookupByName($this->division, $this->expectedDefaults['name']);
+        $this->validateSchedule($schedule, $this->division, $this->expectedDefaults);
     }
 
-    public function validateSchedule($schedule, $pool, $expectedDefaults)
+    public function test_lookupByDivision()
+    {
+        $schedules = Schedule::lookupByDivision($this->division, $this->expectedDefaults['name']);
+        $this->assertEquals(2, count($schedules));
+    }
+
+    public function test_set()
+    {
+        $schedule = Schedule::lookupById($this->schedulesToCleanup[0]->id);
+        $schedule->name         = 'Hello Dave';
+        $schedule->gamesPerTeam = 7;
+        $schedule = Schedule::lookupById($this->schedulesToCleanup[0]->id);
+
+        $this->expectedDefaults['name']         = 'Hello Dave';
+        $this->expectedDefaults['gamesPerTeam'] = 7;
+        $this->validateSchedule($schedule, $this->division, $this->expectedDefaults);
+    }
+
+    public function validateSchedule($schedule, $division, $expectedDefaults)
     {
         $this->assertTrue($schedule->id > 0);
-        $this->assertEquals($expectedDefaults['name'],          $schedule->name);
-        $this->assertEquals($pool,                              $schedule->pool);
+        $this->assertEquals($expectedDefaults['name'],  $schedule->name);
+        $this->assertEquals($division,                  $schedule->division);
     }
 }

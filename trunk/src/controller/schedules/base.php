@@ -1,5 +1,8 @@
 <?php
 
+use \DAG\Orm\Schedule\ScheduleCoordinatorOrm;
+use \DAG\Framework\Orm\NoResultsException;
+
 /**
  * Class Controller_Schedules_Base
  *
@@ -67,9 +70,15 @@ abstract class Controller_Schedules_Base extends Controller_Base
      * @param $sessionId
      */
     private function _constructFromSessionId($sessionId) {
-        $this->m_session = Model_Fields_Session::LookupById($sessionId, FALSE);
-        if (isset($this->m_session) and $this->m_session->userType == Model_Fields_Session::SCHEDULE_COORDINATOR_USER_TYPE) {
-            $this->m_coordinator = \DAG\Orm\Schedule\ScheduleCoordinatorOrm::loadById($this->m_session->userId);
+        try {
+            $this->m_session = Model_Fields_Session::LookupById($sessionId, FALSE);
+            if (isset($this->m_session) and $this->m_session->userType == Model_Fields_Session::SCHEDULE_COORDINATOR_USER_TYPE) {
+                $this->m_coordinator = \DAG\Orm\Schedule\ScheduleCoordinatorOrm::loadById($this->m_session->userId);
+            }
+        } catch (NoResultsException $e) {
+            // I guess someone messed with the database.  Force login.
+            // TODO: delete the cookie
+            $this->m_session = null;
         }
     }
 
@@ -77,8 +86,14 @@ abstract class Controller_Schedules_Base extends Controller_Base
      * @brief Initialize member variables from session
      */
     private function _init() {
-        if ($this->m_session != NULL) {
-            $this->m_coordinator = \DAG\Orm\Schedule\ScheduleCoordinatorOrm::loadById($this->m_session->userId);
+        try {
+            if ($this->m_session != NULL) {
+                $this->m_coordinator = ScheduleCoordinatorOrm::loadById($this->m_session->userId);
+            }
+        } catch (NoResultsException $e) {
+            // I guess the database got reset
+            // TODO: remove the cookie
+            $this->m_session = NULL;
         }
     }
 

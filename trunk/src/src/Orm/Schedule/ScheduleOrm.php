@@ -9,19 +9,22 @@ use DAG\Framework\Orm\DuplicateEntryException;
 
 /**
  * @property int    $id
- * @property int    $poolId
+ * @property int    $divisionId
  * @property string $name
+ * @property int    $gamesPerTeam
  */
 class ScheduleOrm extends PersistenceModel
 {
-    const FIELD_ID      = 'id';
-    const FIELD_POOL_ID = 'poolId';
-    const FIELD_NAME    = 'name';
+    const FIELD_ID              = 'id';
+    const FIELD_DIVISION_ID     = 'divisionId';
+    const FIELD_NAME            = 'name';
+    const FIELD_GAMES_PER_TEAM  = 'gamesPerTeam';
 
     protected static $fields = [
-        self::FIELD_ID      => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_POOL_ID => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_NAME    => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_ID              => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_DIVISION_ID     => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_NAME            => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_GAMES_PER_TEAM  => [FV::INT,    [FV::POSITIVE]],
     ];
 
     protected static $config = [
@@ -35,20 +38,23 @@ class ScheduleOrm extends PersistenceModel
     /**
      * Create a ScheduleOrm
      *
-     * @param int       $poolId
+     * @param int       $divisionId
      * @param string    $name
+     * @param int       $gamesPerTeam
      *
      * @return ScheduleOrm
      * @throws DuplicateEntryException
      */
     public static function create(
-        $poolId,
-        $name)
+        $divisionId,
+        $name,
+        $gamesPerTeam)
     {
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_POOL_ID => $poolId,
-                self::FIELD_NAME    => $name,
+                self::FIELD_DIVISION_ID     => $divisionId,
+                self::FIELD_NAME            => $name,
+                self::FIELD_GAMES_PER_TEAM  => $gamesPerTeam,
             ],
             function ($item) {
                 return $item !== null;
@@ -73,36 +79,36 @@ class ScheduleOrm extends PersistenceModel
     }
 
     /**
-     * Load a ScheduleOrm by poolId, name
+     * Load a ScheduleOrm by divisionId, name
      *
-     * @param int       $poolId
+     * @param int       $divisionId
      * @param string    $name
      *
      * @return ScheduleOrm
      */
-    public static function loadByPoolIdAndName($poolId, $name)
+    public static function loadByDivisionIdAndName($divisionId, $name)
     {
         $result = self::getPersistenceDriver()->getOne(
             [
-                self::FIELD_POOL_ID => $poolId,
-                self::FIELD_NAME    => $name,
+                self::FIELD_DIVISION_ID => $divisionId,
+                self::FIELD_NAME        => $name,
             ]);
 
         return new static($result);
     }
 
     /**
-     * Load a ScheduleOrms by poolId
+     * Load a ScheduleOrms by divisionId
      *
-     * @param int $poolId
+     * @param int $divisionId
      *
-     * @return array []   ScheduleOrms
+     * @return ScheduleOrm[]
      */
-    public static function loadByPoolId($poolId)
+    public static function loadByDivisionId($divisionId)
     {
         $results = self::getPersistenceDriver()->getMany(
             [
-                self::FIELD_POOL_ID  => $poolId
+                self::FIELD_DIVISION_ID => $divisionId
             ]);
 
         $scheduleOrms = [];

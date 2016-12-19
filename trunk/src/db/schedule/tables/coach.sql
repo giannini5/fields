@@ -7,5 +7,6 @@ create table coach (
     phone1       varchar(128) not NULL,
     phone2       varchar(128) not NULL,
     PRIMARY KEY (id),
-    unique index ux_teamName(teamId)
+    unique index ux_teamName(teamId),
+    index ix_familyId(familyId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

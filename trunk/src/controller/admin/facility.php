@@ -21,7 +21,7 @@ class Controller_Admin_Facility extends Controller_Admin_Base {
     public $m_preApproved;
     public $m_enabled = NULL;
     public $m_facilityId = NULL;
-    public $m_selectedLocations = array();
+    public $m_selectedLocations = [];
 
     public function __construct() {
         parent::__construct();

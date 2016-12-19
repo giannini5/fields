@@ -3,6 +3,7 @@
 namespace DAG\Orm\Schedule;
 
 use DAG\Framework\Orm\FieldValidator as FV;
+use DAG\Framework\Orm\NoResultsException;
 use DAG\Framework\Orm\PersistenceConfig as PC;
 use DAG\Framework\Orm\PersistenceModel;
 use DAG\Framework\Orm\DuplicateEntryException;
@@ -130,6 +131,54 @@ class CoachOrm extends PersistenceModel
         $coachOrms = [];
         foreach ($results as $result) {
             $coachOrms[] = new static($result);
+        }
+
+        return $coachOrms;
+    }
+
+    /**
+     * Find a CoachOrm by teamId
+     *
+     * @param int       $teamId
+     * @param CoachOrm  $coachOrm output parameter
+     *
+     * @return bool
+     */
+    public static function findByTeamId($teamId, &$coachOrm)
+    {
+        try {
+            $result = self::getPersistenceDriver()->getOne(
+                [
+                    self::FIELD_TEAM_ID => $teamId,
+                ]);
+
+            $coachOrm = new static($result);
+            return true;
+        } catch (NoResultsException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Load all coaches for the specified season
+     *
+     * @param int $seasonId
+     *
+     * @return array
+     */
+    public static function loadBySeasonId($seasonId)
+    {
+        $coachOrms = [];
+
+        $divisionOrms = DivisionOrm::loadBySeasonId($seasonId);
+        foreach ($divisionOrms as $divisionOrm) {
+            $teamOrms = TeamOrm::loadByDivisionId($divisionOrm->id);
+
+            foreach ($teamOrms as $team) {
+                if (self::findByTeamId($team->id, $coachOrm)) {
+                    $coachOrms[] = $coachOrm;
+                }
+            }
         }
 
         return $coachOrms;

@@ -96,15 +96,18 @@ class Database
      *
      * @param string     $tableName target table name
      * @param array|null $criteria  optional key/value array indicating which rows to get
+     * @param string     $queryEndFragment     optional query fragment to put at end of query (ie. for LIMIT)
      *
      * @return array[] rows; each row is a key/value array
      */
-    public function get($tableName, $criteria = null)
+    public function get($tableName, $criteria = null, $queryEndFragment = null)
     {
         Precondition::isNonEmptyString($tableName, 'tableName');
         $where = $this->buildWhere($criteria);
 
-        $sql    = "SELECT * FROM `$tableName`" . ($where ? " WHERE $where" : '');
+        $sql    = "SELECT * FROM `$tableName`" .
+            ($where ? " WHERE $where" : '') .
+            ($queryEndFragment ? ' ' . $queryEndFragment : '');;
         $result = $this->query($sql);
 
         return (is_null($result)) ? array() : $result;

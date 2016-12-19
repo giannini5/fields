@@ -3,5 +3,5 @@ create table gameDate (
     seasonId     bigint not NULL,
     day          date not NULL,
     PRIMARY KEY (id),
-    index ix_seasonDay(seasonId, day)
+    unique key ux_seasonDay(seasonId, day)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

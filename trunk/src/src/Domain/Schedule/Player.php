@@ -3,6 +3,7 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
+use DAG\Framework\Orm\DuplicateEntryException;
 use DAG\Orm\Schedule\PlayerOrm;
 use DAG\Framework\Exception\Precondition;
 
@@ -44,19 +45,33 @@ class Player extends Domain
      * @param string    $name
      * @param string    $email
      * @param string    $phone
+     * @param bool      $ignore defaults to false, if true then duplicate entry ignored and existing player returned
      *
      * @return Player
+     *
+     * @throws DuplicateEntryException
+     * @throws \Exception
      */
     public static function create(
         $team,
         $family,
         $name,
         $email,
-        $phone)
+        $phone,
+        $ignore = false)
     {
-        $familyId = isset($family) ? $family->id : null;
-        $playerOrm = PlayerOrm::create($team->id, $familyId, $name, $email, $phone);
-        return new static($playerOrm, $team, $family);
+        try {
+            $familyId = isset($family) ? $family->id : null;
+            $playerOrm = PlayerOrm::create($team->id, $familyId, $name, $email, $phone);
+            return new static($playerOrm, $team, $family);
+        } catch (DuplicateEntryException $e) {
+            if ($ignore) {
+                return static::lookupByName($team, $name);
+            } else {
+                throw $e;
+            }
+        }
+
     }
 
     /**
@@ -67,6 +82,18 @@ class Player extends Domain
     public static function lookupById($playerId)
     {
         $playerOrm = PlayerOrm::loadById($playerId);
+        return new static($playerOrm);
+    }
+
+    /**
+     * @param Team      $team
+     * @param string    $name
+     *
+     * @return Player
+     */
+    public static function lookupByName($team, $name)
+    {
+        $playerOrm = PlayerOrm::loadByName($team->id, $name);
         return new static($playerOrm);
     }
 

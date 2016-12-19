@@ -13,6 +13,9 @@ use DAG\Services\MySql\DuplicateKeyException;
  * @property int    $id
  * @property Season $season
  * @property string $name
+ * @property string $gender
+ * @property int    $gameDurationMinutes
+ * @property string $displayOrder
  */
 class Division extends Domain
 {
@@ -35,6 +38,9 @@ class Division extends Domain
     /**
      * @param Season    $season
      * @param string    $name
+     * @param string    $gender
+     * @param int       $gameDurationMinutes
+     * @param string    $displayOrder
      * @param bool      $ignore - defaults to false and duplicates raise an exception
      *
      * @return Division
@@ -45,14 +51,17 @@ class Division extends Domain
     public static function create(
         $season,
         $name,
+        $gender,
+        $gameDurationMinutes,
+        $displayOrder,
         $ignore = false)
     {
         try {
-            $divisionOrm = DivisionOrm::create($season->id, $name);
+            $divisionOrm = DivisionOrm::create($season->id, $name, $gender, $gameDurationMinutes, $displayOrder);
             return new static($divisionOrm, $season);
         } catch (DuplicateEntryException $e) {
             if ($ignore) {
-                return static::lookupByName($season, $name);
+                return static::lookupByNameAndGender($season, $name, $gender);
             } else {
                 throw $e;
             }
@@ -73,20 +82,43 @@ class Division extends Domain
     /**
      * @param Season $season
      * @param string $name
+     * @param string $gender
      *
      * @return Division
      */
-    public static function lookupByName($season, $name)
+    public static function lookupByNameAndGender($season, $name, $gender)
     {
         Precondition::isNonEmpty($name, 'name should not be empty');
-        $divisionOrm = DivisionOrm::loadBySeasonIdAndName($season->id, $name);
+        Precondition::isNonEmpty($gender, 'gender should not be empty');
+
+        $divisionOrm = DivisionOrm::loadBySeasonIdAndNameAndGender($season->id, $name, $gender);
         return new static($divisionOrm, $season);
     }
 
     /**
      * @param Season $season
+     * @param string $name
      *
-     * @return array Divisions
+     * @return Division[]
+     */
+    public static function lookupByName($season, $name)
+    {
+        Precondition::isNonEmpty($name, 'name should not be empty');
+
+        $divisions = [];
+
+        $divisionOrms = DivisionOrm::loadBySeasonIdAndName($season->id, $name);
+        foreach ($divisionOrms as $divisionOrm) {
+            $divisions[] = new static($divisionOrm, $season);
+        }
+
+        return $divisions;
+    }
+
+    /**
+     * @param Season $season
+     *
+     * @return array Divisions (sorted by gender, displayOrder)
      */
     public static function lookupBySeason($season)
     {
@@ -97,7 +129,23 @@ class Division extends Domain
             $divisions[] = new static($divisionOrm, $season);
         }
 
+        usort($divisions, "static::compare");
+
         return $divisions;
+    }
+
+    /**
+     * @param Division $a
+     * @param Division $b
+     * @return int - -1, 0, 1 based on how $a gender compares with $b
+     */
+    public static function compare($a, $b)
+    {
+        if ($a->gender != $b->gender) {
+            return strcmp($a->gender, $b->gender);
+        }
+
+        return $a->displayOrder - $b->displayOrder;
     }
 
     /**
@@ -109,6 +157,9 @@ class Division extends Domain
         switch ($propertyName) {
             case "id":
             case "name":
+            case "gender":
+            case "gameDurationMinutes":
+            case "displayOrder":
                 return $this->divisionOrm->{$propertyName};
 
             case "season":

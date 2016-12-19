@@ -9,18 +9,18 @@ use DAG\Framework\Orm\DuplicateEntryException;
 
 /**
  * @property int    $id
- * @property int    $divisionId
+ * @property int    $scheduleId
  * @property string $name
  */
 class PoolOrm extends PersistenceModel
 {
     const FIELD_ID          = 'id';
-    const FIELD_DIVISION_ID = 'divisionId';
+    const FIELD_SCHEDULE_ID = 'scheduleId';
     const FIELD_NAME        = 'name';
 
     protected static $fields = [
         self::FIELD_ID          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_DIVISION_ID => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_SCHEDULE_ID => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_NAME        => [FV::STRING, [FV::NO_CONSTRAINTS]],
     ];
 
@@ -35,19 +35,19 @@ class PoolOrm extends PersistenceModel
     /**
      * Create a PoolOrm
      *
-     * @param int       $divisionId
+     * @param int       $scheduleId
      * @param string    $name
      *
      * @return PoolOrm
      * @throws DuplicateEntryException
      */
     public static function create(
-        $divisionId,
+        $scheduleId,
         $name)
     {
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_DIVISION_ID => $divisionId,
+                self::FIELD_SCHEDULE_ID => $scheduleId,
                 self::FIELD_NAME        => $name,
             ],
             function ($item) {
@@ -75,16 +75,14 @@ class PoolOrm extends PersistenceModel
     /**
      * Load a PoolOrm by divisionId, name
      *
-     * @param int       $divisionId
      * @param string    $name
      *
      * @return PoolOrm
      */
-    public static function loadByDivisionIdAndName($divisionId, $name)
+    public static function loadByDivisionIdAndName($name)
     {
         $result = self::getPersistenceDriver()->getOne(
             [
-                self::FIELD_DIVISION_ID => $divisionId,
                 self::FIELD_NAME        => $name,
             ]);
 
@@ -92,17 +90,36 @@ class PoolOrm extends PersistenceModel
     }
 
     /**
-     * Load a PoolOrms by divisionId
+     * Load a PoolOrm by scheduleId, name
      *
-     * @param int $divisionId
+     * @param int       $scheduleId
+     * @param string    $name
      *
-     * @return array []   PoolOrms
+     * @return PoolOrm
      */
-    public static function loadByDivisionId($divisionId)
+    public static function loadByScheduleIdAndName($scheduleId, $name)
+    {
+        $result = self::getPersistenceDriver()->getOne(
+            [
+                self::FIELD_SCHEDULE_ID => $scheduleId,
+                self::FIELD_NAME        => $name,
+            ]);
+
+        return new static($result);
+    }
+
+    /**
+     * Load a PoolOrms by scheduleId
+     *
+     * @param int $scheduleId
+     *
+     * @return PoolOrm[]
+     */
+    public static function loadByScheduleId($scheduleId)
     {
         $results = self::getPersistenceDriver()->getMany(
             [
-                self::FIELD_DIVISION_ID  => $divisionId
+                self::FIELD_SCHEDULE_ID => $scheduleId
             ]);
 
         $poolOrms = [];

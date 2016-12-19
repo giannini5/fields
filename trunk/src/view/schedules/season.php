@@ -1,5 +1,7 @@
 <?php
 
+use \DAG\Domain\Schedule\Season;
+
 /**
  * @brief Show the Season page and get the user to select a season to administer or create a new season.
  */
@@ -19,6 +21,11 @@ class View_Schedules_Season extends View_Schedules_Base {
     public function render()
     {
         $maxColumns = 4;
+        $messageString  = $this->m_controller->m_messageString;
+        if (!empty($messageString)) {
+            print "
+                <p style='color: green' align='center'><strong>$messageString</strong></p><br>";
+        }
 
         print "
             <table bgcolor='lightyellow' valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
@@ -33,7 +40,8 @@ class View_Schedules_Season extends View_Schedules_Base {
             </table>
             <br><br>";
 
-        foreach ($this->m_controller->m_seasons as $season) {
+        $seasons = Season::lookupByLeague($this->m_controller->m_league);
+        foreach ($seasons as $season) {
             print "
             <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
