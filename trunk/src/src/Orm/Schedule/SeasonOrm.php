@@ -2,6 +2,7 @@
 
 namespace DAG\Orm\Schedule;
 
+use DAG\Framework\Exception\Precondition;
 use DAG\Framework\Orm\FieldValidator as FV;
 use DAG\Framework\Orm\PersistenceConfig as PC;
 use DAG\Framework\Orm\PersistenceModel;
@@ -68,6 +69,8 @@ class SeasonOrm extends PersistenceModel
      */
     public static function create($leagueId, $name, $startDate, $endDate, $startTime, $endTime, $daysOfWeek, $enabled)
     {
+        Precondition::isTrue($startDate < $endDate, "StartDate ($startDate) must be less than EndDate ($endDate)");
+
         $result = self::getPersistenceDriver()->create(
             array_filter(
                 [

@@ -7,15 +7,16 @@
  */
 class Controller_Schedules_Team extends Controller_Schedules_Base {
 
-    public $teams = [];
+    public $m_showPlayers = false;
 
     public function __construct() {
         parent::__construct();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_FILE)) {
-                $this->m_operation = View_Base::UPLOAD_FILE;
-            }
+            $this->m_filterDivisionId = $this->getPostAttribute(View_Base::FILTER_DIVISION_ID, 0);
+            $this->m_filterTeamId     = $this->getPostAttribute(View_Base::FILTER_TEAM_ID, 0);
+            $this->m_filterCoachId    = $this->getPostAttribute(View_Base::FILTER_COACH_ID, 0);
+            $this->m_showPlayers      = $this->getPostCheckboxAttribute(View_Base::SHOW_PLAYERS, false);
         }
     }
 
@@ -26,9 +27,8 @@ class Controller_Schedules_Team extends Controller_Schedules_Base {
     public function process() {
         if ($this->m_missingAttributes == 0) {
             switch ($this->m_operation) {
-                case View_Base::UPLOAD_FILE:
-                    $fileData = $this->_getFileData();
-                    $this->m_season->populateDivisions($fileData);
+                case View_Base::CREATE:
+                    // TODO
                     break;
 
                 case View_Base::UPDATE:
@@ -44,28 +44,6 @@ class Controller_Schedules_Team extends Controller_Schedules_Base {
         }
 
         $view->displayPage();
-    }
-
-    /**
-     * @return string $fileData
-     */
-    private function _getFileData()
-    {
-        $fileName = $_FILES["fileToUpload"]["tmp_name"];
-        // $fileType = pathinfo($fileName, PATHINFO_EXTENSION);
-
-        $handle = fopen($fileName, "r");
-        \DAG\Framework\Exception\Precondition::isTrue($handle != false, "Unable to open file: $fileName");
-
-        $fileData = '';
-        $data = fread($handle, 1024);
-        while ($data) {
-            $fileData .= $data;
-            $data = fread($handle, 1024);
-        }
-        fclose($handle);
-
-        return $fileData;
     }
 
     /**

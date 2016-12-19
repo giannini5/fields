@@ -3,6 +3,8 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
+use DAG\Framework\Orm\DuplicateEntryException;
+use DAG\Framework\Orm\NoResultsException;
 use DAG\Orm\Schedule\FacilityOrm;
 use DAG\Framework\Exception\Precondition;
 
@@ -55,8 +57,12 @@ class Facility extends Domain
      * @param string $contactPhone
      * @param string $image
      * @param int    $enabled
+     * @param bool   $ignoreDuplicateEntry
      *
      * @return Facility
+     *
+     * @throws DuplicateEntryException
+     * @throws \Exception
      */
     public static function create(
         $season,
@@ -71,23 +77,32 @@ class Facility extends Domain
         $contactEmail,
         $contactPhone,
         $image,
-        $enabled)
+        $enabled,
+        $ignoreDuplicateEntry = false)
     {
-        $facilityOrm = FacilityOrm::create(
-            $season->id,
-            $name,
-            $address1,
-            $address2,
-            $city,
-            $state,
-            $postalCode,
-            $country,
-            $contactName,
-            $contactEmail,
-            $contactPhone,
-            $image,
-            $enabled);
-        return new static($facilityOrm, $season);
+        try {
+            $facilityOrm = FacilityOrm::create(
+                $season->id,
+                $name,
+                $address1,
+                $address2,
+                $city,
+                $state,
+                $postalCode,
+                $country,
+                $contactName,
+                $contactEmail,
+                $contactPhone,
+                $image,
+                $enabled);
+            return new static($facilityOrm, $season);
+        } catch (DuplicateEntryException $e) {
+            if ($ignoreDuplicateEntry) {
+                return Facility::lookupByName($season, $name);
+            } else {
+                throw $e;
+            }
+        }
     }
 
     /**
@@ -112,6 +127,26 @@ class Facility extends Domain
         Precondition::isNonEmpty($name, 'name should not be empty');
         $facilityOrm = FacilityOrm::loadBySeasonIdAndName($season->id, $name);
         return new static($facilityOrm, $season);
+    }
+
+    /**
+     * @param Season $season
+     * @param string $name
+     * @param Facility $facility - output parameter
+     *
+     * @return bool - true if facility found, false otherwise
+     */
+    public static function findByName($season, $name, &$facility)
+    {
+        Precondition::isNonEmpty($name, 'name should not be empty');
+
+        try {
+            $facilityOrm = FacilityOrm::loadBySeasonIdAndName($season->id, $name);
+            $facility = new static($facilityOrm, $season);
+            return true;
+        } catch (NoResultsException $e) {
+            return false;
+        }
     }
 
     /**
@@ -157,6 +192,34 @@ class Facility extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+        }
+    }
+
+    /**
+     * @param $propertyName
+     * @param $value
+     */
+    public function __set($propertyName, $value)
+    {
+        switch ($propertyName) {
+            case "name":
+            case "address1":
+            case "address2":
+            case "city":
+            case "state":
+            case "postalCode":
+            case "country":
+            case "contactName":
+            case "contactEmail":
+            case "contactPhone":
+            case "image":
+            case "enabled":
+                $this->facilityOrm->{$propertyName} = $value;
+                $this->facilityOrm->save();
+                break;
+
+            default:
+                Precondition::isTrue(false, "Set not allowed for property: $propertyName");
         }
     }
 

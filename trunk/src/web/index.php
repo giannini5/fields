@@ -107,6 +107,14 @@ class Web_Index
                 $this->m_controller = new Controller_Schedules_Season();
                 break;
 
+            case View_Base::SCHEDULE_GAME_DATE_PAGE:
+                $this->m_controller = new Controller_Schedules_GameDate();
+                break;
+
+            case View_Base::SCHEDULE_FACILITIES_PAGE:
+                $this->m_controller = new Controller_Schedules_Facility();
+                break;
+
             case View_Base::SCHEDULE_FIELDS_PAGE:
                 $this->m_controller = new Controller_Schedules_Field();
                 break;
@@ -119,8 +127,8 @@ class Web_Index
                 $this->m_controller = new Controller_Schedules_Division();
                 break;
 
-            case View_Base::SCHEDULE_PLAYERS_PAGE:
-                $this->m_controller = new Controller_Schedules_Player();
+            case View_Base::SCHEDULE_FAMILY_PAGE:
+                $this->m_controller = new Controller_Schedules_Family();
                 break;
 
             case View_Base::SCHEDULE_SCHEDULES_PAGE:

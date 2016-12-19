@@ -11,24 +11,30 @@ use DAG\Framework\Orm\DuplicateEntryException;
 /**
  * @property int    $id
  * @property int    $gameDateId
- * @property int    $divisionId
  * @property int    $fieldId
  * @property string $startTime
+ * @property string $genderPreference
+ * @property int    $gameId
  */
 class GameTimeOrm extends PersistenceModel
 {
-    const FIELD_ID              = 'id';
-    const FIELD_GAME_DATE_ID    = 'gameDateId';
-    const FIELD_DIVISION_ID     = 'divisionId';
-    const FIELD_FIELD_ID        = 'fieldId';
-    const FIELD_START_TIME      = 'startTime';
+    const FIELD_ID                  = 'id';
+    const FIELD_GAME_DATE_ID        = 'gameDateId';
+    const FIELD_FIELD_ID            = 'fieldId';
+    const FIELD_START_TIME          = 'startTime';
+    const FIELD_GENDER_PREFERENCE   = 'genderPreference';
+    const FIELD_GAME_ID             = 'gameId';
+
+    const BOYS  = 'Boys';
+    const GIRLS = 'Girls';
 
     protected static $fields = [
-        self::FIELD_ID              => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_GAME_DATE_ID    => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_DIVISION_ID     => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_FIELD_ID        => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_START_TIME      => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_ID                  => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_GAME_DATE_ID        => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_FIELD_ID            => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_START_TIME          => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_GENDER_PREFERENCE   => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_GAME_ID             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
     ];
 
     protected static $config = [
@@ -43,25 +49,28 @@ class GameTimeOrm extends PersistenceModel
      * Create a GameTimeOrm
      *
      * @param int       $gameDateId
-     * @param int       $divisionId
      * @param int       $fieldId
      * @param string    $startTime
+     * @param string    $genderPreference
+     * @param int       $gameId
      *
      * @return GameTimeOrm
      * @throws DuplicateEntryException
      */
     public static function create(
         $gameDateId,
-        $divisionId,
         $fieldId,
-        $startTime)
+        $startTime,
+        $genderPreference,
+        $gameId = null)
     {
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_GAME_DATE_ID    => $gameDateId,
-                self::FIELD_DIVISION_ID     => $divisionId,
-                self::FIELD_FIELD_ID        => $fieldId,
-                self::FIELD_START_TIME      => $startTime,
+                self::FIELD_GAME_DATE_ID        => $gameDateId,
+                self::FIELD_FIELD_ID            => $fieldId,
+                self::FIELD_START_TIME          => $startTime,
+                self::FIELD_GENDER_PREFERENCE   => $genderPreference,
+                self::FIELD_GAME_ID             => $gameId,
             ],
             function ($item) {
                 return $item !== null;
@@ -86,11 +95,25 @@ class GameTimeOrm extends PersistenceModel
     }
 
     /**
+     * Load a GameTimeOrm by gameId
+     *
+     * @param int $gameId
+     *
+     * @return GameTimeOrm
+     */
+    public static function loadByGameId($gameId)
+    {
+        $result = self::getPersistenceDriver()->getOne([self::FIELD_GAME_ID => $gameId]);
+
+        return new static($result);
+    }
+
+    /**
      * Load GameTimeOrms by gameDateId
      *
      * @param int       $gameDateId
      *
-     * @return [] GameTimeOrms
+     * @return GameTimeOrm[]
      */
     public static function loadByGameDateId($gameDateId)
     {
@@ -108,19 +131,19 @@ class GameTimeOrm extends PersistenceModel
     }
 
     /**
-     * Load a GameTimeOrms by divisionId
+     * Load a GameTimeOrms by gameId and fieldId
      *
      * @param int $gameDateId
-     * @param int $divisionId
+     * @param int $fieldId
      *
-     * @return array []   GameTimeOrms
+     * @return GameTimeOrm[]
      */
-    public static function loadByDivisionId($gameDateId, $divisionId)
+    public static function loadByGameDateIdAndFieldId($gameDateId, $fieldId)
     {
         $results = self::getPersistenceDriver()->getMany(
             [
                 self::FIELD_GAME_DATE_ID    => $gameDateId,
-                self::FIELD_DIVISION_ID     => $divisionId,
+                self::FIELD_FIELD_ID        => $fieldId,
             ]);
 
         $gameTimeOrms = [];
@@ -132,18 +155,63 @@ class GameTimeOrm extends PersistenceModel
     }
 
     /**
+     * Load a GameTimeOrms by gameId and fieldId and gender
+     *
+     * @param int       $gameDateId
+     * @param string    $gender
+     * @param int       $fieldId
+     *
+     * @return GameTimeOrm[]
+     */
+    public static function loadByGameDateIdAndFieldIdAndGender($gameDateId, $fieldId, $gender)
+    {
+        $results = self::getPersistenceDriver()->getMany(
+            [
+                self::FIELD_GAME_DATE_ID        => $gameDateId,
+                self::FIELD_FIELD_ID            => $fieldId,
+                self::FIELD_GENDER_PREFERENCE   => $gender,
+            ]);
+
+        $gameTimeOrms = [];
+        foreach ($results as $result) {
+            $gameTimeOrms[] = new static($result);
+        }
+
+        return $gameTimeOrms;
+    }
+
+    /**
+     * Load a GameTimeOrm by gameId and fieldId and startTime
+     *
+     * @param int       $gameDateId
+     * @param int       $fieldId
+     * @param string    $startTime
+     *
+     * @return GameTimeOrm
+     */
+    public static function loadByGameDateIdAndFieldIdAndStartTime($gameDateId, $fieldId, $startTime)
+    {
+        $result = self::getPersistenceDriver()->getOne(
+            [
+                self::FIELD_GAME_DATE_ID    => $gameDateId,
+                self::FIELD_FIELD_ID        => $fieldId,
+                self::FIELD_START_TIME      => $startTime,
+            ]);
+
+        return new static($result);
+    }
+
+    /**
      * Load a GameTimeOrms by fieldId
      *
-     * @param int $gameDateId
      * @param int $fieldId
      *
      * @return array []   GameTimeOrms
      */
-    public static function loadByFieldId($gameDateId, $fieldId)
+    public static function loadByFieldId($fieldId)
     {
         $results = self::getPersistenceDriver()->getMany(
             [
-                self::FIELD_GAME_DATE_ID    => $gameDateId,
                 self::FIELD_FIELD_ID        => $fieldId,
             ]);
 

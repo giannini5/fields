@@ -3,6 +3,7 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
+use DAG\Framework\Exception\Assertion;
 use DAG\Orm\Schedule\GameDateOrm;
 use DAG\Framework\Exception\Precondition;
 
@@ -14,6 +15,10 @@ use DAG\Framework\Exception\Precondition;
  */
 class GameDate extends Domain
 {
+    const ALL_DAYS          = 'all';
+    const SATURDAYS_ONLY    = 'saturdays';
+    const SUNDAYS_ONLY      = 'sundays';
+
     /** @var GameDateOrm */
     private $gameDateOrm;
 
@@ -69,17 +74,37 @@ class GameDate extends Domain
     }
 
     /**
-     * @param Season $season
+     * @param Season    $season
+     * @param string    $dayFilter defaults to ALL_DAYS
      *
      * @return array GameDates
      */
-    public static function lookupBySeason($season)
+    public static function lookupBySeason($season, $dayFilter = self::ALL_DAYS)
     {
         $gameDates = [];
 
         $gameDateOrms = GameDateOrm::loadBySeasonId($season->id);
         foreach ($gameDateOrms as $gameDateOrm) {
-            $gameDates[] = new static($gameDateOrm, $season);
+            switch ($dayFilter) {
+                case self::ALL_DAYS:
+                    $gameDates[] = new static($gameDateOrm, $season);
+                    break;
+
+                case self::SATURDAYS_ONLY:
+                    if ($gameDateOrm->isSaturday()) {
+                        $gameDates[] = new static($gameDateOrm, $season);
+                    }
+                    break;
+
+                case self::SUNDAYS_ONLY:
+                    if ($gameDateOrm->isSunday()) {
+                        $gameDates[] = new static($gameDateOrm, $season);
+                    }
+                    break;
+
+                default:
+                    Assertion::isTrue(false, "Unrecognized dayFilter, '$dayFilter'");
+            }
         }
 
         return $gameDates;
@@ -105,11 +130,25 @@ class GameDate extends Domain
     }
 
     /**
+     * Check to see if game date is a Sunday
+     *
+     * @return bool
+     */
+    public function isSunday()
+    {
+        return $this->gameDateOrm->isSunday();
+    }
+
+    /**
      *  Delete the gameDate
-     *  TODO: Change to cascading delete
      */
     public function delete()
     {
+        $gameTimes = GameTime::lookupByGameDate($this);
+        foreach ($gameTimes as $gameTime) {
+            $gameTime->delete();
+        }
+
         $this->gameDateOrm->delete();
     }
 }

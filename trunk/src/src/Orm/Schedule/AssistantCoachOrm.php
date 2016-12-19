@@ -159,4 +159,28 @@ class AssistantCoachOrm extends PersistenceModel
 
         return $assistantCoachOrms;
     }
+
+    /**
+     * Load all assistant coaches for the specified season
+     *
+     * @param int $seasonId
+     *
+     * @return array
+     */
+    public static function loadBySeasonId($seasonId)
+    {
+        $assistantCoachOrms = [];
+
+        $divisionOrms = DivisionOrm::loadBySeasonId($seasonId);
+        foreach ($divisionOrms as $divisionOrm) {
+            $teamOrms = TeamOrm::loadByDivisionId($divisionOrm->id);
+
+            foreach ($teamOrms as $team) {
+                $orms = self::loadByTeamId($team->id);
+                $assistantCoachOrms = array_merge($assistantCoachOrms, $orms);
+            }
+        }
+
+        return $assistantCoachOrms;
+    }
 }

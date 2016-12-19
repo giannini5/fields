@@ -1,5 +1,7 @@
 <?php
 
+use \DAG\Domain\Schedule\Division;
+
 /**
  * @brief: Abstract base class for all admin views.
  */
@@ -28,7 +30,8 @@ abstract class View_Schedules_Base extends View_Base {
         $name = isset($this->m_controller->m_coordinator) ? $this->m_controller->m_coordinator->name : '';
         $collapsibleCount = $this->getCollapsibleCount();
 
-        $headerTitle = "<font color='darkblue'>AYSO Region 122:<br></font><font color='red'>Game Scheduling Administration</font>";
+        $seasonTitle = isset($this->m_controller->m_season) ? $this->m_controller->m_season->name : 'No Season Enabled';
+        $headerTitle = "<font color='darkblue'>AYSO Region 122:<br></font><font color='red'>Game Scheduling Administration<br>$seasonTitle</font>";
 
         print "
             <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
@@ -95,14 +98,18 @@ abstract class View_Schedules_Base extends View_Base {
                 '<li><div>HOME</div></li>' : '<li><a href="' . self::SCHEDULE_HOME_PAGE . '">HOME</a></li>')
             . ($this->m_pageName == self::SCHEDULE_SEASON_PAGE ?
                 '<li><div>SEASON</div></li>' : '<li><a href="' . self::SCHEDULE_SEASON_PAGE . '">SEASON</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_FIELDS_PAGE ?
-                '<li><div>FIELD</div></li>' : '<li><a href="' . self::SCHEDULE_FIELDS_PAGE . '">FIELD</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_TEAMS_PAGE ?
-                '<li><div>TEAM</div></li>' : '<li><a href="' . self::SCHEDULE_TEAMS_PAGE . '">TEAM</a></li>')
+            . ($this->m_pageName == self::SCHEDULE_GAME_DATE_PAGE ?
+                '<li><div>GAME DATE</div></li>' : '<li><a href="' . self::SCHEDULE_GAME_DATE_PAGE . '">GAME DATE</a></li>')
             . ($this->m_pageName == self::SCHEDULE_DIVISIONS_PAGE ?
                 '<li><div>DIVISION</div></li>' : '<li><a href="' . self::SCHEDULE_DIVISIONS_PAGE . '">DIVISION</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_PLAYERS_PAGE ?
-                '<li><div>PLAYER</div></li>' : '<li><a href="' . self::SCHEDULE_PLAYERS_PAGE . '">PLAYER</a></li>')
+            . ($this->m_pageName == self::SCHEDULE_TEAMS_PAGE ?
+                '<li><div>TEAM</div></li>' : '<li><a href="' . self::SCHEDULE_TEAMS_PAGE . '">TEAM</a></li>')
+            . ($this->m_pageName == self::SCHEDULE_FAMILY_PAGE ?
+                '<li><div>FAMILY</div></li>' : '<li><a href="' . self::SCHEDULE_FAMILY_PAGE . '">FAMILY</a></li>')
+            . ($this->m_pageName == self::SCHEDULE_FACILITIES_PAGE ?
+                '<li><div>FACILITY</div></li>' : '<li><a href="' . self::SCHEDULE_FACILITIES_PAGE . '">FACILITY</a></li>')
+            . ($this->m_pageName == self::SCHEDULE_FIELDS_PAGE ?
+                '<li><div>FIELD</div></li>' : '<li><a href="' . self::SCHEDULE_FIELDS_PAGE . '">FIELD</a></li>')
             . ($this->m_pageName == self::SCHEDULE_SCHEDULES_PAGE ?
                 '<li><div>SCHEDULE</div></li>' : '<li><a href="' . self::SCHEDULE_SCHEDULES_PAGE . '">SCHEDULE</a></li>')
             . '
@@ -116,5 +123,101 @@ abstract class View_Schedules_Base extends View_Base {
      */
     public function getCollapsibleCount() {
         return 0;
+    }
+
+    /**
+     * @brief Print the drop down list of teams by division for selection
+     *
+     * @param int $filterTeamId - Default selection
+     */
+    public function printTeamSelector($filterTeamId) {
+        $teams = $this->m_controller->m_teams;
+
+        $selectorHTML = '';
+        $selectorHTML .= "<option value='0' ";
+        $selectorHTML .= ">All</option>";
+
+        foreach ($teams as $team) {
+            $selected = ($team->id == $filterTeamId) ? ' selected ' : '';
+            $teamName = $team->name;
+            $selectorHTML .= "<option value='$team->id' $selected>$teamName</option>";
+        }
+
+        print "
+                <tr>
+                    <td><font color='#069'><b>Team:&nbsp</b></font></td>
+                    <td><select name='" . View_Base::FILTER_TEAM_ID . "'>" . $selectorHTML . "</select></td>
+                </tr>";
+    }
+
+    /**
+     * @brief Print the drop down list of coaches by division for selection
+     *
+     * @param int $filterTeamId - Default selection
+     */
+    public function printCoachSelector($filterCoachId) {
+        $coaches = $this->m_controller->m_coaches;
+
+        $sortedCoaches = [];
+        foreach ($coaches as $coach) {
+            $sortedCoaches[$coach->id] = $coach->name . " (" . $coach->team->name . ")";
+        }
+        asort($sortedCoaches);
+
+        $selectorHTML = '';
+        $selectorHTML .= "<option value='0' ";
+        $selectorHTML .= ">All</option>";
+
+        foreach ($sortedCoaches as $id => $name) {
+            $selected = ($id == $filterCoachId) ? ' selected ' : '';
+            $coachName = $name;
+            $selectorHTML .= "<option value='$id' $selected>$coachName</option>";
+        }
+
+        print "
+                <tr>
+                    <td><font color='#069'><b>Coach:&nbsp</b></font></td>
+                    <td><select name='" . View_Base::FILTER_COACH_ID . "'>" . $selectorHTML . "</select></td>
+                </tr>";
+    }
+
+    /**
+     * Get selector array for Divisions
+     *
+     * @param bool $byName          - if true then get by name instead of id.  Defaults to false, by id.
+     * @param bool $allOption       - if true then All is an option otherwise All is not allowed
+     * @param bool $includeGender   - if true then Gender is included in the display name
+     *
+     * @return array - id => name
+     */
+    public function getDivisionsSelector($byName = false, $allOption = false, $includeGender = false)
+    {
+        $divisions = [];
+        if (isset($this->m_controller->m_season))
+        {
+            $divisions = Division::lookupBySeason($this->m_controller->m_season);
+        }
+
+        $divisionsSelector = [];
+        if ($allOption) {
+            if ($byName) {
+                $divisionsSelector['All'] = 'All';
+            } else {
+                $divisionsSelector[0] = 'All';
+            }
+        }
+
+        foreach ($divisions as $division) {
+            $identifier = $division->id;
+            if ($byName) {
+                $identifier = $division->name;
+                if ($includeGender) {
+                    $identifier .= ' ' . $division->gender;
+                }
+            }
+            $divisionsSelector[$identifier] = $includeGender ? $division->name . ' ' . $division->gender : $division->name;
+        }
+
+        return $divisionsSelector;
     }
 }

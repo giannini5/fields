@@ -83,10 +83,44 @@ class FacilityTest extends ORM_TestHelper
         $this->validateFacility($facility, $this->season, self::$expectedDefaults);
     }
 
+    public function test_findByNameTrue()
+    {
+        $result = Facility::findByName($this->season, self::$expectedDefaults['name'], $facility);
+        $this->assertTrue($result);
+        $this->validateFacility($facility, $this->season, self::$expectedDefaults);
+    }
+
+    public function test_findByNameFalse()
+    {
+        $result = Facility::findByName($this->season, 'Not my Facility Name', $facility);
+        $this->assertFalse($result);
+    }
+
     public function test_lookupBySeason()
     {
         $facilities = Facility::lookupBySeason($this->season);
         $this->assertTrue(count($facilities) == 2);
+    }
+
+    public function test_set()
+    {
+        $facility = $this->facilitysToCleanup[0];
+
+        $expectedDefaults = [];
+        $facility->name         = $expectedDefaults['name']           = 'dave';
+        $facility->address1     = $expectedDefaults['address1']       = 'dave1';
+        $facility->address2     = $expectedDefaults['address2']       = 'dave2';
+        $facility->city         = $expectedDefaults['city']           = 'daveCity';
+        $facility->state        = $expectedDefaults['state']          = 'daveState';
+        $facility->country      = $expectedDefaults['country']        = 'daveCountry';
+        $facility->postalCode   = $expectedDefaults['postalCode']     = 'davePostal';
+        $facility->contactName  = $expectedDefaults['contactName']    = 'daveName';
+        $facility->contactEmail = $expectedDefaults['contactEmail']   = 'daveEmail';
+        $facility->contactPhone = $expectedDefaults['contactPhone']   = 'davePhone';
+        $facility->image        = $expectedDefaults['image']          = 'daveImage';
+        $facility->enabled      = $expectedDefaults['enabled']        = 0;
+
+        $this->validateFacility($facility, $this->season, $expectedDefaults);
     }
 
     public function validateFacility($facility, $season, $expectedDefaults)

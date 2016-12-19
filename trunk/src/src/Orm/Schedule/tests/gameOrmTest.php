@@ -37,9 +37,9 @@ class GameOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($gameOrm);
     }
 
-    public function test_loadByScheduleId()
+    public function test_loadByPoolId()
     {
-        $gameOrms = GameOrm::loadByScheduleId($this->defaultScheduleOrm->id);
+        $gameOrms = GameOrm::loadByPoolId($this->defaultPoolOrm->id);
         $this->assertEquals(1, count($gameOrms));
         $this->verifyExpectedAttributes($gameOrms[0]);
     }
@@ -58,7 +58,7 @@ class GameOrmTest extends ORM_TestHelper
     private function verifyExpectedAttributes($gameOrm)
     {
         $this->assertTrue($gameOrm->id > 0);
-        $this->assertEquals($this->defaultScheduleOrm->id,      $gameOrm->scheduleId);
+        $this->assertEquals($this->defaultPoolOrm->id,          $gameOrm->poolId);
         $this->assertEquals($this->defaultGameTimeOrm->id,      $gameOrm->gameTimeId);
         $this->assertEquals($this->defaultTeamOrm->id,          $gameOrm->homeTeamId);
         $this->assertEquals($this->defaultVisitingTeamOrm->id,  $gameOrm->visitingTeamId);

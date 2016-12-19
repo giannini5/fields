@@ -96,7 +96,7 @@ class GameDateOrm extends PersistenceModel
      *
      * @param int $seasonId
      *
-     * @return array []   GameDateOrms
+     * @return GameDateOrm[]
      */
     public static function loadBySeasonId($seasonId)
     {
@@ -111,5 +111,43 @@ class GameDateOrm extends PersistenceModel
         }
 
         return $gameDateOrms;
+    }
+
+    /**
+     * Get the day of the week.
+     *
+     * @return int 0 - Sun, 1 - Mon, 2 - Tues, 3 - Wed, 4 - Thur, 5 - Fri, 6 - Sat
+     */
+    public function getDayOfWeek()
+    {
+        // TODO make dayOfweek an attribute of the GameDate object in database.
+        $dateTime   = \DateTime::createFromFormat('Y-m-d', $this->day);
+        $year       = $dateTime->format('Y');
+        $month      = $dateTime->format('m');
+        $day        = $dateTime->format('d');
+        $gday       = gregoriantojd($month, $day, $year);
+        $jday       = jddayofweek($gday);
+
+        return $jday;
+    }
+
+    /**
+     * Check to see if this game date falls on a Sunday
+     *
+     * @return bool
+     */
+    public function isSunday()
+    {
+        return $this->getDayOfWeek() == 0;
+    }
+
+    /**
+     * Check to see if this game date falls on a Saturday
+     *
+     * @return bool
+     */
+    public function isSaturday()
+    {
+        return $this->getDayOfWeek() == 6;
     }
 }

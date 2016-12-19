@@ -9,7 +9,7 @@ use DAG\Framework\Exception\Precondition;
 
 /**
  * @property int        $id
- * @property Schedule   $schedule
+ * @property Pool       $pool
  * @property GameTime   $gameTime
  * @property Team       $homeTeam
  * @property Team       $visitingTeam
@@ -19,8 +19,8 @@ class Game extends Domain
     /** @var GameOrm */
     private $gameOrm;
 
-    /** @var Schedule */
-    private $schedule;
+    /** @var Pool */
+    private $pool;
 
     /** @var GameTime */
     private $gameTime;
@@ -33,22 +33,22 @@ class Game extends Domain
 
     /**
      * @param GameOrm   $gameOrm
-     * @param Schedule  $schedule (defaults to null)
+     * @param Pool      $pool (defaults to null)
      * @param GameTime  $gameTime (defaults to null)
      * @param Team      $homeTeam (defaults to null)
      * @param Team      $visitingTeam (defaults to null)
      */
-    protected function __construct(GameOrm $gameOrm, $schedule = null, $gameTime = null, $homeTeam = null, $visitingTeam = null)
+    protected function __construct(GameOrm $gameOrm, $pool = null, $gameTime = null, $homeTeam = null, $visitingTeam = null)
     {
         $this->gameOrm      = $gameOrm;
-        $this->schedule     = isset($schedule) ? $schedule : Schedule::lookupById($gameOrm->scheduleId);
-        $this->gameTime     = isset($gameTime) ? $gameTime : GameTime::lookupById($gameOrm->gameTimeId);
+        $this->pool         = isset($pool) ? $pool : Pool::lookupById($gameOrm->poolId);
         $this->homeTeam     = isset($homeTeam) ? $homeTeam : Team::lookupById($gameOrm->homeTeamId);
         $this->visitingTeam = isset($visitingTeam) ? $visitingTeam : Team::lookupById($gameOrm->visitingTeamId);
+        $this->gameTime     = isset($gameTime) ? $gameTime : GameTime::lookupById($gameOrm->gameTimeId, $this);
     }
 
     /**
-     * @param Schedule  $schedule
+     * @param Pool      $pool
      * @param GameTime  $gameTime
      * @param Team      $homeTeam
      * @param Team      $visitingTeam
@@ -56,38 +56,39 @@ class Game extends Domain
      * @return Game
      */
     public static function create(
-        $schedule,
+        $pool,
         $gameTime,
         $homeTeam,
         $visitingTeam)
     {
-        $gameOrm = GameOrm::create($schedule->id, $gameTime->id, $homeTeam->id, $visitingTeam->id);
-        return new static($gameOrm, $schedule, $gameTime, $homeTeam, $visitingTeam);
+        $gameOrm = GameOrm::create($pool->id, $gameTime->id, $homeTeam->id, $visitingTeam->id);
+        return new static($gameOrm, $pool, null, $homeTeam, $visitingTeam);
     }
 
     /**
-     * @param int $gameId
+     * @param int       $gameId
+     * @param GameTime  $gameTime defaults to null
      *
      * @return Game
      */
-    public static function lookupById($gameId)
+    public static function lookupById($gameId, $gameTime = null)
     {
         $gameOrm = GameOrm::loadById($gameId);
-        return new static($gameOrm);
+        return new static($gameOrm, null, $gameTime);
     }
 
     /**
-     * @param Schedule      $schedule
+     * @param Pool      $pool
      *
-     * @return Game
+     * @return Game[]
      */
-    public static function lookupBySchedule($schedule)
+    public static function lookupByPool($pool)
     {
         $games = [];
 
-        $gameOrms = GameOrm::loadByScheduleId($schedule->id);
+        $gameOrms = GameOrm::loadByPoolId($pool->id);
         foreach ($gameOrms as $gameOrm) {
-            $games[] = new static($gameOrm, $schedule);
+            $games[] = new static($gameOrm, $pool);
         }
 
         return $games;
@@ -131,7 +132,7 @@ class Game extends Domain
             case "id":
                 return $this->gameOrm->{$propertyName};
 
-            case "schedule":
+            case "pool":
             case "gameTime":
             case "homeTeam":
             case "visitingTeam":
@@ -144,10 +145,14 @@ class Game extends Domain
 
     /**
      *  Delete the game
-     *  TODO: Change to cascading delete
      */
     public function delete()
     {
+        // Update gameTime to remove gameId
+        $gameTime       = GameTime::lookupById($this->gameTime->id);
+        $gameTime->game = null;
+
+        // Delete game
         $this->gameOrm->delete();
     }
 }

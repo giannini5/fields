@@ -9,10 +9,6 @@ class Controller_Schedules_Division extends Controller_Schedules_Base {
 
     public function __construct() {
         parent::__construct();
-
-        if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            // TODO
-        }
     }
 
     /**
@@ -22,10 +18,6 @@ class Controller_Schedules_Division extends Controller_Schedules_Base {
     public function process() {
         if ($this->m_missingAttributes == 0) {
             switch ($this->m_operation) {
-                case View_Base::CREATE:
-                    // TODO
-                    break;
-
                 case View_Base::UPDATE:
                     // TODO
                     break;

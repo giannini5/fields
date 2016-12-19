@@ -1,26 +1,28 @@
 <?php
 
+use \DAG\Domain\Schedule\Season;
+use \DAG\Domain\Schedule\GameDate;
+use \DAG\Framework\Exception\Assertion;
+use \DAG\Framework\Orm\DuplicateEntryException;
+
 /**
  * Class Controller_Schedules_Season
  *
  * @brief Select a season to administer or create a new season
  */
 class Controller_Schedules_Season extends Controller_Schedules_Base {
-    public $m_seasons = NULL;
-    public $m_name = NULL;
-    public $m_enabled = NULL;
-    public $m_seasonId = NULL;
-    public $m_startDate = NULL;
-    public $m_endDate = NULL;
-    public $m_startTime = NULL;
-    public $m_endTime = NULL;
-    public $m_daysSelected = array();
-    public $m_daysSelectedString = '';
+    public $m_name                  = NULL;
+    public $m_enabled               = NULL;
+    public $m_seasonId              = NULL;
+    public $m_startDate             = NULL;
+    public $m_endDate               = NULL;
+    public $m_startTime             = NULL;
+    public $m_endTime               = NULL;
+    public $m_daysSelected          = array();
+    public $m_daysSelectedString    = '';
 
     public function __construct() {
         parent::__construct();
-
-        $this->m_seasons = \DAG\Domain\Schedule\Season::lookupByLeague($this->m_league);
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->m_name = $this->getPostAttribute(
@@ -28,10 +30,10 @@ class Controller_Schedules_Season extends Controller_Schedules_Base {
                 '* Name required'
             );
 
-            $this->m_startDate = $this->getPostAttribute(View_Base::START_DATE, null);
-            $this->m_endDate = $this->getPostAttribute(View_Base::END_DATE, null);
-            $this->m_startTime = $this->getPostAttribute(View_Base::START_TIME, null);
-            $this->m_endTime = $this->getPostAttribute(View_Base::END_TIME, null);
+            $this->m_startDate  = $this->getPostAttribute(View_Base::START_DATE, null);
+            $this->m_endDate    = $this->getPostAttribute(View_Base::END_DATE, null);
+            $this->m_startTime  = $this->getPostAttribute(View_Base::START_TIME, null);
+            $this->m_endTime    = $this->getPostAttribute(View_Base::END_TIME, null);
 
             $this->m_enabled = $this->getPostAttribute(
                 View_Base::ENABLED,
@@ -67,6 +69,12 @@ class Controller_Schedules_Season extends Controller_Schedules_Base {
 
             foreach ($this->m_daysSelected as $day=>$selected) {
                 $this->m_daysSelectedString .= $selected ? '1' : '0';
+            }
+
+            // Verify startDate < endDate
+            if ($this->m_startDate > $this->m_endDate) {
+                $this->m_missingAttributes += 1;
+                $this->m_errorString = "Error: Start Date ($this->m_startDate) must be less than End Date ($this->m_endDate)";
             }
         }
     }
@@ -116,9 +124,10 @@ class Controller_Schedules_Season extends Controller_Schedules_Base {
 
             if ($this->m_season->enabled == 1) {
                 $this->_disableSeasons($this->m_season->id);
+                $this->generateGameDates($this->m_season);
             }
 
-            $this->m_seasons[] = $this->m_season;
+            $this->m_messageString = "Operation Complete: Season $this->m_name created.";
         } catch (\DAG\Framework\Orm\DuplicateEntryException $e) {
             $this->m_errorString = "Season '$this->m_name' already exists<br>Scroll down and update to make a change";
         }
@@ -130,7 +139,8 @@ class Controller_Schedules_Season extends Controller_Schedules_Base {
      */
     private function _updateSeason() {
         // Error check
-        foreach ($this->m_seasons as $season) {
+        $seasons = Season::lookupByLeague($this->m_league);
+        foreach ($seasons as $season) {
             if ($season->name == $this->m_name and $season->id != $this->m_seasonId) {
                 $this->m_errorString = "Season '$this->m_name' already exists<br>Scroll down and update to make a change";
                 return;
@@ -138,7 +148,7 @@ class Controller_Schedules_Season extends Controller_Schedules_Base {
         }
 
         // Update
-        foreach ($this->m_seasons as $season) {
+        foreach ($seasons as $season) {
             if ($season->id == $this->m_seasonId) {
                 $season->name = $this->m_name;
                 $season->startDate = $this->m_startDate;
@@ -150,7 +160,10 @@ class Controller_Schedules_Season extends Controller_Schedules_Base {
 
                 if ($this->m_enabled == 1) {
                     $this->_disableSeasons($season->id);
+                    $this->generateGameDates($season);
                 }
+
+                $this->m_messageString = "Operation Complete: Season $this->m_name updated.";
                 return;
             }
         }
@@ -162,10 +175,70 @@ class Controller_Schedules_Season extends Controller_Schedules_Base {
      * @param $excludeSeasonId - Season that should be left enabled
      */
     private function _disableSeasons($excludeSeasonId) {
-        foreach ($this->m_seasons as $season) {
+        $seasons = Season::lookupByLeague($this->m_league);
+        foreach ($seasons as $season) {
             if ($season->id != $excludeSeasonId) {
                 $season->enabled = 0;
             }
+        }
+    }
+
+    /**
+     * @brief Generate Game Dates for season
+     *
+     * @param Season $season
+     */
+    private function generateGameDates($season) {
+        $currentDateTime    = DateTime::createFromFormat('Y-m-d', $season->startDate);
+        $endDateTime        = DateTime::createFromFormat('Y-m-d', $season->endDate);
+        while ($currentDateTime <= $endDateTime) {
+            if ($this->isGameDay($currentDateTime)) {
+                try {
+                    GameDate::create($season, $currentDateTime->format('Y-m-d'));
+                } catch (DuplicateEntryException $e) {
+                    // No op if entry already exists
+                }
+
+            }
+
+            $dateInterval = DateInterval::createFromDateString('1 day');
+            $currentDateTime->add($dateInterval);
+        }
+    }
+
+    /**
+     * @brief Return true date falls on a day where games are played
+     *
+     * @param DateTime $currentDate
+     *
+     * @return bool
+     */
+    private function isGameDay($currentDate) {
+        $year = $currentDate->format('Y');
+        $month = $currentDate->format('m');
+        $day = $currentDate->format('d');
+        $gday = gregoriantojd($month, $day, $year);
+        $jday = jddayofweek($gday);
+
+        switch ($jday) {
+            case 0:
+                return $this->m_daysSelected[View_Base::SUNDAY];
+            case 1:
+                return $this->m_daysSelected[View_Base::MONDAY];
+            case 2:
+                return $this->m_daysSelected[View_Base::TUESDAY];
+            case 3:
+                return $this->m_daysSelected[View_Base::WEDNESDAY];
+            case 4:
+                return $this->m_daysSelected[View_Base::THURSDAY];
+            case 5:
+                return $this->m_daysSelected[View_Base::FRIDAY];
+            case 6:
+                return $this->m_daysSelected[View_Base::SATURDAY];
+            default:
+                $date = $currentDate->format('Y-m-d');
+                Assertion::isTrue(false, "Invalid julian date computed for date: $date");
+                break;
         }
     }
 }

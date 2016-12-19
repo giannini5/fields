@@ -16,16 +16,17 @@ class TeamTest extends ORM_TestHelper
     /**
      * Expected values on create and load
      */
-    protected static $expectedDefaults = array(
-        'name'          => 'TEST Domain team name',
-    );
-
+    protected $expectedDefaults = [];
     protected $teamsToCleanup = array();
     protected $division;
     protected $pool;
 
     protected function setUp()
     {
+        $this->expectedDefaults = array(
+            'name' => 'TEST Domain team name',
+        );
+
         $this->primeDatabase();
 
         $this->division = Division::lookupById($this->defaultDivisionOrm->id);
@@ -34,7 +35,7 @@ class TeamTest extends ORM_TestHelper
         $this->teamsToCleanup[] = Team::create(
             $this->division,
             $this->pool,
-            self::$expectedDefaults['name']);
+            $this->expectedDefaults['name']);
     }
 
     protected function tearDown()
@@ -49,31 +50,43 @@ class TeamTest extends ORM_TestHelper
     public function test_create()
     {
         $team = $this->teamsToCleanup[0];
-        $this->validateTeam($team, $this->division, $this->pool, self::$expectedDefaults);
+        $this->validateTeam($team, $this->division, $this->pool, $this->expectedDefaults);
     }
 
     public function test_createWithNoPool()
     {
-        self::$expectedDefaults['name'] = 'Team with no pool';
+        $this->expectedDefaults['name'] = 'Team with no fool';
         $team = Team::create(
             $this->division,
             null,
-            self::$expectedDefaults['name']);
+            $this->expectedDefaults['name']);
         $this->teamsToCleanup[] = $team;
 
-        $this->validateTeam($team, $this->division, null, self::$expectedDefaults);
+        $this->validateTeam($team, $this->division, null, $this->expectedDefaults);
     }
 
     public function test_lookupById()
     {
         $team = Team::lookupById($this->teamsToCleanup[0]->id);
-        $this->validateTeam($team, $this->division, $this->pool, self::$expectedDefaults);
+        $this->validateTeam($team, $this->division, $this->pool, $this->expectedDefaults);
     }
 
     public function test_lookupByName()
     {
-        $team = Team::lookupByName($this->division, self::$expectedDefaults['name']);
-        $this->validateTeam($team, $this->division, $this->pool, self::$expectedDefaults);
+        $team = Team::lookupByName($this->division, $this->expectedDefaults['name']);
+        $this->validateTeam($team, $this->division, $this->pool, $this->expectedDefaults);
+    }
+
+    public function test_lookupByDivision()
+    {
+        $teams = Team::lookupByDivision($this->division);
+        $this->assertEquals(3, count($teams));
+    }
+
+    public function test_lookupByPool()
+    {
+        $teams = Team::lookupByPool($this->pool);
+        $this->assertEquals(3, count($teams));
     }
 
     public function validateTeam($team, $division, $pool, $expectedDefaults)

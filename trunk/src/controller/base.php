@@ -25,12 +25,14 @@ abstract class Controller_Base
     # Other attributes constructed from above based on controller
     public $m_missingAttributes;
     public $m_isAuthenticated;
-    public $m_errorString;
+    public $m_errorString = '';
+    public $m_messageString = '';
 
-    # Filters for reservations
+    # Filters
     public $m_filterFacilityId;
     public $m_filterDivisionId;
     public $m_filterTeamId;
+    public $m_filterCoachId;
 
     public function __construct($cookieName)
     {
@@ -112,11 +114,31 @@ abstract class Controller_Base
     }
 
     /**
+     * @brief Returns true if checkbox checked; false otherwise
+     *
+     * @param $attributeName - Name of the POST attribute checkbox
+     * @param $defaultValue - Default value returned if POST attribute not found or not set
+     *
+     * @return bool
+     */
+    protected function getPostCheckboxAttribute($attributeName, $defaultValue)
+    {
+        if (isset($_POST[$attributeName])) {
+            if (!empty($_POST[$attributeName])) {
+                return true;
+            }
+        }
+
+        return $defaultValue;
+    }
+
+    /**
      * @brief Increment the number errors found and set the error string for display.
      *
      * @param string $errorMessage - Error message to be displayed.  If empty then no message is displayed.
      */
-    protected function setErrorString($errorMessage) {
+    protected function setErrorString($errorMessage)
+    {
         $this->m_missingAttributes += 1;
         if ($errorMessage != '') {
             $this->m_errorString .= empty($this->m_errorString) ? $errorMessage : "<br>$errorMessage";
@@ -130,7 +152,8 @@ abstract class Controller_Base
      *
      * @return array
      */
-    protected function getPostAttributeArray($attributeName) {
+    protected function getPostAttributeArray($attributeName)
+    {
         if (isset($_POST[$attributeName])) {
             return $_POST[$attributeName];
         }
@@ -147,7 +170,8 @@ abstract class Controller_Base
      *
      * @return Value associated with attribute name or $defaultValue if attribute not found
      */
-    protected function getGetAttribute($attributeName, $defaultValue) {
+    protected function getGetAttribute($attributeName, $defaultValue)
+    {
         if (isset($_REQUEST[$attributeName])) {
             return $_REQUEST[$attributeName];
         }
@@ -162,7 +186,8 @@ abstract class Controller_Base
      * @param $userType - Type of user (see Model_Fields_Session for types)
      * @param $teamId - Team identifier
      */
-    protected function createSession($userId, $userType, $teamId) {
+    protected function createSession($userId, $userType, $teamId)
+    {
         // Lookup session and update timestamp if session already exists
         // else create a new session
         $this->m_session = Model_Fields_Session::LookupByUser($userId, $userType, $teamId, FALSE);
@@ -179,7 +204,8 @@ abstract class Controller_Base
      * @brief Renew the session, set class to authenticated and create cookie so that
      *        visit to next page does not require authentication.
      */
-    protected function _setAuthentication() {
+    protected function _setAuthentication()
+    {
         if (isset($this->m_session) and $this->m_session->isValid()) {
             $this->m_session->renew();
             $this->m_isAuthenticated = TRUE;
@@ -191,7 +217,8 @@ abstract class Controller_Base
     /**
      * @brief Reset attributes to default values
      */
-    protected function _reset() {
+    protected function _reset()
+    {
         $this->m_missingAttributes = 0;
         $this->m_operation = '';
         $this->m_session = null;
@@ -226,7 +253,8 @@ abstract class Controller_Base
      *
      * @return Array of facilities; empty array if no facilities found
      */
-    public function getFacilities() {
+    public function getFacilities()
+    {
         $facilities = Model_Fields_Facility::LookupByLeague($this->m_league);
 
         return $facilities;
@@ -237,7 +265,8 @@ abstract class Controller_Base
      *
      * @return Array of locations; empty array if no locations found
      */
-    public function getLocations() {
+    public function getLocations()
+    {
         $locations = Model_Fields_Location::GetLocations($this->m_league->id);
 
         return $locations;
@@ -251,7 +280,8 @@ abstract class Controller_Base
      *
      * @return Array of Model_Fields_Field instances; empty array if no fields found
      */
-    public function getFields($facility, $enabledOnly = FALSE) {
+    public function getFields($facility, $enabledOnly = FALSE)
+    {
         $fields = Model_Fields_Field::LookupByFacility($facility, $enabledOnly);
 
         return $fields;
@@ -262,7 +292,8 @@ abstract class Controller_Base
      *
      * @return Session identifier; 0 if no session established
      */
-    public function getSessionId() {
+    public function getSessionId()
+    {
         if (isset($this->m_session)) {
             return $this->m_session->id;
         }
@@ -277,7 +308,8 @@ abstract class Controller_Base
      *
      * @return bool TRUE if day was selected; FALSE otherwise
      */
-    protected function _isDaySelected($day) {
+    protected function _isDaySelected($day)
+    {
         $postValue = $this->getPostAttribute($day, NULL, FALSE);
         return isset($postValue);
     }
@@ -289,7 +321,8 @@ abstract class Controller_Base
      *
      * @return string : comma separated list of days string: "Monday, Tuesday, ..., Friday"
      */
-    public function getDaysSelectedString($reservation) {
+    public function getDaysSelectedString($reservation)
+    {
         $daysSelected = '';
         for ($i = 0; $i < 7; ++$i) {
             if ($reservation->isDaySelected($i)) {
@@ -310,7 +343,8 @@ abstract class Controller_Base
      *
      * @return string (Monday, Tuesday, ..., Sunday)
      */
-    protected function _getDayOfWeek($day) {
+    protected function _getDayOfWeek($day)
+    {
         switch ($day) {
             case 0:
                 return 'Monday';
@@ -340,7 +374,8 @@ abstract class Controller_Base
      *
      * @return array $reservations
      */
-    public function getFilteredReservations($filterFacilityId, $filterDivisionId, $filterTeamId) {
+    public function getFilteredReservations($filterFacilityId, $filterDivisionId, $filterTeamId)
+    {
         $reservations = array();
 
         foreach ($this->m_divisions as $division) {

@@ -1,5 +1,7 @@
 <?php
 
+use \DAG\Domain\Schedule\Family;
+
 /**
  * Class Controller_Schedules_Home
  *
@@ -20,6 +22,16 @@ class Controller_Schedules_Home extends Controller_Schedules_Base {
                     '* Password is required'
                 );
             }
+
+            if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_FILE)) {
+                $this->m_operation = View_Base::UPLOAD_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_PLAYER_FILE)) {
+                $this->m_operation = View_Base::UPLOAD_PLAYER_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_FACILITY_FILE)) {
+                $this->m_operation = View_Base::UPLOAD_FACILITY_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_FIELD_FILE)) {
+                $this->m_operation = View_Base::UPLOAD_FIELD_FILE;
+            }
         }
     }
 
@@ -35,6 +47,47 @@ class Controller_Schedules_Home extends Controller_Schedules_Base {
 
             case View_Base::SIGN_OUT:
                 $this->signOut();
+                break;
+
+            case View_Base::UPLOAD_FILE:
+                $fileData = $this->_getFileData();
+                if (isset($this->m_season)) {
+                    $this->m_season->populateDivisions($fileData);
+                    Family::createFromCoaches($this->m_season);
+                    $this->m_messageString = 'Operation Complete, Check out the DIVISION, TEAM and FAMILY Tabs to confirm data is correct';
+                } else {
+                    $this->m_errorString = 'Unable to find an enabled Season.  Click on SEASON tab first to create/enable a Season';
+                }
+                break;
+
+            case View_Base::UPLOAD_PLAYER_FILE:
+                $fileData = $this->_getFileData();
+                if (isset($this->m_season)) {
+                    $this->m_season->populatePlayers($fileData);
+                    $this->m_messageString = 'Operation Complete, Check out the TEAM Tab to confirm data is correct';
+                } else {
+                    $this->m_errorString = 'Unable to find an enabled Season.  Click on SEASON tab first to create/enable a Season';
+                }
+                break;
+
+            case View_Base::UPLOAD_FACILITY_FILE:
+                $fileData = $this->_getFileData();
+                if (isset($this->m_season)) {
+                    $this->m_season->populateFacilities($fileData);
+                    $this->m_messageString = 'Operation Complete, Check out the FACILITY Tab to confirm data is correct';
+                } else {
+                    $this->m_errorString = 'Unable to find an enabled Season.  Click on SEASON tab first to create/enable a Season';
+                }
+                break;
+
+            case View_Base::UPLOAD_FIELD_FILE:
+                $fileData = $this->_getFileData();
+                if (isset($this->m_season)) {
+                    $this->m_season->populateFields($fileData);
+                    $this->m_messageString = 'Operation Complete, Check out the FIELD Tab to confirm data is correct';
+                } else {
+                    $this->m_errorString = 'Unable to find an enabled Season.  Click on SEASON tab first to create/enable a Season';
+                }
                 break;
 
             case View_Base::SIGN_IN:
@@ -65,5 +118,27 @@ class Controller_Schedules_Home extends Controller_Schedules_Base {
             $this->_reset();
             $this->m_email = "* Incorrect email - try again";
         }
+    }
+
+    /**
+     * @return string $fileData
+     */
+    private function _getFileData()
+    {
+        $fileName = $_FILES["fileToUpload"]["tmp_name"];
+        // $fileType = pathinfo($fileName, PATHINFO_EXTENSION);
+
+        $handle = fopen($fileName, "r");
+        \DAG\Framework\Exception\Precondition::isTrue($handle != false, "Unable to open file: $fileName");
+
+        $fileData = '';
+        $data = fread($handle, 1024);
+        while ($data) {
+            $fileData .= $data;
+            $data = fread($handle, 1024);
+        }
+        fclose($handle);
+
+        return $fileData;
     }
 }

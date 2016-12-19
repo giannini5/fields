@@ -15,7 +15,8 @@ class GameTimeOrmTest extends ORM_TestHelper
      */
     protected static $expectedDefaults =
         [
-            self::START_TIME => '03:30:00',
+            self::START_TIME        => '03:30:00',
+            self::GENDER_PREFERENCE => GameTimeOrm::BOYS,
         ];
 
     protected function setUp()
@@ -32,9 +33,9 @@ class GameTimeOrmTest extends ORM_TestHelper
     {
         $gameTimeOrm = GameTimeOrm::create(
             $this->defaultGameDateOrm->id,
-            $this->defaultDivisionOrm->id,
             $this->defaultFieldOrm->id,
-            self::$expectedDefaults[self::START_TIME]);
+            self::$expectedDefaults[self::START_TIME],
+            self::$expectedDefaults[self::GENDER_PREFERENCE]);
 
         $this->verifyExpectedAttributes($gameTimeOrm, self::$expectedDefaults);
     }
@@ -45,6 +46,12 @@ class GameTimeOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($gameTimeOrm, self::$defaultGameTimeOrmAttributes);
     }
 
+    public function test_loadByGameId()
+    {
+        $gameTimeOrm = GameTimeOrm::loadByGameId($this->defaultGameOrm->id);
+        $this->verifyExpectedAttributes($gameTimeOrm, self::$defaultGameTimeOrmAttributes);
+    }
+
     public function test_loadByGameDateId()
     {
         $gameTimeOrms = GameTimeOrm::loadByGameDateId($this->defaultGameDateOrm->id);
@@ -52,16 +59,32 @@ class GameTimeOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($gameTimeOrms[0], self::$defaultGameTimeOrmAttributes);
     }
 
-    public function test_loadByDivisionId()
+    public function test_loadByGameDateAndFieldId()
     {
-        $gameTimeOrms = GameTimeOrm::loadByDivisionId($this->defaultGameDateOrm->id, $this->defaultDivisionOrm->id);
+        $gameTimeOrms = GameTimeOrm::loadByGameDateIdAndFieldId($this->defaultGameDateOrm->id, $this->defaultFieldOrm->id);
         $this->assertEquals(1, count($gameTimeOrms));
         $this->verifyExpectedAttributes($gameTimeOrms[0], self::$defaultGameTimeOrmAttributes);
     }
 
+    public function test_loadByGameDateAndFieldIdAndGender()
+    {
+        $gameTimeOrms = GameTimeOrm::loadByGameDateIdAndFieldIdAndGender($this->defaultGameDateOrm->id, $this->defaultFieldOrm->id, GameTimeOrm::BOYS);
+        $this->assertEquals(0, count($gameTimeOrms));
+
+        $gameTimeOrms = GameTimeOrm::loadByGameDateIdAndFieldIdAndGender($this->defaultGameDateOrm->id, $this->defaultFieldOrm->id, GameTimeOrm::GIRLS);
+        $this->assertEquals(1, count($gameTimeOrms));
+        $this->verifyExpectedAttributes($gameTimeOrms[0], self::$defaultGameTimeOrmAttributes);
+    }
+
+    public function test_loadByGameDateAndFieldIdAndStartTime()
+    {
+        $gameTimeOrm = GameTimeOrm::loadByGameDateIdAndFieldIdAndStartTime($this->defaultGameDateOrm->id, $this->defaultFieldOrm->id, self::$defaultGameTimeOrmAttributes[self::START_TIME]);
+        $this->verifyExpectedAttributes($gameTimeOrm, self::$defaultGameTimeOrmAttributes);
+    }
+
     public function test_loadByFieldId()
     {
-        $gameTimeOrms = GameTimeOrm::loadByFieldId($this->defaultGameDateOrm->id, $this->defaultFieldOrm->id);
+        $gameTimeOrms = GameTimeOrm::loadByFieldId($this->defaultFieldOrm->id);
         $this->assertEquals(1, count($gameTimeOrms));
         $this->verifyExpectedAttributes($gameTimeOrms[0], self::$defaultGameTimeOrmAttributes);
     }
@@ -69,9 +92,9 @@ class GameTimeOrmTest extends ORM_TestHelper
     private function verifyExpectedAttributes($gameTimeOrm, $attributes)
     {
         $this->assertTrue($gameTimeOrm->id > 0);
-        $this->assertEquals($this->defaultGameDateOrm->id,  $gameTimeOrm->gameDateId);
-        $this->assertEquals($this->defaultDivisionOrm->id,  $gameTimeOrm->divisionId);
-        $this->assertEquals($this->defaultFieldOrm->id,     $gameTimeOrm->fieldId);
-        $this->assertEquals($attributes[self::START_TIME],  $gameTimeOrm->startTime);
+        $this->assertEquals($this->defaultGameDateOrm->id,          $gameTimeOrm->gameDateId);
+        $this->assertEquals($this->defaultFieldOrm->id,             $gameTimeOrm->fieldId);
+        $this->assertEquals($attributes[self::START_TIME],          $gameTimeOrm->startTime);
+        $this->assertEquals($attributes[self::GENDER_PREFERENCE],   $gameTimeOrm->genderPreference);
     }
 }

@@ -37,6 +37,26 @@ class CoachOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($coachOrm, self::$defaultCoachOrmAttributes);
     }
 
+    public function test_findByTeamGoRight()
+    {
+        $result = CoachOrm::findByTeamId($this->defaultTeamOrm->id, $coachOrm);
+        $this->assertTrue($result);
+        $this->verifyExpectedAttributes($coachOrm, self::$defaultCoachOrmAttributes);
+    }
+
+    public function test_findByTeamGoWrong()
+    {
+        $result = CoachOrm::findByTeamId(-1, $coachOrm);
+        $this->assertFalse($result);
+    }
+
+    public function test_loadBySeason()
+    {
+        $coachOrms = CoachOrm::loadBySeasonId($this->defaultSeasonOrm->id);
+        $this->assertEquals(1, count($coachOrms));
+        $this->verifyExpectedAttributes($coachOrms[0], self::$defaultCoachOrmAttributes);
+    }
+
     public function test_loadByFamily()
     {
         $coachOrms = CoachOrm::loadByFamilyId($this->defaultFamilyOrm->id);

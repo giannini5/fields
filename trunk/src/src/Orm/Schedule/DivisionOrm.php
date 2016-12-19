@@ -11,17 +11,26 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $id
  * @property int    $seasonId
  * @property string $name
+ * @property string $gender
+ * @property int    $gameDurationMinutes
+ * @property int    $displayOrder
  */
 class DivisionOrm extends PersistenceModel
 {
-    const FIELD_ID          = 'id';
-    const FIELD_SEASON_ID   = 'seasonId';
-    const FIELD_NAME        = 'name';
+    const FIELD_ID                      = 'id';
+    const FIELD_SEASON_ID               = 'seasonId';
+    const FIELD_NAME                    = 'name';
+    const FIELD_GENDER                  = 'gender';
+    const FIELD_GAME_DURATION_MINUTES   = 'gameDurationMinutes';
+    const FIELD_DISPLAY_ORDER           = 'displayOrder';
 
     protected static $fields = [
-        self::FIELD_ID          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_SEASON_ID   => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_NAME        => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_ID                      => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_SEASON_ID               => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_NAME                    => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_GENDER                  => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_GAME_DURATION_MINUTES   => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_DISPLAY_ORDER           => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
 
     protected static $config = [
@@ -37,18 +46,27 @@ class DivisionOrm extends PersistenceModel
      *
      * @param int       $seasonId
      * @param string    $name
+     * @param string    $gender
+     * @param int       $gameDurationMinutes
+     * @param int       $displayOrder
      *
      * @return DivisionOrm
      * @throws DuplicateEntryException
      */
     public static function create(
         $seasonId,
-        $name)
+        $name,
+        $gender,
+        $gameDurationMinutes,
+        $displayOrder)
     {
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_SEASON_ID   => $seasonId,
-                self::FIELD_NAME        => $name,
+                self::FIELD_SEASON_ID               => $seasonId,
+                self::FIELD_NAME                    => $name,
+                self::FIELD_GENDER                  => $gender,
+                self::FIELD_GAME_DURATION_MINUTES   => $gameDurationMinutes,
+                self::FIELD_DISPLAY_ORDER           => $displayOrder,
             ],
             function ($item) {
                 return $item !== null;
@@ -77,18 +95,45 @@ class DivisionOrm extends PersistenceModel
      *
      * @param int       $seasonId
      * @param string    $name
+     * @param string    $gender
      *
      * @return DivisionOrm
      */
-    public static function loadBySeasonIdAndName($seasonId, $name)
+    public static function loadBySeasonIdAndNameAndGender($seasonId, $name, $gender)
     {
         $result = self::getPersistenceDriver()->getOne(
             [
                 self::FIELD_SEASON_ID   => $seasonId,
                 self::FIELD_NAME        => $name,
+                self::FIELD_GENDER      => $gender,
             ]);
 
         return new static($result);
+    }
+
+    /**
+     * Load a DivisionOrm by seasonId, name
+     *
+     * @param int       $seasonId
+     * @param string    $name
+     *
+     * @return DivisionOrm[]
+     */
+    public static function loadBySeasonIdAndName($seasonId, $name)
+    {
+        $divisions = [];
+
+        $results = self::getPersistenceDriver()->getMany(
+            [
+                self::FIELD_SEASON_ID   => $seasonId,
+                self::FIELD_NAME        => $name,
+            ]);
+
+        foreach ($results as $result) {
+            $divisions[] = new static($result);
+        }
+
+        return $divisions;
     }
 
     /**

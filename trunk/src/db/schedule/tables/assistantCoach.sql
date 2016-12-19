@@ -7,5 +7,6 @@ CREATE TABLE `assistantCoach` (
   `phone1` varchar(128) NOT NULL,
   `phone2` varchar(128) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `ux_teamNameEmail` (`teamId`,`name`)
+  UNIQUE KEY `ux_teamNameEmail` (`teamId`,`name`),
+  index ix_familyId(familyId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -17,7 +17,10 @@ class DivisionTest extends ORM_TestHelper
      * Expected values on create and load
      */
     protected static $expectedDefaults = array(
-        'name'          => 'TEST Domain division name',
+        'name'                  => 'TEST Domain division name',
+        'gender'                => 'TEST gender',
+        'gameDurationMinutes'   => 120,
+        'displayOrder'          => 14,
     );
 
     protected $divisionsToCleanup = array();
@@ -31,7 +34,10 @@ class DivisionTest extends ORM_TestHelper
 
         $this->divisionsToCleanup[] = Division::create(
             $this->season,
-            self::$expectedDefaults['name']);
+            self::$expectedDefaults['name'],
+            self::$expectedDefaults['gender'],
+            self::$expectedDefaults['gameDurationMinutes'],
+            self::$expectedDefaults['displayOrder']);
     }
 
     protected function tearDown()
@@ -55,10 +61,20 @@ class DivisionTest extends ORM_TestHelper
         $this->validateDivision($division, $this->season, self::$expectedDefaults);
     }
 
+    public function test_lookupByNameAndGender()
+    {
+        $division = Division::lookupByNameAndGender(
+            $this->season,
+            self::$expectedDefaults['name'],
+            self::$expectedDefaults['gender']);
+        $this->validateDivision($division, $this->season, self::$expectedDefaults);
+    }
+
     public function test_lookupByName()
     {
-        $division = Division::lookupByName($this->season, self::$expectedDefaults['name']);
-        $this->validateDivision($division, $this->season, self::$expectedDefaults);
+        $divisions = Division::lookupByName($this->season, self::$expectedDefaults['name']);
+        $this->assertEquals(1, count($divisions));
+        $this->validateDivision($divisions[0], $this->season, self::$expectedDefaults);
     }
 
     public function test_lookupBySeason()
@@ -70,7 +86,10 @@ class DivisionTest extends ORM_TestHelper
     public function validateDivision($division, $season, $expectedDefaults)
     {
         $this->assertTrue($division->id > 0);
-        $this->assertEquals($expectedDefaults['name'],          $division->name);
-        $this->assertEquals($season,                            $division->season);
+        $this->assertEquals($expectedDefaults['name'],                  $division->name);
+        $this->assertEquals($expectedDefaults['gender'],                $division->gender);
+        $this->assertEquals($expectedDefaults['gameDurationMinutes'],   $division->gameDurationMinutes);
+        $this->assertEquals($expectedDefaults['displayOrder'],          $division->displayOrder);
+        $this->assertEquals($season,                                    $division->season);
     }
 }

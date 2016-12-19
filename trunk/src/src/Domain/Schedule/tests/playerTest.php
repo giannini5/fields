@@ -83,6 +83,12 @@ class PlayerTest extends ORM_TestHelper
         $this->validatePlayer($player, $this->team, $this->family, self::$expectedDefaults);
     }
 
+    public function test_lookupByName()
+    {
+        $player = Player::lookupByName($this->playersToCleanup[0]->team, $this->playersToCleanup[0]->name);
+        $this->validatePlayer($player, $this->team, $this->family, self::$expectedDefaults);
+    }
+
     public function test_lookupByTeam()
     {
         $players = Player::lookupByTeam($this->team);

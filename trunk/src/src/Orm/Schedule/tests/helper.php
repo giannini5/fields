@@ -11,29 +11,34 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const DEFAULT_LEAGUE_NAME = 'Default League';
 
     // Database column names:
-    const NAME              = 'name';
-    const PASSWORD          = 'password';
-    const START_DATE        = 'startDate';
-    const END_DATE          = 'endDate';
-    const START_TIME        = 'startTime';
-    const END_TIME          = 'endTime';
-    const DAYS_OF_WEEK      = 'daysOfWeek';
-    const ENABLED           = 'enabled';
-    const ADDRESS1          = 'address1';
-    const ADDRESS2          = 'address2';
-    const CITY              = 'city';
-    const STATE             = 'state';
-    const POSTAL_CODE       = 'postalCode';
-    const COUNTRY           = 'country';
-    const CONTACT_NAME      = 'contactName';
-    const CONTACT_EMAIL     = 'contactEmail';
-    const CONTACT_PHONE     = 'contactPhone';
-    const IMAGE             = 'image';
-    const DAY               = 'day';
-    const PHONE             = 'phone';
-    const EMAIL             = 'email';
-    const PHONE1            = 'phone1';
-    const PHONE2            = 'phone2';
+    const NAME                  = 'name';
+    const PASSWORD              = 'password';
+    const START_DATE            = 'startDate';
+    const END_DATE              = 'endDate';
+    const START_TIME            = 'startTime';
+    const END_TIME              = 'endTime';
+    const DAYS_OF_WEEK          = 'daysOfWeek';
+    const ENABLED               = 'enabled';
+    const ADDRESS1              = 'address1';
+    const ADDRESS2              = 'address2';
+    const CITY                  = 'city';
+    const STATE                 = 'state';
+    const POSTAL_CODE           = 'postalCode';
+    const COUNTRY               = 'country';
+    const CONTACT_NAME          = 'contactName';
+    const CONTACT_EMAIL         = 'contactEmail';
+    const CONTACT_PHONE         = 'contactPhone';
+    const IMAGE                 = 'image';
+    const DAY                   = 'day';
+    const PHONE                 = 'phone';
+    const EMAIL                 = 'email';
+    const PHONE1                = 'phone1';
+    const PHONE2                = 'phone2';
+    const GENDER                = 'gender';
+    const DISPLAY_ORDER         = 'displayOrder';
+    const GAME_DURATION_MINUTES = 'gameDurationMinutes';
+    const GAMES_PER_TEAM        = 'gamesPerTeam';
+    const GENDER_PREFERENCE     = 'genderPreference';
 
     protected static $defaultSeasonOrmAttributes =
         [
@@ -82,12 +87,16 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     protected static $defaultFamilyOrmAttributes =
         [
-            self::PHONE   => '18052523944',
+            self::PHONE1  => '18052523944',
+            self::PHONE2  => '',
         ];
 
     protected static $defaultDivisionOrmAttributes =
         [
-            self::NAME   => 'UTestG',
+            self::NAME                  => 'UTestG',
+            self::GENDER                => 'Girls',
+            self::DISPLAY_ORDER         => 1,
+            self::GAME_DURATION_MINUTES => 60,
         ];
 
     protected static $defaultPoolOrmAttributes =
@@ -97,7 +106,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     protected static $defaultScheduleOrmAttributes =
         [
-            self::NAME   => 'Test Default Schedule',
+            self::NAME              => 'Test Default Schedule',
+            self::GAMES_PER_TEAM    => 10,
         ];
 
     protected static $defaultTeamOrmAttributes =
@@ -135,7 +145,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     protected static $defaultGameTimeOrmAttributes =
         [
-            self::START_TIME    => '16:30:00',
+            self::START_TIME        => '16:30:00',
+            self::GENDER_PREFERENCE => 'Girls',
         ];
 
     public $defaultLeagueOrm;
@@ -145,6 +156,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     public $defaultGameDateOrm;
     public $defaultFamilyOrm;
     public $defaultDivisionOrm;
+    public $defaultDivisionFieldOrm;
     public $defaultPoolOrm;
     public $defaultScheduleOrm;
     public $defaultTeamOrm;
@@ -196,10 +208,21 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultFacilityOrmAttributes[self::IMAGE],
             self::$defaultFacilityOrmAttributes[self::ENABLED]);
 
+        $this->defaultDivisionOrm = DivisionOrm::create(
+            $this->defaultSeasonOrm->id,
+            self::$defaultDivisionOrmAttributes[self::NAME],
+            self::$defaultDivisionOrmAttributes[self::GENDER],
+            self::$defaultDivisionOrmAttributes[self::GAME_DURATION_MINUTES],
+            self::$defaultDivisionOrmAttributes[self::DISPLAY_ORDER]);
+
         $this->defaultFieldOrm = FieldOrm::create(
             $this->defaultFacilityOrm->id,
             self::$defaultFieldOrmAttributes[self::NAME],
             self::$defaultFieldOrmAttributes[self::ENABLED]);
+
+        $this->defaultDivisionFieldOrm = DivisionFieldOrm::create(
+            $this->defaultDivisionOrm->id,
+            $this->defaultFieldOrm->id);
 
         $this->defaultGameDateOrm = GameDateOrm::create(
             $this->defaultSeasonOrm->id,
@@ -207,19 +230,16 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
         $this->defaultFamilyOrm = FamilyOrm::create(
             $this->defaultSeasonOrm->id,
-            self::$defaultFamilyOrmAttributes[self::PHONE]);
-
-        $this->defaultDivisionOrm = DivisionOrm::create(
-            $this->defaultSeasonOrm->id,
-            self::$defaultDivisionOrmAttributes[self::NAME]);
-
-        $this->defaultPoolOrm = PoolOrm::create(
-            $this->defaultDivisionOrm->id,
-            self::$defaultPoolOrmAttributes[self::NAME]);
+            self::$defaultFamilyOrmAttributes[self::PHONE1]);
 
         $this->defaultScheduleOrm = ScheduleOrm::create(
-            $this->defaultPoolOrm->id,
-            self::$defaultScheduleOrmAttributes[self::NAME]);
+            $this->defaultDivisionOrm->id,
+            self::$defaultScheduleOrmAttributes[self::NAME],
+            self::$defaultScheduleOrmAttributes[self::GAMES_PER_TEAM]);
+
+        $this->defaultPoolOrm = PoolOrm::create(
+            $this->defaultScheduleOrm->id,
+            self::$defaultPoolOrmAttributes[self::NAME]);
 
         $this->defaultTeamOrm = TeamOrm::create(
             $this->defaultDivisionOrm->id,
@@ -256,12 +276,12 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
         $this->defaultGameTimeOrm = GameTimeOrm::create(
             $this->defaultGameDateOrm->id,
-            $this->defaultDivisionOrm->id,
             $this->defaultFieldOrm->id,
-            self::$defaultGameTimeOrmAttributes[self::START_TIME]);
+            self::$defaultGameTimeOrmAttributes[self::START_TIME],
+            self::$defaultGameTimeOrmAttributes[self::GENDER_PREFERENCE]);
 
         $this->defaultGameOrm = GameOrm::create(
-            $this->defaultScheduleOrm->id,
+            $this->defaultPoolOrm->id,
             $this->defaultGameTimeOrm->id,
             $this->defaultTeamOrm->id,
             $this->defaultVisitingTeamOrm->id);
@@ -392,14 +412,19 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
      */
     protected function clearDivision($divisionOrm)
     {
-        $poolOrms = PoolOrm::loadByDivisionId($divisionOrm->id);
-        foreach ($poolOrms as $poolOrm) {
-            $this->clearPool($poolOrm);
-        }
-
         $teamOrms = TeamOrm::loadByDivisionId($divisionOrm->id);
         foreach ($teamOrms as $teamOrm) {
             $this->clearTeam($teamOrm);
+        }
+
+        $divisionFieldOrms = DivisionFieldOrm::loadByDivisionId($divisionOrm->id);
+        foreach ($divisionFieldOrms as $divisionFieldOrm) {
+            $divisionFieldOrm->delete();
+        }
+
+        $scheduleOrms = ScheduleOrm::loadByDivisionId($divisionOrm->id);
+        foreach ($scheduleOrms as $scheduleOrm) {
+            $this->clearSchedule($scheduleOrm);
         }
 
         $divisionOrm->delete();
@@ -412,9 +437,9 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
      */
     protected function clearPool($poolOrm)
     {
-        $scheduleOrms = ScheduleOrm::loadByPoolId($poolOrm->id);
-        foreach ($scheduleOrms as $scheduleOrm) {
-            $this->clearSchedule($scheduleOrm);
+        $gameOrms = GameOrm::loadByPoolId($poolOrm->id);
+        foreach ($gameOrms as $gameOrm) {
+            $this->clearGame($gameOrm);
         }
 
         $poolOrm->delete();
@@ -427,9 +452,9 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
      */
     protected function clearSchedule($scheduleOrm)
     {
-        $gameOrms = GameOrm::loadByScheduleId($scheduleOrm->id);
-        foreach ($gameOrms as $gameOrm) {
-            $this->clearGame($gameOrm);
+        $poolOrms = PoolOrm::loadByScheduleId($scheduleOrm->id);
+        foreach ($poolOrms as $poolOrm) {
+            $this->clearPool($poolOrm);
         }
 
         $scheduleOrm->delete();

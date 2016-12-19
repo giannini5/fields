@@ -3,6 +3,9 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
+use DAG\Orm\Schedule\AssistantCoachOrm;
+use DAG\Orm\Schedule\CoachOrm;
+use DAG\Orm\Schedule\FacilityOrm;
 use DAG\Orm\Schedule\FamilyOrm;
 use DAG\Framework\Exception\Precondition;
 
@@ -10,7 +13,8 @@ use DAG\Framework\Exception\Precondition;
 /**
  * @property int    $id
  * @property Season $season
- * @property string $phone
+ * @property string $phone1
+ * @property string $phone2
  */
 class Family extends Domain
 {
@@ -26,22 +30,102 @@ class Family extends Domain
      */
     protected function __construct(FamilyOrm $familyOrm, $season = null)
     {
-        $this->familyOrm = $familyOrm;
-        $this->season = isset($season) ? $season : Season::lookupById($familyOrm->seasonId);
+        $this->familyOrm    = $familyOrm;
+        $this->season       = isset($season) ? $season : Season::lookupById($familyOrm->seasonId);
     }
 
     /**
      * @param Season $season
-     * @param string $phone
+     * @param string $phone1
+     * @param string $phone2
      *
      * @return Family
      */
     public static function create(
         $season,
-        $phone)
+        $phone1,
+        $phone2 = '')
     {
-        $familyOrm = FamilyOrm::create($season->id, $phone);
+        $familyOrm = FamilyOrm::create($season->id, $phone1, $phone2);
         return new static($familyOrm, $season);
+    }
+
+    /**
+     * Create families from coaches.  Idempotent.
+     *
+     * @param $season
+     *
+     * @return Family[] $families
+     */
+    public static function createFromCoaches($season)
+    {
+        // Find coaches that are coaching multiple teams and create families
+        $coachOrms = CoachOrm::loadBySeasonId($season->id);
+        self::createFamilies($season, $coachOrms, $coachOrms, true);
+
+        // Find coaches that are also an assistant coach and create families
+        $assistantCoachOrms = AssistantCoachOrm::loadBySeasonId($season->id);
+        self::createFamilies($season, $coachOrms, $assistantCoachOrms, false);
+
+        // Find assistant coaches that are coaching multiple teams and create families
+        self::createFamilies($season, $assistantCoachOrms, $assistantCoachOrms, true);
+
+        return self::lookupBySeason($season);
+    }
+
+    /**
+     * Create Families from coaches and players - idempotent
+     *
+     * @param Season                        $season
+     * @param CoachOrm | AssistantCoachOrm  $list1
+     * @param CoachOrm | AssistantCoachOrm  $list2
+     * @param bool                          $optimize
+     */
+    private static function createFamilies($season, $list1, $list2, $optimize = false)
+    {
+        foreach ($list1 as $item1) {
+
+            $startingPointFound = false;
+            foreach ($list2 as $item2) {
+                // Skip items that have already been processed if optimizing
+                if ($optimize) {
+                    if (!$startingPointFound) {
+                        if ($item1 === $item2) {
+                            $startingPointFound = true;
+                        }
+                        continue;
+                    }
+                }
+
+                // Skip if coaching the same team
+                if ($item1->teamId == $item2->teamId) {
+                    continue;
+                }
+
+                // If match then create a family
+                if ((!empty($item1->phone1) and !empty($item2->phone1) and $item1->phone1 == $item2->phone1)
+                    or (!empty($item1->phone1) and !empty($item2->phone2) and $item1->phone1 == $item2->phone2)
+                    or (!empty($item1->phone2) and !empty($item2->phone1) and $item1->phone2 == $item2->phone1)
+                    or (!empty($item1->phone2) and !empty($item2->phone2) and $item1->phone2 == $item2->phone2)
+                ) {
+
+                    // Load or Create family
+                    $familyOrm = FamilyOrm::loadOrCreate($season->id, $item1->phone1, $item1->phone2);
+
+                    // Update $item1 if family not already set, or set to a different family
+                    if (!isset($item1->familyId) or $item1->familyId != $familyOrm->id) {
+                        $item1->familyId = $familyOrm->id;
+                        $item1->save();
+                    }
+
+                    // Update $item2 if family not already set, or set to a different family
+                    if (!isset($item2->familyId) or $item2->familyId != $familyOrm->id) {
+                        $item2->familyId = $familyOrm->id;
+                        $item2->save();
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -93,7 +177,8 @@ class Family extends Domain
     {
         switch ($propertyName) {
             case "id":
-            case "phone":
+            case "phone1":
+            case "phone2":
                 return $this->familyOrm->{$propertyName};
 
             case "season":

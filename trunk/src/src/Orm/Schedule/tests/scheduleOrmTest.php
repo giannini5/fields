@@ -15,7 +15,8 @@ class ScheduleOrmTest extends ORM_TestHelper
      */
     protected static $expectedDefaults =
         [
-            self::NAME => 'TEST Schedule',
+            self::NAME              => 'TEST Schedule',
+            self::GAMES_PER_TEAM    => 5,
         ];
 
     protected function setUp()
@@ -31,8 +32,9 @@ class ScheduleOrmTest extends ORM_TestHelper
     public function test_create()
     {
         $scheduleOrm = ScheduleOrm::create(
-            $this->defaultPoolOrm->id,
-            self::$expectedDefaults[self::NAME]);
+            $this->defaultDivisionOrm->id,
+            self::$expectedDefaults[self::NAME],
+            self::$expectedDefaults[self::GAMES_PER_TEAM]);
 
         $this->verifyExpectedAttributes($scheduleOrm, self::$expectedDefaults);
     }
@@ -45,14 +47,21 @@ class ScheduleOrmTest extends ORM_TestHelper
 
     public function test_loadByName()
     {
-        $scheduleOrm = ScheduleOrm::loadByPoolIdAndName($this->defaultPoolOrm->id, self::$defaultScheduleOrmAttributes[self::NAME]);
+        $scheduleOrm = ScheduleOrm::loadByDivisionIdAndName($this->defaultDivisionOrm->id, self::$defaultScheduleOrmAttributes[self::NAME]);
         $this->verifyExpectedAttributes($scheduleOrm, self::$defaultScheduleOrmAttributes);
+    }
+
+    public function test_loadByDivision()
+    {
+        $scheduleOrms = ScheduleOrm::loadByDivisionId($this->defaultDivisionOrm->id);
+        $this->assertEquals(1, count($scheduleOrms));
+        $this->verifyExpectedAttributes($scheduleOrms[0], self::$defaultScheduleOrmAttributes);
     }
 
     private function verifyExpectedAttributes($scheduleOrm, $attributes)
     {
         $this->assertTrue($scheduleOrm->id > 0);
-        $this->assertEquals($this->defaultPoolOrm->id,  $scheduleOrm->poolId);
+        $this->assertEquals($this->defaultDivisionOrm->id,  $scheduleOrm->divisionId);
         $this->assertEquals($attributes[self::NAME],        $scheduleOrm->name);
     }
 }

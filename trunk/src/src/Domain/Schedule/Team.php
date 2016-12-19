@@ -111,6 +111,35 @@ class Team extends Domain
     }
 
     /**
+     * @param Pool  $pool
+     *
+     * @return array Teams
+     */
+    public static function lookupByPool($pool)
+    {
+        $teams = [];
+
+        $teamOrms = TeamOrm::loadByPoolId($pool->id);
+        foreach ($teamOrms as $teamOrm) {
+            $teams[] = new static($teamOrm, null, $pool);
+        }
+
+        usort($teams, "static::compare");
+
+        return $teams;
+    }
+
+    /**
+     * @param Division $a
+     * @param Division $b
+     * @return int - -1, 0, 1 based on how $a name compares with $b
+     */
+    public static function compare($a, $b)
+    {
+        return strcmp($a->name, $b->name);
+    }
+
+    /**
      * @param $propertyName
      * @return int|string
      */
@@ -124,6 +153,30 @@ class Team extends Domain
             case "division":
             case "pool":
                 return $this->{$propertyName};
+
+            default:
+                Precondition::isTrue(false, "Unrecognized property: $propertyName");
+        }
+    }
+
+    /**
+     * @param $propertyName
+     * @param $value
+     */
+    public function __set($propertyName, $value)
+    {
+        switch ($propertyName) {
+            case "pool":
+                $this->pool = $value;
+
+                if (isset($value)) {
+                    $this->teamOrm->poolId = $this->pool->id;
+                } else {
+                    $this->teamOrm->poolId = null;
+                }
+
+                $this->teamOrm->save();
+                break;
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");

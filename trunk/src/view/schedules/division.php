@@ -1,5 +1,8 @@
 <?php
 
+use \DAG\Domain\Schedule\Team;
+use \DAG\Domain\Schedule\Division;
+
 /**
  * @brief Show the Division page and get the user to select a division to administer or create a new division.
  */
@@ -18,16 +21,32 @@ class View_Schedules_Division extends View_Schedules_Base {
      */
     public function render()
     {
-        $maxColumns = 4;
+        print "
+            <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
+                <thead>
+                    <tr bgcolor='lightskyblue'>
+                        <th>Division</th>
+                        <th>Teams</th>
+                    </tr>
+                </thead>";
+
+        $divisions = [];
+        if (isset($this->m_controller->m_season)) {
+            $divisions = Division::lookupBySeason($this->m_controller->m_season);
+        }
+
+        foreach ($divisions as $division) {
+            $teams = Team::lookupByDivision($division);
+            print "
+                    <tr>
+                        <td>$division->name $division->gender</td>
+                        <td align='right'>" . count($teams) . "</td>
+                    </tr>";
+        }
 
         print "
-            <table bgcolor='lightyellow' valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <td>TODO
-                    </td>
-                </tr>
             </table>
-            <br><br>";
+            ";
     }
 
     /**

@@ -5,7 +5,7 @@
  *
  * @brief Select a field to administer or create a new player
  */
-class Controller_Schedules_Player extends Controller_Schedules_Base {
+class Controller_Schedules_Family extends Controller_Schedules_Base {
 
     public function __construct() {
         parent::__construct();
@@ -33,7 +33,7 @@ class Controller_Schedules_Player extends Controller_Schedules_Base {
         }
 
         if ($this->m_isAuthenticated) {
-            $view = new View_Schedules_Player($this);
+            $view = new View_Schedules_Family($this);
         } else {
             $view = new View_Schedules_Home($this);
         }
@@ -42,16 +42,16 @@ class Controller_Schedules_Player extends Controller_Schedules_Base {
     }
 
     /**
-     * @brief Create Player
+     * @brief Create Family
      */
-    private function _createPlayer() {
+    private function _createFamily() {
         // TODO
     }
 
     /**
      * @brief Update Player
      */
-    private function _updatePlayer() {
+    private function _updateFamily() {
         // TODO
     }
 }

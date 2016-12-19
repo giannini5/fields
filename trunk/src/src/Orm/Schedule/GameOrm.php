@@ -2,6 +2,7 @@
 
 namespace DAG\Orm\Schedule;
 
+use DAG\Framework\Exception\Assertion;
 use DAG\Framework\Orm\FieldValidator as FV;
 use DAG\Framework\Orm\PersistenceConfig as PC;
 use DAG\Framework\Orm\PersistenceModel;
@@ -10,7 +11,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
 
 /**
  * @property int    $id
- * @property int    $scheduleId
+ * @property int    $poolId
  * @property int    $gameTimeId
  * @property int    $homeTeamId
  * @property int    $visitingTeamId
@@ -18,14 +19,14 @@ use DAG\Framework\Orm\DuplicateEntryException;
 class GameOrm extends PersistenceModel
 {
     const FIELD_ID                  = 'id';
-    const FIELD_SCHEDULE_ID         = 'scheduleId';
+    const FIELD_POOL_ID             = 'poolId';
     const FIELD_GAME_TIME_ID        = 'gameTimeId';
     const FIELD_HOME_TEAM_ID        = 'homeTeamId';
     const FIELD_VISITING_TEAM_ID    = 'visitingTeamId';
 
     protected static $fields = [
         self::FIELD_ID                  => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_SCHEDULE_ID         => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_POOL_ID         => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_GAME_TIME_ID        => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_HOME_TEAM_ID        => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_VISITING_TEAM_ID    => [FV::INT,    [FV::NO_CONSTRAINTS]],
@@ -42,7 +43,7 @@ class GameOrm extends PersistenceModel
     /**
      * Create a GameOrm
      *
-     * @param int       $scheduleId
+     * @param int       $poolId
      * @param int       $gameTimeId
      * @param int       $homeTeamId
      * @param int       $visitingTeamId
@@ -51,14 +52,19 @@ class GameOrm extends PersistenceModel
      * @throws DuplicateEntryException
      */
     public static function create(
-        $scheduleId,
+        $poolId,
         $gameTimeId,
         $homeTeamId,
         $visitingTeamId)
     {
+        // Verify GameTimeOrm exists and a game has not been assigned
+        $gameTimeOrm = GameTimeOrm::loadById($gameTimeId);
+        Assertion::isTrue(!isset($gameTimeOrm->gameId), "GameTime already has a game assignment.  Cannot double book.");
+
+        // Create the GameOrm
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_SCHEDULE_ID         => $scheduleId,
+                self::FIELD_POOL_ID             => $poolId,
                 self::FIELD_GAME_TIME_ID        => $gameTimeId,
                 self::FIELD_HOME_TEAM_ID        => $homeTeamId,
                 self::FIELD_VISITING_TEAM_ID    => $visitingTeamId,
@@ -68,7 +74,13 @@ class GameOrm extends PersistenceModel
             }
         );
 
-        return new static($result);
+        $gameOrm = new static($result);
+
+        // Update the GameTimeOrm to reference this game
+        $gameTimeOrm->gameId = $gameOrm->id;
+        $gameTimeOrm->save();
+
+        return $gameOrm;
     }
 
     /**
@@ -100,17 +112,17 @@ class GameOrm extends PersistenceModel
     }
 
     /**
-     * Get GameOrms for a scheduleId
+     * Get GameOrms for a poolId
      *
-     * @param $scheduleId
+     * @param $poolId
      *
      * @return array [] GameOrm
      */
-    public static function loadByScheduleId($scheduleId)
+    public static function loadByPoolId($poolId)
     {
         $results = self::getPersistenceDriver()->getMany(
             [
-                self::FIELD_SCHEDULE_ID => $scheduleId
+                self::FIELD_POOL_ID => $poolId
             ]);
 
         $gameOrms = [];

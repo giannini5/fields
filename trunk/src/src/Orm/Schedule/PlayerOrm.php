@@ -92,6 +92,23 @@ class PlayerOrm extends PersistenceModel
     }
 
     /**
+     * Load by name
+     *
+     * @param int       $teamId
+     * @param string    $name
+     *
+     * @return PlayerOrm
+     */
+    public static function loadByName($teamId, $name)
+    {
+        $result = self::getPersistenceDriver()->getOne(
+            [self::FIELD_TEAM_ID    => $teamId,
+             self::FIELD_NAME       => $name,]);
+
+        return new self($result);
+    }
+
+    /**
      * Load PlayerOrms by teamId
      *
      * @param int       $teamId

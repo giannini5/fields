@@ -61,6 +61,24 @@ class SeasonTest extends ORM_TestHelper
         $this->validateSeason($season, $this->league, self::$expectedDefaults);
     }
 
+    public function test_createFail()
+    {
+        try {
+            $this->seasonsToCleanup[] = Season::create(
+                $this->league,
+                self::$expectedDefaults['name'],
+                '2016-09-30',
+                '2016-08-31',
+                self::$expectedDefaults['startTime'],
+                self::$expectedDefaults['endTime'],
+                self::$expectedDefaults['daysOfWeek'],
+                self::$expectedDefaults['enabled']);
+            $this->assertTrue(false);
+        } catch (\PreconditionException $e) {
+            $this->assertTrue(true);
+        }
+    }
+
     public function test_lookupById()
     {
         $season = Season::lookupById($this->seasonsToCleanup[0]->id);
@@ -98,8 +116,10 @@ New,U9B-16,Asst,,,John Anderson,805-967-0674,805-689-2964,johnanderson@andersys.
         $season->populateDivisions($data, true);
 
         // Validate Results
-        $division = Division::lookupByName($season, 'U12G');
-        $this->assertEquals('U12G', $division->name);
+        $division = Division::lookupByNameAndGender($season, 'U12', 'Girls');
+        $this->assertEquals('U12', $division->name);
+        $this->assertEquals('Girls', $division->gender);
+        $this->assertEquals(80, $division->displayOrder);
 
         $team = Team::lookupByName($division, 'U12G-02');
         $this->assertEquals('U12G-02', $team->name);
@@ -110,7 +130,11 @@ New,U9B-16,Asst,,,John Anderson,805-967-0674,805-689-2964,johnanderson@andersys.
         $this->assertEquals('805-679-1810', $coach->phone2);
         $this->assertEquals('w-afifi@comm.ucsb.edu', $coach->email);
 
-        $division         = Division::lookupByName($season, 'U9B');
+        $division         = Division::lookupByNameAndGender($season, 'U9', 'Boys');
+        $this->assertEquals('U9', $division->name);
+        $this->assertEquals('Boys', $division->gender);
+        $this->assertEquals(50, $division->displayOrder);
+
         $team             = Team::lookupByName($division, 'U9B-16');
         $assistantCoaches = AssistantCoach::lookupByTeam($team);
         $this->assertTrue(count($assistantCoaches) == 1);
@@ -141,16 +165,113 @@ New,U9B-16,Asst,,,John Anderson,805-967-0674,805-689-2964,johnanderson@andersys.
         $season->populatePlayers($data, true);
 
         // Validate Results
-        $division = Division::lookupByName($season, 'U8B');
-        $this->assertEquals('U8B', $division->name);
+        $division = Division::lookupByNameAndGender($season, 'U8', 'Boys');
+        $this->assertEquals('U8', $division->name);
+        $this->assertEquals('Boys', $division->gender);
+        $this->assertEquals(40, $division->displayOrder);
 
         $team = Team::lookupByName($division, 'U8B-02');
         $this->assertEquals('U8B-02', $team->name);
 
         $players = Player::lookupByTeam($team);
         $this->assertTrue(count($players) == 1);
-        $this->assertEquals('Abbott; Cash', $players[0]->name);
+        $this->assertEquals('Abbott, Cash', $players[0]->name);
         $this->assertEquals('213-400-1566', $players[0]->phone);
+    }
+
+    public function test_populateFacilities()
+    {
+        // Setup
+        $data = 'FacilityName,Address1,Address2,City,State,ZipCode,ContactName,ContactEmail,ContactPhone,Enabled
+Girsh Park,7050 Phelps Rd,,Goleta,CA,93117,Ryan Harrington,rharrington@girshpark.org,(805) 968-2773 x3,1
+UCSB Rec Center,516 Ocean Road,,Santa Barbara,CA,93106,Celia Elliott,Celia.Elliott@recreation.ucsb.edu,,1';
+
+        $season = Season::lookupById($this->defaultSeasonOrm->id);
+
+        // Run Test
+        $season->populateFacilities($data, true);
+
+        // Validate Results
+        $facilities = Facility::lookupBySeason($season);
+        $this->assertEquals(3, count($facilities));
+
+        $facility = Facility::lookupByName($season, 'Girsh Park');
+        $this->assertEquals('7050 Phelps Rd', $facility->address1);
+        $this->assertEquals('', $facility->address2);
+        $this->assertEquals('Goleta', $facility->city);
+        $this->assertEquals('CA', $facility->state);
+        $this->assertEquals('93117', $facility->postalCode);
+        $this->assertEquals('Ryan Harrington', $facility->contactName);
+        $this->assertEquals('rharrington@girshpark.org', $facility->contactEmail);
+        $this->assertEquals('(805) 968-2773 x3', $facility->contactPhone);
+        $this->assertEquals(1, $facility->enabled);
+
+        $facility = Facility::lookupByName($season, 'UCSB Rec Center');
+        $this->assertEquals('516 Ocean Road', $facility->address1);
+        $this->assertEquals('', $facility->address2);
+        $this->assertEquals('Santa Barbara', $facility->city);
+        $this->assertEquals('CA', $facility->state);
+        $this->assertEquals('93106', $facility->postalCode);
+        $this->assertEquals('Celia Elliott', $facility->contactName);
+        $this->assertEquals('Celia.Elliott@recreation.ucsb.edu', $facility->contactEmail);
+        $this->assertEquals('', $facility->contactPhone);
+        $this->assertEquals(1, $facility->enabled);
+    }
+
+    public function test_populateFields()
+    {
+        // Setup
+        $season = Season::lookupById($this->defaultSeasonOrm->id);
+        Facility::create($season, 'Girsh Park', '', '', '', '', '', '', '', '', '', '', 1);
+        Facility::create($season, 'UCSB Rec Center', '', '', '', '', '', '', '', '', '', '', 1);
+        Division::create($season, 'U5', 'Girls', 60, 10);
+        Division::create($season, 'U5', 'Boys', 60, 10);
+        Division::create($season, 'U6', 'Girls', 60, 10);
+        Division::create($season, 'U6', 'Boys', 60, 10);
+        Division::create($season, 'U14', 'Girls', 90, 20);
+        Division::create($season, 'U14', 'Boys', 90, 20);
+        Division::create($season, 'U16/19', 'Girls', 90, 30);
+        Division::create($season, 'U16/19', 'Boys', 90, 30);
+
+        $data = 'FacilityName,FieldName,Enabled,DivisionsList
+Girsh Park,Field A,1,U5;U6
+UCSB Rec Center,Field 1,1,U14;U16/19';
+
+        // Run Test
+        $season->populateFields($data, true);
+
+        // Validate Results
+        $facility = Facility::lookupByName($season, 'Girsh Park');
+        $field = Field::lookupByName($facility, 'Field A');
+        $this->assertEquals('Girsh Park', $field->facility->name);
+        $this->assertEquals('Field A', $field->name);
+        $this->assertEquals(1, $field->enabled);
+
+        $facility = Facility::lookupByName($season, 'UCSB Rec Center');
+        $field = Field::lookupByName($facility, 'Field 1');
+        $this->assertEquals('UCSB Rec Center', $field->facility->name);
+        $this->assertEquals('Field 1', $field->name);
+        $this->assertEquals(1, $field->enabled);
+
+        $facility = Facility::lookupByName($season, 'Girsh Park');
+        $field = Field::lookupByName($facility, 'Field A');
+        $divisionFields = DivisionField::lookupByField($field);
+        $this->assertEquals(4, count($divisionFields));
+
+        $facility = Facility::lookupByName($season, 'Girsh Park');
+        $field = Field::lookupByName($facility, 'Field A');
+        $divisionFields = DivisionField::lookupByField($field);
+        $this->assertEquals(4, count($divisionFields));
+
+        $facility = Facility::lookupByName($season, 'UCSB Rec Center');
+        $field = Field::lookupByName($facility, 'Field 1');
+        $divisionFields = DivisionField::lookupByField($field);
+        $this->assertEquals(4, count($divisionFields));
+
+        $facility = Facility::lookupByName($season, 'UCSB Rec Center');
+        $field = Field::lookupByName($facility, 'Field 1');
+        $divisionFields = DivisionField::lookupByField($field);
+        $this->assertEquals(4, count($divisionFields));
     }
 
     public function validateSeason($season, $league, $expectedDefaults)
