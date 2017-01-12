@@ -2,96 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/014_addDatesToSchedule.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/015_addPublishedtoSchedule.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/016_addGamesAgainstToPool.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/017_familyGame.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/018_gameTimeIndexOnGame.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/FamilyGame.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/FamilyGameOrm.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminSchedules/base.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminSchedules/base.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminSchedules/division.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminSchedules/division.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/tables/familyGame.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/familyGameOrmTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/familyGameTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminSchedules/preview.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminSchedules/preview.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminSchedules/schedule.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminSchedules/schedule.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminSchedules/team.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminSchedules/team.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminSchedules/upload.php" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/controller/schedules/schedule.php" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/view/schedules/schedule.php" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/admin/base.php" afterPath="$PROJECT_DIR$/controller/adminPractice/base.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/admin/division.php" afterPath="$PROJECT_DIR$/controller/adminPractice/division.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/admin/facility.php" afterPath="$PROJECT_DIR$/controller/adminPractice/facility.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/admin/field.php" afterPath="$PROJECT_DIR$/controller/adminPractice/field.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/admin/home.php" afterPath="$PROJECT_DIR$/controller/adminPractice/home.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/admin/location.php" afterPath="$PROJECT_DIR$/controller/adminPractice/location.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/admin/reservations.php" afterPath="$PROJECT_DIR$/controller/adminPractice/reservations.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/admin/season.php" afterPath="$PROJECT_DIR$/controller/adminPractice/season.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/admin/transaction.php" afterPath="$PROJECT_DIR$/controller/adminPractice/transaction.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/schedules/facility.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/facility.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/schedules/family.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/family.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/schedules/field.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/field.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/schedules/gameDate.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/gameDate.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/controller/schedules/season.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/season.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/admin/base.php" afterPath="$PROJECT_DIR$/view/adminPractice/base.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/admin/division.php" afterPath="$PROJECT_DIR$/view/adminPractice/division.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/admin/facility.php" afterPath="$PROJECT_DIR$/view/adminPractice/facility.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/admin/field.php" afterPath="$PROJECT_DIR$/view/adminPractice/field.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/admin/home.php" afterPath="$PROJECT_DIR$/view/adminPractice/home.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/admin/location.php" afterPath="$PROJECT_DIR$/view/adminPractice/location.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/admin/reservations.php" afterPath="$PROJECT_DIR$/view/adminPractice/reservations.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/admin/season.php" afterPath="$PROJECT_DIR$/view/adminPractice/season.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/admin/transactions.php" afterPath="$PROJECT_DIR$/view/adminPractice/transactions.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/schedules/facility.php" afterPath="$PROJECT_DIR$/view/adminSchedules/facility.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/schedules/family.php" afterPath="$PROJECT_DIR$/view/adminSchedules/family.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/schedules/field.php" afterPath="$PROJECT_DIR$/view/adminSchedules/field.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/schedules/gameDate.php" afterPath="$PROJECT_DIR$/view/adminSchedules/gameDate.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/schedules/home.php" afterPath="$PROJECT_DIR$/view/adminSchedules/home.php" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/view/schedules/season.php" afterPath="$PROJECT_DIR$/view/adminSchedules/season.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/AssistantCoach.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/AssistantCoach.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Coach.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Coach.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/DivisionFieldOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/DivisionFieldOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Family.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Family.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/FamilyOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/FamilyOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Field.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Field.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Game.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Game.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/GameDate.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/GameDate.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/GameOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/GameOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/GameTime.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/GameTime.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Pool.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Pool.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/PoolOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/PoolOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Schedule.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Schedule.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/ScheduleOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/ScheduleOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/SeasonOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/SeasonOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Team.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/TeamPolygon.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/TeamPolygon.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/base.php" afterPath="$PROJECT_DIR$/controller/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/schedules/base.php" afterPath="$PROJECT_DIR$/controller/schedules/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/base.php" afterPath="$PROJECT_DIR$/view/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/base.php" afterPath="$PROJECT_DIR$/view/fields/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/schedules/base.php" afterPath="$PROJECT_DIR$/view/schedules/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/schedules/division.php" afterPath="$PROJECT_DIR$/controller/schedules/division.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/schedules/division.php" afterPath="$PROJECT_DIR$/view/schedules/division.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/tests/familyTest.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/familyTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/game.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/game.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/tests/gameTest.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/gameTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/tests/helper.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/helper.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/schedules/home.php" afterPath="$PROJECT_DIR$/controller/schedules/home.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/index.php" afterPath="$PROJECT_DIR$/web/index.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/pool.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/pool.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/tests/poolTest.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/poolTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/schedule.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/schedule.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/tests/scheduleOrmTest.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/scheduleOrmTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/tests/scheduleTest.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/scheduleTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/schedules/team.php" afterPath="$PROJECT_DIR$/controller/schedules/team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/schedules/team.php" afterPath="$PROJECT_DIR$/view/schedules/team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/tests/teamPolygonTest.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/teamPolygonTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/autoload.php" afterPath="$PROJECT_DIR$/lib/autoload.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="src.iws" />
@@ -130,6 +41,16 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
+      <file leaf-file-name="autoload.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/autoload.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-10.333333" vertical-offset="757" max-vertical-offset="1140">
+              <caret line="70" column="0" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="FamilyGame.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/FamilyGame.php">
           <provider selected="true" editor-type-id="text-editor">
@@ -150,20 +71,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="index.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/web/index.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-4.4583335" vertical-offset="2548" max-vertical-offset="2895">
-              <caret line="177" column="32" selection-start-line="177" selection-start-column="32" selection-end-line="177" selection-end-column="32" />
+            <state vertical-scroll-proportion="0.6866841" vertical-offset="2512" max-vertical-offset="2895">
+              <caret line="185" column="0" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="schedule.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="schedule.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/controller/adminSchedules/schedule.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.5283308" vertical-offset="5317" max-vertical-offset="7005">
+            <state vertical-scroll-proportion="-44.083332" vertical-offset="5257" max-vertical-offset="7005">
               <caret line="421" column="0" selection-start-line="421" selection-start-column="0" selection-end-line="421" selection-end-column="0" />
               <folding>
                 <element signature="e#7#41#0#PHP" expanded="true" />
@@ -175,8 +96,8 @@
       <file leaf-file-name="ClassLoader.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/vendor/composer/ClassLoader.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-5.4583335" vertical-offset="4279" max-vertical-offset="6165">
-              <caret line="302" column="0" selection-start-line="302" selection-start-column="0" selection-end-line="302" selection-end-column="0" />
+            <state vertical-scroll-proportion="-5.2916665" vertical-offset="4313" max-vertical-offset="6165">
+              <caret line="304" column="0" selection-start-line="304" selection-start-column="0" selection-end-line="304" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -275,7 +196,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/controller/base.php" />
         <option value="$PROJECT_DIR$/controller/schedules/team.php" />
         <option value="$PROJECT_DIR$/controller/schedules/division.php" />
         <option value="$PROJECT_DIR$/controller/schedules/field.php" />
@@ -326,6 +246,7 @@
         <option value="$PROJECT_DIR$/src/Domain/Schedule/Game.php" />
         <option value="$PROJECT_DIR$/src/Domain/Schedule/FamilyGame.php" />
         <option value="$PROJECT_DIR$/controller/adminSchedules/schedule.php" />
+        <option value="$PROJECT_DIR$/lib/autoload.php" />
       </list>
     </option>
   </component>
@@ -339,9 +260,10 @@
   </component>
   <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" interpreter_name="PHP 5.6" />
   <component name="ProjectFrameBounds">
+    <option name="x" value="1441" />
     <option name="y" value="23" />
-    <option name="width" value="1440" />
-    <option name="height" value="810" />
+    <option name="width" value="1872" />
+    <option name="height" value="1046" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -730,6 +652,24 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="fields" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="controller" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="adminSchedules" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -1077,7 +1017,13 @@
       <option name="project" value="LOCAL" />
       <updated>1482115557830</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="Enhanced Scheduling Support">
+      <created>1484261663004</created>
+      <option name="number" value="00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1484261663004</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -1101,27 +1047,27 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="810" extended-state="6" />
+    <frame x="1441" y="23" width="1872" height="1046" extended-state="6" />
     <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32972583" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32972583" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.54444444" sideWeight="0.687545" order="3" side_tool="true" content_ui="tabs" x="1489" y="553" width="1730" height="396" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.5440252" sideWeight="0.687545" order="3" side_tool="true" content_ui="tabs" x="1489" y="553" width="1730" height="396" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22330096" sideWeight="0.5003509" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20382634" sideWeight="0.5103448" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" sideWeight="0.49928468" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3261105" sideWeight="0.49944505" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3263889" sideWeight="0.40772533" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25178826" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2067239" sideWeight="0.48965517" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1579235" sideWeight="0.48965517" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.38055557" sideWeight="0.312455" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32587412" sideWeight="0.47691196" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3261105" sideWeight="0.49944505" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32916668" sideWeight="0.4518028" order="5" side_tool="false" content_ui="tabs" />
@@ -1167,7 +1113,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="Login, Create, Reserve and Show Reservations all working.  Still need admin interface to administer fields." />
     <MESSAGE value="Fix autoloader bug so that files will load on CentOS" />
     <MESSAGE value="Added Administration Interface and other goodies." />
     <MESSAGE value="Added Welcome page." />
@@ -1192,7 +1137,8 @@
     <MESSAGE value="Scheduling Software - early framework components" />
     <MESSAGE value="Updated filenames for autoload on CentOS" />
     <MESSAGE value="Bug fix for when Season does not exist" />
-    <option name="LAST_COMMIT_MESSAGE" value="Bug fix for when Season does not exist" />
+    <MESSAGE value="Enhanced Scheduling Support" />
+    <option name="LAST_COMMIT_MESSAGE" value="Enhanced Scheduling Support" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1212,26 +1158,27 @@
           <line>123</line>
           <option name="timeStamp" value="466" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/web/index.php</url>
+          <line>102</line>
+          <option name="timeStamp" value="473" />
+        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="473" />
+      <option name="time" value="480" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/tests/teamPolygonTest.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1559" max-vertical-offset="2340">
-          <caret line="114" column="0" selection-start-line="114" selection-start-column="0" selection-end-line="114" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/TeamPolygon.php">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1451" max-vertical-offset="2295">
           <caret line="127" column="34" selection-start-line="127" selection-start-column="34" selection-end-line="127" selection-end-column="34" />
+          <folding>
+            <element signature="e#39#78#0#PHP" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1253,6 +1200,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-101.833336" vertical-offset="5551" max-vertical-offset="8445">
           <caret line="533" column="23" selection-start-line="533" selection-start-column="23" selection-end-line="533" selection-end-column="23" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1325,6 +1273,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.44101125" vertical-offset="5108" max-vertical-offset="5745">
           <caret line="354" column="0" selection-start-line="354" selection-start-column="0" selection-end-line="354" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1347,6 +1296,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.35501355" vertical-offset="1054" max-vertical-offset="2235">
           <caret line="79" column="0" selection-start-line="79" selection-start-column="0" selection-end-line="79" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1456,6 +1406,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.37692308" vertical-offset="715" max-vertical-offset="1365">
           <caret line="64" column="26" selection-start-line="64" selection-start-column="26" selection-end-line="64" selection-end-column="26" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1471,6 +1422,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.046153847" vertical-offset="1197" max-vertical-offset="1695">
           <caret line="81" column="46" selection-start-line="81" selection-start-column="46" selection-end-line="81" selection-end-column="46" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1539,6 +1491,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.28257456" vertical-offset="0" max-vertical-offset="637">
           <caret line="12" column="35" selection-start-line="12" selection-start-column="35" selection-end-line="12" selection-end-column="35" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1546,6 +1499,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.07064364" vertical-offset="0" max-vertical-offset="637">
           <caret line="3" column="14" selection-start-line="3" selection-start-column="4" selection-end-line="3" selection-end-column="14" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1659,22 +1613,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/vendor/composer/ClassLoader.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-5.4583335" vertical-offset="4279" max-vertical-offset="6165">
-          <caret line="302" column="0" selection-start-line="302" selection-start-column="0" selection-end-line="302" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/web/index.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-4.4583335" vertical-offset="2548" max-vertical-offset="2895">
-          <caret line="177" column="32" selection-start-line="177" selection-start-column="32" selection-end-line="177" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/GameTime.php">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.505988" vertical-offset="4372" max-vertical-offset="5040">
@@ -1709,11 +1647,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/controller/adminSchedules/schedule.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.5283308" vertical-offset="5317" max-vertical-offset="7005">
+        <state vertical-scroll-proportion="-44.083332" vertical-offset="5257" max-vertical-offset="7005">
           <caret line="421" column="0" selection-start-line="421" selection-start-column="0" selection-end-line="421" selection-end-column="0" />
           <folding>
             <element signature="e#7#41#0#PHP" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vendor/composer/ClassLoader.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.2916665" vertical-offset="4313" max-vertical-offset="6165">
+          <caret line="304" column="0" selection-start-line="304" selection-start-column="0" selection-end-line="304" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/autoload.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-10.333333" vertical-offset="757" max-vertical-offset="1140">
+          <caret line="70" column="0" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6866841" vertical-offset="2512" max-vertical-offset="2895">
+          <caret line="185" column="0" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
