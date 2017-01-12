@@ -28,7 +28,7 @@ abstract class View_Fields_Base extends View_Base {
         $headerButton = $this->m_controller->getHeaderButtonToShow();
         // $nextPage = $this->m_pageName;
         $nextPage = self::WELCOME_PAGE;
-        $headerImage = "images/aysoLogo.jpeg";
+        $headerImage = "/images/aysoLogo.jpeg";
         $coachName = $this->m_controller->getCoachName();
         $divisionName = $this->m_controller->getDivisionName();
         $gender = $this->m_controller->getGender();

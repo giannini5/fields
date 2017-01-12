@@ -86,7 +86,7 @@ class DivisionFieldOrm extends PersistenceModel
      *
      * @param int $divisionId
      *
-     * @return array []   divisionFieldOrms
+     * @return DivisionFieldOrm[]
      */
     public static function loadByDivisionId($divisionId)
     {

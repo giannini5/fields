@@ -18,6 +18,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const START_TIME            = 'startTime';
     const END_TIME              = 'endTime';
     const DAYS_OF_WEEK          = 'daysOfWeek';
+    const PUBLISHED             = 'published';
     const ENABLED               = 'enabled';
     const ADDRESS1              = 'address1';
     const ADDRESS2              = 'address2';
@@ -108,6 +109,10 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         [
             self::NAME              => 'Test Default Schedule',
             self::GAMES_PER_TEAM    => 10,
+            self::START_DATE        => '2015-09-02',
+            self::END_DATE          => '2015-10-20',
+            self::DAYS_OF_WEEK      => '0001100',
+            self::PUBLISHED         => 0,
         ];
 
     protected static $defaultTeamOrmAttributes =
@@ -166,6 +171,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     public $defaultPlayerOrm;
     public $defaultGameTimeOrm;
     public $defaultGameOrm;
+    public $defaultFamilyGameOrm;
     public $defaultScheduleCoordinatorOrm;
 
     /**
@@ -235,7 +241,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         $this->defaultScheduleOrm = ScheduleOrm::create(
             $this->defaultDivisionOrm->id,
             self::$defaultScheduleOrmAttributes[self::NAME],
-            self::$defaultScheduleOrmAttributes[self::GAMES_PER_TEAM]);
+            self::$defaultScheduleOrmAttributes[self::GAMES_PER_TEAM],
+            self::$defaultScheduleOrmAttributes[self::START_DATE],
+            self::$defaultScheduleOrmAttributes[self::END_DATE],
+            self::$defaultScheduleOrmAttributes[self::DAYS_OF_WEEK],
+            self::$defaultScheduleOrmAttributes[self::PUBLISHED]);
 
         $this->defaultPoolOrm = PoolOrm::create(
             $this->defaultScheduleOrm->id,
@@ -285,6 +295,10 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             $this->defaultGameTimeOrm->id,
             $this->defaultTeamOrm->id,
             $this->defaultVisitingTeamOrm->id);
+
+        $this->defaultFamilyGameOrm = FamilyGameOrm::create(
+            $this->defaultFamilyOrm->id,
+            $this->defaultGameOrm->id);
     }
 
     /**
@@ -402,6 +416,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
      */
     protected function clearFamily($familyOrm)
     {
+        $familyGameOrms = FamilyGameOrm::loadByFamilyId($familyOrm->id);
+        foreach ($familyGameOrms as $familyGameOrm) {
+            $familyGameOrm->delete();
+        }
+
         $familyOrm->delete();
     }
 
@@ -480,8 +499,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         }
 
         $playerOrms = PlayerOrm::loadByTeamId($teamOrm->id);
-        foreach ($playerOrms as $playerOrms) {
-            $this->clearPlayer($playerOrms);
+        foreach ($playerOrms as $playerOrm) {
+            $this->clearPlayer($playerOrm);
         }
 
         $teamOrm->delete();

@@ -34,17 +34,18 @@ abstract class Controller_Base
     public $m_filterTeamId;
     public $m_filterCoachId;
 
-    public function __construct($cookieName)
+    public function __construct($cookieName, $populateDivisions = true)
     {
         $this->m_cookieName = $cookieName;
 
         $this->_reset();
 
-        $this->m_divisions = array();
-
         $this->_getLeague();
         $this->_getSeason();
-        $this->_getDivisions();
+
+        if ($populateDivisions) {
+            $this->_getDivisions();
+        }
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->m_operation = $this->getPostAttribute(View_Base::SUBMIT, '', FALSE);
@@ -108,6 +109,23 @@ abstract class Controller_Base
 
         if ($rememberIfMissing) {
             $this->setErrorString($errorMessage);
+        }
+
+        return $defaultValue;
+    }
+
+    /**
+     * @brief Returns the found REQUEST attribute's value.  Returns default value
+     *        if attribute not found.
+     *
+     * @param string    $attributeName  - Name of the POST attribute
+     * @param mixed     $defaultValue   - Default value returned if POST attribute not found
+     *
+     * @return mixed    Value associated with attribute name or $defaultValue if attribute not found
+     */
+    protected function getRequestAttribute($attributeName, $defaultValue) {
+        if (isset($_REQUEST[$attributeName])) {
+            return $_REQUEST[$attributeName];
         }
 
         return $defaultValue;
@@ -219,12 +237,12 @@ abstract class Controller_Base
      */
     protected function _reset()
     {
-        $this->m_missingAttributes = 0;
-        $this->m_operation = '';
-        $this->m_session = null;
+        $this->m_missingAttributes  = 0;
+        $this->m_operation          = '';
+        $this->m_session            = null;
 
-        $this->m_isAuthenticated = FALSE;
-        $this->m_errorString = '';
+        $this->m_isAuthenticated    = FALSE;
+        $this->m_errorString        = '';
     }
 
     /**

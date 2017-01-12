@@ -68,71 +68,87 @@ class Web_Index
                 break;
 
             case View_Base::ADMIN_HOME_PAGE:
-                $this->m_controller = new Controller_Admin_Home();
+                $this->m_controller = new Controller_AdminPractice_Home();
                 break;
 
             case View_Base::ADMIN_SEASON_PAGE:
-                $this->m_controller = new Controller_Admin_Season();
+                $this->m_controller = new Controller_AdminPractice_Season();
                 break;
 
             case View_Base::ADMIN_DIVISION_PAGE:
-                $this->m_controller = new Controller_Admin_Division();
+                $this->m_controller = new Controller_AdminPractice_Division();
                 break;
 
             case View_Base::ADMIN_FACILITY_PAGE:
-                $this->m_controller = new Controller_Admin_Facility();
+                $this->m_controller = new Controller_AdminPractice_Facility();
                 break;
 
             case View_Base::ADMIN_FIELD_PAGE:
-                $this->m_controller = new Controller_Admin_Field();
+                $this->m_controller = new Controller_AdminPractice_Field();
                 break;
 
             case View_Base::ADMIN_LOCATION_PAGE:
-                $this->m_controller = new Controller_Admin_Location();
+                $this->m_controller = new Controller_AdminPractice_Location();
                 break;
 
             case View_Base::ADMIN_TRANSACTION_PAGE:
-                $this->m_controller = new Controller_Admin_Transaction();
+                $this->m_controller = new Controller_AdminPractice_Transaction();
                 break;
 
             case View_Base::ADMIN_RESERVATIONS_PAGE:
-                $this->m_controller = new Controller_Admin_Reservations();
+                $this->m_controller = new Controller_AdminPractice_Reservations();
+                break;
+
+            case View_Base::SCHEDULE_UPLOAD_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Upload();
+                break;
+
+            case View_Base::SCHEDULE_SEASON_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Season();
+                break;
+
+            case View_Base::SCHEDULE_GAME_DATE_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_GameDate();
+                break;
+
+            case View_Base::SCHEDULE_FACILITIES_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Facility();
+                break;
+
+            case View_Base::SCHEDULE_FIELDS_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Field();
+                break;
+
+            case View_Base::SCHEDULE_TEAMS_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Team();
+                break;
+
+            case View_Base::SCHEDULE_DIVISIONS_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Division();
+                break;
+
+            case View_Base::SCHEDULE_FAMILY_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Family();
+                break;
+
+            case View_Base::SCHEDULE_SCHEDULES_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Schedule();
+                break;
+
+            case View_Base::SCHEDULE_PREVIEW_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Preview();
                 break;
 
             case View_Base::SCHEDULE_HOME_PAGE:
                 $this->m_controller = new Controller_Schedules_Home();
                 break;
 
-            case View_Base::SCHEDULE_SEASON_PAGE:
-                $this->m_controller = new Controller_Schedules_Season();
-                break;
-
-            case View_Base::SCHEDULE_GAME_DATE_PAGE:
-                $this->m_controller = new Controller_Schedules_GameDate();
-                break;
-
-            case View_Base::SCHEDULE_FACILITIES_PAGE:
-                $this->m_controller = new Controller_Schedules_Facility();
-                break;
-
-            case View_Base::SCHEDULE_FIELDS_PAGE:
-                $this->m_controller = new Controller_Schedules_Field();
-                break;
-
-            case View_Base::SCHEDULE_TEAMS_PAGE:
+            case View_Base::SCHEDULE_TEAM_PAGE:
                 $this->m_controller = new Controller_Schedules_Team();
                 break;
 
-            case View_Base::SCHEDULE_DIVISIONS_PAGE:
+            case View_Base::SCHEDULE_DIVISION_PAGE:
                 $this->m_controller = new Controller_Schedules_Division();
-                break;
-
-            case View_Base::SCHEDULE_FAMILY_PAGE:
-                $this->m_controller = new Controller_Schedules_Family();
-                break;
-
-            case View_Base::SCHEDULE_SCHEDULES_PAGE:
-                $this->m_controller = new Controller_Schedules_Schedule();
                 break;
 
             default:

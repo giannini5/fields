@@ -348,6 +348,22 @@ class FamilyTest extends ORM_TestHelper
         $this->validateFamily($family, $this->season, $this->expectedDefaults);
     }
 
+    public function test_findByPhoneGoRight()
+    {
+        $family = null;
+        $result = Family::findByPhone($this->season, $this->expectedDefaults['phone1'], $family);
+
+        $this->assertTrue($result, "Family::lookupByPhone failed for " . $this->expectedDefaults['phone1']);
+        $this->validateFamily($family, $this->season, $this->expectedDefaults);
+    }
+
+    public function test_findByPhoneGoWrong()
+    {
+        $family = null;
+        $result = Family::findByPhone($this->season, '7075551212', $family);
+        $this->assertFalse($result, "Family::lookupByPhone succeeded unexpectedly for 7075551212");
+    }
+
     public function test_lookupBySeason()
     {
         $families = Family::lookupBySeason($this->season);

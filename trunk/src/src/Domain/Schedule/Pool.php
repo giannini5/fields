@@ -11,6 +11,7 @@ use DAG\Framework\Exception\Precondition;
  * @property int        $id
  * @property Schedule   $schedule
  * @property string     $name
+ * @property Pool       $gamesAgainstPool
  */
 class Pool extends Domain
 {
@@ -20,14 +21,27 @@ class Pool extends Domain
     /** @var Schedule */
     private $schedule;
 
+    /** @var Pool */
+    private $gamesAgainstPool;
+
     /**
      * @param PoolOrm   $poolOrm
+     * @param Division  $division (defaults to null)
      * @param Schedule  $schedule (defaults to null)
+     * @param Pool      $gamesAgainstPool (defaults to null)
      */
-    protected function __construct(PoolOrm $poolOrm, $division = null, $schedule = null)
+    protected function __construct(PoolOrm $poolOrm, $division = null, $schedule = null, $gamesAgainstPool = null)
     {
         $this->poolOrm = $poolOrm;
         $this->schedule = isset($schedule) ? $schedule : Schedule::lookupById($poolOrm->scheduleId);
+
+        if (isset($gamesAgainstPool)) {
+            $this->gamesAgainstPool = $gamesAgainstPool;
+        } elseif (isset($this->poolOrm->gamesAgainstPoolId)) {
+            $this->gamesAgainstPool = Pool::lookupById($this->poolOrm->gamesAgainstPoolId, $this);
+        } else {
+            $this->gamesAgainstPool = $this;
+        }
     }
 
     /**
@@ -45,14 +59,15 @@ class Pool extends Domain
     }
 
     /**
-     * @param int $poolId
+     * @param int   $poolId
+     * @param Pool  $gamesAgainstPool (defaults to null)
      *
      * @return Pool
      */
-    public static function lookupById($poolId)
+    public static function lookupById($poolId, $gamesAgainstPool = null)
     {
         $poolOrm = PoolOrm::loadById($poolId);
-        return new static($poolOrm);
+        return new static($poolOrm, null, null, $gamesAgainstPool);
     }
 
     /**
@@ -97,10 +112,72 @@ class Pool extends Domain
                 return $this->poolOrm->{$propertyName};
 
             case "schedule":
+            case "gamesAgainstPool":
                 return $this->{$propertyName};
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+        }
+    }
+
+    /**
+     * @param $propertyName
+     * @param $value
+     */
+    public function __set($propertyName, $value)
+    {
+        switch ($propertyName) {
+            case "gamesAgainstPool":
+                $oldGamesAgainstPoolId  = $this->poolOrm->gamesAgainstPoolId;
+                $oldGamesAgainstPool    = $this->gamesAgainstPool;
+
+                // Set to NULL if pass in value is null or id is same as this pool
+                if (!isset($value) or $value->id == $this->id) {
+                    $this->poolOrm->gamesAgainstPoolId = null;
+                    $this->poolOrm->save();
+                    $this->gamesAgainstPool = $this;
+
+                    if (isset($oldGamesAgainstPoolId) and $oldGamesAgainstPoolId != $this->id) {
+                        $oldGamesAgainstPool->poolOrm->gamesAgainstPoolId = null;
+                        $oldGamesAgainstPool->poolOrm->save();
+                        $oldGamesAgainstPool->gamesAgainstPool = $oldGamesAgainstPool;
+                    }
+                } else {
+                    $this->poolOrm->gamesAgainstPoolId = $value->id;
+                    $this->poolOrm->save();
+                    $this->gamesAgainstPool = $value;
+
+                    // Set games against for passed in pool to force reciprocity if not already set
+                    if ($value->gamesAgainstPool->id != $this->id) {
+                        $value->poolOrm->gamesAgainstPoolId = $this->id;
+                        $value->poolOrm->save();
+                        $value->gamesAgainstPool = $this;
+                    }
+                }
+                break;
+
+            default:
+                Precondition::isTrue(false, "Not allowed to set Pool property: $propertyName");
+        }
+    }
+
+    /**
+     * @param $propertyName
+     * @return bool true if set; false otherwise
+     */
+    public function __isset($propertyName)
+    {
+        switch ($propertyName) {
+            case "id":
+            case "name":
+            case "schedule":
+                return true;
+
+            case "gamesAgainstPool":
+                return isset($this->poolOrm->gamesAgainstPoolId);
+
+            default:
+                Precondition::isTrue(false, "Unrecognized isset property: $propertyName");
         }
     }
 

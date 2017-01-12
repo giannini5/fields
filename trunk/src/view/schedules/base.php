@@ -3,15 +3,15 @@
 use \DAG\Domain\Schedule\Division;
 
 /**
- * @brief: Abstract base class for all admin views.
+ * @brief: Abstract base class for all schedule views.
  */
 abstract class View_Schedules_Base extends View_Base {
 
     /**
      * @brief: Construct a new instance of this base class.
      *
-     * @param: $page - Name of the page being constructed.
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param string        $page - Name of the page being constructed.
+     * @param               $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($page, $controller) {
         parent::__construct($page, $controller);
@@ -23,25 +23,20 @@ abstract class View_Schedules_Base extends View_Base {
      */
     public function displayPage()
     {
-        $sessionId = $this->m_controller->getSessionId();
-        $headerButton = View_Base::SIGN_OUT;
-        $nextPage = View_Base::SCHEDULE_HOME_PAGE;
-        $headerImage = "images/aysoLogo.jpeg";
-        $name = isset($this->m_controller->m_coordinator) ? $this->m_controller->m_coordinator->name : '';
-        $collapsibleCount = $this->getCollapsibleCount();
-
-        $seasonTitle = isset($this->m_controller->m_season) ? $this->m_controller->m_season->name : 'No Season Enabled';
-        $headerTitle = "<font color='darkblue'>AYSO Region 122:<br></font><font color='red'>Game Scheduling Administration<br>$seasonTitle</font>";
+        $sessionId      = $this->m_controller->getSessionId();
+        $headerImage    = "/images/aysoLogo.jpeg";
+        $seasonTitle    = isset($this->m_controller->m_season) ? $this->m_controller->m_season->name : 'No Season Enabled';
+        $headerTitle    = "<font color='darkblue'>AYSO Region 122:<br></font><font color='red'>Game Schedules<br>$seasonTitle</font>";
 
         print "
             <!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
             <html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en'>";
 
-        $this->m_styles->render($collapsibleCount);
+        $this->m_styles->render(0);
 
         print "
             <head>
-                <title>Game Scheduling</title>
+                <title>Game Schedules</title>
                 <script type='text/JavaScript' src='../js/scw.js'></script>
             </head>
 
@@ -51,23 +46,6 @@ abstract class View_Schedules_Base extends View_Base {
                     <tr>
                         <td width='50'><img src='$headerImage' alt='Organization Icon' width='75' height='75'></td>
                         <td align='left'><h1>$headerTitle</h1><br></td>
-                        <form method='post' action='${nextPage}$this->m_urlParams'>
-                            <td nowrap width='100' align='left'>";
-
-        if ($this->m_controller->m_isAuthenticated) {
-            print "
-                                $name<br>
-                                <input style='background-color: yellow' name=".self::SUBMIT." type='submit' value='$headerButton'>";
-        }
-
-        if (isset($sessionId) and $sessionId > 0) {
-            print "
-                                <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>";
-        }
-
-        print "
-                            </td>
-                        </form>
                     </tr>
                 </table>";
 
@@ -94,130 +72,11 @@ abstract class View_Schedules_Base extends View_Base {
     public function displayHeaderNavigation() {
         print '
                 <ul id="nav">'
-            . ($this->m_pageName == self::SCHEDULE_HOME_PAGE ?
-                '<li><div>HOME</div></li>' : '<li><a href="' . self::SCHEDULE_HOME_PAGE . '">HOME</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_SEASON_PAGE ?
-                '<li><div>SEASON</div></li>' : '<li><a href="' . self::SCHEDULE_SEASON_PAGE . '">SEASON</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_GAME_DATE_PAGE ?
-                '<li><div>GAME DATE</div></li>' : '<li><a href="' . self::SCHEDULE_GAME_DATE_PAGE . '">GAME DATE</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_DIVISIONS_PAGE ?
-                '<li><div>DIVISION</div></li>' : '<li><a href="' . self::SCHEDULE_DIVISIONS_PAGE . '">DIVISION</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_TEAMS_PAGE ?
-                '<li><div>TEAM</div></li>' : '<li><a href="' . self::SCHEDULE_TEAMS_PAGE . '">TEAM</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_FAMILY_PAGE ?
-                '<li><div>FAMILY</div></li>' : '<li><a href="' . self::SCHEDULE_FAMILY_PAGE . '">FAMILY</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_FACILITIES_PAGE ?
-                '<li><div>FACILITY</div></li>' : '<li><a href="' . self::SCHEDULE_FACILITIES_PAGE . '">FACILITY</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_FIELDS_PAGE ?
-                '<li><div>FIELD</div></li>' : '<li><a href="' . self::SCHEDULE_FIELDS_PAGE . '">FIELD</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_SCHEDULES_PAGE ?
-                '<li><div>SCHEDULE</div></li>' : '<li><a href="' . self::SCHEDULE_SCHEDULES_PAGE . '">SCHEDULE</a></li>')
+            . ($this->m_pageName == self::SCHEDULE_TEAM_PAGE ?
+                '<li><div>TEAM</div></li>' : '<li><a href="' . self::SCHEDULE_TEAM_PAGE . '">TEAM</a></li>')
+            . ($this->m_pageName == self::SCHEDULE_DIVISION_PAGE ?
+                '<li><div>DIVISION</div></li>' : '<li><a href="' . self::SCHEDULE_DIVISION_PAGE . '">DIVISION</a></li>')
             . '
                </ul>';
-    }
-
-    /**
-     * @brief Return the count of classes that need to be created to support collapsing tables.
-     *
-     * @return int $collapsibleCount
-     */
-    public function getCollapsibleCount() {
-        return 0;
-    }
-
-    /**
-     * @brief Print the drop down list of teams by division for selection
-     *
-     * @param int $filterTeamId - Default selection
-     */
-    public function printTeamSelector($filterTeamId) {
-        $teams = $this->m_controller->m_teams;
-
-        $selectorHTML = '';
-        $selectorHTML .= "<option value='0' ";
-        $selectorHTML .= ">All</option>";
-
-        foreach ($teams as $team) {
-            $selected = ($team->id == $filterTeamId) ? ' selected ' : '';
-            $teamName = $team->name;
-            $selectorHTML .= "<option value='$team->id' $selected>$teamName</option>";
-        }
-
-        print "
-                <tr>
-                    <td><font color='#069'><b>Team:&nbsp</b></font></td>
-                    <td><select name='" . View_Base::FILTER_TEAM_ID . "'>" . $selectorHTML . "</select></td>
-                </tr>";
-    }
-
-    /**
-     * @brief Print the drop down list of coaches by division for selection
-     *
-     * @param int $filterTeamId - Default selection
-     */
-    public function printCoachSelector($filterCoachId) {
-        $coaches = $this->m_controller->m_coaches;
-
-        $sortedCoaches = [];
-        foreach ($coaches as $coach) {
-            $sortedCoaches[$coach->id] = $coach->name . " (" . $coach->team->name . ")";
-        }
-        asort($sortedCoaches);
-
-        $selectorHTML = '';
-        $selectorHTML .= "<option value='0' ";
-        $selectorHTML .= ">All</option>";
-
-        foreach ($sortedCoaches as $id => $name) {
-            $selected = ($id == $filterCoachId) ? ' selected ' : '';
-            $coachName = $name;
-            $selectorHTML .= "<option value='$id' $selected>$coachName</option>";
-        }
-
-        print "
-                <tr>
-                    <td><font color='#069'><b>Coach:&nbsp</b></font></td>
-                    <td><select name='" . View_Base::FILTER_COACH_ID . "'>" . $selectorHTML . "</select></td>
-                </tr>";
-    }
-
-    /**
-     * Get selector array for Divisions
-     *
-     * @param bool $byName          - if true then get by name instead of id.  Defaults to false, by id.
-     * @param bool $allOption       - if true then All is an option otherwise All is not allowed
-     * @param bool $includeGender   - if true then Gender is included in the display name
-     *
-     * @return array - id => name
-     */
-    public function getDivisionsSelector($byName = false, $allOption = false, $includeGender = false)
-    {
-        $divisions = [];
-        if (isset($this->m_controller->m_season))
-        {
-            $divisions = Division::lookupBySeason($this->m_controller->m_season);
-        }
-
-        $divisionsSelector = [];
-        if ($allOption) {
-            if ($byName) {
-                $divisionsSelector['All'] = 'All';
-            } else {
-                $divisionsSelector[0] = 'All';
-            }
-        }
-
-        foreach ($divisions as $division) {
-            $identifier = $division->id;
-            if ($byName) {
-                $identifier = $division->name;
-                if ($includeGender) {
-                    $identifier .= ' ' . $division->gender;
-                }
-            }
-            $divisionsSelector[$identifier] = $includeGender ? $division->name . ' ' . $division->gender : $division->name;
-        }
-
-        return $divisionsSelector;
     }
 }

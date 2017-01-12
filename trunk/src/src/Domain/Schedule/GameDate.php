@@ -76,10 +76,11 @@ class GameDate extends Domain
     /**
      * @param Season    $season
      * @param string    $dayFilter defaults to ALL_DAYS
+     * @param Schedule  $limitBySchedule defaults to null
      *
      * @return array GameDates
      */
-    public static function lookupBySeason($season, $dayFilter = self::ALL_DAYS)
+    public static function lookupBySeason($season, $dayFilter = self::ALL_DAYS, $limitBySchedule = null)
     {
         $gameDates = [];
 
@@ -105,6 +106,18 @@ class GameDate extends Domain
                 default:
                     Assertion::isTrue(false, "Unrecognized dayFilter, '$dayFilter'");
             }
+        }
+
+        // Remove games dates that are not within the schedule's start/end date if requested
+        if (isset($limitBySchedule)) {
+            $scheduleGameDates = [];
+            foreach ($gameDates as $gameDate) {
+                if ($gameDate->day >= $limitBySchedule->startDate and $gameDate->day <= $limitBySchedule->endDate) {
+                    $scheduleGameDates[] = $gameDate;
+                }
+            }
+
+            $gameDates = $scheduleGameDates;
         }
 
         return $gameDates;

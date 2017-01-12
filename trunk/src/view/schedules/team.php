@@ -1,22 +1,25 @@
 <?php
 
-use \DAG\Domain\Schedule\AssistantCoach;
-use \DAG\Domain\Schedule\Coach;
-use \DAG\Domain\Schedule\Team;
 use \DAG\Domain\Schedule\Division;
-use \DAG\Domain\Schedule\Player;
+use \DAG\Domain\Schedule\Team;
+use \DAG\Domain\Schedule\Coach;
+use \DAG\Domain\Schedule\Schedule;
+use \DAG\Domain\Schedule\Pool;
+use \DAG\Domain\Schedule\Game;
 
 /**
- * @brief Show the Team page and get the user to select a team to administer or create a new team.
+ * @brief Show the Team Schedule Viewing page
  */
-class View_Schedules_Team extends View_Schedules_Base {
+class View_Schedules_Team extends View_Schedules_Base
+{
     /**
-     * @brief Construct the View
+     * @brief Construct he View
      *
      * @param $controller - Controller that contains data used when rendering this view.
      */
-    public function __construct($controller) {
-        parent::__construct(self::SCHEDULE_TEAMS_PAGE, $controller);
+    public function __construct($controller)
+    {
+        parent::__construct(self::SCHEDULE_TEAM_PAGE, $controller);
     }
 
     /**
@@ -24,159 +27,156 @@ class View_Schedules_Team extends View_Schedules_Base {
      */
     public function render()
     {
-        $filterDivisionId   = $this->m_controller->m_filterDivisionId;
-        $filterTeamId       = $this->m_controller->m_filterTeamId;
-        $filterCoachId      = $this->m_controller->m_filterCoachId;
-        $showPlayers        = $this->m_controller->m_showPlayers;
+        $this->printTeamSelectors($this->m_controller->m_filterCoachId);
 
-        $this->printTeamSelectors($filterDivisionId, $filterTeamId, $filterCoachId, $showPlayers);
-
-        print "
-            <br><br>
-            <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
-                <thead>
-                    <tr bgcolor='lightskyblue'>
-                        <th>Team</th>
-                        <th>Coach</th>
-                        <th>Assistant Coach</th>";
-
-        if ($showPlayers) {
-            print "
-                        <th>Players</th>";
+        if ($this->m_controller->m_filterCoachId != 0) {
+            $this->printScheduleForTeam($this->m_controller->m_filterCoachId);
         }
-
-        print "
-                    </tr>
-                </thead>";
-
-        $divisions = [];
-        if (isset($this->m_controller->m_season)) {
-            $divisions = Division::lookupBySeason($this->m_controller->m_season);
-        }
-
-        foreach ($divisions as $division) {
-            if ($filterDivisionId != 0 and $division->id != $filterDivisionId) {
-                continue;
-            }
-
-            $teams = Team::lookupByDivision($division);
-
-            foreach ($teams as $team) {
-                if ($filterTeamId != 0 and $team->id != $filterTeamId) {
-                    continue;
-                }
-
-                $coachInfo  = '&nbsp';
-                $coach      = null;
-                if (Coach::findCoachForTeam($team, $coach)) {
-                    $coachInfo = "$coach->name<br>E: $coach->email<br>H: $coach->phone1<br>C: $coach->phone2";
-                }
-
-                if ($filterCoachId != 0 and (!isset($coach) or $coach->id != $filterCoachId)) {
-                    continue;
-                }
-
-                $assistantCoaches = AssistantCoach::lookupByTeam($team);
-                $assistantCoachCount = count($assistantCoaches);
-                $rowspan = 1; // $assistantCoachCount > 0 ? $assistantCoachCount : 1;
-
-                print "
-                    <tr>
-                        <td rowspan='$rowspan'>$team->name</td>
-                        <td rowspan='$rowspan'>$coachInfo</td>";
-
-                if ($assistantCoachCount == 0) {
-                    print "
-                        <td>&nbsp</td>";
-                } else {
-                    print "
-                        <td>";
-                    foreach ($assistantCoaches as $assistantCoach) {
-                        $assistantCoachInfo = "$assistantCoach->name<br>E: $assistantCoach->email<br>H: $assistantCoach->phone1<br>C: $assistantCoach->phone2";
-                        print "
-                        $assistantCoachInfo<br><br>";
-                    }
-                    print "
-                        </td>";
-                }
-
-                if ($showPlayers) {
-                    $players = Player::lookupByTeam($team);
-                    print "
-                        <td>";
-                    foreach ($players as $player) {
-                        print "
-                        $player->name<br>";
-                    }
-                    print "
-                        </td>";
-                }
-
-                print "
-                    </tr>";
-            }
-        }
-
-        print "
-            </table>
-            ";
     }
 
     /**
-     * @param $filterDivisionId
-     * @param $filterTeamId
-     * @param $filterCoachId
-     * @param $showPlayers
+     * @param int $filterCoachId - Coach identifier
      */
-    private function printTeamSelectors($filterDivisionId, $filterTeamId, $filterCoachId, $showPlayers)
+    private function printTeamSelectors($filterCoachId)
     {
-        $sessionId = $this->m_controller->getSessionId();
-
+        // <form method='post' action='" . self::SCHEDULE_TEAM_PAGE . $this->m_urlParams . "'>";
         print "
-            <table valign='top' align='center' width='625' border='1' cellpadding='5' cellspacing='0'>
+            <table bgcolor='" . View_Base::VIEW_COLOR . "' valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
                 <tr><td>
-                    <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
-                        <form method='post' action='" . self::SCHEDULE_TEAMS_PAGE . $this->m_urlParams . "'>";
+                    <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
+                            <tr>
+                                <th nowrap colspan='2' align='left'>View Schedules by Team</th>
+                            </tr>
+                        <form method='get' action='" . self::SCHEDULE_TEAM_PAGE . "'>";
 
-        $this->printDivisionSelector($filterDivisionId);
-        $this->printTeamSelector($filterTeamId);
-        $this->printCoachSelector($filterCoachId);
-        $this->printCheckboxSelector(View_Base::SHOW_PLAYERS, "Show Players", $showPlayers);
+        $this->printTeamCoachSelector($filterCoachId);
 
         // Print Filter button and end form
         print "
                         <tr>
                             <td align='left'>
-                                <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::FILTER . "'>
-                                <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                                <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
                             </td>
                         </tr>
                         </form>
                     </table>
                 </td></tr>
-            </table>";
+            </table><br>";
     }
 
     /**
-     * @brief Print the form to create a team.  Form includes the following
-     *        - Team Name
-     *        - Enabled radio button
+     * @brief Print the drop down list of coaches sorted by division for selection
      *
-     * @param $maxColumns - Number of columns the form is covering
+     * @param int $filterCoachId - Default selection
      */
-    private function _printCreateTeamForm($maxColumns) {
-        // TODO
+    public function printTeamCoachSelector($filterCoachId)
+    {
+        $sortedCoaches = [];
+        $divisions = [];
+
+        if (isset($this->m_controller->m_season)) {
+            $divisions = Division::lookupBySeason($this->m_controller->m_season);
+        }
+
+        foreach ($divisions as $division) {
+            $teams = Team::lookupByDivision($division);
+
+            foreach ($teams as $team) {
+                $coach = Coach::lookupByTeam($team);
+                $sortedCoaches[$coach->id] = $team->name . ": " . $coach->lastName;
+            }
+        }
+
+        $selected = $filterCoachId == 0 ? 'selected' : '';
+        $selectorHTML = "<option value='' disabled $selected>Select a Team</option>";
+        foreach ($sortedCoaches as $id => $name) {
+            $selected = ($id == $filterCoachId) ? ' selected ' : '';
+            $selectorHTML .= "<option value='$id' $selected>$name</option>";
+        }
+
+        print "
+                <tr>
+                    <td><font color='#069'><b>Team:&nbsp</b></font></td>
+                    <td><select name='" . View_Base::FILTER_COACH_ID . "' required>" . $selectorHTML . "</select></td>
+                </tr>";
     }
 
     /**
-     * @brief Print the form to update a season.  Form includes the following
-     *        - Team Name
-     *        - Enabled radio button
-     *
-     * @param $maxColumns - Number of columns the form is covering
-     * @param $season - Team to be edited
+     * @param int $filterCoachId - Coach identifier
      */
-    private function _printUpdateTeamForm($maxColumns, $season) {
-        // TODO
+    private function printScheduleForTeam($filterCoachId)
+    {
+        $coach      = Coach::lookupById($filterCoachId);
+        $team       = $coach->team;
+        $division   = $team->division;
+        $schedules  = Schedule::lookupByDivision($division, true);
+        $teamName   = $division->name . ": " . $team->name . " (" . $coach->lastName . ")";
+
+        if (count($schedules) == 0) {
+            print "<p style='color: red; font-size: medium' align='center'>Schedules have not yet been published for Division: $division->name $division->gender.</p>";
+        } else {
+            foreach ($schedules as $schedule) {
+                // Print Schedule header
+                print "
+            <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0' width='600'>
+                <thead>
+                    <tr bgcolor='lightskyblue'>
+                        <th align='center' colspan='5'>$teamName</th>
+                    </tr>
+                    <tr bgcolor='lightskyblue'>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Field</th>
+                        <th>Home Team</th>
+                        <th>Visiting Team</th>
+                    </tr>
+                </thead>";
+
+                $gameCount = 0;
+                $pools = Pool::lookupBySchedule($schedule);
+                foreach ($pools as $pool) {
+                    $games = Game::lookupByPool($pool);
+                    foreach ($games as $game) {
+                        if ($game->homeTeam->id != $team->id and $game->visitingTeam->id != $team->id) {
+                            continue;
+                        }
+
+                        $day                = $game->gameTime->gameDate->day;
+                        $field              = $game->gameTime->field;
+                        $facility           = $field->facility;
+                        $fieldName          = $facility->name . ": " . $field->name;
+                        $homeCoach          = Coach::lookupByTeam($game->homeTeam);
+                        $visitingCoach      = Coach::lookupByTeam($game->visitingTeam);
+                        $homeTeamName       = $game->homeTeam->name . ": " . $homeCoach->lastName;
+                        $visitingTeamName   = $game->visitingTeam->name . ": " . $visitingCoach->lastName;
+                        $startTime          = $game->gameTime->startTime;
+
+                        $homeTeamStyle      = '';
+                        $visitingTeamStyle  = '';
+                        if ($team->name == $game->homeTeam->name) {
+                            $homeTeamStyle = "style='color: red'";
+                        } else {
+                            $visitingTeamStyle = "style='color: red'";
+                        }
+
+                        $bgcolor = ($gameCount % 2 == 0) ? "" : "bgcolor='lightgray'";
+
+                        print "
+                    <tr $bgcolor>
+                        <td>$day</td>
+                        <td>$startTime</td>
+                        <td>$fieldName</td>
+                        <td $homeTeamStyle>$homeTeamName</td>
+                        <td $visitingTeamStyle>$visitingTeamName</td>
+                    </tr>";
+
+                        $gameCount += 1;
+                    }
+                }
+
+                print "
+            </table><br>";
+            }
+        }
     }
 }

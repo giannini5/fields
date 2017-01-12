@@ -1,5 +1,8 @@
 <?php
 
+use \DAG\Domain\Schedule\Division;
+use \DAG\Domain\Schedule\Family;
+
 /**
  * @brief: Abstract base class for all views.
  *          - Page names needs to be added here
@@ -8,18 +11,18 @@
  *          - Abstract methods must be implemented by child classes
  */
 abstract class View_Base {
-    # Administrator Pages
-    const ADMIN_LOGIN_PAGE        = '/admin_login';
-    const ADMIN_HOME_PAGE         = '/admin_home';
-    const ADMIN_SEASON_PAGE       = '/admin_season';
-    const ADMIN_DIVISION_PAGE     = '/admin_division';
-    const ADMIN_LOCATION_PAGE     = '/admin_location';
-    const ADMIN_FACILITY_PAGE     = '/admin_facility';
-    const ADMIN_FIELD_PAGE        = '/admin_field';
-    const ADMIN_TRANSACTION_PAGE  = '/admin_transaction';
-    const ADMIN_RESERVATIONS_PAGE = '/admin_reservations';
+    # Practice field Administration Pages
+    const ADMIN_LOGIN_PAGE        = '/admin_practice_login';
+    const ADMIN_HOME_PAGE         = '/admin_practice_home';
+    const ADMIN_SEASON_PAGE       = '/admin_practice_season';
+    const ADMIN_DIVISION_PAGE     = '/admin_practice_division';
+    const ADMIN_LOCATION_PAGE     = '/admin_practice_location';
+    const ADMIN_FACILITY_PAGE     = '/admin_practice_facility';
+    const ADMIN_FIELD_PAGE        = '/admin_practice_field';
+    const ADMIN_TRANSACTION_PAGE  = '/admin_practice_transaction';
+    const ADMIN_RESERVATIONS_PAGE = '/admin_practice_reservations';
 
-    # Coach/Manager Pages
+    # Coach/Manager Practice Field Selection Pages
     const WELCOME_PAGE               = '/welcome';
     const CREATE_ACCOUNT_PAGE        = '/createAccount';
     const LOGIN_PAGE                 = '/login';
@@ -29,16 +32,22 @@ abstract class View_Base {
     const HELP_PAGE                  = '/help';
     const TEST_POST_PAGE             = '/testPost';
 
-    # Schedule Page
-    const SCHEDULE_HOME_PAGE        = '/schedule_home';
-    const SCHEDULE_SEASON_PAGE      = '/schedule_season';
-    const SCHEDULE_GAME_DATE_PAGE   = '/schedule_gameDate';
-    const SCHEDULE_FACILITIES_PAGE  = '/schedule_facilities';
-    const SCHEDULE_FIELDS_PAGE      = '/schedule_fields';
-    const SCHEDULE_TEAMS_PAGE       = '/schedule_teams';
-    const SCHEDULE_FAMILY_PAGE      = '/schedule_families';
-    const SCHEDULE_DIVISIONS_PAGE   = '/schedule_divisions';
-    const SCHEDULE_SCHEDULES_PAGE   = '/schedule_schedules';
+    # Schedule Creation Pages
+    const SCHEDULE_UPLOAD_PAGE      = '/admin_schedule_home';
+    const SCHEDULE_SEASON_PAGE      = '/admin_schedule_season';
+    const SCHEDULE_GAME_DATE_PAGE   = '/admin_schedule_gameDate';
+    const SCHEDULE_FACILITIES_PAGE  = '/admin_schedule_facilities';
+    const SCHEDULE_FIELDS_PAGE      = '/admin_schedule_fields';
+    const SCHEDULE_TEAMS_PAGE       = '/admin_schedule_teams';
+    const SCHEDULE_FAMILY_PAGE      = '/admin_schedule_families';
+    const SCHEDULE_DIVISIONS_PAGE   = '/admin_schedule_divisions';
+    const SCHEDULE_SCHEDULES_PAGE   = '/admin_schedule_schedules';
+    const SCHEDULE_PREVIEW_PAGE     = '/admin_schedule_preview';
+
+    # Schedule Viewing Pages
+    const SCHEDULE_HOME_PAGE        = '/schedule';
+    const SCHEDULE_TEAM_PAGE        = '/schedule/team';
+    const SCHEDULE_DIVISION_PAGE    = '/schedule/division';
 
     # Operations
     const SUBMIT           = 'submit';
@@ -53,11 +62,19 @@ abstract class View_Base {
     const NO_BUTTON             = 'NoButton';
     const SELECT                = 'Select';
     const DELETE                = 'Delete';
+    const CLEAR                 = 'Clear';
+    const POPULATE              = 'Populate';
+    const PUBLISH               = 'Publish';
     const FILTER                = 'Filter';
     const UPLOAD_FILE           = 'Upload File';
     const UPLOAD_PLAYER_FILE    = 'Upload Player File';
     const UPLOAD_FACILITY_FILE  = 'Upload Facility File';
     const UPLOAD_FIELD_FILE     = 'Upload Field File';
+    const FIELD_VIEW            = 'Field View';
+    const DIVISION_VIEW         = 'Division View';
+    const TEAM_VIEW             = 'Team View';
+    const FAMILY_VIEW           = 'Family View';
+    const FAMILY_FIX            = 'Fix';
 
     # Checkbox Names
     const SHOW_PLAYERS          = 'showPlayers';
@@ -97,7 +114,8 @@ abstract class View_Base {
     const CONTACT_EMAIL             = 'contactEmail';
     const CONTACT_PHONE             = 'contactPhone';
     const FIELD_UPDATE_DATA         = 'fieldUpdateData';
-    const TEAM_POOL_UPDATE_DATA     = 'teamPoolUpdateDate';
+    const TEAM_POOL_UPDATE_DATA     = 'teamPoolUpdateData';
+    const CROSS_POOL_UPDATE_DATA    = 'crossPoolUpdateData';
     const GAMES_PER_TEAM            = 'gamesPerTeam';
 
     const SEASON_ID                 = 'seasonId';
@@ -109,6 +127,7 @@ abstract class View_Base {
     const LOCATION_IDS              = 'locationIds';
     const SCHEDULE_ID               = 'scheduleId';
     const POOL_ID                   = 'poolIds';
+    const FAMILY_ID                 = 'familyId';
 
     const EMAIL_ADDRESS             = 'emailAddress';
     const SUBJECT                   = 'subject';
@@ -119,7 +138,9 @@ abstract class View_Base {
     const IMAGE         = 'image';
 
     # Colors
-    const AQUA = '#069';
+    const AQUA          = '#069';
+    const CREATE_COLOR  = 'lightskyblue';
+    const VIEW_COLOR    = 'aquamarine';
 
     # Member variables
     protected $m_urlParams;
@@ -151,11 +172,13 @@ abstract class View_Base {
      * @param: $requiredString  - String to show just after input box
      * @param: $collapsible     - Collapsible java script class - defaults to NULL
      * @param: $newRow          - Defaults to true
+     * @param: $width           - Defaults to 135px
      */
-    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = '', $collapsible = NULL, $colspan = 1, $newRow = true) {
-        $requiredString = empty($requiredString) ? '&nbsp' : $requiredString;
-        $valueString = empty($value) ? '' : ", value='$value'";
-        $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
+    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = '', $collapsible = NULL, $colspan = 1, $newRow = true, $width = 135) {
+        $requiredString     = empty($requiredString) ? '&nbsp' : $requiredString;
+        $valueString        = empty($value) ? '' : ", value='$value'";
+        $collapsibleClass   = isset($collapsible) ? "class='$collapsible'" : '';
+        $width              = $width . 'px';
 
         if ($newRow) {
             print "
@@ -169,7 +192,7 @@ abstract class View_Base {
 
         print "
                     <td align='left' colspan='$colspan'>
-                        <input style='width: 135px' type='$type' name='$name' placeholder='$placeHolder'$valueString>
+                        <input style='width: $width' type='$type' name='$name' placeholder='$placeHolder'$valueString>
                     </td>
                     <td>
                         <span class='error'>$requiredString</span>
@@ -192,10 +215,14 @@ abstract class View_Base {
      * @param: $collapsible         - Collapsible java script class - defaults to NULL
      * @param: $newRow              - defaults to true
      * @param: $width               - defaults to 140 (px)
+     * @param: $align               - defaults to left
+     * @param: $disabledTag         - defaults to ''; used to prompt for a selection
+     * @param: $selectBackgroundColor   - defaults to ''
      */
-    public function displaySelector($selectorTitle, $selectorName, $defaultSelection, $selectorData, $currentSelection = '', $collapsible = NULL, $newRow = true, $width = 140)
+    public function displaySelector($selectorTitle, $selectorName, $defaultSelection, $selectorData, $currentSelection = '', $collapsible = NULL, $newRow = true, $width = 140, $align='left', $disabledTag='', $selectBackgroundColor='')
     {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
+        $selectBgColorHTML = empty($selectBackgroundColor) ? '' : "background-color: $selectBackgroundColor";
 
         if ($newRow) {
             print "
@@ -203,14 +230,24 @@ abstract class View_Base {
         }
 
         $width = $width . "px";
+        if (!empty($selectorTitle)) {
+            print "
+                <td align='$align'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>";
+        }
+
         print "
-                <td align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
                 <td align='left'>
-                    <select style='width: $width' name='$selectorName' required>";
+                    <select style='width: $width; $selectBgColorHTML' name='$selectorName' required>";
 
         if (!empty($defaultSelection)) {
             print "
                         <option value=''>$defaultSelection</option>";
+        }
+
+        if (!empty($disabledTag)) {
+            $selected = empty($currentSelection) ? ' selected ' : '';
+            print "
+                        <option disabled value=''$selected>$disabledTag</option>";
         }
 
         foreach ($selectorData as $identifier=>$data) {
@@ -426,8 +463,12 @@ abstract class View_Base {
      * @param $daysOfWeek       - Days of week selected $daysOfWeek[0] is Monday
      * @param $label            - Label for input
      * @param $includeWeekend   - Defaults to true
+     * @param $newRow           - Defaults to true
+     * @param $daysPerRow       - Defaults to 7
+     * @param $colspanPerRow    - Defaults to 1
      */
-    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '', $label = 'Days', $includeWeekend = true) {
+    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '', $label = 'Days', $includeWeekend = true, $newRow = true, $daysPerRow = 7, $emptyCells = 1) {
+        /*
         $monChecked = (isset($daysOfWeek[0]) and $daysOfWeek[0] == 1) ? 'checked' : '';
         $tueChecked = (isset($daysOfWeek[1]) and $daysOfWeek[1] == 1) ? 'checked' : '';
         $wedChecked = (isset($daysOfWeek[2]) and $daysOfWeek[2] == 1) ? 'checked' : '';
@@ -435,26 +476,131 @@ abstract class View_Base {
         $friChecked = (isset($daysOfWeek[4]) and $daysOfWeek[4] == 1) ? 'checked' : '';
         $satChecked = (isset($daysOfWeek[5]) and $daysOfWeek[5] == 1) ? 'checked' : '';
         $sunChecked = (isset($daysOfWeek[6]) and $daysOfWeek[5] == 1) ? 'checked' : '';
+        */
 
+        $weekdayData = array(
+            'Monday'    => (isset($daysOfWeek[0]) and $daysOfWeek[0] == 1) ? 'checked' : '',
+            'Tuesday'   => (isset($daysOfWeek[1]) and $daysOfWeek[1] == 1) ? 'checked' : '',
+            'Wednesday' => (isset($daysOfWeek[2]) and $daysOfWeek[2] == 1) ? 'checked' : '',
+            'Thursday'  => (isset($daysOfWeek[3]) and $daysOfWeek[3] == 1) ? 'checked' : '',
+            'Friday'    => (isset($daysOfWeek[4]) and $daysOfWeek[4] == 1) ? 'checked' : '',
+        );
+
+        $weekendData = array(
+            'Saturday'  => (isset($daysOfWeek[5]) and $daysOfWeek[5] == 1) ? 'checked' : '',
+            'Sunday'    => (isset($daysOfWeek[6]) and $daysOfWeek[6] == 1) ? 'checked' : '',
+        );
+
+        if ($newRow) {
+            print "
+                <tr class='$collapsible'>";
+        }
+
+        if (!empty($label)) {
+            print "
+                    <td nowrap><font color='" . View_Base::AQUA . "'><b>$label:&nbsp</b></font></td>";
+        }
+
+        // Print weekday data
+        $currentDaysPrinted = 0;
         print "
-                <tr class='$collapsible'>
-                    <td nowrap><font color='" . View_Base::AQUA . "'><b>$label:&nbsp</b></font></td>
-                    <td nowrap>
-                        <nobr><input type=checkbox name='Monday'    id='Monday'    value='Monday'    $monChecked>Monday</nobr>
-                        <nobr><input type=checkbox name='Tuesday'   id='Tuesday'   value='Tuesday'   $tueChecked>Tuesday</nobr>
-                        <nobr><input type=checkbox name='Wednesday' id='Wednesday' value='Wednesday' $wedChecked>Wednesday</nobr>
-                        <nobr><input type=checkbox name='Thursday'  id='Thursday'  value='Thursday'  $thuChecked>Thursday</nobr>
-                        <nobr><input type=checkbox name='Friday'    id='Friday'    value='Friday'    $friChecked>Friday</nobr>";
+                    <td nowrap>";
+
+        foreach ($weekdayData as $day => $checked) {
+            print "
+                        <nobr><input type=checkbox name='$day'    id='$day'    value='$day'    $checked>$day</nobr>";
+
+            $currentDaysPrinted += 1;
+            if ($currentDaysPrinted == $daysPerRow) {
+                print "
+                    </td>
+                </tr>
+                <tr>";
+
+                for ($i = 0; $i < $emptyCells; $i++) {
+                    print "
+                    <td>&nbsp</td>";
+                }
+
+                print "
+                    <td>";
+                $currentDaysPrinted = 0;
+            }
+        }
 
         if ($includeWeekend)  {
+            foreach ($weekendData as $day => $checked) {
+                if ($currentDaysPrinted == $daysPerRow) {
+                    print "
+                    </td>
+                </tr>
+                <tr>";
+
+                    for ($i = 0; $i < $emptyCells; $i++) {
+                        print "
+                    <td>&nbsp</td>";
+                    }
+
+                    print "
+                    <td>";
+                    $currentDaysPrinted = 0;
+                }
+
+                print "
+                        <nobr><input type=checkbox name='$day'  id='$day'  value='$day'  $checked>$day</nobr>";
+                $currentDaysPrinted += 1;
+            }
+        }
+
+
+        /*
+        print "
+                        <nobr><input type=checkbox name='Tuesday'   id='Tuesday'   value='Tuesday'   $tueChecked>Tuesday</nobr>";
+
+        $currentDaysPrinted += 1;
+        if ($currentDaysPrinted == $daysPerRow) {
             print "
-                        <nobr><input type=checkbox name='Saturday'  id='Saturday'  value='Saturday'  $satChecked>Saturday</nobr>
-                        <nobr><input type=checkbox name='Sunday'    id='Sunday'    value='Sunday'    $sunChecked>Sunday</nobr>";
+                    </td>
+                <tr>
+                    <td colspan='$colspanPerRow' align='right'>";
+            $currentDaysPrinted = 0;
         }
 
         print "
+                        <nobr><input type=checkbox name='Wednesday' id='Wednesday' value='Wednesday' $wedChecked>Wednesday</nobr>";
+
+        $currentDaysPrinted += 1;
+        if ($currentDaysPrinted == $daysPerRow) {
+            print "
                     </td>
+                <tr>
+                    <td colspan='$colspanPerRow' align='right'>";
+            $currentDaysPrinted = 0;
+        }
+
+        print "
+                        <nobr><input type=checkbox name='Thursday'  id='Thursday'  value='Thursday'  $thuChecked>Thursday</nobr>";
+
+        $currentDaysPrinted += 1;
+        if ($currentDaysPrinted == $daysPerRow) {
+            print "
+                    </td>
+                <tr>
+                    <td colspan='$colspanPerRow' align='right'>";
+            $currentDaysPrinted = 0;
+        }
+
+        print "
+                        <nobr><input type=checkbox name='Friday'    id='Friday'    value='Friday'    $friChecked>Friday</nobr>";
+
+*/
+        print "
+                    </td>";
+
+        if ($newRow) {
+            print"
                 </tr>";
+        }
     }
 
 
@@ -487,18 +633,33 @@ abstract class View_Base {
      * @param string $defaultEndDate - Default selection for endDate
      * @param $collapsible - Collapsible CSS
      * @param $colspan - Number of columns to span
+     * @param $width - defaults to 135 px
+     * @param $newRow - defaults to true
      */
-    protected function displayCalendarDateSelector($maxColumns, $id, $tag, $defaultDate, $collapsible = NULL, $colspan = 1)
+    protected function displayCalendarDateSelector($maxColumns, $id, $tag, $defaultDate, $collapsible = NULL, $colspan = 1, $width = 135, $newRow = true)
     {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
+        if ($newRow) {
+            print "
+            <tr $collapsibleClass>";
+        }
+
+        if (!empty($tag)) {
+            print "
+                <td nowrap><font color='" . View_Base::AQUA . "'><b>$tag:</b></font></td>";
+        }
+
+        $width = $width . "px";
         print "
-            <tr $collapsibleClass>
-                <td nowrap><font color='" . View_Base::AQUA . "'><b>$tag:</b></font></td>
                 <td colpan='$colspan'>
-                    <input type='text' size=11 id='$id' name='$id' value='$defaultDate' style='font-size:11px'>
-                </td>
+                    <input type='text' style='width: $width' id='$id' name='$id' value='$defaultDate'>
+                </td>";
+
+        if ($newRow) {
+            print "
             </tr>";
+        }
     }
 
     /**
@@ -677,6 +838,87 @@ abstract class View_Base {
         }
 
         return count($teams);
+    }
+
+    /**
+     * Get selector array for Divisions
+     *
+     * @param bool $byName          - if true then get by name instead of id.  Defaults to false, by id.
+     * @param bool $allOption       - if true then All is an option otherwise All is not allowed
+     * @param bool $includeGender   - if true then Gender is included in the display name
+     *
+     * @return array - id => name
+     */
+    public function getDivisionsSelector($byName = false, $allOption = false, $includeGender = false)
+    {
+        $divisions = [];
+        if (isset($this->m_controller->m_season))
+        {
+            $divisions = Division::lookupBySeason($this->m_controller->m_season);
+        }
+
+        $divisionsSelector = [];
+        if ($allOption) {
+            if ($byName) {
+                $divisionsSelector['All'] = 'All';
+            } else {
+                $divisionsSelector[0] = 'All';
+            }
+        }
+
+        foreach ($divisions as $division) {
+            $identifier = $division->id;
+            if ($byName) {
+                $identifier = $division->name;
+                if ($includeGender) {
+                    $identifier .= ' ' . $division->gender;
+                }
+            }
+            $divisionsSelector[$identifier] = $includeGender ? $division->name . ' ' . $division->gender : $division->name;
+        }
+
+        return $divisionsSelector;
+    }
+
+    /**
+     * Get selector array for Families
+     *
+     * @param bool $allOption       - if true then All is an option otherwise All is not allowed
+     *
+     * @return array - id => Family Last Name
+     */
+    public function getFamilySelector($allOption = false)
+    {
+        $familySelector = [];
+        $families       = [];
+
+        if (isset($this->m_controller->m_season))
+        {
+            $families = Family::lookupBySeason($this->m_controller->m_season);
+        }
+
+        foreach ($families as $family) {
+            $coaches = \DAG\Domain\Schedule\Coach::lookupByFamily($family);
+            if (count($coaches) == 0) {
+                continue;
+            }
+
+            $identifier = $family->id;
+            $familySelector[$identifier] = $coaches[0]->lastName;
+        }
+
+        asort($familySelector);
+
+        if ($allOption) {
+            $familySelectorWithAll[0] = 'All';
+            foreach ($familySelector as $familyId => $lastName) {
+                $familySelectorWithAll[$familyId] = $lastName;
+            }
+
+            $familySelector = $familySelectorWithAll;
+        }
+
+        return $familySelector;
     }
 
     /**

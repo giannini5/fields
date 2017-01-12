@@ -119,7 +119,7 @@ class Coach extends Domain
     /**
      * @param Family      $family
      *
-     * @return Coach
+     * @return Coach[]
      */
     public static function lookupByFamily($family)
     {
@@ -147,9 +147,36 @@ class Coach extends Domain
             case "phone2":
                 return $this->coachOrm->{$propertyName};
 
+            case "lastName":
+                $nameParts = explode(" ", $this->coachOrm->name);
+                switch (count($nameParts)) {
+                    case 0:
+                    case 1:
+                        return $this->coachOrm->name;
+                    default:
+                        array_shift($nameParts);
+                        return implode(" ", $nameParts);
+                }
+                break;
+
             case "team":
             case "family":
                 return $this->{$propertyName};
+
+            default:
+                Precondition::isTrue(false, "Unrecognized property: $propertyName");
+        }
+    }
+
+    /**
+     * @param $propertyName
+     * @return int|string
+     */
+    public function __isset($propertyName)
+    {
+        switch ($propertyName) {
+            case "family":
+                return isset($this->family);
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");

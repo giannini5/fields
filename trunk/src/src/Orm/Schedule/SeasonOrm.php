@@ -56,7 +56,6 @@ class SeasonOrm extends PersistenceModel
      *
      * @param $leagueId
      * @param $name
-     *
      * @param $startDate
      * @param $endDate
      * @param $startTime
