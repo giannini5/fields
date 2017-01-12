@@ -67,6 +67,24 @@ class PoolTest extends ORM_TestHelper
         $this->assertEquals(2, count($pools));
     }
 
+    public function test_gamesAgainstPool()
+    {
+        $pool1 = $this->poolsToCleanup[0];
+        $pool2 = Pool::lookupById($this->defaultPoolOrm->id);
+
+        $this->assertEquals($pool1->id, $pool1->gamesAgainstPool->id);
+        $this->assertEquals($pool2->id, $pool2->gamesAgainstPool->id);
+
+        $pool1->gamesAgainstPool = $pool2;
+        $this->assertEquals($pool1->id, $pool2->gamesAgainstPool->id);
+        $this->assertEquals($pool2->id, $pool1->gamesAgainstPool->id);
+
+        $pool1 = Pool::lookupById($this->poolsToCleanup[0]->id);
+        $pool2 = Pool::lookupById($this->defaultPoolOrm->id);
+        $this->assertEquals($pool1->id, $pool2->gamesAgainstPool->id);
+        $this->assertEquals($pool2->id, $pool1->gamesAgainstPool->id);
+    }
+
     public function validatePool($pool, $schedule, $expectedDefaults)
     {
         $this->assertTrue($pool->id > 0);

@@ -13,13 +13,12 @@ class GameExistsForGameTime extends \DAG_Exception
 {
     /**
      * @param Field     $field
-     * @param GameTime  $gameTime
      */
-    public function __construct($field, $gameTime)
+    public function __construct($field)
     {
         $facilityName = $field->facility->name;
         $fieldName = $facilityName . ": " . $field->name;
-        parent::__construct("Game is already set for $fieldName at time $gameTime->startTime");
+        parent::__construct("Game is already set for $fieldName");
     }
 
 }
@@ -224,10 +223,8 @@ class Field extends Domain
 
         // Check to see if games have already been set
         if ($errorIfGameSet) {
-            foreach ($gameTimes as $gameTime) {
-                if (isset($gameTime->game)) {
-                    throw new GameExistsForGameTime($this, $gameTime);
-                }
+            if ($this->gamesExists($gameTimes)) {
+                throw new GameExistsForGameTime($this);
             }
         }
 
@@ -235,6 +232,25 @@ class Field extends Domain
         foreach ($gameTimes as $gameTime) {
             $gameTime->delete();
         }
+    }
+
+    /**
+     * @param GameTime[]|null   $gameTimes - defaults to null
+     * @return bool             true if games exist for field, false otherwise
+     */
+    public function gamesExists($gameTimes = null)
+    {
+        if (!isset($gameTimes)) {
+            $gameTimes = GameTime::lookupByField($this);
+        }
+
+        foreach ($gameTimes as $gameTime) {
+            if (isset($gameTime->game)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

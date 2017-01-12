@@ -184,6 +184,26 @@ class Team extends Domain
     }
 
     /**
+     * @param $propertyName
+     * @return int|string
+     */
+    public function __isset($propertyName)
+    {
+        switch ($propertyName) {
+            case "id":
+            case "name":
+            case "division":
+                return true;
+
+            case "pool":
+                return isset($this->teamOrm->poolId);
+
+            default:
+                Precondition::isTrue(false, "Unrecognized isset property: $propertyName");
+        }
+    }
+
+    /**
      *  Delete the team
      *  TODO: Change to cascading delete
      */

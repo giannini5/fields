@@ -88,12 +88,12 @@ class FamilyOrm extends PersistenceModel
 
         // Try to find with phone1
         $familyOrm = null;
-        if (self::findBySeasonIdAndPhone($seasonId, $phone1, $familyOrm)) {
+        if (!empty($phone1) and self::findBySeasonIdAndPhone($seasonId, $phone1, $familyOrm)) {
             return $familyOrm;
         }
 
         // Try to find with phone2
-        if (self::findBySeasonIdAndPhone($seasonId, $phone2, $familyOrm)) {
+        if (!empty($phone2) and self::findBySeasonIdAndPhone($seasonId, $phone2, $familyOrm)) {
             return $familyOrm;
         }
 
@@ -136,6 +136,8 @@ class FamilyOrm extends PersistenceModel
      */
     public static function loadBySeasonIdAndPhone($seasonId, $phone)
     {
+        Precondition::isTrue(!empty($phone), "Phone cannot be empty");
+
         try {
             $result = self::getPersistenceDriver()->getOne(
                 [
@@ -167,14 +169,7 @@ class FamilyOrm extends PersistenceModel
     public static function findBySeasonIdAndPhone($seasonId, $phone, &$familyOrm)
     {
         try {
-            $result = self::getPersistenceDriver()->getOne(
-                [
-                    self::FIELD_SEASON_ID   => $seasonId,
-                    self::FIELD_PHONE1      => $phone,
-                ]);
-
-            $familyOrm = new static($result);
-
+            $familyOrm = self::loadBySeasonIdAndPhone($seasonId, $phone);
             return true;
         } catch (NoResultsException $e) {
             return false;

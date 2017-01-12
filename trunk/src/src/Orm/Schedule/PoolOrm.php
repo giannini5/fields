@@ -11,17 +11,20 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $id
  * @property int    $scheduleId
  * @property string $name
+ * @property int    $gamesAgainstPoolId
  */
 class PoolOrm extends PersistenceModel
 {
-    const FIELD_ID          = 'id';
-    const FIELD_SCHEDULE_ID = 'scheduleId';
-    const FIELD_NAME        = 'name';
+    const FIELD_ID                      = 'id';
+    const FIELD_SCHEDULE_ID             = 'scheduleId';
+    const FIELD_NAME                    = 'name';
+    const FIELD_GAMES_AGAINST_POOL_ID   = 'gamesAgainstPoolId';
 
     protected static $fields = [
-        self::FIELD_ID          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_SCHEDULE_ID => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_NAME        => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_ID                      => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_SCHEDULE_ID             => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_NAME                    => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_GAMES_AGAINST_POOL_ID   => [FV::INT,    [FV::NO_CONSTRAINTS], null],
     ];
 
     protected static $config = [
@@ -37,18 +40,21 @@ class PoolOrm extends PersistenceModel
      *
      * @param int       $scheduleId
      * @param string    $name
+     * @param int       $gamesAgainstPoolId
      *
      * @return PoolOrm
      * @throws DuplicateEntryException
      */
     public static function create(
         $scheduleId,
-        $name)
+        $name,
+        $gamesAgainstPoolId = null)
     {
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_SCHEDULE_ID => $scheduleId,
-                self::FIELD_NAME        => $name,
+                self::FIELD_SCHEDULE_ID             => $scheduleId,
+                self::FIELD_NAME                    => $name,
+                self::FIELD_GAMES_AGAINST_POOL_ID   => $gamesAgainstPoolId,
             ],
             function ($item) {
                 return $item !== null;

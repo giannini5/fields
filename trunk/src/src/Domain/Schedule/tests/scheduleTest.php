@@ -29,12 +29,20 @@ class ScheduleTest extends ORM_TestHelper
         $this->expectedDefaults = array(
             'name'          => 'TEST Domain schedule name',
             'gamesPerTeam'  => 6,
+            'startDate'     => '2015-09-10',
+            'endDate'       => '2015-11-01',
+            'daysOfWeek'    => '0000001',
+            'published'     => 1,
         );
 
         $this->schedulesToCleanup[] = Schedule::create(
             $this->division,
             $this->expectedDefaults['name'],
-            $this->expectedDefaults['gamesPerTeam']);
+            $this->expectedDefaults['gamesPerTeam'],
+            $this->expectedDefaults['startDate'],
+            $this->expectedDefaults['endDate'],
+            $this->expectedDefaults['daysOfWeek'],
+            $this->expectedDefaults['published']);
     }
 
     protected function tearDown()
@@ -66,8 +74,14 @@ class ScheduleTest extends ORM_TestHelper
 
     public function test_lookupByDivision()
     {
-        $schedules = Schedule::lookupByDivision($this->division, $this->expectedDefaults['name']);
+        $schedules = Schedule::lookupByDivision($this->division);
         $this->assertEquals(2, count($schedules));
+    }
+
+    public function test_lookupByDivisionPublishedOnly()
+    {
+        $schedules = Schedule::lookupByDivision($this->division, $this->expectedDefaults['name'], true);
+        $this->assertEquals(1, count($schedules));
     }
 
     public function test_set()
@@ -75,17 +89,30 @@ class ScheduleTest extends ORM_TestHelper
         $schedule = Schedule::lookupById($this->schedulesToCleanup[0]->id);
         $schedule->name         = 'Hello Dave';
         $schedule->gamesPerTeam = 7;
+        $schedule->startDate    = '2015-09-11';
+        $schedule->endDate      = '2015-10-31';
+        $schedule->daysOfWeek   = '0000010';
+        $schedule->published    = 0;
         $schedule = Schedule::lookupById($this->schedulesToCleanup[0]->id);
 
         $this->expectedDefaults['name']         = 'Hello Dave';
         $this->expectedDefaults['gamesPerTeam'] = 7;
+        $this->expectedDefaults['startDate']    = '2015-09-11';
+        $this->expectedDefaults['endDate']      = '2015-10-31';
+        $this->expectedDefaults['daysOfWeek']   = '0000010';
+        $this->expectedDefaults['published']   = 0;
         $this->validateSchedule($schedule, $this->division, $this->expectedDefaults);
     }
 
     public function validateSchedule($schedule, $division, $expectedDefaults)
     {
         $this->assertTrue($schedule->id > 0);
-        $this->assertEquals($expectedDefaults['name'],  $schedule->name);
-        $this->assertEquals($division,                  $schedule->division);
+        $this->assertEquals($expectedDefaults['name'],          $schedule->name);
+        $this->assertEquals($division,                          $schedule->division);
+        $this->assertEquals($expectedDefaults['gamesPerTeam'],  $schedule->gamesPerTeam);
+        $this->assertEquals($expectedDefaults['startDate'],     $schedule->startDate);
+        $this->assertEquals($expectedDefaults['endDate'],       $schedule->endDate);
+        $this->assertEquals($expectedDefaults['daysOfWeek'],    $schedule->daysOfWeek);
+        $this->assertEquals($expectedDefaults['published'],    $schedule->published);
     }
 }

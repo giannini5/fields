@@ -87,6 +87,16 @@ class GameTest extends ORM_TestHelper
         $this->validateGame($games[0]);
     }
 
+    public function test_lookupByDivisionDay()
+    {
+        $division   = Division::lookupById($this->defaultDivisionOrm->id);
+        $day        = $this->defaultGameDateOrm->day;
+
+        $games = Game::lookupByDivisionDay($division, $day);
+        $this->assertTrue(count($games) == 1);
+        $this->validateGame($games[0]);
+    }
+
     public function validateGame($game)
     {
         $this->assertTrue($game->id > 0);

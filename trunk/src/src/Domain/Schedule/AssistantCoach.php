@@ -13,6 +13,7 @@ use DAG\Framework\Exception\Precondition;
  * @property Team       $team
  * @property Family     $family
  * @property string     $name
+ * @property string     $lastName
  * @property string     $email
  * @property string     $phone1
  * @property string     $phone2
@@ -119,7 +120,7 @@ class AssistantCoach extends Domain
     /**
      * @param Family      $family
      *
-     * @return AssistantCoach
+     * @return AssistantCoach[]
      */
     public static function lookupByFamily($family)
     {
@@ -146,6 +147,18 @@ class AssistantCoach extends Domain
             case "phone1":
             case "phone2":
                 return $this->assistantCoachOrm->{$propertyName};
+
+            case "lastName":
+                $nameParts = explode(" ", $this->assistantCoachOrm->name);
+                switch (count($nameParts)) {
+                    case 0:
+                    case 1:
+                        return $this->assistantCoachOrm->name;
+                    default:
+                        array_shift($nameParts);
+                        return implode(" ", $nameParts);
+                }
+                break;
 
             case "team":
             case "family":

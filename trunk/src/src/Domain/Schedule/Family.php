@@ -3,6 +3,7 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
+use DAG\Framework\Exception\Assertion;
 use DAG\Orm\Schedule\AssistantCoachOrm;
 use DAG\Orm\Schedule\CoachOrm;
 use DAG\Orm\Schedule\FacilityOrm;
@@ -15,6 +16,7 @@ use DAG\Framework\Exception\Precondition;
  * @property Season $season
  * @property string $phone1
  * @property string $phone2
+ * @property string $name
  */
 class Family extends Domain
 {
@@ -23,6 +25,9 @@ class Family extends Domain
 
     /** @var Season */
     private $season;
+
+    /** @var string */
+    private $name;
 
     /**
      * @param FamilyOrm $familyOrm
@@ -154,6 +159,29 @@ class Family extends Domain
 
     /**
      * @param Season $season
+     * @param string $phone
+     * @param Family $family - output parameter
+     *
+     * @return bool - True if family found; false otherwise
+     */
+    public static function findByPhone($season, $phone, &$family)
+    {
+        if (empty($phone)) {
+            return false;
+        }
+
+        $familyOrm = null;
+        $result = FamilyOrm::findBySeasonIdAndPhone($season->id, $phone, $familyOrm);
+        if ($result) {
+            $family = new static($familyOrm, $season);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param Season $season
      *
      * @return array Families
      */
@@ -181,12 +209,40 @@ class Family extends Domain
             case "phone2":
                 return $this->familyOrm->{$propertyName};
 
+            case "name":
+                if (!isset($this->name)) {
+                    $this->setName();
+                }
+                return $this->name;
+
             case "season":
                 return $this->{$propertyName};
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
         }
+    }
+
+    /**
+     * Derive the family name from the last name of the first coach or assistant coach for the family
+     */
+    private function setName()
+    {
+        Precondition::isTrue(!isset($this->name), "Family name is already set, cannot set a second time");
+
+        $coaches = Coach::lookupByFamily($this);
+        if (count($coaches) > 0) {
+            $this->name = $coaches[0]->lastName;
+        } else {
+            $assistantCoaches = AssistantCoach::lookupByFamily($this);
+            if (count($assistantCoaches) > 0) {
+                $this->name = $assistantCoaches[0]->lastName;
+            } else {
+                $this->name = "Unknown: $this->familyOrm->phone1";
+            }
+        }
+
+        Assertion::isTrue(isset($this->name), "Quick, call Dave, the family name did not get set and should have");
     }
 
     /**

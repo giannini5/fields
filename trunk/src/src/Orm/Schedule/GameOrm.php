@@ -26,7 +26,7 @@ class GameOrm extends PersistenceModel
 
     protected static $fields = [
         self::FIELD_ID                  => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_POOL_ID         => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_POOL_ID             => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_GAME_TIME_ID        => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_HOME_TEAM_ID        => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_VISITING_TEAM_ID    => [FV::INT,    [FV::NO_CONSTRAINTS]],
