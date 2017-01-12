@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/upgrade/017_familyGame.sql" afterPath="$PROJECT_DIR$/db/schedule/upgrade/017_familyGame.sql" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Game.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Game.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="src.iws" />
@@ -54,18 +54,18 @@
       <file leaf-file-name="FamilyGame.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/FamilyGame.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.7647057" vertical-offset="1695" max-vertical-offset="6045">
+            <state vertical-scroll-proportion="54.117645" vertical-offset="4800" max-vertical-offset="6045">
               <caret line="139" column="38" selection-start-line="139" selection-start-column="27" selection-end-line="139" selection-end-column="38" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Game.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Game.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/Game.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-16.25" vertical-offset="2880" max-vertical-offset="3840">
-              <caret line="220" column="0" selection-start-line="220" selection-start-column="0" selection-end-line="220" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.18514413" vertical-offset="2803" max-vertical-offset="3930">
+              <caret line="200" column="6" selection-start-line="200" selection-start-column="6" selection-end-line="200" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -76,16 +76,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="-10.958333" vertical-offset="2512" max-vertical-offset="2895">
               <caret line="185" column="0" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="017_familyGame.sql" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/db/schedule/upgrade/017_familyGame.sql">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="357">
-              <caret line="0" column="27" selection-start-line="0" selection-start-column="27" selection-end-line="0" selection-end-column="27" />
               <folding />
             </state>
           </provider>
@@ -204,11 +194,11 @@
         <option value="$PROJECT_DIR$/db/schedule/tables/game.sql" />
         <option value="$PROJECT_DIR$/db/schedule/upgrade/018_gameTimeIndexOnGame.sql" />
         <option value="$PROJECT_DIR$/view/adminSchedules/base.php" />
-        <option value="$PROJECT_DIR$/src/Domain/Schedule/Game.php" />
         <option value="$PROJECT_DIR$/src/Domain/Schedule/FamilyGame.php" />
         <option value="$PROJECT_DIR$/controller/adminSchedules/schedule.php" />
         <option value="$PROJECT_DIR$/lib/autoload.php" />
         <option value="$PROJECT_DIR$/db/schedule/upgrade/017_familyGame.sql" />
+        <option value="$PROJECT_DIR$/src/Domain/Schedule/Game.php" />
       </list>
     </option>
   </component>
@@ -991,7 +981,13 @@
       <option name="project" value="LOCAL" />
       <updated>1484263072470</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="FamilyGame Upgrade Script bug fix">
+      <created>1484263423945</created>
+      <option name="number" value="00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1484263423945</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -1022,7 +1018,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32972583" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32972583" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.5440252" sideWeight="0.687545" order="3" side_tool="true" content_ui="tabs" x="1489" y="553" width="1730" height="396" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.5440252" sideWeight="0.687545" order="3" side_tool="true" content_ui="tabs" x="1489" y="553" width="1730" height="396" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.22330096" sideWeight="0.5003509" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20382634" sideWeight="0.5103448" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32777777" sideWeight="0.49928468" order="7" side_tool="false" content_ui="tabs" />
@@ -1081,7 +1077,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="Added Administration Interface and other goodies." />
     <MESSAGE value="Added Welcome page." />
     <MESSAGE value="Bug Fix - create account misspelled" />
     <MESSAGE value="Show enabled fields only" />
@@ -1106,7 +1101,8 @@
     <MESSAGE value="Bug fix for when Season does not exist" />
     <MESSAGE value="Enhanced Scheduling Support" />
     <MESSAGE value="Fixed Mac to CentOS Autoload problem" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed Mac to CentOS Autoload problem" />
+    <MESSAGE value="FamilyGame Upgrade Script bug fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="FamilyGame Upgrade Script bug fix" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1590,22 +1586,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/Game.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-16.25" vertical-offset="2880" max-vertical-offset="3840">
-          <caret line="220" column="0" selection-start-line="220" selection-start-column="0" selection-end-line="220" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/FamilyGame.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.7647057" vertical-offset="1695" max-vertical-offset="6045">
-          <caret line="139" column="38" selection-start-line="139" selection-start-column="27" selection-end-line="139" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/controller/adminSchedules/schedule.php">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-44.083332" vertical-offset="5257" max-vertical-offset="7005">
@@ -1632,6 +1612,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/db/schedule/upgrade/017_familyGame.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.29411766" vertical-offset="0" max-vertical-offset="357">
+          <caret line="7" column="37" selection-start-line="7" selection-start-column="37" selection-end-line="7" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/web/index.php">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-10.958333" vertical-offset="2512" max-vertical-offset="2895">
@@ -1640,10 +1628,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/db/schedule/upgrade/017_familyGame.sql">
+    <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/FamilyGame.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="357">
-          <caret line="0" column="27" selection-start-line="0" selection-start-column="27" selection-end-line="0" selection-end-column="27" />
+        <state vertical-scroll-proportion="54.117645" vertical-offset="4800" max-vertical-offset="6045">
+          <caret line="139" column="38" selection-start-line="139" selection-start-column="27" selection-end-line="139" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/Game.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.18514413" vertical-offset="2803" max-vertical-offset="3930">
+          <caret line="200" column="6" selection-start-line="200" selection-start-column="6" selection-end-line="200" selection-end-column="6" />
           <folding />
         </state>
       </provider>
