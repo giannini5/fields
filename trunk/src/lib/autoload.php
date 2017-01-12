@@ -55,7 +55,14 @@ function dag_autoloader($className)
     $bits = explode('_', $className);
     $fileName = array_pop($bits);
     $fileName = lcfirst($fileName);
-    $path = strtolower(implode('/', $bits));
+
+    for ($i = 0; $i < count($bits); ++$i) {
+        $bits[$i] = lcfirst($bits[$i]);
+    }
+
+    $path = implode('/', $bits);
+
+    // $path = strtolower(implode('/', $bits));
     $filePath = (!empty($path)) ? "$path/$fileName.php" : "$fileName.php";
 
     // print "loading $className -- $filePath <BR>";
