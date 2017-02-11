@@ -94,10 +94,9 @@ class GameTime extends Domain
         $interval                   = $field->getGameDurationInMinutesInterval();
         $gameTimes                  = static::getDefaultGameTimes($startTime, $endTime, $interval);
         $startingGenderPreference   = GameTimeOrm::BOYS;
-        $priorGameDate              = null;
 
         foreach ($gameDates as $gameDate) {
-            if (isset($priorGameDate) and $priorGameDate->isSunday()) {
+            if ($gameDate->isSaturday()) {
                 $startingGenderPreference = $startingGenderPreference == GameTimeOrm::GIRLS ? GameTimeOrm::BOYS : GameTimeOrm::GIRLS;
             }
             $genderPreference = $startingGenderPreference;
@@ -106,8 +105,6 @@ class GameTime extends Domain
                 GameTime::create($gameDate, $field, $gameTime, $genderPreference, null, $ignoreDuplicates);
                 $genderPreference = $genderPreference == GameTimeOrm::GIRLS ? GameTimeOrm::BOYS : GameTimeOrm::GIRLS;
             }
-
-            $priorGameDate = $gameDate;
         }
     }
 
@@ -205,13 +202,23 @@ class GameTime extends Domain
      * @param GameDate      $gameDate
      * @param Field         $field
      * @param string        $gender
-     * @param bool          $availableOnly defaults to false
+     * @param bool          $availableOnly defaults to false (only return times where a game has not been scheduled)
+     * @param string        $minStartTime
+     * @param string        $maxEndTime
      *
      * @return array        $gameTimes
      */
-    public static function lookupByGameDateAndFieldAndGender($gameDate, $field, $gender, $availableOnly = false)
+    public static function lookupByGameDateAndFieldAndGender(
+        $gameDate,
+        $field,
+        $gender,
+        $availableOnly  = false,
+        $minStartTime   = null,
+        $maxEndTime     = null)
     {
-        $gameTimes = [];
+        $gameTimes      = [];
+        $minStartTime   = isset($minStartTime) ? $minStartTime : '00:00:00';
+        $maxEndTime     = isset($maxEndTime) ? $maxEndTime : '24:59:59';
 
         $gameTimeOrms = GameTimeOrm::loadByGameDateIdAndFieldIdAndGender($gameDate->id, $field->id, $gender);
         foreach ($gameTimeOrms as $gameTimeOrm) {
@@ -219,7 +226,7 @@ class GameTime extends Domain
 
             if ($availableOnly and isset($gameTime->game)) {
                 continue;
-            } else {
+            } elseif ($minStartTime <= $gameTime->startTime and $maxEndTime >= $gameTime->startTime) {
                 $gameTimes[] = $gameTime;
             }
         }

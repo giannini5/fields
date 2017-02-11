@@ -147,6 +147,17 @@ class Coach extends Domain
             case "phone2":
                 return $this->coachOrm->{$propertyName};
 
+            case "firstName":
+                $nameParts = explode(" ", $this->coachOrm->name);
+                switch (count($nameParts)) {
+                    case 0:
+                    case 1:
+                        return $this->coachOrm->name;
+                    default:
+                        return $nameParts[0];
+                }
+                break;
+
             case "lastName":
                 $nameParts = explode(" ", $this->coachOrm->name);
                 switch (count($nameParts)) {
@@ -156,6 +167,20 @@ class Coach extends Domain
                     default:
                         array_shift($nameParts);
                         return implode(" ", $nameParts);
+                }
+                break;
+
+            case "shortName":
+                $nameParts = explode(" ", $this->coachOrm->name);
+                switch (count($nameParts)) {
+                    case 0:
+                    case 1:
+                        return $this->coachOrm->name;
+                    default:
+                        $firstName  = array_shift($nameParts);
+                        $lastName   = implode(" ", $nameParts);
+                        $lastName   .= ", " . $firstName[0];
+                        return $lastName;
                 }
                 break;
 

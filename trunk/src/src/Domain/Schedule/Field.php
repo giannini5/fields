@@ -212,41 +212,63 @@ class Field extends Domain
     /**
      * Delete GameTimes provided no games are scheduled during the time
      *
-     * @param bool $errorIfGameSet - Throw GameExistsForGameTime if there is an attempt
-     *                               to delete a time with an assigned game.
+     * @param bool      $errorIfGameSet - Throw GameExistsForGameTime if there is an attempt
+     *                                    to delete a time with an assigned game.
+     * @param GameDate  $gameDate       - defaults to null.  If set, only gameTimes for given gameDate are removed from field
      *
      * @throws GameExistsForGameTime
      */
-    public function deleteGameTimes($errorIfGameSet = true)
+    public function deleteGameTimes($errorIfGameSet = true, $gameDate = null)
     {
         $gameTimes = GameTime::lookupByField($this);
 
         // Check to see if games have already been set
         if ($errorIfGameSet) {
-            if ($this->gamesExists($gameTimes)) {
+            if (isset($gameDate)) {
+                if ($this->gamesExists($gameTimes, array($gameDate))) {
+                    throw new GameExistsForGameTime($this);
+                }
+            } elseif ($this->gamesExists($gameTimes)) {
                 throw new GameExistsForGameTime($this);
             }
         }
 
         // Delete existing GameTimes
         foreach ($gameTimes as $gameTime) {
-            $gameTime->delete();
+            if (isset($gameDate)) {
+                if ($gameTime->gameDate->day == $gameDate->day) {
+                    $gameTime->delete();
+                }
+            } else {
+                $gameTime->delete();
+            }
         }
     }
 
     /**
      * @param GameTime[]|null   $gameTimes - defaults to null
+     * @param GameDate[]|null   $gameDates - defaults to null
      * @return bool             true if games exist for field, false otherwise
      */
-    public function gamesExists($gameTimes = null)
+    public function gamesExists($gameTimes = null, $gameDates = null)
     {
         if (!isset($gameTimes)) {
             $gameTimes = GameTime::lookupByField($this);
         }
 
         foreach ($gameTimes as $gameTime) {
-            if (isset($gameTime->game)) {
-                return true;
+            if (isset($gameDates)) {
+                foreach ($gameDates as $gameDate) {
+                    if ($gameTime->gameDate->day == $gameDate->day) {
+                        if (isset($gameTime->game)) {
+                            return true;
+                        }
+                    }
+                }
+            } else {
+                if (isset($gameTime->game)) {
+                    return true;
+                }
             }
         }
 

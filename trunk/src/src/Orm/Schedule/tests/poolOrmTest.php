@@ -31,6 +31,7 @@ class PoolOrmTest extends ORM_TestHelper
     public function test_create()
     {
         $poolOrm = PoolOrm::create(
+            $this->defaultFlightOrm->id,
             $this->defaultScheduleOrm->id,
             self::$expectedDefaults[self::NAME]);
 
@@ -49,9 +50,16 @@ class PoolOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($poolOrm, self::$defaultPoolOrmAttributes);
     }
 
+    public function test_loadByFlightName()
+    {
+        $poolOrm = PoolOrm::loadByFlightIdAndName($this->defaultFlightOrm->id, self::$defaultPoolOrmAttributes[self::NAME]);
+        $this->verifyExpectedAttributes($poolOrm, self::$defaultPoolOrmAttributes);
+    }
+
     private function verifyExpectedAttributes($poolOrm, $attributes)
     {
         $this->assertTrue($poolOrm->id > 0);
+        $this->assertEquals($this->defaultFlightOrm->id,    $poolOrm->flightId);
         $this->assertEquals($this->defaultScheduleOrm->id,  $poolOrm->scheduleId);
         $this->assertEquals($attributes[self::NAME],        $poolOrm->name);
     }

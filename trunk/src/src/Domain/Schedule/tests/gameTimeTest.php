@@ -72,6 +72,7 @@ class GameTimeTest extends ORM_TestHelper
     public function test_lookupByGameId()
     {
         $this->defaultGameOrm = GameOrm::create(
+            $this->defaultFlightOrm->id,
             $this->defaultPoolOrm->id,
             $this->gameTimesToCleanup[0]->id,
             $this->defaultTeamOrm->id,

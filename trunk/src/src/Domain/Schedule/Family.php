@@ -6,7 +6,6 @@ use DAG\Domain\Domain;
 use DAG\Framework\Exception\Assertion;
 use DAG\Orm\Schedule\AssistantCoachOrm;
 use DAG\Orm\Schedule\CoachOrm;
-use DAG\Orm\Schedule\FacilityOrm;
 use DAG\Orm\Schedule\FamilyOrm;
 use DAG\Framework\Exception\Precondition;
 
@@ -232,11 +231,11 @@ class Family extends Domain
 
         $coaches = Coach::lookupByFamily($this);
         if (count($coaches) > 0) {
-            $this->name = $coaches[0]->lastName;
+            $this->name = $coaches[0]->shortName;
         } else {
             $assistantCoaches = AssistantCoach::lookupByFamily($this);
             if (count($assistantCoaches) > 0) {
-                $this->name = $assistantCoaches[0]->lastName;
+                $this->name = $assistantCoaches[0]->shortName;
             } else {
                 $this->name = "Unknown: $this->familyOrm->phone1";
             }

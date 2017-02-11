@@ -14,6 +14,8 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $gamesPerTeam
  * @property string $startDate
  * @property string $endDate
+ * @property string $startTime
+ * @property string $endTime
  * @property string $daysOfWeek
  * @property int    $published
  */
@@ -22,19 +24,28 @@ class ScheduleOrm extends PersistenceModel
     const FIELD_ID                      = 'id';
     const FIELD_DIVISION_ID             = 'divisionId';
     const FIELD_NAME                    = 'name';
+    const FIELD_SCHEDULE_TYPE           = 'scheduleType';
     const FIELD_GAMES_PER_TEAM          = 'gamesPerTeam';
     const FIELD_START_DATE              = 'startDate';
     const FIELD_END_DATE                = 'endDate';
+    const FIELD_START_TIME              = 'startTime';
+    const FIELD_END_TIME                = 'endTime';
     const FIELD_DAYS_OF_WEEK            = 'daysOfWeek';
     const FIELD_PUBLISHED               = 'published';
+
+    const SCHEDULE_TYPE_LEAGUE      = 'L';
+    const SCHEDULE_TYPE_TOURNAMENT  = 'T';
 
     protected static $fields = [
         self::FIELD_ID                      => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_DIVISION_ID             => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_NAME                    => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_SCHEDULE_TYPE           => [FV::STRING, [FV::ENUM, [self::SCHEDULE_TYPE_LEAGUE, self::SCHEDULE_TYPE_TOURNAMENT]]],
         self::FIELD_GAMES_PER_TEAM          => [FV::INT,    [FV::POSITIVE]],
         self::FIELD_START_DATE              => [FV::DATE,   [FV::NO_CONSTRAINTS], ''],
         self::FIELD_END_DATE                => [FV::DATE,   [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_START_TIME              => [FV::TIME,   [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_END_TIME                => [FV::TIME,   [FV::NO_CONSTRAINTS], ''],
         self::FIELD_DAYS_OF_WEEK            => [FV::STRING, [FV::NO_CONSTRAINTS], '0000011'],
         self::FIELD_PUBLISHED               => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
@@ -52,9 +63,12 @@ class ScheduleOrm extends PersistenceModel
      *
      * @param int       $divisionId
      * @param string    $name
+     * @param string    $scheduleType
      * @param int       $gamesPerTeam
      * @param string    $startDate
      * @param string    $endDate
+     * @param string    $startTime
+     * @param string    $endTime
      * @param string    $daysOfWeek
      * @param int       $published
      *
@@ -64,9 +78,12 @@ class ScheduleOrm extends PersistenceModel
     public static function create(
         $divisionId,
         $name,
+        $scheduleType,
         $gamesPerTeam,
         $startDate,
         $endDate,
+        $startTime,
+        $endTime,
         $daysOfWeek,
         $published)
     {
@@ -74,9 +91,12 @@ class ScheduleOrm extends PersistenceModel
             [
                 self::FIELD_DIVISION_ID             => $divisionId,
                 self::FIELD_NAME                    => $name,
+                self::FIELD_SCHEDULE_TYPE           => $scheduleType,
                 self::FIELD_GAMES_PER_TEAM          => $gamesPerTeam,
                 self::FIELD_START_DATE              => $startDate,
                 self::FIELD_END_DATE                => $endDate,
+                self::FIELD_START_TIME              => $startTime,
+                self::FIELD_END_TIME                => $endTime,
                 self::FIELD_DAYS_OF_WEEK            => $daysOfWeek,
                 self::FIELD_PUBLISHED               => $published,
             ],

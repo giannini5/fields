@@ -40,6 +40,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const GAME_DURATION_MINUTES = 'gameDurationMinutes';
     const GAMES_PER_TEAM        = 'gamesPerTeam';
     const GENDER_PREFERENCE     = 'genderPreference';
+    const TITLE                 = 'title';
+    const SCHEDULE_TYPE         = 'scheduleType';
 
     protected static $defaultSeasonOrmAttributes =
         [
@@ -105,12 +107,20 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::NAME   => 'Test Pool A',
         ];
 
+    protected static $defaultFlightOrmAttributes =
+        [
+            self::NAME   => 'Test Flight 1',
+        ];
+
     protected static $defaultScheduleOrmAttributes =
         [
             self::NAME              => 'Test Default Schedule',
+            self::SCHEDULE_TYPE     => ScheduleOrm::SCHEDULE_TYPE_LEAGUE,
             self::GAMES_PER_TEAM    => 10,
             self::START_DATE        => '2015-09-02',
             self::END_DATE          => '2015-10-20',
+            self::START_TIME        => '08:00:00',
+            self::END_TIME          => '19:00:00',
             self::DAYS_OF_WEEK      => '0001100',
             self::PUBLISHED         => 0,
         ];
@@ -154,6 +164,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::GENDER_PREFERENCE => 'Girls',
         ];
 
+    protected static $defaultGameOrmAttributes =
+        [
+            self::TITLE     => 'Finals',
+        ];
+
     public $defaultLeagueOrm;
     public $defaultSeasonOrm;
     public $defaultFacilityOrm;
@@ -162,6 +177,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     public $defaultFamilyOrm;
     public $defaultDivisionOrm;
     public $defaultDivisionFieldOrm;
+    public $defaultFlightOrm;
     public $defaultPoolOrm;
     public $defaultScheduleOrm;
     public $defaultTeamOrm;
@@ -241,13 +257,21 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         $this->defaultScheduleOrm = ScheduleOrm::create(
             $this->defaultDivisionOrm->id,
             self::$defaultScheduleOrmAttributes[self::NAME],
+            self::$defaultScheduleOrmAttributes[self::SCHEDULE_TYPE],
             self::$defaultScheduleOrmAttributes[self::GAMES_PER_TEAM],
             self::$defaultScheduleOrmAttributes[self::START_DATE],
             self::$defaultScheduleOrmAttributes[self::END_DATE],
+            self::$defaultScheduleOrmAttributes[self::START_TIME],
+            self::$defaultScheduleOrmAttributes[self::END_TIME],
             self::$defaultScheduleOrmAttributes[self::DAYS_OF_WEEK],
             self::$defaultScheduleOrmAttributes[self::PUBLISHED]);
 
+        $this->defaultFlightOrm = FlightOrm::create(
+            $this->defaultScheduleOrm->id,
+            self::$defaultFlightOrmAttributes[self::NAME]);
+
         $this->defaultPoolOrm = PoolOrm::create(
+            $this->defaultFlightOrm->id,
             $this->defaultScheduleOrm->id,
             self::$defaultPoolOrmAttributes[self::NAME]);
 
@@ -291,10 +315,12 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultGameTimeOrmAttributes[self::GENDER_PREFERENCE]);
 
         $this->defaultGameOrm = GameOrm::create(
+            $this->defaultFlightOrm->id,
             $this->defaultPoolOrm->id,
             $this->defaultGameTimeOrm->id,
             $this->defaultTeamOrm->id,
-            $this->defaultVisitingTeamOrm->id);
+            $this->defaultVisitingTeamOrm->id,
+            self::$defaultGameOrmAttributes[self::TITLE]);
 
         $this->defaultFamilyGameOrm = FamilyGameOrm::create(
             $this->defaultFamilyOrm->id,
@@ -465,15 +491,30 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Cascading delete of everything below flightOrm and then flightOrm
+     *
+     * @param FlightOrm $flightOrm
+     */
+    protected function clearFlight($flightOrm)
+    {
+        $poolOrms = PoolOrm::loadByFlightId($flightOrm->id);
+        foreach ($poolOrms as $poolOrm) {
+            $this->clearPool($poolOrm);
+        }
+
+        $flightOrm->delete();
+    }
+
+    /**
      * Cascading delete of everything below scheduleOrm and then scheduleOrm
      *
      * @param ScheduleOrm $scheduleOrm
      */
     protected function clearSchedule($scheduleOrm)
     {
-        $poolOrms = PoolOrm::loadByScheduleId($scheduleOrm->id);
-        foreach ($poolOrms as $poolOrm) {
-            $this->clearPool($poolOrm);
+        $flightOrms = FlightOrm::loadByScheduleId($scheduleOrm->id);
+        foreach ($flightOrms as $flightOrm) {
+            $this->clearFlight($flightOrm);
         }
 
         $scheduleOrm->delete();

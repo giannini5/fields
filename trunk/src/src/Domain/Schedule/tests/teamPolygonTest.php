@@ -18,6 +18,7 @@ class TeamPolygonTest extends ORM_TestHelper
      */
     protected $division;
     protected $schedule;
+    protected $flight;
     protected $pool;
     protected $crossPool;
     protected $oddPool;
@@ -31,9 +32,10 @@ class TeamPolygonTest extends ORM_TestHelper
 
         $this->division     = Division::lookupById($this->defaultDivisionOrm->id);
         $this->schedule     = Schedule::lookupByName($this->division, $this->defaultScheduleOrm->name);
-        $this->pool         = Pool::create($this->schedule, 'Test TeamPolygon');
-        $this->crossPool    = Pool::create($this->schedule, 'Test TeamPolygon Cross Pool');
-        $this->oddPool      = Pool::create($this->schedule, 'Test TeamPolygon Odd Pool');
+        $this->flight       = Flight::lookupByScheduleName($this->schedule, $this->defaultFlightOrm->name);
+        $this->pool         = Pool::create($this->flight, $this->schedule, 'Test TeamPolygon');
+        $this->crossPool    = Pool::create($this->flight, $this->schedule, 'Test TeamPolygon Cross Pool');
+        $this->oddPool      = Pool::create($this->flight, $this->schedule, 'Test TeamPolygon Odd Pool');
 
         // Add six teams to pool
         for ($i = 1; $i <= 6; $i++) {
@@ -87,9 +89,9 @@ class TeamPolygonTest extends ORM_TestHelper
         $teamPolygon    = new TeamPolygon($this->oddPoolTeams, TeamPolygon::ROUND_ROBIN_ODD);
         $teamPairings   = $teamPolygon->getTeamPairings();
 
-        $this->verifyParing($teamPairings, 0, 2);
-        $this->verifyParing($teamPairings, 1, 4);
-        $this->verifyParing($teamPairings, 2, 3);
+        $this->verifyParing($teamPairings, 0, 3);
+        $this->verifyParing($teamPairings, 1, 2);
+        $this->verifyParing($teamPairings, 4, 0);
     }
 
     public function test_getTeamPairingsCrossPoolEven()
@@ -124,9 +126,9 @@ class TeamPolygonTest extends ORM_TestHelper
         $teamPolygon->shift();
         $teamPairings = $teamPolygon->getTeamPairings();
 
-        $this->verifyParing($teamPairings, 4, 1);
-        $this->verifyParing($teamPairings, 0, 3);
-        $this->verifyParing($teamPairings, 1, 2);
+        $this->verifyParing($teamPairings, 3, 4);
+        $this->verifyParing($teamPairings, 4, 2);
+        $this->verifyParing($teamPairings, 0, 1);
     }
 
     public function test_shiftCrossPoolEvent()

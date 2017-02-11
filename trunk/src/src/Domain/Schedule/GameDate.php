@@ -143,6 +143,16 @@ class GameDate extends Domain
     }
 
     /**
+     * Check to see if game date is a Saturday
+     *
+     * @return bool
+     */
+    public function isSaturday()
+    {
+        return $this->gameDateOrm->isSaturday();
+    }
+
+    /**
      * Check to see if game date is a Sunday
      *
      * @return bool
