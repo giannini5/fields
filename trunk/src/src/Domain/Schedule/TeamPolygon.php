@@ -2,7 +2,6 @@
 
 namespace DAG\Domain\Schedule;
 
-use \DAG\Framework\Exception\Assertion;
 use \DAG\Framework\Exception\Precondition;
 
 /**
@@ -46,12 +45,12 @@ class TeamPolygon
                 Precondition::isTrue(count($teams) % 2 == 1, "Number of teams must be an odd number: " . count($teams));
                 Precondition::isTrue(!isset($crossPoolTeams), "Round Robin pool type does not support cross pool teams");
 
-                $this->pointPairings[1] = floor(($this->points / 2) + 1); // Second game pairing
                 for ($i = 1; $i <= floor($this->points / 2); $i++) {
                     // For 5 points
-                    // 1 => 3, 2 => 5, 3 => 4
-                    $this->pointPairings[$i+1] = $this->points - $i + 1;
+                    // 1 => 4, 2 => 3, 1 => 5
+                    $this->pointPairings[$i] = $this->points - $i;
                 }
+                $this->pointPairings[5] = 1; // Second game pairing
                 break;
 
             case self::CROSS_POOL_EVEN:

@@ -9,15 +9,20 @@ use DAG\Framework\Exception\Precondition;
 
 /**
  * @property int        $id
+ * @property Flight     $flight
  * @property Pool       $pool
  * @property GameTime   $gameTime
  * @property Team       $homeTeam
  * @property Team       $visitingTeam
+ * @property string     $title
  */
 class Game extends Domain
 {
     /** @var GameOrm */
     private $gameOrm;
+
+    /** @var Flight */
+    private $flight;
 
     /** @var Pool */
     private $pool;
@@ -31,38 +36,70 @@ class Game extends Domain
     /** @var Team */
     private $visitingTeam;
 
+    /** @var string */
+    private $title;
+
     /**
      * @param GameOrm   $gameOrm
+     * @param Flight    $flight (defaults to null)
      * @param Pool      $pool (defaults to null)
      * @param GameTime  $gameTime (defaults to null)
      * @param Team      $homeTeam (defaults to null)
      * @param Team      $visitingTeam (defaults to null)
      */
-    protected function __construct(GameOrm $gameOrm, $pool = null, $gameTime = null, $homeTeam = null, $visitingTeam = null)
+    protected function __construct(GameOrm $gameOrm, $flight = null, $pool = null, $gameTime = null, $homeTeam = null, $visitingTeam = null)
     {
         $this->gameOrm      = $gameOrm;
-        $this->pool         = isset($pool) ? $pool : Pool::lookupById($gameOrm->poolId);
-        $this->homeTeam     = isset($homeTeam) ? $homeTeam : Team::lookupById($gameOrm->homeTeamId);
-        $this->visitingTeam = isset($visitingTeam) ? $visitingTeam : Team::lookupById($gameOrm->visitingTeamId);
+        $this->flight       = isset($flight) ? $flight : Flight::lookupById($gameOrm->flightId);
+
+        $this->pool = null;
+        if (isset($pool)) {
+            $this->pool = $pool;
+        } elseif (isset($gameOrm->poolId)) {
+            $this->pool = Pool::lookupById($gameOrm->poolId);
+        }
+
+        $this->homeTeam = null;
+        if (isset($homeTeam)) {
+            $this->homeTeam = $homeTeam;
+        } elseif (isset($gameOrm->homeTeamId)) {
+            $this->homeTeam = Team::lookupById($gameOrm->homeTeamId);
+        }
+
+        $this->visitingTeam = null;
+        if (isset($visitingTeam)) {
+            $this->visitingTeam = $visitingTeam;
+        } elseif (isset($gameOrm->visitingTeamId)) {
+            $this->visitingTeam = Team::lookupById($gameOrm->visitingTeamId);
+        }
+
         $this->gameTime     = isset($gameTime) ? $gameTime : GameTime::lookupById($gameOrm->gameTimeId, $this);
     }
 
     /**
+     * @param Flight    $flight
      * @param Pool      $pool
      * @param GameTime  $gameTime
      * @param Team      $homeTeam
      * @param Team      $visitingTeam
+     * @param string    $title
      *
      * @return Game
      */
     public static function create(
+        $flight,
         $pool,
         $gameTime,
         $homeTeam,
-        $visitingTeam)
+        $visitingTeam,
+        $title = '')
     {
-        $gameOrm = GameOrm::create($pool->id, $gameTime->id, $homeTeam->id, $visitingTeam->id);
-        return new static($gameOrm, $pool, null, $homeTeam, $visitingTeam);
+        $poolId         = isset($pool) ? $pool->id : null;
+        $homeTeamId     = isset($homeTeam) ? $homeTeam->id : null;
+        $visitingTeamId = isset($visitingTeam) ? $visitingTeam->id : null;
+
+        $gameOrm = GameOrm::create($flight->id, $poolId, $gameTime->id, $homeTeamId, $visitingTeamId, $title);
+        return new static($gameOrm, $flight, $pool, null, $homeTeam, $visitingTeam);
     }
 
     /**
@@ -74,11 +111,46 @@ class Game extends Domain
     public static function lookupById($gameId, $gameTime = null)
     {
         $gameOrm = GameOrm::loadById($gameId);
-        return new static($gameOrm, null, $gameTime);
+        return new static($gameOrm, null, null, $gameTime);
     }
 
     /**
-     * @param Pool      $pool
+     * @param Flight $flight
+     *
+     * @return Game[]
+     */
+    public static function lookupByFlight($flight)
+    {
+        $games = [];
+
+        $gameOrms = GameOrm::loadByFlightId($flight->id);
+        foreach ($gameOrms as $gameOrm) {
+            $games[] = new static($gameOrm, $flight);
+        }
+
+        return $games;
+    }
+
+    /**
+     * @param Flight    $flight
+     * @param string    $title
+     *
+     * @return Game[]
+     */
+    public static function lookupByFlightAndTitle($flight, $title)
+    {
+        $games = [];
+
+        $gameOrms = GameOrm::loadByFlightIdAndTitle($flight->id, $title);
+        foreach ($gameOrms as $gameOrm) {
+            $games[] = new static($gameOrm, $flight);
+        }
+
+        return $games;
+    }
+
+    /**
+     * @param Pool $pool
      *
      * @return Game[]
      */
@@ -88,7 +160,7 @@ class Game extends Domain
 
         $gameOrms = GameOrm::loadByPoolId($pool->id);
         foreach ($gameOrms as $gameOrm) {
-            $games[] = new static($gameOrm, $pool);
+            $games[] = new static($gameOrm, null, $pool);
         }
 
         return $games;
@@ -102,7 +174,7 @@ class Game extends Domain
     public static function lookupByGameTime($gameTime)
     {
         $gameOrm = GameOrm::loadByGameTimeId($gameTime->id);
-        return new static($gameOrm, null, $gameTime);
+        return new static($gameOrm, null, null, $gameTime);
     }
 
     /**
@@ -136,10 +208,10 @@ class Game extends Domain
 
         $schedules = Schedule::lookupByDivision($division);
         foreach ($schedules as $schedule) {
-            $pools = Pool::lookupBySchedule($schedule);
+            $flights = Flight::lookupBySchedule($schedule);
 
-            foreach ($pools as $pool) {
-                $games = Game::lookupByPool($pool);
+            foreach ($flights as $flight) {
+                $games = Game::lookupByFlight($flight);
 
                 foreach ($games as $game) {
                     if ($game->gameTime->gameDate->day == $day) {
@@ -160,8 +232,10 @@ class Game extends Domain
     {
         switch ($propertyName) {
             case "id":
+            case "title":
                 return $this->gameOrm->{$propertyName};
 
+            case "flight":
             case "pool":
             case "gameTime":
             case "homeTeam":
@@ -180,11 +254,40 @@ class Game extends Domain
     public function __set($propertyName, $value)
     {
         switch ($propertyName) {
+            case "title":
+                $this->gameOrm->title = $value;
+                $this->gameOrm->save();
+                break;
+
             case "gameTime":
                 $this->gameOrm->gameTimeId = $value->id;
                 $this->gameOrm->save();
                 $this->gameTime = $value;
                 break;
+
+            default:
+                Precondition::isTrue(false, "Unrecognized property: $propertyName");
+        }
+    }
+
+    /**
+     * @param $propertyName
+     *
+     * @return bool - true if set; false otherwise
+     */
+    public function __isset($propertyName)
+    {
+        switch ($propertyName) {
+            case "id":
+            case "title":
+                return isset($this->gameOrm->{$propertyName});
+
+            case "flight":
+            case "pool":
+            case "gameTime":
+            case "homeTeam":
+            case "visitingTeam":
+                return isset($this->{$propertyName});
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
@@ -236,6 +339,36 @@ class Game extends Domain
         }
 
         return false;
+    }
+
+    /**
+     * Move game to a new game time
+     *
+     * @param GameTime  $newGameTime
+     *
+     * @throws MoveGameException
+     */
+    public function move($newGameTime)
+    {
+        try {
+            Precondition::isTrue(!isset($newGameTime->game), "ERROR, game already exists for new game time");
+            Precondition::isTrue($newGameTime->gameDate->day == $this->gameTime->gameDate->day, "ERROR, attempt to move a game to a different day");
+
+            // Verify new game time's field is supported for this day
+            DivisionField::lookupByDivisionAndField($this->pool->schedule->division, $newGameTime->field);
+
+            // Update the GameTime objects
+            $oldGameTime        = $this->gameTime;
+            $oldGameTime->game  = null;
+            $newGameTime->game  = $this;
+
+            // Update this game to the new gameTime
+            $this->gameTime             = $newGameTime;
+            $this->gameOrm->gameTimeId  = $newGameTime->id;
+            $this->gameOrm->save();
+        } catch (\Exception $e) {
+            throw new MoveGameException("Error trying to move game to a new time", $e);
+        }
     }
 
     /**

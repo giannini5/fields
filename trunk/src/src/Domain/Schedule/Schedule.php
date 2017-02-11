@@ -12,9 +12,12 @@ use DAG\Framework\Exception\Assertion;
  * @property int        $id
  * @property Division   $division
  * @property string     $name
+ * @property string     $scheduleType
  * @property int        $gamesPerTeam
  * @property string     $startDate
  * @property string     $endDate
+ * @property string     $startTime
+ * @property string     $endTime
  * @property string     $daysOfWeek
  * @property int        $published
  */
@@ -39,9 +42,12 @@ class Schedule extends Domain
     /**
      * @param Division  $division
      * @param string    $name
+     * @param string    $scheduleType
      * @param int       $gamesPerTeam
      * @param string    $startDate (SQL Format)
      * @param string    $endDate (SQL Format)
+     * @param string    $startTime (SQL Format)
+     * @param string    $endTime (SQL Format)
      * @param string    $daysOfWeek defaults to "0000011" (Saturday, Sunday only)
      * @param int       $published defaults to 0
      *
@@ -50,17 +56,22 @@ class Schedule extends Domain
     public static function create(
         $division,
         $name,
+        $scheduleType,
         $gamesPerTeam,
         $startDate,
         $endDate,
+        $startTime,
+        $endTime,
         $daysOfWeek = "0000011",
         $published  = 0
     ) {
         self::verifyDate($startDate, $division->season, 'StartDate');
         self::verifyDate($endDate, $division->season, 'EndDate');
+        self::verifyTime($startTime, $division->season, 'StartTime');
+        self::verifyTime($endTime, $division->season, 'EndTime');
         self::verifyDaysOfWeek($daysOfWeek, $division->season);
 
-        $scheduleOrm = ScheduleOrm::create($division->id, $name, $gamesPerTeam, $startDate, $endDate, $daysOfWeek, $published);
+        $scheduleOrm = ScheduleOrm::create($division->id, $name, $scheduleType, $gamesPerTeam, $startDate, $endDate, $startTime, $endTime, $daysOfWeek, $published);
         return new static($scheduleOrm, $division);
     }
 
@@ -118,9 +129,12 @@ class Schedule extends Domain
         switch ($propertyName) {
             case "id":
             case "name":
+            case "scheduleType":
             case "gamesPerTeam":
             case "startDate":
             case "endDate":
+            case "startTime":
+            case "endTime":
             case "daysOfWeek":
             case "published":
                 return $this->scheduleOrm->{$propertyName};
@@ -142,6 +156,7 @@ class Schedule extends Domain
     {
         switch ($propertyName) {
             case "name":
+            case "scheduleType":
             case "gamesPerTeam":
             case "published":
                 $this->scheduleOrm->{$propertyName} = $value;
@@ -156,6 +171,18 @@ class Schedule extends Domain
 
             case "endDate":
                 self::verifyDate($value, $this->division->season, 'StartDate');
+                $this->scheduleOrm->{$propertyName} = $value;
+                $this->scheduleOrm->save();
+                break;
+
+            case "startTime":
+                self::verifyTime($value, $this->division->season, 'StartTime');
+                $this->scheduleOrm->{$propertyName} = $value;
+                $this->scheduleOrm->save();
+                break;
+
+            case "endTime":
+                self::verifyTime($value, $this->division->season, 'EndTime');
                 $this->scheduleOrm->{$propertyName} = $value;
                 $this->scheduleOrm->save();
                 break;
@@ -186,6 +213,22 @@ class Schedule extends Domain
     /**
      * @param $value
      * @param $season
+     * @param $label
+     */
+    static private function verifyTime($value, $season, $label)
+    {
+        // Normalize the time
+        $seconds = strlen($value) >= 8 ? "" : ":00";
+        $dateTime = \DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $value" . $seconds);
+        $value = $dateTime->format('H:i:s');
+
+        Precondition::isTrue($value >= $season->startTime, "$label '$value' must be >= to Season's startTime '$season->startTime'");
+        Precondition::isTrue($value <= $season->endTime, "$label '$value' must be <= to Season's endTime '$season->endTime'");
+    }
+
+    /**
+     * @param $value
+     * @param $season
      */
     static private function verifyDaysOfWeek($value, $season)
     {
@@ -209,13 +252,24 @@ class Schedule extends Domain
         $numberOfPools      = count($poolSizes);
         $pools              = [];
 
-        // Create Pools and add teams to pools
-        $teamIndex = 0;
+        // Create Flights and Pools and add teams to pools (2 pools per flight)
+        $teamIndex      = 0;
+        $flightIndex    = 0;
+        $flight         = null;
         for ($index = 0; $index < $numberOfPools; $index++) {
+            // Create Flight (or re-use previousFlight)
+            if ($index % 2 == 0) {
+                $flightIndex += 1;
+                $flightName = "$flightIndex";
+                $flight = Flight::create($this, $flightName);
+            }
+
+            // Create Pool
             $poolName   = sprintf("Pool %s", chr(ord('A') + $index));
-            $pool       = Pool::create($this, $poolName);
+            $pool       = Pool::create($flight, $this, $poolName);
             $pools[]    = $pool;
 
+            // Add Teams to pool
             $teamsInPool = $poolSizes[$index];
             while ($teamsInPool > 0 and $teamIndex <= $numberOfTeams) {
                 $team       = $teams[$teamIndex++];
@@ -241,129 +295,130 @@ class Schedule extends Domain
      */
     public function populateGames()
     {
-        // TODO add logic for odd team count in pool (second game per day for one team)
         // TODO add logic for non-matching team count in cross-pool play (second game per day for one team)
-        // TODO add logic to avoid coaching overlaps
         // TODO add logic to have carp teams always play in carp
         // TODO add logic to use specific fields based on picture day
         $divisionFields         = DivisionField::lookupByDivision($this->division);
-        $pools                  = Pool::lookupBySchedule($this);
         $gender                 = $this->division->gender;
         $triedSundays           = false;
         $processedPoolIds       = [];
         $season                 = $this->division->season;
+        $flights                = Flight::lookupBySchedule($this);
 
-        foreach ($pools as $pool) {
-            // With cross-pool play, games may have already been created for this pool.  Check and skip if so.
-            if (in_array($pool->id, $processedPoolIds)) {
-                continue;
-            }
-            $processedPoolIds[] = $pool->id;
-
-            $gameDates      = GameDate::lookupBySeason($this->division->season, GameDate::SATURDAYS_ONLY, $this);
-            $gameDateIndex  = 0;
-            $teams          = Team::lookupByPool($pool);
-            $poolType       = TeamPolygon::ROUND_ROBIN_EVEN;
-            $crossPoolTeams = null;
-            $shiftCount     = 0;
-
-            if ($pool->gamesAgainstPool->id != $pool->id) {
-                $poolType           = TeamPolygon::CROSS_POOL_EVEN;
-                $crossPoolTeams     = Team::lookupByPool($pool->gamesAgainstPool);;
-                $processedPoolIds[] = $pool->gamesAgainstPool->id;
-            } elseif (count($teams) % 2 != 0) {
-                $poolType           = TeamPolygon::ROUND_ROBIN_ODD;
-            }
-
-            $teamPolygon    = new TeamPolygon($teams, $poolType, $crossPoolTeams);
-
-
-            // Right now everyone plays on saturdays and overflow games to adhere to game count happen on Sundays
-            // Might need to change this to everyone plays on the same weekend if a division does not have enough
-            // Field space for a single days worth of games.
-            for ($gameNumber = 1; $gameNumber <= $this->gamesPerTeam; $gameNumber++) {
-                $divisionFieldsIndex = 0;
-
-                if ($gameDateIndex >= count($gameDates) and !$triedSundays) {
-                    $triedSundays           = true;
-                    $gameDates              = GameDate::lookupBySeason($this->division->season, GameDate::SUNDAYS_ONLY, $this);
-                    $gameDateIndex          = 0;
+        foreach ($flights as $flight) {
+            $pools = Pool::lookupByFlight($flight);
+            foreach ($pools as $pool) {
+                // With cross-pool play, games may have already been created for this pool.  Check and skip if so.
+                if (in_array($pool->id, $processedPoolIds)) {
+                    continue;
                 }
-                Assertion::isTrue($gameDateIndex < count($gameDates), "Ran out of games dates - need to add more dates or write code to allow more than one game per day");
+                $processedPoolIds[] = $pool->id;
 
-                $gameDate       = $gameDates[$gameDateIndex];
-                $teamPairings   = $teamPolygon->getTeamPairings();
-                $gameTimes      = GameTime::lookupByGameDateAndFieldAndGender($gameDate, $divisionFields[$divisionFieldsIndex]->field, $gender, true);
+                $gameDates      = GameDate::lookupBySeason($this->division->season, GameDate::SATURDAYS_ONLY, $this);
+                $gameDateIndex  = 0;
+                $teams          = Team::lookupByPool($pool);
+                $poolType       = TeamPolygon::ROUND_ROBIN_EVEN;
+                $crossPoolTeams = null;
+                $shiftCount     = 0;
 
-                foreach ($teamPairings as $team1Index => $team2Index) {
-                    // Find next available gameTime for division/field
-                    while (count($gameTimes) == 0) {
-                        $divisionFieldsIndex += 1;
-                        Assertion::isTrue($divisionFieldsIndex < count($divisionFields), "Ran out of field space - Either configure more field space or update this program to allow teams to play on same weekend instead of same day.");
-                        $gameTimes = GameTime::lookupByGameDateAndFieldAndGender($gameDate, $divisionFields[$divisionFieldsIndex]->field, $gender, true);
-                    }
-                    Assertion::isTrue(count($gameTimes) > 0, "Uh, major logic problem.  Contact Dave!");
-                    $selectedGameTimes = array_splice($gameTimes, rand(0, count($gameTimes) - 1), 1);
-
-                    Assertion::isTrue(count($selectedGameTimes) == 1, "Uh, major logic problem using array_splice.  Contact Dave!");
-                    $gameTime = $selectedGameTimes[0];
-
-                    // Set the home team and visiting team based on the pool type
-                    $homeTeam       = null;
-                    $visitingTeam   = null;
-                    switch ($poolType) {
-                        case TeamPolygon::ROUND_ROBIN_EVEN:
-                        case TeamPolygon::ROUND_ROBIN_ODD:
-                            if ((rand() % 2) == 0) {
-                                $homeTeam       = $teams[$team1Index];
-                                $visitingTeam   = $teams[$team2Index];
-                            } else {
-                                $homeTeam       = $teams[$team2Index];
-                                $visitingTeam   = $teams[$team1Index];
-                            }
-                            break;
-
-                        case TeamPolygon::CROSS_POOL_EVEN:
-                            if ($shiftCount % 2 == 0) {
-                                $homeTeam       = $teams[$team1Index];
-                                $visitingTeam   = $crossPoolTeams[$team2Index];
-                            } else {
-                                $homeTeam       = $crossPoolTeams[$team2Index];
-                                $visitingTeam   = $teams[$team1Index];
-                            }
-                            break;
-
-                        default:
-                            Precondition::isTrue(false, "$poolType is not yet supported");
-                    }
-                    Assertion::isTrue(isset($homeTeam), "Major bug, homeTeam did not get set - See Dave");
-                    Assertion::isTrue(isset($visitingTeam), "Major bug, visitingTeam did not get set - See Dave");
-
-                    // Create the game
-                    $game = Game::create($pool, $gameTime, $homeTeam, $visitingTeam);
-
-                    // Create the familyGame to help find game overlaps for a family
-                    $coach = Coach::lookupByTeam($homeTeam);
-                    $family = null;
-                    if (Family::findByPhone($season, $coach->phone1, $family)) {
-                        FamilyGame::create($family, $game, true);
-                    }
-
-                    $family = null;
-                    $coach = Coach::lookupByTeam($visitingTeam);
-                    if (Family::findByPhone($season, $coach->phone1, $family)) {
-                        FamilyGame::create($family, $game, true);
-                    }
-
-                    // Adjust the game number based on pool type.  ODD pools play an extra game each round
-                    if ($poolType == TeamPolygon::ROUND_ROBIN_ODD and $gameNumber % count($teams) == 0) {
-                        $gameNumber += 1;
-                    }
+                if ($pool->gamesAgainstPool->id != $pool->id) {
+                    $poolType           = TeamPolygon::CROSS_POOL_EVEN;
+                    $crossPoolTeams     = Team::lookupByPool($pool->gamesAgainstPool);;
+                    $processedPoolIds[] = $pool->gamesAgainstPool->id;
+                } elseif (count($teams) % 2 != 0) {
+                    $poolType           = TeamPolygon::ROUND_ROBIN_ODD;
                 }
 
-                $teamPolygon->shift();
-                $shiftCount     += 1;
-                $gameDateIndex  += 1;
+                $teamPolygon    = new TeamPolygon($teams, $poolType, $crossPoolTeams);
+
+
+                // Right now everyone plays on saturdays and overflow games to adhere to game count happen on Sundays
+                // Might need to change this to everyone plays on the same weekend if a division does not have enough
+                // Field space for a single days worth of games.
+                for ($gameNumber = 1; $gameNumber <= $this->gamesPerTeam; $gameNumber++) {
+                    $divisionFieldsIndex = 0;
+
+                    if ($gameDateIndex >= count($gameDates) and !$triedSundays) {
+                        $triedSundays           = true;
+                        $gameDates              = GameDate::lookupBySeason($this->division->season, GameDate::SUNDAYS_ONLY, $this);
+                        $gameDateIndex          = 0;
+                    }
+                    Assertion::isTrue($gameDateIndex < count($gameDates), "Ran out of games dates - need to add more dates or write code to allow more than one game per day");
+
+                    $gameDate       = $gameDates[$gameDateIndex];
+                    $teamPairings   = $teamPolygon->getTeamPairings();
+                    $gameTimes      = GameTime::lookupByGameDateAndFieldAndGender($gameDate, $divisionFields[$divisionFieldsIndex]->field, $gender, true, $this->startTime, $this->endTime);
+
+                    foreach ($teamPairings as $team1Index => $team2Index) {
+                        // Find next available gameTime for division/field
+                        while (count($gameTimes) == 0) {
+                            $divisionFieldsIndex += 1;
+                            Assertion::isTrue($divisionFieldsIndex < count($divisionFields), "Ran out of field space - Either configure more field space or update this program to allow teams to play on same weekend instead of same day.");
+                            $gameTimes = GameTime::lookupByGameDateAndFieldAndGender($gameDate, $divisionFields[$divisionFieldsIndex]->field, $gender, true, $this->startTime, $this->endTime);
+                        }
+                        Assertion::isTrue(count($gameTimes) > 0, "Uh, major logic problem.  Contact Dave!");
+                        $selectedGameTimes = array_splice($gameTimes, rand(0, count($gameTimes) - 1), 1);
+
+                        Assertion::isTrue(count($selectedGameTimes) == 1, "Uh, major logic problem using array_splice.  Contact Dave!");
+                        $gameTime = $selectedGameTimes[0];
+
+                        // Set the home team and visiting team based on the pool type
+                        $homeTeam       = null;
+                        $visitingTeam   = null;
+                        switch ($poolType) {
+                            case TeamPolygon::ROUND_ROBIN_EVEN:
+                            case TeamPolygon::ROUND_ROBIN_ODD:
+                                if ((rand() % 2) == 0) {
+                                    $homeTeam       = $teams[$team1Index];
+                                    $visitingTeam   = $teams[$team2Index];
+                                } else {
+                                    $homeTeam       = $teams[$team2Index];
+                                    $visitingTeam   = $teams[$team1Index];
+                                }
+                                break;
+
+                            case TeamPolygon::CROSS_POOL_EVEN:
+                                if ($shiftCount % 2 == 0) {
+                                    $homeTeam       = $teams[$team1Index];
+                                    $visitingTeam   = $crossPoolTeams[$team2Index];
+                                } else {
+                                    $homeTeam       = $crossPoolTeams[$team2Index];
+                                    $visitingTeam   = $teams[$team1Index];
+                                }
+                                break;
+
+                            default:
+                                Precondition::isTrue(false, "$poolType is not yet supported");
+                        }
+                        Assertion::isTrue(isset($homeTeam), "Major bug, homeTeam did not get set - See Dave");
+                        Assertion::isTrue(isset($visitingTeam), "Major bug, visitingTeam did not get set - See Dave");
+
+                        // Create the game
+                        $game = Game::create($flight, $pool, $gameTime, $homeTeam, $visitingTeam);
+
+                        // Create the familyGame to help find game overlaps for a family
+                        $coach = Coach::lookupByTeam($homeTeam);
+                        $family = null;
+                        if (Family::findByPhone($season, $coach->phone1, $family)) {
+                            FamilyGame::create($family, $game, true);
+                        }
+
+                        $family = null;
+                        $coach = Coach::lookupByTeam($visitingTeam);
+                        if (Family::findByPhone($season, $coach->phone1, $family)) {
+                            FamilyGame::create($family, $game, true);
+                        }
+
+                        // Adjust the game number based on pool type.  ODD pools play an extra game each round
+                        if ($poolType == TeamPolygon::ROUND_ROBIN_ODD and $gameNumber % count($teams) == 0) {
+                            $gameNumber += 1;
+                        }
+                    }
+
+                    $teamPolygon->shift();
+                    $shiftCount     += 1;
+                    $gameDateIndex  += 1;
+                }
             }
         }
     }
@@ -465,12 +520,12 @@ class Schedule extends Domain
                         $poolSizes = array(8, 6, 6, 7); // Second game for pool 4
                         break;
                     case 28:
-                        $poolSizes          = array(6, 6, 6, 5, 5);
-                        $crossPoolSettings  = array(null, null, null, 4);
+                        $poolSizes          = array(6, 6, 5, 5, 6); // Cross pool play for pools 3 and 4 w/ second game
+                        $crossPoolSettings  = array(null, null, 3);
                         break;
                     case 29:
-                        $poolSizes          = array(6, 6, 6, 5, 6);       // Cross pool play for pools 4 and 5 w/ second game
-                        $crossPoolSettings  = array(null, null, null, 4);
+                        $poolSizes          = array(6, 6, 5, 6, 6); // Cross pool play for pools 3 and 4 w/ second game
+                        $crossPoolSettings  = array(null, null, 3);
                         break;
                     case 30:
                         $poolSizes = array(6, 6, 6, 6, 6);

@@ -251,14 +251,14 @@ class FamilyGame extends Domain
             return false;
         }
 
-        // Get division
-        $division = $game->pool->schedule->division;
+        // Pick the game to fix
+        $gameToFix = self::selectGameToFix($game, $overlappingGame);
+
+        // Get division for game being fixed (moved to different time/field)
+        $division = $gameToFix->pool->schedule->division;
 
         // Get games on given day for division
         $divisionGames = Game::lookupByDivisionDay($division, $day);
-
-        // Pick the game to fix
-        $gameToFix = self::selectGameToFix($game, $overlappingGame);
 
         // Search for game to swap
         // Find game that does not overlap where the coaches are not part of families

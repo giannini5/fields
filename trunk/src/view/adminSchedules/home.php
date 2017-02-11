@@ -29,31 +29,27 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
      * @brief Render instructions for how to administer practice fields
      */
     public function renderHome() {
-        $errorString    = $this->m_controller->m_errorString;
         $messageString  = $this->m_controller->m_messageString;
 
-        if (!empty($errorString)) {
-            print "
-                <p style='color: red' align='center'><strong>$errorString</strong></p><br>";
-        } else if (!empty($messageString)) {
+        if (!empty($messageString)) {
             print "
                 <p style='color: green' align='center'><strong>$messageString</strong></p><br>";
-        } else {
-            print "
-                <p align='left' style='font-size: 15px; text-indent: 25px'>Welcome ... let's create schedules - follow the instructions below</p>
-                <ol>
-                    <li>Click on <strong><font color='blue'>SEASON</font></strong> tab and create a season.</li>
-                    <li>Upload Coaches file to create divisions, teams, coaches, assistant coaches and families.</li>
-                    <li>Upload Players file to assign players to teams.</li>
-                    <li>Upload a Facility file using the Upload box below or go to the <strong><font color='blue'>FACILITY</font></strong> tab to manually create.</li>
-                    <li>Upload a Field file using the Upload box below or go to the <strong><font color='blue'>FIELD</font></strong> tab to manually create.</li>
-                    <li>TBD - Game Dates</li>
-                    <li>TBD - Game Times</li>
-                    <li>TBD - Fields Modifications</li>
-                    <li>TBD - Schedule Creation</li>
-
-                </ol>";
         }
+
+        print "
+            <p align='left' style='font-size: 15px; text-indent: 25px'>Welcome ... let's create schedules - follow the instructions below</p>
+            <ol>
+                <li>Click on <strong><font color='blue'>SEASON</font></strong> tab and create a season.</li>
+                <li>Upload Coaches file to create divisions, teams, coaches, assistant coaches and families.</li>
+                <li>Upload Players file to assign players to teams.</li>
+                <li>Upload a Facility file using the Upload box below or go to the <strong><font color='blue'>FACILITY</font></strong> tab to manually create.</li>
+                <li>Upload a Field file using the Upload box below or go to the <strong><font color='blue'>FIELD</font></strong> tab to manually create.</li>
+                <li>TBD - Game Dates</li>
+                <li>TBD - Game Times</li>
+                <li>TBD - Fields Modifications</li>
+                <li>TBD - Schedule Creation</li>
+
+            </ol>";
 
         $this->renderLoadCoachesFromFile();
         print "<br>";
@@ -74,10 +70,13 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         print "
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td colspan='3' nowrap ><strong><font color='blue' size='4px'>Facilities</font></strong><br><strong>Sample CSV file format</strong><br>
+                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 25px'>Facilities</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong><br>
+                    <p style='font-size: 12px'>
                         FacilityName,Address1,Address2,City,State,ZipCode,ContactName,ContactEmail,ContactPhone,Enabled<br>
                         Girsh Park,7050 Phelps Rd,,Goleta,CA,93117,Ryan Harrington,rharrington@girshpark.org,(805) 968-2773 x3,1<br>
-                        UCSB Rec Center,516 Ocean Road,,Santa Barbara,CA,93106,Celia Elliott,Celia.Elliott@recreation.ucsb.edu,,1</td>
+                        UCSB Rec Center,516 Ocean Road,,Santa Barbara,CA,93106,Celia Elliott,Celia.Elliott@recreation.ucsb.edu,,1
+                    </p>
+                    </td>
                 </tr>
                 <tr>
                     <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
@@ -105,10 +104,13 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         print "
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td colspan='3' nowrap ><strong><font color='blue' size='4px'>Fields</font></strong><br><strong>Sample CSV file format</strong><br>
+                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Fields</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong><br>
+                    <p style='font-size: 12px'>
                         FacilityName,FieldName,Enabled,DivisionsList<br>
                         Girsh Park,Field A,1,U5;U6<br>
-                        UCSB Rec Center,Field 1,1,U14;U16/19</td>
+                        UCSB Rec Center,Field 1,1,U14;U16/19
+                    </p>
+                    </td>
                 </tr>
                 <tr>
                     <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
@@ -136,11 +138,14 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         print "
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td colspan='3' nowrap ><strong><font color='blue' size='4px'>Import Divisions, Teams, Coaches and Assistant Coaches</font></strong><br><strong>Sample CSV file format</strong><br>
+                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Divisions, Teams, Coaches and Assistant Coaches</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong>
+                    <br><p style='font-size: 12px'>
                         Approved,Team,Type,eAYSO Vol App,AYSO ID,Name,Phone,Cell,Email,Certifications<br>
                         New,U12G-2,Coach,,,Walid Afifi,805-679-1812,805-679-1810,w-afifi@comm.ucsb.edu,\"Needs training\"<br>
                         New,U12B-5,Coach,,,David Aguilar,805-284-2045,805-259-9680,davidoaguilar@gmail.com,\"Needs training\"<br>
-                        Yes,U6B-29,Coach,,58302620,Gerardo Aldana,805-637-0256,,soccercoachga@gmail.com,\"U-6 Coach,Needs training\"</td>
+                        Yes,U6B-29,Coach,,58302620,Gerardo Aldana,805-637-0256,,soccercoachga@gmail.com,\"U-6 Coach,Needs training\"
+                        </p>
+                    </td>
                 </tr>
                 <tr>
                     <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
@@ -168,12 +173,14 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         print "
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td colspan='3' nowrap><strong><font color='blue' size='4px'>Import Players</font></strong><br><strong>Sample CSV file format</strong><br>
+                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Players</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong>
+                        <br><p style='font-size: 12px'>
                         Region,Div,Team,Status,ID,Name,Phone,RegDate,PreReg,Fee<br>
                         122,U8B,2,Registered,157472,Abbott; Cash,213-400-1566,2016-05-20,2016-05-20,155<br>
                         122,U9B,AVAIL,Pre-Reg,158885,Abbott; Owen,618-303-2208,,2016-08-16,<br>
                         122,U6B,AVAIL,Pre-Reg,158883,Abbott; Tadhg,618-303-2208,,2016-08-16,<br>
                         122,U14B,7,Registered,156874,Abdullah; Muhammad,805-845-7351,2016-05-04,2016-04-25,70<br>
+                        </p>
                     </td>
                 </tr>
                 <tr>

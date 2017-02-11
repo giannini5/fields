@@ -202,6 +202,8 @@ class Season extends Domain
      */
     public function populateDivisions($data, $ignoreHeaderRow = true )
     {
+        $line = '';
+
         try {
             $lines = explode("\n", $data);
             $processedLines = 0;
@@ -420,7 +422,7 @@ class Season extends Domain
 
                 $division       = Division::create($this, $divisionName, $gender, $gameDurationMinutes, $displayOrder, true);
                 $team           = Team::create($division, null, $teamName, true);
-                $player         = Player::create($team, null, $playerName, '', $fields[6], true);
+                Player::create($team, null, $playerName, '', $fields[6], true);
             }
         } catch (\Exception $e) {
             print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
@@ -558,7 +560,6 @@ class Season extends Domain
         }
 
         // Get the gameDates, startTime and endTime from Season
-        // TODO: Schedule should have these attributes and they should default from Season
         $gameDates = GameDate::lookupBySeason($this);
         $startTime = $this->startTime;
         $endTime   = $this->endTime;

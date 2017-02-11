@@ -2,6 +2,7 @@
 
 use \DAG\Domain\Schedule\Division;
 use \DAG\Domain\Schedule\Family;
+use \DAG\Domain\Schedule\Coach;
 
 /**
  * @brief: Abstract base class for all views.
@@ -62,6 +63,9 @@ abstract class View_Base {
     const NO_BUTTON             = 'NoButton';
     const SELECT                = 'Select';
     const DELETE                = 'Delete';
+    const MOVE                  = 'Move';
+    const REMOVE                = 'Remove';
+    const ADD                   = 'Add';
     const CLEAR                 = 'Clear';
     const POPULATE              = 'Populate';
     const PUBLISH               = 'Publish';
@@ -117,6 +121,10 @@ abstract class View_Base {
     const TEAM_POOL_UPDATE_DATA     = 'teamPoolUpdateData';
     const CROSS_POOL_UPDATE_DATA    = 'crossPoolUpdateData';
     const GAMES_PER_TEAM            = 'gamesPerTeam';
+    const GAME_ID                   = 'gameId';
+    const GAME_TIME                 = 'gameTime';
+    const FLIGHT_UPDATE_DATA        = 'flightUpdateData';
+    const SCHEDULE_TYPE             = 'scheduleType';
 
     const SEASON_ID                 = 'seasonId';
     const DIVISION_ID               = 'divisionId';
@@ -173,8 +181,9 @@ abstract class View_Base {
      * @param: $collapsible     - Collapsible java script class - defaults to NULL
      * @param: $newRow          - Defaults to true
      * @param: $width           - Defaults to 135px
+     * @param: $showError       - Defaults to true
      */
-    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = '', $collapsible = NULL, $colspan = 1, $newRow = true, $width = 135) {
+    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = '', $collapsible = NULL, $colspan = 1, $newRow = true, $width = 135, $showError = true) {
         $requiredString     = empty($requiredString) ? '&nbsp' : $requiredString;
         $valueString        = empty($value) ? '' : ", value='$value'";
         $collapsibleClass   = isset($collapsible) ? "class='$collapsible'" : '';
@@ -193,10 +202,14 @@ abstract class View_Base {
         print "
                     <td align='left' colspan='$colspan'>
                         <input style='width: $width' type='$type' name='$name' placeholder='$placeHolder'$valueString>
-                    </td>
+                    </td>";
+
+        if ($showError) {
+            print "
                     <td>
                         <span class='error'>$requiredString</span>
                     </td>";
+        }
 
         if ($newRow) {
             print "
@@ -275,10 +288,11 @@ abstract class View_Base {
      * @param: $selectorData        - Array of data identifier=>string where the identifier is the value selected
      * @param: $size                - Size of the selector
      * @param: $collapsible         - Collapsible java script class - defaults to NULL
-     * @param: $colspan             - Number of columns to span
-     * @param: $newRow              - defaults to true
+     * @param: int $colspan         - Number of columns to span
+     * @param: bool $newRow         - defaults to true
+     * @param: int $rowSpan         - defaults to 1
      */
-    public function displayMultiSelector($selectorTitle, $selectorName, $defaultSelections, $selectorData, $size, $collapsible = NULL, $colspan = 1, $newRow = true) {
+    public function displayMultiSelector($selectorTitle, $selectorName, $defaultSelections, $selectorData, $size, $collapsible = NULL, $colspan = 1, $newRow = true, $rowSpan = 1) {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         $dropDownHTML = '';
@@ -293,8 +307,8 @@ abstract class View_Base {
         }
 
         print "
-                <td align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
-                <td align='left' colspan='$colspan'>
+                <td align='left' rowspan='$rowSpan'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
+                <td align='left' colspan='$colspan' rowspan='$rowSpan'>
                     <select size=$size name='" . $selectorName . "[]' multiple='multiple'>$dropDownHTML</select>
                 </td>";
 
@@ -456,6 +470,60 @@ abstract class View_Base {
     }
 
     /**
+     * @brief Print time selector
+     *
+     * @param string    $tag            item identifier
+     * @param string    $label          Input label
+     * @param string    $defaultTime    Default selected time
+     * @param int       $colspan
+     */
+    public function printTimeSelector(
+        $tag,
+        $label,
+        $defaultTime='08:00:00',
+        $colspan = 1)
+    {
+        $timeSectionHTML = '';
+
+        $minute = 0;
+        for ($hour = 8; $hour <= 17; ++$hour) {
+            while ($minute <= 45) {
+                $time = sprintf("%2d:%02d", $hour, $minute);
+
+                // Normalize the time to check if it is a selected time
+                $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $time" . ":00");
+                $timeToCheck = $dateTime->format('H:i:s');
+
+                $timeSelected = ($timeToCheck == $defaultTime) ? ' selected ' : '';
+
+                // Populate the drop downs
+                $timeSectionHTML .= "<option value='$time'$timeSelected>$time</option>";
+
+                $minute += 15;
+            }
+            $minute = 0;
+        }
+
+        $labelHTML  = empty($label) ? '' : "<td nowrap><font color='" . View_Base::AQUA . "'><b>$label:&nbsp</b></font></td>";
+        $newRow     = !empty($label);
+
+        if ($newRow) {
+            print "
+                <tr>";
+        }
+
+        print "
+                    $labelHTML
+                    <td colspan='$colspan'><select name=$tag>$timeSectionHTML</select></td>";
+
+        if ($newRow) {
+            print "
+                </tr>";
+        }
+
+    }
+
+    /**
      * @brief Print the days that can be selected
      *
      * @param $maxColumns       - For colspan if needed
@@ -465,9 +533,9 @@ abstract class View_Base {
      * @param $includeWeekend   - Defaults to true
      * @param $newRow           - Defaults to true
      * @param $daysPerRow       - Defaults to 7
-     * @param $colspanPerRow    - Defaults to 1
+     * @param $daysColspan      - Defaults to 1
      */
-    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '', $label = 'Days', $includeWeekend = true, $newRow = true, $daysPerRow = 7, $emptyCells = 1) {
+    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '', $label = 'Days', $includeWeekend = true, $newRow = true, $daysPerRow = 7, $emptyCells = 1, $daysColspan = 1) {
         /*
         $monChecked = (isset($daysOfWeek[0]) and $daysOfWeek[0] == 1) ? 'checked' : '';
         $tueChecked = (isset($daysOfWeek[1]) and $daysOfWeek[1] == 1) ? 'checked' : '';
@@ -504,7 +572,7 @@ abstract class View_Base {
         // Print weekday data
         $currentDaysPrinted = 0;
         print "
-                    <td nowrap>";
+                    <td nowrap colspan='$daysColspan'>";
 
         foreach ($weekdayData as $day => $checked) {
             print "
@@ -777,7 +845,6 @@ abstract class View_Base {
         </tr>";
     }
 
-
     /**
      * @brief Print the error seen with the last transaction (no op if no error)
      */
@@ -898,13 +965,13 @@ abstract class View_Base {
         }
 
         foreach ($families as $family) {
-            $coaches = \DAG\Domain\Schedule\Coach::lookupByFamily($family);
+            $coaches = Coach::lookupByFamily($family);
             if (count($coaches) == 0) {
                 continue;
             }
 
             $identifier = $family->id;
-            $familySelector[$identifier] = $coaches[0]->lastName;
+            $familySelector[$identifier] = $coaches[0]->shortName;
         }
 
         asort($familySelector);

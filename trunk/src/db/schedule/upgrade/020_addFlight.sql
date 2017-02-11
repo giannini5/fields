@@ -1,11 +1,8 @@
-create table pool (
+create table if not exists flight (
     id                    bigint auto_increment,
-    flightId              bigint not NULL,
     scheduleId            bigint not NULL,
     name                  varchar(60) not NULL,
-    gamesAgainstPoolId    bigint default NULL,
 
     PRIMARY KEY (id),
     unique index ux_scheduleName(scheduleId, name)
-    unique index ux_flightName(flightId, name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -5,6 +5,9 @@ use \DAG\Domain\Schedule\Facility;
 use \DAG\Domain\Schedule\DivisionField;
 use \DAG\Domain\Schedule\Division;
 use \DAG\Domain\Schedule\GameExistsForGameTime;
+use \DAG\Domain\Schedule\GameDate;
+use \DAG\Domain\Schedule\GameTime;
+use \DAG\Domain\Schedule\Game;
 use \DAG\Framework\Exception\Assertion;
 
 /**
@@ -18,10 +21,14 @@ class Controller_AdminSchedules_Field extends Controller_AdminSchedules_Base {
     public $m_enabled;
     public $m_facilityId;
     public $m_fieldId;
+    public $m_gameDateId;
     public $m_fieldData     = [];
     public $m_divisionNames = [];
     public $m_divisionName;
     public $m_divisionNameSelection;
+    public $m_moveGameId;
+    public $m_moveFieldId;
+    public $m_moveGameTime;
 
     public function __construct()
     {
@@ -44,7 +51,9 @@ class Controller_AdminSchedules_Field extends Controller_AdminSchedules_Base {
                     true,
                     '* enabled required'
                 );
-            } else if ($this->m_operation == View_Base::UPDATE
+            }
+
+            if ($this->m_operation == View_Base::UPDATE
                 or $this->m_operation == View_Base::DELETE) {
                 $this->m_fieldData = $this->getPostAttribute(
                     View_Base::FIELD_UPDATE_DATA,
@@ -58,6 +67,28 @@ class Controller_AdminSchedules_Field extends Controller_AdminSchedules_Base {
                     true,
                     true,
                     '* field identifier is missing');
+            }
+
+            if ($this->m_operation == View_Base::UPDATE
+                or $this->m_operation == View_Base::DELETE
+                or $this->m_operation == View_Base::REMOVE
+                or $this->m_operation == View_Base::ADD) {
+                $this->m_fieldId = $this->getPostAttribute(
+                    View_Base::FIELD_ID,
+                    null,
+                    true,
+                    true,
+                    '* field identifier is missing');
+            }
+
+            if ($this->m_operation == View_Base::REMOVE
+                or $this->m_operation == View_Base::ADD) {
+                $this->m_gameDateId = $this->getPostAttribute(
+                    View_Base::GAME_DATE_ID,
+                    null,
+                    true,
+                    true,
+                    '* game date identifier is missing');
             }
 
             $this->m_divisionNameSelection = 'All';
@@ -80,6 +111,25 @@ class Controller_AdminSchedules_Field extends Controller_AdminSchedules_Base {
                     $this->m_divisionNameSelection = $m_divisionName;
                     $this->m_divisionNames[] = $m_divisionName;
                 }
+            }
+
+            if ($this->m_operation == View_Base::MOVE) {
+                $this->m_moveGameId = $this->getPostAttribute(
+                    View_Base::GAME_ID,
+                    null,
+                    true,
+                    true);
+
+                $this->m_moveFieldId = $this->getPostAttribute(
+                    View_Base::FIELD_ID,
+                    null,
+                    true,
+                    true);
+
+                $this->m_moveGameTime = $this->getPostAttribute(
+                    View_Base::GAME_TIME,
+                    null,
+                    true);
             }
 
             $this->m_facilityId = $this->getPostAttribute(
@@ -111,6 +161,18 @@ class Controller_AdminSchedules_Field extends Controller_AdminSchedules_Base {
 
                 case View_Base::DELETE:
                     $this->_deleteField();
+                    break;
+
+                case View_Base::REMOVE:
+                    $this->_removeGameDate();
+                    break;
+
+                case View_Base::ADD:
+                    $this->_addGameDate();
+                    break;
+
+                case View_Base::MOVE:
+                    $this->_moveGame();
                     break;
             }
         }
@@ -192,14 +254,61 @@ class Controller_AdminSchedules_Field extends Controller_AdminSchedules_Base {
         $field = Field::lookupById($this->m_fieldId);
         if ($field->gamesExists()) {
             $this->m_errorString = "Games have already been set.  You must delete the Schedule before you can delete fields";
+            $this->setDivisionNames($field);
             return;
         }
 
-        // Delete game times for field.  Exception thrown if a gameTime has an assigned field
+        // Delete game times for field.  Exception thrown if a gameTime has an assigned game
         $field->deleteGameTimes();
 
         // Delete field
         $field->delete();
+
+        $fieldName = $facility->name . ": " . $field->name;
+        $this->m_messageString = "'$fieldName' successfully deleted.";
+    }
+
+    /**
+     * @brief Remove gamesTimes for gameDate for field
+     *
+     * @throws GameExistsForGameTime
+     */
+    private function _removeGameDate()
+    {
+        $facility   = Facility::lookupById($this->m_facilityId);
+        $field      = Field::lookupById($this->m_fieldId);
+        $gameDate   = GameDate::lookupById($this->m_gameDateId);
+
+        // Set the division names for page rendering
+        $this->setDivisionNames($field);
+
+        if ($field->gamesExists(null, array($gameDate))) {
+            $this->m_errorString = "Games have already been set.  You must move the games before you can remove games dates";
+            return;
+        }
+
+        // Delete game times for field.  Exception thrown if a gameTime has an assigned game
+        $field->deleteGameTimes(true, $gameDate);
+
+        $fieldName = $facility->name . ": " . $field->name;
+        $this->m_messageString = "'$fieldName' successfully deleted.";
+    }
+
+    /**
+     * @brief Add gamesTimes for gameDate for field
+     */
+    private function _addGameDate()
+    {
+        $facility   = Facility::lookupById($this->m_facilityId);
+        $field      = Field::lookupById($this->m_fieldId);
+        $gameDate   = GameDate::lookupById($this->m_gameDateId);
+        $startTime  = $this->m_season->startTime;
+        $endTime    = $this->m_season->endTime;
+
+        // Set the division names for page rendering
+        $this->setDivisionNames($field);
+
+        GameTime::createByGameDates(array($gameDate), $field, $startTime, $endTime);
 
         $fieldName = $facility->name . ": " . $field->name;
         $this->m_messageString = "'$fieldName' successfully deleted.";
@@ -229,6 +338,26 @@ class Controller_AdminSchedules_Field extends Controller_AdminSchedules_Base {
     }
 
     /**
+     * Populate divisionNames array for the specified field
+     *
+     * @param Field $field
+     */
+    private function setDivisionNames($field)
+    {
+        $this->m_divisionNameSelection = null;
+
+        $divisionFields = DivisionField::lookupByField($field);
+        foreach ($divisionFields as $divisionField) {
+            $this->m_divisionNames[] = $divisionField->division->name;
+            if (isset($this->m_divisionName)) {
+                $this->m_divisionNameSelection = 'All';
+            } else {
+                $this->m_divisionNameSelection = $divisionField->division->name;
+            }
+        }
+    }
+
+    /**
      * Delete existing GameTimes and create new ones.  Duration between games is based on the max gameDurationMinutes
      * for the supported division
      *
@@ -239,5 +368,45 @@ class Controller_AdminSchedules_Field extends Controller_AdminSchedules_Base {
     private function updateGameTimes($field)
     {
         $this->m_season->createGameTimes($field, true);
+    }
+
+    /**
+     * Attempt to move a game to new field and time
+     */
+    private function _moveGame()
+    {
+        $game                       = Game::lookupById($this->m_moveGameId);
+        $field                      = Field::lookupById($this->m_moveFieldId);
+        $gameTimes                  = GameTime::lookupByGameDateAndField($game->gameTime->gameDate, $field);
+        $schedule                   = $game->pool->schedule;
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+
+        // Set the division names for page rendering
+        $this->setDivisionNames($field);
+
+        // Find the game time and then move the field
+        $this->m_errorString = "Error: Game Time: $this->m_moveGameTime not found for field";
+        foreach ($gameTimes as $gameTime) {
+            if ($gameTime->startTime == $this->m_moveGameTime) {
+                // Verify the schedule is not already published
+                if ($game->pool->schedule->published == 1) {
+                    $this->m_errorString = "Error: Cannot move game because schedule has been published.";
+                    break;
+                }
+
+                // Verify no game already scheduled at this time
+                if (isset($gameTime->game)) {
+                    $this->m_errorString = "Error: Cannot move game to $gameTime->startTime because a game is already scheduled at this time.";
+                    break;
+                }
+
+                // Move game
+                $game->move($gameTime);
+                $this->m_messageString  = "Game $this->m_moveGameId successfully moved to new time";
+                $this->m_errorString    = '';
+                break;
+            }
+        }
     }
 }

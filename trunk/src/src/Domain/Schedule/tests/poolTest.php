@@ -22,14 +22,17 @@ class PoolTest extends ORM_TestHelper
 
     protected $poolsToCleanup = array();
     protected $schedule;
+    protected $flight;
 
     protected function setUp()
     {
         $this->primeDatabase();
 
         $this->schedule = Schedule::lookupById($this->defaultScheduleOrm->id);
+        $this->flight   = Flight::lookupById($this->defaultFlightOrm->id);
 
         $this->poolsToCleanup[] = Pool::create(
+            $this->flight,
             $this->schedule,
             self::$expectedDefaults['name']);
     }
@@ -46,24 +49,36 @@ class PoolTest extends ORM_TestHelper
     public function test_create()
     {
         $pool = $this->poolsToCleanup[0];
-        $this->validatePool($pool, $this->schedule, self::$expectedDefaults);
+        $this->validatePool($pool, $this->flight, $this->schedule, self::$expectedDefaults);
     }
 
     public function test_lookupById()
     {
         $pool = Pool::lookupById($this->poolsToCleanup[0]->id);
-        $this->validatePool($pool, $this->schedule, self::$expectedDefaults);
+        $this->validatePool($pool, $this->flight, $this->schedule, self::$expectedDefaults);
     }
 
     public function test_lookupByScheduleName()
     {
         $pool = Pool::lookupByScheduleName($this->schedule, self::$expectedDefaults['name']);
-        $this->validatePool($pool, $this->schedule, self::$expectedDefaults);
+        $this->validatePool($pool, $this->flight, $this->schedule, self::$expectedDefaults);
     }
 
     public function test_lookupBySchedule()
     {
         $pools = Pool::lookupBySchedule($this->schedule);
+        $this->assertEquals(2, count($pools));
+    }
+
+    public function test_lookupByFlightName()
+    {
+        $pool = Pool::lookupByFlightName($this->flight, self::$expectedDefaults['name']);
+        $this->validatePool($pool, $this->flight, $this->schedule, self::$expectedDefaults);
+    }
+
+    public function test_lookupByFlight()
+    {
+        $pools = Pool::lookupByFlight($this->flight);
         $this->assertEquals(2, count($pools));
     }
 
@@ -85,10 +100,11 @@ class PoolTest extends ORM_TestHelper
         $this->assertEquals($pool2->id, $pool1->gamesAgainstPool->id);
     }
 
-    public function validatePool($pool, $schedule, $expectedDefaults)
+    public function validatePool($pool, $flight, $schedule, $expectedDefaults)
     {
         $this->assertTrue($pool->id > 0);
         $this->assertEquals($expectedDefaults['name'],  $pool->name);
         $this->assertEquals($schedule,                  $pool->schedule);
+        $this->assertEquals($flight,                    $pool->flight);
     }
 }

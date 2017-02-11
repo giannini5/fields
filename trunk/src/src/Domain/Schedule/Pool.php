@@ -9,6 +9,7 @@ use DAG\Framework\Exception\Precondition;
 
 /**
  * @property int        $id
+ * @property Flight     $flight
  * @property Schedule   $schedule
  * @property string     $name
  * @property Pool       $gamesAgainstPool
@@ -18,6 +19,9 @@ class Pool extends Domain
     /** @var PoolOrm */
     private $poolOrm;
 
+    /** @var Flight */
+    private $flight;
+
     /** @var Schedule */
     private $schedule;
 
@@ -26,13 +30,14 @@ class Pool extends Domain
 
     /**
      * @param PoolOrm   $poolOrm
-     * @param Division  $division (defaults to null)
+     * @param Flight    $flight (defaults to null)
      * @param Schedule  $schedule (defaults to null)
      * @param Pool      $gamesAgainstPool (defaults to null)
      */
-    protected function __construct(PoolOrm $poolOrm, $division = null, $schedule = null, $gamesAgainstPool = null)
+    protected function __construct(PoolOrm $poolOrm, $flight = null, $schedule = null, $gamesAgainstPool = null)
     {
-        $this->poolOrm = $poolOrm;
+        $this->poolOrm  = $poolOrm;
+        $this->flight   = isset($flight) ? $flight : Flight::lookupById($poolOrm->flightId);
         $this->schedule = isset($schedule) ? $schedule : Schedule::lookupById($poolOrm->scheduleId);
 
         if (isset($gamesAgainstPool)) {
@@ -45,17 +50,19 @@ class Pool extends Domain
     }
 
     /**
+     * @param Flight    $flight
      * @param Schedule  $schedule
      * @param string    $name
      *
      * @return Pool
      */
     public static function create(
+        $flight,
         $schedule,
         $name)
     {
-        $poolOrm = PoolOrm::create($schedule->id, $name);
-        return new static($poolOrm, $schedule);
+        $poolOrm = PoolOrm::create($flight->id, $schedule->id, $name);
+        return new static($poolOrm, $flight, $schedule);
     }
 
     /**
@@ -68,6 +75,36 @@ class Pool extends Domain
     {
         $poolOrm = PoolOrm::loadById($poolId);
         return new static($poolOrm, null, null, $gamesAgainstPool);
+    }
+
+    /**
+     * @param Flight    $flight
+     * @param string    $name
+     *
+     * @return Pool
+     */
+    public static function lookupByFlightName($flight, $name)
+    {
+        Precondition::isNonEmpty($name, 'name should not be empty');
+        $poolOrm = PoolOrm::loadByFlightIdAndName($flight->id, $name);
+        return new static($poolOrm, $flight, null);
+    }
+
+    /**
+     * @param Flight    $flight
+     *
+     * @return Pool[]
+     */
+    public static function lookupByFlight($flight)
+    {
+        $pools = [];
+
+        $poolOrms = PoolOrm::loadByFlightId($flight->id);
+        foreach ($poolOrms as $poolOrm) {
+            $pools[] = new static($poolOrm, $flight, null);
+        }
+
+        return $pools;
     }
 
     /**
@@ -111,6 +148,7 @@ class Pool extends Domain
             case "name":
                 return $this->poolOrm->{$propertyName};
 
+            case "flight":
             case "schedule":
             case "gamesAgainstPool":
                 return $this->{$propertyName};
@@ -171,6 +209,7 @@ class Pool extends Domain
             case "id":
             case "name":
             case "schedule":
+            case "flight":
                 return true;
 
             case "gamesAgainstPool":

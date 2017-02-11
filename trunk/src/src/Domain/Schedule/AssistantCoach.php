@@ -160,6 +160,20 @@ class AssistantCoach extends Domain
                 }
                 break;
 
+            case "shortName":
+                $nameParts = explode(" ", $this->assistantCoachOrm->name);
+                switch (count($nameParts)) {
+                    case 0:
+                    case 1:
+                        return $this->assistantCoachOrm->name;
+                    default:
+                        $firstName  = array_shift($nameParts);
+                        $lastName   = implode(" ", $nameParts);
+                        $lastName   .= ", " . $firstName[0];
+                        return $lastName;
+                }
+                break;
+
             case "team":
             case "family":
                 return $this->{$propertyName};
