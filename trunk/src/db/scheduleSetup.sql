@@ -53,4 +53,3 @@ truncate table season;
 truncate table team;
 truncate table familyGame;
 truncate table flight;
-

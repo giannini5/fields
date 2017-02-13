@@ -383,12 +383,8 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         // Populate pools
         $schedule->populatePools();
 
-        // If only one pool (younger groups) then populate games; otherwise let the administrator muck
-        // with the pools before populating the games
-        $pools = Pool::lookupBySchedule($schedule);
-        if (count($pools) == 1) {
-            $schedule->populateGames();
-        }
+        // Populating games
+        $schedule->populateGames();
 
         return $schedule;
     }
