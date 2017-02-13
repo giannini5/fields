@@ -299,8 +299,6 @@ class Schedule extends Domain
         // TODO add logic to have carp teams always play in carp
         // TODO add logic to use specific fields based on picture day
         $divisionFields         = DivisionField::lookupByDivision($this->division);
-        $gender                 = $this->division->gender;
-        $triedSundays           = false;
         $processedPoolIds       = [];
         $season                 = $this->division->season;
         $flights                = Flight::lookupBySchedule($this);
@@ -315,6 +313,7 @@ class Schedule extends Domain
                 $processedPoolIds[] = $pool->id;
 
                 $gameDates      = GameDate::lookupBySeason($this->division->season, GameDate::SATURDAYS_ONLY, $this);
+                $triedSundays   = false;
                 $gameDateIndex  = 0;
                 $teams          = Team::lookupByPool($pool);
                 $poolType       = TeamPolygon::ROUND_ROBIN_EVEN;
@@ -336,26 +335,42 @@ class Schedule extends Domain
                 // Might need to change this to everyone plays on the same weekend if a division does not have enough
                 // Field space for a single days worth of games.
                 for ($gameNumber = 1; $gameNumber <= $this->gamesPerTeam; $gameNumber++) {
-                    $divisionFieldsIndex = 0;
+                    $gender                 = $this->division->gender;
+                    $divisionFieldsIndex    = 0;
 
                     if ($gameDateIndex >= count($gameDates) and !$triedSundays) {
                         $triedSundays           = true;
                         $gameDates              = GameDate::lookupBySeason($this->division->season, GameDate::SUNDAYS_ONLY, $this);
                         $gameDateIndex          = 0;
                     }
+                    // print "GameDate[$gameDateIndex]: " . $gameDates[$gameDateIndex]->day . "<br>";
                     Assertion::isTrue($gameDateIndex < count($gameDates), "Ran out of games dates - need to add more dates or write code to allow more than one game per day");
 
                     $gameDate       = $gameDates[$gameDateIndex];
                     $teamPairings   = $teamPolygon->getTeamPairings();
                     $gameTimes      = GameTime::lookupByGameDateAndFieldAndGender($gameDate, $divisionFields[$divisionFieldsIndex]->field, $gender, true, $this->startTime, $this->endTime);
 
+                    $anyGamesAddedForThisDate   = false;
+                    $triedOppositeGender        = false;
                     foreach ($teamPairings as $team1Index => $team2Index) {
                         // Find next available gameTime for division/field
                         while (count($gameTimes) == 0) {
                             $divisionFieldsIndex += 1;
+                            if (!$anyGamesAddedForThisDate and $divisionFieldsIndex >= count($divisionFields)) {
+                                break;
+                            } elseif (!$triedOppositeGender and $divisionFieldsIndex >= count($divisionFields)) {
+                                $triedOppositeGender = true;
+                                $divisionFieldsIndex = 0;
+                                $gender = $gender == 'Girls' ? 'Boys' : 'Girls';
+                            }
                             Assertion::isTrue($divisionFieldsIndex < count($divisionFields), "Ran out of field space - Either configure more field space or update this program to allow teams to play on same weekend instead of same day.");
                             $gameTimes = GameTime::lookupByGameDateAndFieldAndGender($gameDate, $divisionFields[$divisionFieldsIndex]->field, $gender, true, $this->startTime, $this->endTime);
                         }
+
+                        if (!$anyGamesAddedForThisDate and $divisionFieldsIndex >= count($divisionFields)) {
+                            break;
+                        }
+
                         Assertion::isTrue(count($gameTimes) > 0, "Uh, major logic problem.  Contact Dave!");
                         $selectedGameTimes = array_splice($gameTimes, rand(0, count($gameTimes) - 1), 1);
 
@@ -395,6 +410,7 @@ class Schedule extends Domain
 
                         // Create the game
                         $game = Game::create($flight, $pool, $gameTime, $homeTeam, $visitingTeam);
+                        $anyGamesAddedForThisDate = true;
 
                         // Create the familyGame to help find game overlaps for a family
                         $coach = Coach::lookupByTeam($homeTeam);
@@ -413,6 +429,14 @@ class Schedule extends Domain
                         if ($poolType == TeamPolygon::ROUND_ROBIN_ODD and $gameNumber % count($teams) == 0) {
                             $gameNumber += 1;
                         }
+                    }
+
+                    if (!$anyGamesAddedForThisDate and $divisionFieldsIndex >= count($divisionFields)) {
+                        // Appears games have been canceled for this game day.
+                        // Reset the gameNumber and try again with next gameDate
+                        $gameNumber     -= 1;
+                        $gameDateIndex  += 1;
+                        continue;
                     }
 
                     $teamPolygon->shift();
@@ -434,7 +458,6 @@ class Schedule extends Domain
      */
     public function getPoolSizes($divisionName, $numberOfTeams, &$crossPoolSettings)
     {
-        $gamesAgainstPool   = [];
         $poolSizes          = [];
 
         switch ($divisionName) {
