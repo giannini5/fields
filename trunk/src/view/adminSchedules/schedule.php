@@ -4,15 +4,20 @@ use \DAG\Domain\Schedule\Schedule;
 use \DAG\Domain\Schedule\Pool;
 use \DAG\Domain\Schedule\Team;
 use \DAG\Domain\Schedule\GameTime;
-use \DAG\Domain\Schedule\Game;
 use \DAG\Domain\Schedule\DivisionField;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Orm\Schedule\ScheduleOrm;
+use \DAG\Domain\Schedule\Flight;
 
 /**
  * @brief Show the Schedule page and get the user to select a schedule to administer or create a new schedule.
  */
 class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
+    const SCHEDULE  = 'schedule';
+    const FLIGHT    = 'flight';
+    const FLIGHTS   = 'flights';
+    const POOLS     = 'pools';
+
     /**
      * @brief Construct the View
      *
@@ -72,7 +77,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
             $dataPrinted = false;
             foreach ($schedules as $schedule) {
-                $this->_printUpdateScheduleForm($schedule, $sessionId, $divisionsSelector);
+                $this->_printUpdateScheduleForm($schedule, $sessionId);
                 $dataPrinted = true;
             }
 
@@ -184,19 +189,117 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      * @param $sessionId            - Session Identifier
      */
     private function _printUpdateScheduleForm($schedule, $sessionId) {
+\DAG\Framework\Utils\TimeUtils::time_elapsed("Prime");
+        $pools          = Pool::lookupBySchedule($schedule);
+\DAG\Framework\Utils\TimeUtils::time_elapsed("Pools Lookup");
+        $gameIds        = [];
+        $gamesByPoolId  = [];
+        foreach ($pools as $pool) {
+            $gamesByPoolId[$pool->id]   = 0;
+        }
+\DAG\Framework\Utils\TimeUtils::time_elapsed("Game lookup");
+
+        $divisionFields = DivisionField::lookupByDivision($schedule->division);
+\DAG\Framework\Utils\TimeUtils::time_elapsed("DivisionField lookup");
+        $gameTimes      = [];
+        $fieldIds       = [];
+        foreach ($divisionFields as $divisionField) {
+            $fieldIds[$divisionField->field->id] = $divisionField->field->facility->name . ": " . $divisionField->field->name;
+            $gameTimes = array_merge($gameTimes, GameTime::lookupByField($divisionField->field));
+        }
+\DAG\Framework\Utils\TimeUtils::time_elapsed("GameTime lookup");
+
+        $startTime          = $this->m_controller->m_season->startTime;
+        $endTime            = $this->m_controller->m_season->endTime;
+        $interval           = new \DateInterval("PT" . $schedule->division->gameDurationMinutes . "M");
+        $gameTimesSelector  = [];
+        $defaultGameTimes   = GameTime::getDefaultGameTimes($startTime, $endTime, $interval);
+        foreach ($defaultGameTimes as $gameTime) {
+            $readableGameTime               = ltrim(substr($gameTime, 0, 5), "0");
+            $gameTimesSelector[$gameTime]   = $readableGameTime;
+        }
+\DAG\Framework\Utils\TimeUtils::time_elapsed("GameTimeSelector lookup");
+
+        // Order games by day, field and startTime
+        $gamesByDateByFieldByTime   = [];
+        $fieldSelector              = [];
+        $teamSelector               = [];
+        $fieldSelector[0]           = 'Any';
+        foreach ($gameTimes as $gameTime) {
+            if ($gameTime->gameDate->day >= $schedule->startDate
+                and $gameTime->gameDate->day <= $schedule->endDate) {
+                $day                                                    = $gameTime->gameDate->day;
+                $startTime                                              = $gameTime->startTime;
+                $fieldName                                              = $gameTime->field->facility->name . ": " . $gameTime->field->name;
+                $fieldSelector[$gameTime->field->id]                    = $fieldName;
+                $gamesByDateByFieldByTime[$day][$fieldName][$startTime] = $gameTime->game;
+                if (isset($gameTime->game)) {
+                    $gameIds[$gameTime->game->id] = $gameTime->game->id;
+                    $gamesByPoolId[$gameTime->game->pool->id] += 1;
+                    $teamSelector[$gameTime->game->homeTeam->id]        = $gameTime->game->homeTeam->name;
+                    $teamSelector[$gameTime->game->visitingTeam->id]    = $gameTime->game->visitingTeam->name;
+                }
+            }
+        }
+        ksort($gamesByDateByFieldByTime);
+\DAG\Framework\Utils\TimeUtils::time_elapsed("GamesByDateByFieldByTime population/sort");
+
         // Print the start of the form to select a facility
         print "
             <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td valign='top'>";
+                    <td valign='top'>
+                        <table>
+                            <tr>
+                                <td>";
 
-        $this->_printUpdatePoolsForm($schedule, $sessionId);
+        $this->_printUpdatePoolsForm($schedule, $pools, $gamesByPoolId, $sessionId);
 
         print "
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp</td></tr>
+                            <tr>
+                                <td>";
+
+        $this->_printMoveGameForm($gameIds, $fieldIds, $gameTimesSelector, $sessionId);
+
+        print "
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp</td></tr>
+                            <tr>
+                                <td>";
+
+        $this->_printSwapGameForm($gameIds, $sessionId);
+
+        print "
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp</td></tr>
+                            <tr>
+                                <td>";
+
+        $this->_printLockGameForm($gameIds, $sessionId);
+
+        print "
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp</td></tr>
+                            <tr>
+                                <td>";
+
+        $this->_printAlterTeamGames($teamSelector, $fieldSelector, $sessionId);
+
+
+        print "
+                                </td>
+                            </tr>
+                        </table>
                     </td>
                     <td valign='top'>";
 
-        $this->_printUpdateGamesForm($schedule, $sessionId);
+        $this->_printGames($schedule, $pools, $defaultGameTimes, $gamesByDateByFieldByTime);
 
         print "
                     </td>
@@ -208,9 +311,10 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
     /**
      * @brief Print Medal Round Game Options
      *
+     * @param int       $flightId       - Flight identifier
      * @param int       $fifthSixth     - 0 or 1
-     * @param int       $quarterFinals  - 0 or 1
      * @param int       $semiFinals     - 0 or 1
+     * @param int       $thirdFourth    - 0 or 1
      * @param int       $championship   - 0 or 1
      * @param string    $label          - defaults to empty (caller displays the label)
      * @param bool      $newRow         - defaults to true
@@ -218,9 +322,10 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      * @param int       $emptyCells     - defaults to 0; number of empty cells before finishing off row
      */
     protected function printMedalRoundSelector(
+        $flightId,
         $fifthSixth,
-        $quarterFinals,
         $semiFinals,
+        $thirdFourth,
         $championship,
         $label = '',
         $newRow = true,
@@ -228,10 +333,10 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
         $emptyCells = 0)
     {
         $medalRoundData = array(
-            '5th/6th'           => (isset($fifthSixth) and $fifthSixth == 1) ? 'checked' : '',
-            'Quarter Finals'    => (isset($quarterFinals) and $quarterFinals == 1) ? 'checked' : '',
-            'Semi-Finals'       => (isset($semiFinals) and $semiFinals == 1) ? 'checked' : '',
-            'Championship'      => (isset($championship) and $championship == 1) ? 'checked' : '',
+            View_Base::INCLUDE_5TH_6TH_GAME         => (isset($fifthSixth) and $fifthSixth == 1) ? 'checked' : '',
+            View_Base::INCLUDE_SEMI_FINAL_GAMES     => (isset($semiFinals) and $semiFinals == 1) ? 'checked' : '',
+            View_Base::INCLUDE_3RD_4TH_GAME         => (isset($thirdFourth) and $thirdFourth == 1) ? 'checked' : '',
+            View_Base::INCLUDE_CHAMPIONSHIP_GAME    => (isset($championship) and $championship == 1) ? 'checked' : '',
         );
 
         if ($newRow) {
@@ -253,6 +358,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
         $currentItemsPrinted = 0;
 
         foreach ($medalRoundData as $gameType => $checked) {
+            $name = View_Base::FLIGHT_UPDATE_DATA . "[$flightId][$gameType]";
             if ($currentItemsPrinted == $itemsPerRow) {
                 print "
                 </tr>
@@ -268,7 +374,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
             print "
                     <td nowrap>
-                        <nobr><input type=checkbox name='$gameType' id='$gameType' value='$gameType' $checked>$gameType</nobr>
+                        <nobr><input type=checkbox name='$name' id='$gameType' value='1' $checked>$gameType</nobr>
                     </td>";
 
             $currentItemsPrinted += 1;
@@ -286,10 +392,12 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      *        - Number of Games
      *        - Update and Delete options
      *
-     * @param Schedule  $schedule  - Schedule to be edited
-     * @param int       $sessionId - Session Identifier
+     * @param Schedule  $schedule       - Schedule to be edited
+     * @param Pool[]    $pools          - Pools in schedule
+     * @param array     $gamesByPoolId  - Games by poolId
+     * @param int       $sessionId      - Session Identifier
      */
-    private function _printUpdatePoolsForm($schedule, $sessionId) {
+    private function _printUpdatePoolsForm($schedule, $pools, $gamesByPoolId, $sessionId) {
         $errorString = ($this->m_controller->m_scheduleId == $schedule->id and $this->m_controller->m_missingAttributes > 0) ? $this->m_controller->m_name : '';
         $startTime   = $schedule->startTime;
         $endTime     = $schedule->endTime;
@@ -359,18 +467,16 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     <td $style>$published</td>
                 </tr>";
 
-        $pools = Pool::lookupBySchedule($schedule);
         $poolSelector = [];
         foreach ($pools as $pool) {
-            $poolSelector[$pool->id] = $pool->name;
+            $poolSelector[$pool->id] = $pool->fullName;
         }
 
         $gamesExist = false;
         $flight     = null;
         foreach ($pools as $pool) {
-            $games = Game::lookupByPool($pool);
             if (!$gamesExist) {
-                $gamesExist = count($games) > 0;
+                $gamesExist = $gamesByPoolId[$pool->id] > 0;
             }
 
             print "
@@ -387,7 +493,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             <tr>
                                 <td colspan='1' align='left'><strong>Flight:</strong></td>";
 
-                $name = View_Base::FLIGHT_UPDATE_DATA . "[$flight->id]";
+                $name = View_Base::FLIGHT_UPDATE_DATA . "[$flight->id][" . View_Base::NAME . "]";
                 $this->displayInput('', 'text', $name, 'Flight Name', '', $flight->name, null, 1, false, 75);
 
                 if ($pool->schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT) {
@@ -397,7 +503,16 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                                 <td colspan='2' style='color: " . View_Base::AQUA . "'><strong>Include Medal Round Games:</strong></td>
                             </tr>";
 
-                    $this->printMedalRoundSelector(0, 0, 0, 0, "", true, 2, 1);
+                    $this->printMedalRoundSelector(
+                        $flight->id,
+                        $flight->include5th6thGame,
+                        $flight->includeSemiFinalGames,
+                        $flight->include3rd4thGame,
+                        $flight->includeChampionshipGame,
+                        "",
+                        true,
+                        2,
+                        1);
                 }
 
                 print "
@@ -411,10 +526,10 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     <td colspan='1' align='left'><strong>$pool->name</strong></td>
                     <td nowrap colspan='2' align='right' style='color: " . self::AQUA . "'><strong>Play Games Against:</strong></td>";
 
-            $selectedPoolName   = isset($pool->gamesAgainstPool) ? $pool->gamesAgainstPool->name : $pool->name;
+            $selectedPoolName   = isset($pool->gamesAgainstPool) ? $pool->gamesAgainstPool->fullName : $pool->fullName;
             $selectorColor      = isset($pool->gamesAgainstPool) ? 'salmon' : 'lightgreen';
             $name               = View_Base::CROSS_POOL_UPDATE_DATA . "[$pool->id]";
-            $this->displaySelector('', $name, '', $poolSelector, $selectedPoolName, null, false, 75, 'right', '', $selectorColor);
+            $this->displaySelector('', $name, '', $poolSelector, $selectedPoolName, null, false, 120, 'right', '', $selectorColor);
 
             print "
                 </tr>";
@@ -427,7 +542,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     <td>$team->name</td>";
 
                 $name = View_Base::TEAM_POOL_UPDATE_DATA . "[$team->id][" . View_Base::POOL_ID . "]";
-                $this->displaySelector('Pool:', $name, '', $poolSelector, $team->pool->name, null, false, 75, 'right');
+                $this->displaySelector('Pool:', $name, '', $poolSelector, $team->pool->fullName, null, false, 120, 'right');
 
                 print "
                 </tr>";
@@ -440,10 +555,18 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
         $publishButton = "
                     <td align='right' colspan='1'>
-                        <input title='Publish schedule everyone to see' style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::PUBLISH . "'>
+                        <input title='Publish schedule for everyone to see' style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::PUBLISH . "'>
                         <input type='hidden' id='scheduleId' name='scheduleId' value='$schedule->id'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>";
+
+        $unPublishButton = "
+                    <td align='right' colspan='1'>
+                        <input title='Un-Publish schedule so you can modify' style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UN_PUBLISH . "'>
+                        <input type='hidden' id='scheduleId' name='scheduleId' value='$schedule->id'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>";
+
         $clearButton = "
                     <td align='right' colspan='1'>
                         <input title='Un-publish, Delete all games, but keep schedule name, number of games and pools' style='background-color: salmon' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::CLEAR . "'>
@@ -458,8 +581,8 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>";
 
-        $publishOrClearButton   = $schedule->published == 1 ? $clearButton : $publishButton;
-        $populateOrClearButton  = $gamesExist ? $clearButton : $populateButton;
+        $publishOrUnPublishButton   = $schedule->published == 1 ? $unPublishButton : $publishButton;
+        $populateOrClearButton      = $gamesExist ? $clearButton : $populateButton;
 
         // Print Submit button and end form
         print "
@@ -471,7 +594,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
 
         print $populateOrClearButton;
-        print $publishOrClearButton;
+        print $publishOrUnPublishButton;
 
         print "
                     <td align='right' colspan='1'>
@@ -485,52 +608,28 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
     }
 
     /**
-     * @brief Print the form to update a games.  Form includes the following
-     *        - Days of games
-     *        - Times of games
-     *        - Teams and field
+     * Print form to move a game to an open time-slot
      *
-     * @param Schedule      $schedule  - Schedule to be edited
-     * @param int           $sessionId - Session Identifier
+     * @param array $gameIds
+     * @param array $fieldIds
+     * @param array $gameTimeSelector
+     * @param int   $sessionId
      */
-    private function _printUpdateGamesForm($schedule, $sessionId)
+    private function _printMoveGameForm($gameIds, $fieldIds, $gameTimeSelector, $sessionId)
     {
-        $startTime = $this->m_controller->m_season->startTime;
-        $endTime = $this->m_controller->m_season->endTime;
-        $interval = new \DateInterval("PT" . $schedule->division->gameDurationMinutes . "M");
-        $defaultGameTimes = GameTime::getDefaultGameTimes($startTime, $endTime, $interval);
-        $pools = Pool::lookupBySchedule($schedule);
-        $gameIds = [];
-        $fieldIds = [];
-        $gameTimes = [];
-
-        foreach ($pools as $pool) {
-            $games = Game::lookupByPool($pool);
-            foreach ($games as $game) {
-                $gameIds[$game->id] = $game->id;
-            }
-        }
-
-        $divisionFields = DivisionField::lookupByDivision($schedule->division);
-        foreach ($divisionFields as $divisionField) {
-            $fieldIds[$divisionField->field->id] = $divisionField->field->facility->name . ": " . $divisionField->field->name;
-        }
-
-        foreach ($defaultGameTimes as $gameTime) {
-            $readableGameTime       = ltrim(substr($gameTime, 0, 5), "0");
-            $gameTimes[$gameTime]   = $readableGameTime;
-
-        }
-
         // Print Move controls and button
         print "
+            <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
             <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
-            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
+            <tr>
+                <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium'><strong>Move game to an open time-slot</strong></td>
+            </tr>";
 
         asort($gameIds);
         $this->displaySelector('Game Id To Move:', View_Base::GAME_ID, '', $gameIds, '', NULL, true, 150, 'left', 'Select Game Id to Move');
         $this->displaySelector('New Field:', View_Base::FIELD_ID, '', $fieldIds, '', NULL, true, 150, 'left', 'Select New Field');
-        $this->displaySelector('New Game Time:', View_Base::GAME_TIME, '', $gameTimes, '', NULL, true, 150, 'left', 'Select New Game Time');
+        $this->displaySelector('New Game Time:', View_Base::GAME_TIME, '', $gameTimeSelector, '', NULL, true, 150, 'left', 'Select New Game Time');
 
         print "
                 <tr>
@@ -540,26 +639,136 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     </td>
                 </tr>
             </form>
+            </table>
+            </td></tr>
             </table>";
+    }
 
+    /**
+     * Print form to swap two games
+     *
+     * @param array $gameIds
+     * @param int   $sessionId
+     */
+    private function _printSwapGameForm($gameIds, $sessionId)
+    {
+        // Print Move controls and button
+        print "
+            <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
+            <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
+            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
+            <tr>
+                <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium'><strong>Swap two games</strong></td>
+            </tr>";
+
+        asort($gameIds);
+        $this->displaySelector('Game Id1:', View_Base::GAME_ID1, '', $gameIds, '', NULL, true, 150, 'left', 'Primary Game Id');
+        $this->displaySelector('Game Id2:', View_Base::GAME_ID2, '', $gameIds, '', NULL, true, 150, 'left', 'Secondary Game Id');
+
+        print "
+                <tr>
+                    <td align='right' colspan='2' title='Swap two games'>
+                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SWAP . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>
+            </td></tr>
+            </table>";
+    }
+
+    /**
+     * Print form to lock/unlock a game
+     *
+     * @param array $gameIds
+     * @param int   $sessionId
+     */
+    private function _printLockGameForm($gameIds, $sessionId)
+    {
+        // Print Move controls and button
+        print "
+            <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
+            <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
+            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
+            <tr>
+                <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium' title='Locking a game prevents it from being moved or swapped with another game'><strong>Lock/Unlock Game</strong></td>
+            </tr>";
+
+        asort($gameIds);
+        $this->displaySelector('Game Id:', View_Base::GAME_ID, '', $gameIds, '', NULL, true, 150, 'left', 'Game Id');
+
+        print "
+                <tr>
+                    <td align='right' colspan='2' title='Lock game if unlocked; otherwise unlock it'>
+                        <input style='background-color: orange' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::TOGGLE . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>
+            </td></tr>
+            </table>";
+    }
+
+    /**
+     * Print form to modify game times for a team
+     *
+     * @param array $teamSelector
+     * @param array $fieldSelector
+     * @param int   $sessionId
+     */
+    private function _printAlterTeamGames($teamSelector, $fieldSelector, $sessionId)
+    {
+        // Print controls and button to support moving a teams games during a date range to between a selected time
+        // range and field.
+        print "
+            <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
+            <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
+            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
+            <tr>
+                <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium' title='Alter games for a team based on date range, time range and field. Games will be locked.'><strong>Alter Team Game(s)</strong></td>
+            </tr>";
+
+        asort($teamSelector);
+        $this->displaySelector('Team:', View_Base::TEAM_ID, '', $teamSelector, '', NULL, true, 150, 'left', 'Select Team');
+        $this->displayCalendarDateSelector(4, View_Base::START_DATE, 'From Date', $this->m_controller->m_season->startDate, null, 1, 135);
+        $this->displayCalendarDateSelector(4, View_Base::END_DATE, 'To Date', $this->m_controller->m_season->endDate, null, 1, 135);
+        $this->printTimeSelector(View_Base::START_TIME, "From Time", "08:00:00");
+        $this->printTimeSelector(View_Base::END_TIME, "To Time", "17:00:00");
+        $this->displaySelector('Field:', View_Base::FIELD_ID, 0, $fieldSelector, '', NULL, true, 150, 'left');
+
+        print "
+                <tr>
+                    <td align='right' colspan='2' title='Alter games for a team based on date range, time range and field. Games will be locked.'>
+                        <input style='background-color: orange' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ALTER . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>
+            </td></tr>
+            </table>";
+    }
+
+    /**
+     * @brief Print the schedule of games.
+     *
+     * @param Schedule  $schedule
+     * @param Pool[]    $pools
+     * @param array     $defaultGameTimes
+     * @param array     $gamesByDateByFieldByTime
+     */
+    private function _printGames($schedule, $pools, $defaultGameTimes, $gamesByDateByFieldByTime)
+    {
         // Print the game schedule
         foreach ($pools as $pool) {
-            $games = Game::lookupByPool($pool);
-            $gamesByDateByFieldByTime = [];
-            foreach ($games as $game) {
-                $day                                    = $game->gameTime->gameDate->day;
-                $startTime                              = $game->gameTime->startTime;
-                $fieldName                              = $game->gameTime->field->facility->name . ": " . $game->gameTime->field->name;
-                $gamesByDateByFieldByTime[$day][$fieldName][$startTime] = $game;
-            }
-            ksort($gamesByDateByFieldByTime);
-
             // Print table header
             print "
             <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>";
 
             $colspan    = 2 + count($defaultGameTimes);
-            $headerRow  = $schedule->division->name . ' ' . $schedule->division->gender . ' ' . $pool->name;
+            $headerRow  = $schedule->division->name . ' ' . $schedule->division->gender . ', Flight: ' . $pool->flight->name . ', ' . $pool->name;
             if ($pool->gamesAgainstPool->id != $pool->id) {
                 $name = $pool->gamesAgainstPool->name;
                 $headerRow .= "<font color='red'> (Cross-pool play with $name)</font>";
@@ -611,30 +820,85 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
                     foreach ($defaultGameTimes as $defaultGameTime) {
                         $entryFound = false;
-                        foreach ($gameTimeData as $gameTime => $game) {
-                            if ($gameTime == $defaultGameTime) {
+                        $game       = null;
+                        if (isset($gameTimeData[$defaultGameTime])) {
+                            $game = $gameTimeData[$defaultGameTime];
+
+                            if (isset($game) and $game->pool->id == $pool->id) {
                                 $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
                                 $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
                                 $gender             = $game->homeTeam->division->gender;
                                 $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
                                 $gameData           = "Game Id: " . $game->id . "<br>";
                                 $gameData           .= $game->homeTeam->name . " vs " . $game->visitingTeam->name;
-                                $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+                                $locked             = $game->isLocked() ? "\nLOCKED" : "";
+                                $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "$locked'";
 
                                 // Change background color to red if game was just moved.
-                                if (isset($this->m_controller->m_moveGameId) and $game->id == $this->m_controller->m_moveGameId) {
+                                if ((isset($this->m_controller->m_moveGameId) and $game->id == $this->m_controller->m_moveGameId)
+                                    or (isset($this->m_controller->m_primaryGameId) and $game->id == $this->m_controller->m_primaryGameId)
+                                    or (isset($this->m_controller->m_secondaryGameId) and $game->id == $this->m_controller->m_secondaryGameId)) {
                                     $bgHTML = "bgcolor='red'";
                                 }
 
+                                // Change background color to orange if game is locked
+                                if ($game->isLocked()) {
+                                    $bgHTML = "bgcolor='orange'";
+                                }
+
                                 print "
-                                    <td nowrap $bgHTML $title>$gameData</td>";
+                                <td nowrap $bgHTML $title>$gameData</td>";
+                                $entryFound = true;
+                            } else if (isset($game) and $game->title != '' and $game->flight->id == $pool->flight->id) {
+                                $homeTeamCoach      = isset($game->homeTeam) ? Coach::lookupByTeam($game->homeTeam) : null;
+                                $visitingTeamCoach  = isset($game->visitingTeam) ? Coach::lookupByTeam($game->visitingTeam) : null;
+                                $homeCoachName      = isset($homeTeamCoach) ? $homeTeamCoach->name : 'TBD';
+                                $visitingCoachName  = isset($visitingTeamCoach) ? $visitingTeamCoach->name : 'TBD';
+                                $gender             = $pool->schedule->division->gender;
+                                $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
+                                $gameData           = "Game Id: " . $game->id . "<br>";
+                                $gameData           .= $game->title;
+                                $locked             = $game->isLocked() ? "\nLOCKED" : "";
+                                $title              = "title='" . $homeCoachName . " vs " . $visitingCoachName . "$locked'";
+
+                                // Change background color to red if game was just moved.
+                                if ((isset($this->m_controller->m_moveGameId) and $game->id == $this->m_controller->m_moveGameId)
+                                    or (isset($this->m_controller->m_primaryGameId) and $game->id == $this->m_controller->m_primaryGameId)
+                                    or (isset($this->m_controller->m_secondaryGameId) and $game->id == $this->m_controller->m_secondaryGameId)) {
+                                    $bgHTML = "bgcolor='red'";
+                                }
+
+                                // Change background color to orange if game is locked
+                                if ($game->isLocked()) {
+                                    $bgHTML = "bgcolor='orange'";
+                                }
+
+                                print "
+                                <td nowrap $bgHTML $title>$gameData</td>";
                                 $entryFound = true;
                             }
                         }
 
                         if (!$entryFound) {
-                            print "
+                            if (!isset($game)) {
+                                print "
                                     <td nowrap>&nbsp</td>";
+                            } else {
+                                $gameData   = "Game Id: $game->id";
+                                if ($game->title != '') {
+                                    $gameData .= "<br>$game->title";
+                                }
+
+                                if ($game->isLocked()) {
+                                    $title      = $game->flight->schedule->division->name . "-" . $game->flight->schedule->division->gender . "\nLOCKED";
+                                    print "
+                                    <td nowrap bgcolor='orange' title='$title'>$gameData</td>";
+                                } else {
+                                    $title = $game->flight->schedule->division->name . "-" . $game->flight->schedule->division->gender;
+                                    print "
+                                    <td nowrap bgcolor='salmon' title='$title'>$gameData</td>";
+                                }
+                            }
                         }
                     }
 

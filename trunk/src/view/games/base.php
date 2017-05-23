@@ -5,7 +5,7 @@ use \DAG\Domain\Schedule\Division;
 /**
  * @brief: Abstract base class for all schedule views.
  */
-abstract class View_Schedules_Base extends View_Base {
+abstract class View_Games_Base extends View_Base {
 
     /**
      * @brief: Construct a new instance of this base class.
@@ -72,10 +72,10 @@ abstract class View_Schedules_Base extends View_Base {
     public function displayHeaderNavigation() {
         print '
                 <ul id="nav">'
-            . ($this->m_pageName == self::SCHEDULE_TEAM_PAGE ?
-                '<li><div>TEAM</div></li>' : '<li><a href="' . self::SCHEDULE_TEAM_PAGE . '">TEAM</a></li>')
-            . ($this->m_pageName == self::SCHEDULE_DIVISION_PAGE ?
-                '<li><div>DIVISION</div></li>' : '<li><a href="' . self::SCHEDULE_DIVISION_PAGE . '">DIVISION</a></li>')
+            . ($this->m_pageName == self::GAMES_SCHEDULE_PAGE ?
+                '<li><div>SCHEDULE</div></li>' : '<li><a href="' . self::GAMES_SCHEDULE_PAGE . '">SCHEDULE</a></li>')
+            . ($this->m_pageName == self::GAMES_STANDINGS_PAGE ?
+                '<li><div>STANDINGS</div></li>' : '<li><a href="' . self::GAMES_STANDINGS_PAGE . '">STANDINGS</a></li>')
             . '
                </ul>';
     }

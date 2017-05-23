@@ -199,7 +199,8 @@ class FamilyGame extends Domain
 
     /**
      * Return the Game that family is playing where coach is not coaching more than one
-     * team.  i.e. coach is not in a family.
+     * team.  i.e. coach is not in a family.  $game is returned if $opverlappingGame is
+     * locked.
      *
      * @param Game  $game
      * @param Game  $overlappingGame
@@ -208,6 +209,10 @@ class FamilyGame extends Domain
      */
     public static function selectGameToFix($game, $overlappingGame)
     {
+        if ($overlappingGame->isLocked()) {
+            return $game;
+        }
+
         $coach = Coach::lookupByTeam($game->homeTeam);
         if (!isset($coach->family)) {
             return $game;
@@ -246,8 +251,9 @@ class FamilyGame extends Domain
     {
         $skippedGames   = [];
 
-        // Skip if game is in a schedule that has been published
-        if ($game->pool->schedule->published == 1) {
+        // Skip if game is in a schedule that has been published or the game has been locked
+        if ($game->pool->schedule->published == 1
+            or $game->isLocked()) {
             return false;
         }
 

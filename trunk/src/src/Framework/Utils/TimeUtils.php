@@ -35,6 +35,24 @@ class TimeUtils
     const YEAR_IN_MONTHS   = 12;
 
     /**
+     * Echo the amount of time that has elapsed since the last call
+     *
+     * @param string    $label - identifier in code that is being measured
+     */
+    public static function time_elapsed($label)
+    {
+        static $last = null;
+
+        $now = microtime(true);
+
+        if ($last != null) {
+            echo "<!-- Time: $label: " . ($now - $last) . " -->\n";
+        }
+
+        $last = $now;
+    }
+
+    /**
      * Get the date/time in the UTC timezone for a given epoch time.
      *
      * @param int    $time   - number of seconds since the Unix Epoch (January 1 1970 00:00:00 GMT).

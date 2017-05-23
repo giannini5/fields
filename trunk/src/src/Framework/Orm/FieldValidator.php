@@ -208,7 +208,7 @@ class FieldValidator
             if (!array_key_exists($key, $values)) {
                 Precondition::isTrue(array_key_exists(2, $ruleSet), 'no default exists for ' . $key);
 
-                if ($ruleSet[self::RULESET_INDEX_DEFAULT] == self::CURRENT_TIME) {
+                if (is_string($ruleSet[self::RULESET_INDEX_DEFAULT]) and $ruleSet[self::RULESET_INDEX_DEFAULT] == self::CURRENT_TIME) {
                     if ($ruleSet[self::RULESET_INDEX_DATATYPE] == self::DATE) {
                         $values[$key] = date(TimeUtils::DATE_SHORT_FORMAT);
                     } elseif ($ruleSet[self::RULESET_INDEX_DATATYPE] == self::DATE_TIME) {

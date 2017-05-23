@@ -6,6 +6,6 @@ create table pool (
     gamesAgainstPoolId    bigint default NULL,
 
     PRIMARY KEY (id),
-    unique index ux_scheduleName(scheduleId, name)
-    unique index ux_flightName(flightId, name)
+    unique index ux_flightName(flightId, name),
+    unique index ux_scheduleFlightName(scheduleId, flightId, name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

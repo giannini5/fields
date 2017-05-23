@@ -11,17 +11,29 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $id
  * @property int    $scheduleId
  * @property string $name
+ * @property int    $include5th6thGame
+ * @property int    $include3rd4thGame
+ * @property int    $includeSemiFinalGames
+ * @property int    $includeChampionshipGame
  */
 class FlightOrm extends PersistenceModel
 {
-    const FIELD_ID                      = 'id';
-    const FIELD_SCHEDULE_ID             = 'scheduleId';
-    const FIELD_NAME                    = 'name';
+    const FIELD_ID                          = 'id';
+    const FIELD_SCHEDULE_ID                 = 'scheduleId';
+    const FIELD_NAME                        = 'name';
+    const FIELD_INCLUDE_5TH_6TH_GAME        = 'include5th6thGame';
+    const FIELD_INCLUDE_3RD_4TH_GAME        = 'include3rd4thGame';
+    const FIELD_INCLUDE_SEMI_FINAL_GAMES    = 'includeSemiFinalGames';
+    const FIELD_INCLUDE_CHAMPIONSHIP_GAME   = 'includeChampionshipGame';
 
     protected static $fields = [
-        self::FIELD_ID                      => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_SCHEDULE_ID             => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_NAME                    => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_ID                          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_SCHEDULE_ID                 => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_NAME                        => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_INCLUDE_5TH_6TH_GAME        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_INCLUDE_3RD_4TH_GAME        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_INCLUDE_SEMI_FINAL_GAMES    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_INCLUDE_CHAMPIONSHIP_GAME   => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
 
     protected static $config = [
@@ -37,18 +49,31 @@ class FlightOrm extends PersistenceModel
      *
      * @param int       $scheduleId
      * @param string    $name
+     * @param int       $include5th6thGame;
+     * @param int       $include3rd4thGame;
+     * @param int       $includeSemiFinalGames;
+     * @param int       $includeChampionshipGame;
      *
      * @return FlightOrm
      * @throws DuplicateEntryException
      */
     public static function create(
         $scheduleId,
-        $name)
+        $name,
+        $include5th6thGame,
+        $include3rd4thGame,
+        $includeSemiFinalGames,
+        $includeChampionshipGame)
     {
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_SCHEDULE_ID             => $scheduleId,
-                self::FIELD_NAME                    => $name,
+                self::FIELD_SCHEDULE_ID                 => $scheduleId,
+                self::FIELD_NAME                        => $name,
+                self::FIELD_INCLUDE_5TH_6TH_GAME        => $include5th6thGame,
+                self::FIELD_INCLUDE_3RD_4TH_GAME        => $include3rd4thGame,
+                self::FIELD_INCLUDE_SEMI_FINAL_GAMES    => $includeSemiFinalGames,
+                self::FIELD_INCLUDE_CHAMPIONSHIP_GAME   => $includeChampionshipGame,
+
             ],
             function ($item) {
                 return $item !== null;

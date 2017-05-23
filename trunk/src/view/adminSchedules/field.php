@@ -56,7 +56,7 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
 
         $facilitySelectorData[0] = 'All';
         ksort($facilitySelectorData);
-        $this->_printUpdateFieldForm($sessionId, $facilitySelectorData, $divisionsSelector);
+        $this->_printUpdateFieldForm($sessionId, $facilitySelectorData);
 
         print "
                     </td>
@@ -256,7 +256,7 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
                 </tr>
                 <tr>
                     <td colspan='8'>
-                    <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
+                    <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0' width='900'>
                         <thead>
                         <tr bgcolor='lightskyblue'>
                             <th>&nbsp</th>";
@@ -293,15 +293,21 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
                         if (isset($gameTime->game)) {
                             $gamesFound         = true;
                             $game               = $gameTime->game;
-                            $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
-                            $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
-                            $gender             = $gameTime->game->homeTeam->division->gender;
+                            $gender             = $gameTime->game->flight->schedule->division->gender;
                             $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
-                            $homeTeam           = $game->homeTeam;
-                            $visitingTeam       = $game->visitingTeam;
                             $cellHTML           = "Game Id: " . $game->id . "<br>";
-                            $cellHTML           .= $homeTeam->name . "<br>" . $visitingTeam->name;
-                            $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+
+                            if (isset($game->homeTeam)) {
+                                $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
+                                $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
+                                $homeTeam           = $game->homeTeam;
+                                $visitingTeam       = $game->visitingTeam;
+                                $cellHTML           .= $homeTeam->name . "<br>" . $visitingTeam->name;
+                                $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+                            } else {
+                                $cellHTML           .= $game->title;
+                                $title              = "title='" . $game->title . "'";
+                            }
 
                             if ($game->id == $this->m_controller->m_moveGameId) {
                                 $bgHTML = "bgcolor='salmon'";

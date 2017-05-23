@@ -3,6 +3,7 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
+use DAG\Orm\Schedule\GameOrm;
 use DAG\Orm\Schedule\ScheduleOrm;
 use DAG\Framework\Exception\Precondition;
 use DAG\Framework\Exception\Assertion;
@@ -23,6 +24,12 @@ use DAG\Framework\Exception\Assertion;
  */
 class Schedule extends Domain
 {
+    static $FLIGHT_NAMES = [1 => 'Anacapa',
+                            2 => 'Santa Cruz',
+                            3 => 'Santa Rosa',
+                            4 => 'San Miguel',
+                            5 => 'Catalina'];
+
     /** @var ScheduleOrm */
     private $scheduleOrm;
 
@@ -241,10 +248,29 @@ class Schedule extends Domain
     }
 
     /**
-     * Populate Pools
+     * Populate Pools with teams
      */
     public function populatePools()
     {
+        switch($this->scheduleType) {
+            case ScheduleOrm::SCHEDULE_TYPE_LEAGUE:
+                $this->populateLeaguePools();
+                break;
+            case ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT:
+                $this->populateTournamentPools();
+                break;
+            default:
+                Assertion::isTrue(false, "Unrecognized schedule type: $this->scheduleType");
+        }
+    }
+
+    /**
+     * Populate League Pools with teams
+     */
+    public function populateLeaguePools()
+    {
+        Precondition::isTrue($this->scheduleType == ScheduleOrm::SCHEDULE_TYPE_LEAGUE, "Invalid scheduleType: $this->scheduleType");
+
         $teams              = Team::lookupByDivision($this->division);
         $numberOfTeams      = count($teams);
         $crossPoolSettings  = [];
@@ -253,15 +279,25 @@ class Schedule extends Domain
         $pools              = [];
 
         // Create Flights and Pools and add teams to pools (2 pools per flight)
-        $teamIndex      = 0;
-        $flightIndex    = 0;
-        $flight         = null;
+        $teamIndex                  = 0;
+        $flightIndex                = 0;
+        $flight                     = null;
+        $include5th6thPlaceGame     = 0;
+        $includeQuarterFinalGames   = 0;
+        $includeSemiFinalGames      = 0;
+        $includeChampionShipGame    = 0;
         for ($index = 0; $index < $numberOfPools; $index++) {
             // Create Flight (or re-use previousFlight)
             if ($index % 2 == 0) {
                 $flightIndex += 1;
                 $flightName = "$flightIndex";
-                $flight = Flight::create($this, $flightName);
+                $flight = Flight::create(
+                    $this,
+                    $flightName,
+                    $include5th6thPlaceGame,
+                    $includeQuarterFinalGames,
+                    $includeSemiFinalGames,
+                    $includeChampionShipGame);
             }
 
             // Create Pool
@@ -291,13 +327,85 @@ class Schedule extends Domain
     }
 
     /**
+     * Populate Tournament Pools with teams
+     */
+    public function populateTournamentPools()
+    {
+        Precondition::isTrue($this->scheduleType == ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT, "Invalid scheduleType: $this->scheduleType");
+
+        $teams          = Team::lookupByDivision($this->division);
+        $numberOfTeams  = count($teams);
+        $flightData     = $this->getTournamentPoolSizes($numberOfTeams);
+        $pools          = [];
+        $teamIndex      = 0;
+
+        // Create Flights and Pools and add teams to pools
+        foreach ($flightData as $flightIndex => $poolData) {
+            $include5th6thPlaceGame     = $poolData[0] == 3 ? 1 : 0;
+            $include3rd4thPlaceGame     = $poolData[0] == 4 ? 1 : 0;
+            $includeSemiFinalGames      = 0;
+            $includeChampionShipGame    = $poolData[0] == 4 ? 1 : 0;
+            $flightName                 = $this->getFlightName($flightIndex);
+            $flight = Flight::create(
+                $this,
+                $flightName,
+                $include5th6thPlaceGame,
+                $include3rd4thPlaceGame,
+                $includeSemiFinalGames,
+                $includeChampionShipGame);
+
+            $poolIndex = 0;
+            foreach ($poolData as $numberOfPoolTeams) {
+                $poolName   = sprintf("Pool %s", chr(ord('A') + $poolIndex++));
+                $pool       = Pool::create($flight, $this, $poolName);
+                $pools[]    = $pool;
+
+                // Add Teams to pool
+                while ($numberOfPoolTeams > 0 and $teamIndex <= $numberOfTeams) {
+                    $team               = $teams[$teamIndex++];
+                    $team->pool         = $pool;
+                    $numberOfPoolTeams -= 1;
+                }
+            }
+        }
+    }
+
+    /**
+     * @param int   $flightIndex
+     *
+     * @return string
+     */
+    private function getFlightName($flightIndex)
+    {
+        Assertion::isTrue(isset(self::$FLIGHT_NAMES[$flightIndex]), "Invalid flight index: $flightIndex");
+        return self::$FLIGHT_NAMES[$flightIndex];
+    }
+
+    /**
      * Populate Games
      */
     public function populateGames()
     {
+        switch($this->scheduleType) {
+            case ScheduleOrm::SCHEDULE_TYPE_LEAGUE:
+                $this->populateLeagueGames();
+                break;
+            case ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT:
+                $this->populateTournamentGames();
+                break;
+            default:
+                Assertion::isTrue(false, "Unrecognized schedule type: $this->scheduleType");
+        }
+    }
+
+    /**
+     * Populate League Games
+     */
+    public function populateLeagueGames()
+    {
+        Precondition::isTrue($this->scheduleType == ScheduleOrm::SCHEDULE_TYPE_LEAGUE, "Invalid scheduleType: $this->scheduleType");
+
         // TODO add logic for non-matching team count in cross-pool play (second game per day for one team)
-        // TODO add logic to have carp teams always play in carp
-        // TODO add logic to use specific fields based on picture day
         $divisionFields         = DivisionField::lookupByDivision($this->division);
         $processedPoolIds       = [];
         $season                 = $this->division->season;
@@ -448,6 +556,198 @@ class Schedule extends Domain
     }
 
     /**
+     * Populate League Games
+     */
+    public function populateTournamentGames()
+    {
+        Precondition::isTrue($this->scheduleType == ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT, "Invalid scheduleType: $this->scheduleType");
+
+        // Get all fields
+        // Get all gameDates
+        // Get all available gameTimes by gameDate
+        // For each flight
+            // For each pool
+                // Number of games = number of teams in pool - 1
+                // Schedule each round of games at same time
+                    // Exception for ODD number teams, last game in pairing is scheduled at later time
+                // Try for 3 hours between games and then make second pass with 1.5 hour between games if no slots found
+
+        $season                 = $this->division->season;
+        $flights                = Flight::lookupBySchedule($this);
+        $divisionFields         = DivisionField::lookupByDivision($this->division);
+        $fields                 = [];
+        $gameDates              = GameDate::lookupBySeason($this->division->season, GameDate::ALL_DAYS, $this);
+        $gender                 = $this->division->gender;
+        $gameTimesByDayAndTime  = [];
+        $timeBetweenGames       = 60 * 60 * 3; // three hours in seconds
+        foreach ($divisionFields as $divisionField) {
+            $fields[] = $divisionField->field;
+        }
+        foreach ($gameDates as $gameDate) {
+            $gameTimes = GameTime::lookupByGameDateAndGenderAndFields($gameDate, $gender, $fields);
+            foreach($gameTimes as $gameTime) {
+                $gameTimesByDayAndTime[$gameDate->day][$gameTime->startTime][] = $gameTime;
+            }
+        }
+
+        foreach ($flights as $flight) {
+            $pools = Pool::lookupByFlight($flight);
+            foreach ($pools as $pool) {
+                Assertion::isTrue($pool->gamesAgainstPool->id == $pool->id, "Cross pool play not supported for tournament play");
+
+                $gameDateIndex      = 0;
+                $teams              = Team::lookupByPool($pool);
+                $poolType           = count($teams) % 2 != 0 ? TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT : TeamPolygon::ROUND_ROBIN_EVEN;
+                $teamPolygon        = new TeamPolygon($teams, $poolType);
+                $shiftCount         = 0;
+                $gamesPerDay        = 2;
+                $currentGamesPerDay = 0;
+                $firstGameTime      = null;
+
+                // At most two games on Saturday
+                // Remaining games on Sunday
+                // Medal round on Sunday
+                $minStartTime = '05:00:00';
+                for ($gameNumber = 1; $gameNumber < count($teams); $gameNumber++) {
+                    Assertion::isTrue($gameDateIndex < count($gameDates), "Ran out of games dates - need to add more dates or write code to allow more than two games per day");
+
+                    $currentGamesPerDay += 1;
+                    $gameDate           = $gameDates[$gameDateIndex];
+                    $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
+                    ksort($gameTimesByTime);
+                    $teamPairings       = $teamPolygon->getTeamPairings();
+                    $lastGameTime       = null;
+                    $teamIdsWithGame    = [];
+
+                    foreach ($teamPairings as $team1Index => $team2Index) {
+                        // Advance startTime if one of the teams has played already (odd pool problem where bye teams play late)
+                        if (in_array($teams[$team1Index]->id, $teamIdsWithGame)
+                            or in_array($teams[$team2Index]->id, $teamIdsWithGame)) {
+                            $minStartTime = date("H:i:s", strtotime($lastGameTime->startTime) + $timeBetweenGames);
+                        }
+
+                        // Find next available gameTime
+                        $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime);
+
+                        // If no gameTime found then try again with a start Time that is 1.5 hours after the first game of the day
+                        if (!isset($gameTime) and isset($firstGameTime)) {
+                            $minStartTime = date("H:i:s", strtotime($firstGameTime->startTime) + 60*60*1.5);
+                            $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime);
+                        }
+                        $lastGameTime   = $gameTime;
+                        $firstGameTime  = isset($firstGameTime) ? $firstGameTime : $gameTime;
+
+                        // If gameTime not found then try gameTimes for different gender
+                        Assertion::isTrue(isset($gameTime), "No available gameTime found for $gender, add more code to try different gender");
+
+                        // Set the home team and visiting team based on the pool type
+                        $homeTeam       = null;
+                        $visitingTeam   = null;
+                        if ((rand() % 2) == 0) {
+                            $homeTeam       = $teams[$team1Index];
+                            $visitingTeam   = $teams[$team2Index];
+                        } else {
+                            $homeTeam       = $teams[$team2Index];
+                            $visitingTeam   = $teams[$team1Index];
+                        }
+                        Assertion::isTrue(isset($homeTeam), "Major bug, homeTeam did not get set - See Dave");
+                        Assertion::isTrue(isset($visitingTeam), "Major bug, visitingTeam did not get set - See Dave");
+
+                        // Create the game
+                        $game = Game::create($flight, $pool, $gameTime, $homeTeam, $visitingTeam);
+                        $teamIdsWithGame[$homeTeam->id]     = $homeTeam->id;
+                        $teamIdsWithGame[$visitingTeam->id] = $visitingTeam->id;
+
+                        // Create the familyGame to help find game overlaps for a family
+                        $coach = Coach::lookupByTeam($homeTeam);
+                        $family = null;
+                        if (Family::findByPhone($season, $coach->phone1, $family)) {
+                            FamilyGame::create($family, $game, true);
+                        }
+
+                        $family = null;
+                        $coach = Coach::lookupByTeam($visitingTeam);
+                        if (Family::findByPhone($season, $coach->phone1, $family)) {
+                            FamilyGame::create($family, $game, true);
+                        }
+                    }
+
+                    // Set start time for next game to be 3 hours from last game
+                    $minStartTime = date("H:i:s", strtotime($lastGameTime->startTime) + $timeBetweenGames);
+
+                    $teamPolygon->shift();
+                    $shiftCount += 1;
+                    if ($currentGamesPerDay == $gamesPerDay) {
+                        $gameDateIndex      += 1;
+                        $currentGamesPerDay = 0;
+                        $minStartTime       = '05:00:00';
+                        $firstGameTime      = null;
+                    }
+                }
+            }
+
+            // 5th/6th game if any
+            $minStartTime       = date("H:i:s", strtotime($lastGameTime->startTime) + 60*60*3);
+            $gameDate           = $gameDates[count($gameDates) - 1];  // Final day
+            $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
+            ksort($gameTimesByTime);
+            if ($flight->include5th6thGame) {
+                $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime);
+                Assertion::isTrue(isset($gameTime), 'Unable to find game time for 5th/6th place game');
+                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_5TH_6TH);
+            }
+
+            // Semi-final game if any
+            if ($flight->includeSemiFinalGames) {
+                for ($i = 1; $i <= 2; $i++) {
+                    $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime);
+                    Assertion::isTrue(isset($gameTime), 'Unable to find game time for Semi-Final Game $i');
+                    Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_SEMI_FINAL);
+                }
+                $minStartTime = date("H:i:s", strtotime($gameTime->startTime) + 60*60*3);
+            }
+
+            // 3rd/4th game if any
+            if ($flight->include3rd4thGame) {
+                $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime);
+                Assertion::isTrue(isset($gameTime), 'Unable to find game time for 3rd/4th Game');
+                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_3RD_4TH);
+            }
+
+            // Championship game if any
+            if ($flight->includeChampionshipGame) {
+                $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime);
+                Assertion::isTrue(isset($gameTime), 'Unable to find game time for Championship Game');
+                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_CHAMPIONSHIP);
+            }
+        }
+    }
+
+    /**
+     * Find an open gameTime that has a startTime that is greater than specified minStartTime
+     *
+     * @param array     $gameTimesByTime
+     * @param string    $minStartTime
+     *
+     * @return GameTime | null
+     */
+    private function findGameTime($gameTimesByTime, $minStartTime)
+    {
+        foreach ($gameTimesByTime as $time => $gameTimes) {
+            if ($time >= $minStartTime) {
+                foreach ($gameTimes as $gameTime) {
+                    if (!isset($gameTime->game)) {
+                        return $gameTime;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
      *  Get pool sizes based on number of teams and division
      *
      * @param string    $divisionName
@@ -575,6 +875,112 @@ class Schedule extends Domain
     }
 
     /**
+     *  Get pool sizes based on number of teams and division
+     *
+     * @param int       $numberOfTeams
+     *
+     * @return array    $flightData
+     */
+    public function getTournamentPoolSizes($numberOfTeams)
+    {
+        $flightData          = [];
+
+        switch ($numberOfTeams) {
+            case 5:
+                $flightData = [1 => [5]];  // pool play only
+                break;
+            case 6:
+                $flightData = [1 => [3, 3]];  // 5th/6th place game, semi, 3rd/4th place, championship
+                break;
+            case 8:
+                $flightData = [1 => [4, 4]];  // 3rd/4th place, championship
+                break;
+            case 10:
+                $flightData = [1 => [5, 5]];
+                break;
+            case 11:
+                $flightData = [1 => [3, 3], 2 => [5]];
+                break;
+            case 12:
+                $flightData = [1 => [3, 3], 2 => [3, 3]];
+                break;
+            case 13:
+                $flightData = [1 => [4, 4], 2 => [5]];
+                break;
+            case 14:
+                $flightData = [1 => [4, 4], 2 => [3, 3]];
+                break;
+            case 15:
+                $flightData = [1 => [5], 2 => [5], 3 => [5]];
+                break;
+            case 16:
+                $flightData = [1 => [4, 4], 2 => [4, 4]];
+                break;
+            case 17:
+                $flightData = [1 => [3, 3], 2 => [3, 3], 3 => [5]];
+                break;
+            case 18:
+                $flightData = [1 => [4, 4], 2 => [5], 3 => [5]];
+                break;
+            case 19:
+                $flightData = [1 => [4, 4], 2 => [3, 3], 3 => [5]];
+                break;
+            case 20:
+                $flightData = [1 => [4, 4], 2 => [3, 3], 3 => [3, 3]];
+                break;
+            case 21:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [5]];
+                break;
+            case 22:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [3, 3]];
+                break;
+            case 23:
+                $flightData = [1 => [4, 4], 2 => [5, 5], 3 => [5]];
+                break;
+            case 24:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [4, 4]];
+                break;
+            case 25:
+                $flightData = [1 => [4, 4], 2 => [3, 3], 2 => [3, 3], 3 => [5]];
+                break;
+            case 26:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [5], 4 => [5]];
+                break;
+            case 27:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [3, 3], 4 => [5]];
+                break;
+            case 28:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [3, 3], 4 => [3, 3]];
+                break;
+            case 29:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [4, 4], 4 => [5]];
+                break;
+            case 30:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [4, 4], 4 => [3, 3]];
+                break;
+            case 31:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [5], 4 => [5], 5 => [5]];
+                break;
+            case 32:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [4, 4], 4 => [4, 4]];
+                break;
+
+            default:
+                Assertion::isTrue(false, "$numberOfTeams is not yet supported for tournament play");
+        }
+
+        $computedTeamCount = 0;
+        foreach ($flightData as $flight => $poolSizes) {
+            foreach ($poolSizes as $poolSize) {
+                $computedTeamCount += $poolSize;
+            }
+        }
+        Assertion::isTrue($numberOfTeams == $computedTeamCount, "Error: computed teams in pools only adds up to $computedTeamCount and should add up to $numberOfTeams");
+
+        return $flightData;
+    }
+
+    /**
      *  Delete the schedule
      */
     public function delete()
@@ -592,6 +998,11 @@ class Schedule extends Domain
             }
 
             $pool->delete();
+        }
+
+        $flights = Flight::lookupBySchedule($this);
+        foreach ($flights as $flight) {
+            $flight->delete();
         }
 
         $this->scheduleOrm->delete();

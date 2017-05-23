@@ -3,6 +3,7 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
+use DAG\Framework\Orm\NoResultsException;
 use DAG\Orm\Schedule\GameOrm;
 use DAG\Framework\Exception\Precondition;
 
@@ -14,7 +15,15 @@ use DAG\Framework\Exception\Precondition;
  * @property GameTime   $gameTime
  * @property Team       $homeTeam
  * @property Team       $visitingTeam
+ * @property int        $homeTeamScore
+ * @property int        $visitingTeamScore
+ * @property int        $homeTeamYellowCards
+ * @property int        $visitingTeamYellowCards
+ * @property int        $homeTeamRedCards
+ * @property int        $visitingTeamRedCards
+ * @property int        $notes
  * @property string     $title
+ * @property int        $locked
  */
 class Game extends Domain
 {
@@ -35,9 +44,6 @@ class Game extends Domain
 
     /** @var Team */
     private $visitingTeam;
-
-    /** @var string */
-    private $title;
 
     /**
      * @param GameOrm   $gameOrm
@@ -83,6 +89,7 @@ class Game extends Domain
      * @param Team      $homeTeam
      * @param Team      $visitingTeam
      * @param string    $title
+     * @param int       $locked
      *
      * @return Game
      */
@@ -92,14 +99,18 @@ class Game extends Domain
         $gameTime,
         $homeTeam,
         $visitingTeam,
-        $title = '')
+        $title = '',
+        $locked = 0)
     {
         $poolId         = isset($pool) ? $pool->id : null;
         $homeTeamId     = isset($homeTeam) ? $homeTeam->id : null;
         $visitingTeamId = isset($visitingTeam) ? $visitingTeam->id : null;
 
-        $gameOrm = GameOrm::create($flight->id, $poolId, $gameTime->id, $homeTeamId, $visitingTeamId, $title);
-        return new static($gameOrm, $flight, $pool, null, $homeTeam, $visitingTeam);
+        $gameOrm        = GameOrm::create($flight->id, $poolId, $gameTime->id, $homeTeamId, $visitingTeamId, $title, $locked);
+        $game           = new static($gameOrm, $flight, $pool, null, $homeTeam, $visitingTeam);
+        $gameTime->game = $game;
+
+        return $game;
     }
 
     /**
@@ -112,6 +123,23 @@ class Game extends Domain
     {
         $gameOrm = GameOrm::loadById($gameId);
         return new static($gameOrm, null, null, $gameTime);
+    }
+
+    /**
+     * @param int       $gameId
+     * @param Game      $foundGame - null if not found
+     *
+     * @return bool     true if game found; false otherwise
+     */
+    public static function findById($gameId, &$foundGame)
+    {
+        try {
+            $gameOrm = GameOrm::loadById($gameId);
+            $foundGame = new static($gameOrm);
+            return true;
+        } catch (NoResultsException $e) {
+            return false;
+        }
     }
 
     /**
@@ -199,12 +227,14 @@ class Game extends Domain
      *
      * @param Division  $division
      * @param string    $day
+     * @param bool      $sortByTime
      *
      * @return Game[]
      */
-    public static function lookupByDivisionDay($division, $day)
+    public static function lookupByDivisionDay($division, $day, $sortByTime = false)
     {
-        $gamesOnDay = [];
+        $gamesOnDay     = [];
+        $gamesByTime    = [];
 
         $schedules = Schedule::lookupByDivision($division);
         foreach ($schedules as $schedule) {
@@ -215,9 +245,18 @@ class Game extends Domain
 
                 foreach ($games as $game) {
                     if ($game->gameTime->gameDate->day == $day) {
+                        $gamesByTime[$game->gameTime->startTime][] = $game;
                         $gamesOnDay[] = $game;
                     }
                 }
+            }
+        }
+
+        if ($sortByTime) {
+            $gamesOnDay = [];
+            ksort($gamesByTime);
+            foreach ($gamesByTime as $games) {
+                $gamesOnDay = array_merge($gamesOnDay, $games);
             }
         }
 
@@ -233,6 +272,14 @@ class Game extends Domain
         switch ($propertyName) {
             case "id":
             case "title":
+            case "locked":
+            case "homeTeamScore":
+            case "visitingTeamScore":
+            case "homeTeamYellowCards":
+            case "visitingTeamYellowCards":
+            case "homeTeamRedCards":
+            case "visitingTeamRedCards":
+            case "notes":
                 return $this->gameOrm->{$propertyName};
 
             case "flight":
@@ -255,7 +302,15 @@ class Game extends Domain
     {
         switch ($propertyName) {
             case "title":
-                $this->gameOrm->title = $value;
+            case "locked":
+            case "homeTeamScore":
+            case "visitingTeamScore":
+            case "homeTeamYellowCards":
+            case "visitingTeamYellowCards":
+            case "homeTeamRedCards":
+            case "visitingTeamRedCards":
+            case "notes":
+                $this->gameOrm->{$propertyName} = $value;
                 $this->gameOrm->save();
                 break;
 
@@ -280,6 +335,14 @@ class Game extends Domain
         switch ($propertyName) {
             case "id":
             case "title":
+            case "locked":
+            case "homeTeamScore":
+            case "visitingTeamScore":
+            case "homeTeamYellowCards":
+            case "visitingTeamYellowCards":
+            case "homeTeamRedCards":
+            case "visitingTeamRedCards":
+            case "notes":
                 return isset($this->gameOrm->{$propertyName});
 
             case "flight":
@@ -292,6 +355,14 @@ class Game extends Domain
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
         }
+    }
+
+    /**
+     * @return bool true if locked; false otherwise
+     */
+    public function isLocked()
+    {
+        return $this->gameOrm->locked == 1;
     }
 
     /**
@@ -369,6 +440,28 @@ class Game extends Domain
         } catch (\Exception $e) {
             throw new MoveGameException("Error trying to move game to a new time", $e);
         }
+    }
+
+    /**
+     * @param Team  $team
+     *
+     * @return bool true if game is for team; false otherwise
+     */
+    public function isForTeam($team)
+    {
+        if (isset($this->homeTeam) and $this->homeTeam->id == $team->id) {
+            return true;
+        }
+
+        if (isset($this->visitingTeam) and $this->visitingTeam->id == $team->id) {
+            return true;
+        }
+
+        if (!isset($this->homeTeam) and !isset($this->visitingTeam) and $this->flight->id == $team->pool->flight->id) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -12,21 +12,26 @@ use \DAG\Framework\Exception\Precondition;
  */
 class TeamPolygon
 {
-    const ROUND_ROBIN_EVEN  = 'roundRobinEven'; // Even number of teams
-    const ROUND_ROBIN_ODD   = 'roundRobinOdd';  // Odd number of teams, one team plays two games each round
-    const CROSS_POOL_EVEN   = 'crossPoolEven';  // Same number of teams in each pool w/ cross pool play
-    const CROSS_POOL_ODD    = 'crossPoolOdd';   // Different number of teams in each pool (by one team).
-                                                // One team in pool with less teams plays two games each round
+    const ROUND_ROBIN_EVEN           = 'roundRobinEven';          // Even number of teams
+    const ROUND_ROBIN_ODD            = 'roundRobinOdd';           // Odd number of teams, one team plays two games each round
+    const ROUND_ROBIN_ODD_TOURNAMENT = 'roundRobinOddTournament'; // Odd number of teams, every other pairing includes an
+                                                                  // additional game of the two teams that had a bye in
+                                                                  // prior pairing and current pairing
+    const CROSS_POOL_EVEN            = 'crossPoolEven';           // Same number of teams in each pool w/ cross pool play
+    const CROSS_POOL_ODD             = 'crossPoolOdd';            // Different number of teams in each pool (by one team).
+                                                                  // One team in pool with less teams plays two games each round
 
     private $points;
     private $pointPairings      = [];
     private $pointAssignments   = [];
     private $poolType;
+    private $shiftCounter;
 
     public function __construct($teams, $poolType = self::ROUND_ROBIN_EVEN, $crossPoolTeams = null)
     {
         $this->poolType     = $poolType;
         $this->points       = count($teams);
+        $this->shiftCounter = 0;
 
         // Set up pairings based on pool type
         switch ($this->poolType) {
@@ -42,12 +47,14 @@ class TeamPolygon
                 break;
 
             case self::ROUND_ROBIN_ODD:
+            case self::ROUND_ROBIN_ODD_TOURNAMENT:
                 Precondition::isTrue(count($teams) % 2 == 1, "Number of teams must be an odd number: " . count($teams));
                 Precondition::isTrue(!isset($crossPoolTeams), "Round Robin pool type does not support cross pool teams");
 
                 for ($i = 1; $i <= floor($this->points / 2); $i++) {
                     // For 5 points
                     // 1 => 4, 2 => 3, 1 => 5
+                    // For tournament play, 1=>5 is returned when shiftCounter is odd
                     $this->pointPairings[$i] = $this->points - $i;
                 }
                 $this->pointPairings[5] = 1; // Second game pairing
@@ -95,6 +102,20 @@ class TeamPolygon
                 }
                 break;
 
+            case self::ROUND_ROBIN_ODD_TOURNAMENT:
+                $pairingsToReturn = count($this->pointPairings);
+                if ($this->shiftCounter % 2 == 0) {
+                    $pairingsToReturn -= 1; // Return last pairing when shiftCounter is odd
+                }
+                foreach ($this->pointPairings as $point1 => $point2) {
+                    $parings[$this->pointAssignments[$point1]] = $this->pointAssignments[$point2];
+                    $pairingsToReturn -= 1;
+                    if ($pairingsToReturn == 0) {
+                        break;
+                    }
+                }
+                break;
+
             case self::CROSS_POOL_EVEN:
                 foreach ($this->pointPairings as $point1 => $point2) {
                     $parings[$this->pointAssignments[$point1]] = $point2 - 1;
@@ -112,6 +133,8 @@ class TeamPolygon
      * Shirt the pointAssignments on the outer edges of the Polygon to prepare for next team pairings
      */
     public function shift() {
+        $this->shiftCounter += 1;
+
         switch ($this->poolType) {
             case self::ROUND_ROBIN_EVEN:
                 $prior = $this->pointAssignments[$this->points - 1];
@@ -123,6 +146,7 @@ class TeamPolygon
                 break;
 
             case self::ROUND_ROBIN_ODD:
+            case self::ROUND_ROBIN_ODD_TOURNAMENT:
                 $prior = $this->pointAssignments[$this->points];
                 for ($i = 1; $i <= $this->points; $i++) {
                     $current = $this->pointAssignments[$i];

@@ -42,9 +42,6 @@ class GameTime extends Domain
         $this->gameTimeOrm  = $gameTimeOrm;
         $this->gameDate     = isset($gameDate) ? $gameDate : GameDate::lookupById($gameTimeOrm->gameDateId);
         $this->field        = isset($field) ? $field : Field::lookupById($gameTimeOrm->fieldId);
-        if (isset($gameTimeOrm->gameId)) {
-            $this->game         = isset($game) ? $game : (isset($gameTimeOrm->gameId) ? Game::lookupById($gameTimeOrm->gameId, $this) : null);
-        }
         $this->game         = isset($game) ? $game : (isset($gameTimeOrm->gameId) ? Game::lookupById($gameTimeOrm->gameId, $this) : null);
     }
 
@@ -175,6 +172,54 @@ class GameTime extends Domain
 
     /**
      * @param GameDate      $gameDate
+     * @param string        $gender
+     * @param bool          $availableOnly defaults to false (only return times where a game has not been scheduled)
+     * @param string        $minStartTime
+     * @param string        $maxEndTime
+     *
+     * @return array        $gameTimes
+     */
+    public static function lookupByGameDateAndGenderAndFields(
+        $gameDate,
+        $gender,
+        $allowedFields,
+        $availableOnly  = false,
+        $minStartTime   = null,
+        $maxEndTime     = null)
+    {
+        $gameTimes          = [];
+        $minStartTime       = isset($minStartTime) ? $minStartTime : '00:00:00';
+        $maxEndTime         = isset($maxEndTime) ? $maxEndTime : '24:59:59';
+        $allowedFieldIds    = [];
+
+        foreach ($allowedFields as $field) {
+            $allowedFieldIds[$field->id] = $field->id;
+        }
+
+        $gameTimeOrms = GameTimeOrm::loadByGameDateId($gameDate->id);
+        foreach ($gameTimeOrms as $gameTimeOrm) {
+            if ($gameTimeOrm->genderPreference != $gender) {
+                continue;
+            }
+
+            if ($availableOnly and isset($gameTimeOrm->gameId)) {
+                continue;
+            }
+
+            if (!in_array($gameTimeOrm->fieldId, $allowedFieldIds)) {
+                continue;
+            }
+
+            if ($minStartTime <= $gameTimeOrm->startTime and $maxEndTime >= $gameTimeOrm->startTime) {
+                $gameTimes[] = new static($gameTimeOrm, $gameDate, null, null);
+            }
+        }
+
+        return $gameTimes;
+    }
+
+    /**
+     * @param GameDate      $gameDate
      * @param Field         $field
      * @param bool          $availableOnly defaults to false
      *
@@ -186,13 +231,11 @@ class GameTime extends Domain
 
         $gameTimeOrms = GameTimeOrm::loadByGameDateIdAndFieldId($gameDate->id, $field->id);
         foreach ($gameTimeOrms as $gameTimeOrm) {
-            $gameTime = new static($gameTimeOrm, $gameDate, $field, null);
-
-            if ($availableOnly and isset($gameTime->game)) {
+            if ($availableOnly and isset($gameTimeOrm->gameId)) {
                 continue;
-            } else {
-                $gameTimes[] = $gameTime;
             }
+
+            $gameTimes[] = new static($gameTimeOrm, $gameDate, $field, null);
         }
 
         return $gameTimes;
@@ -222,12 +265,10 @@ class GameTime extends Domain
 
         $gameTimeOrms = GameTimeOrm::loadByGameDateIdAndFieldIdAndGender($gameDate->id, $field->id, $gender);
         foreach ($gameTimeOrms as $gameTimeOrm) {
-            $gameTime = new static($gameTimeOrm, $gameDate, $field, null);
-
-            if ($availableOnly and isset($gameTime->game)) {
+            if ($availableOnly and isset($gameTimeOrm->gameId)) {
                 continue;
-            } elseif ($minStartTime <= $gameTime->startTime and $maxEndTime >= $gameTime->startTime) {
-                $gameTimes[] = $gameTime;
+            } elseif ($minStartTime <= $gameTimeOrm->startTime and $maxEndTime >= $gameTimeOrm->startTime) {
+                $gameTimes[] = new static($gameTimeOrm, $gameDate, $field, null);
             }
         }
 
@@ -246,12 +287,10 @@ class GameTime extends Domain
 
         $gameTimeOrms = GameTimeOrm::loadByFieldId($field->id);
         foreach ($gameTimeOrms as $gameTimeOrm) {
-            $gameTime = new static($gameTimeOrm, null, $field);
-
-            if ($availableOnly and isset($gameTime->game)) {
+            if ($availableOnly and isset($gameTimeOrm->gameId)) {
                 continue;
             } else {
-                $gameTimes[] = $gameTime;
+                $gameTimes[] = new static($gameTimeOrm, null, $field);
             }
         }
 

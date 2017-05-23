@@ -108,6 +108,8 @@ abstract class View_AdminSchedules_Base extends View_Base {
                 '<li><div>FIELD</div></li>' : '<li><a href="' . self::SCHEDULE_FIELDS_PAGE . '">FIELD</a></li>')
             . ($this->m_pageName == self::SCHEDULE_SCHEDULES_PAGE ?
                 '<li><div>SCHEDULE</div></li>' : '<li><a href="' . self::SCHEDULE_SCHEDULES_PAGE . '">SCHEDULE</a></li>')
+            . ($this->m_pageName == self::SCHEDULE_SCORING_PAGE ?
+                '<li><div>SCORING</div></li>' : '<li><a href="' . self::SCHEDULE_SCORING_PAGE . '">SCORING</a></li>')
             . ($this->m_pageName == self::SCHEDULE_PREVIEW_PAGE ?
                 '<li><div>PREVIEW</div></li>' : '<li><a href="' . self::SCHEDULE_PREVIEW_PAGE . '">PREVIEW</a></li>')
             . '

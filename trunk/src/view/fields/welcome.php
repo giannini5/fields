@@ -51,7 +51,7 @@ class View_Fields_Welcome extends View_Fields_Base {
 
                 ' . $beginReservations . '
 
-                <p style="text-align: left;">Real-estate, being a precious resource in our beautiful part of the world, leaves us with limited practice field availability. Because of the limited availability, AYSO prioritizes premium field usage for our older divisions (U12, U14, U16-19).</p>
+                <p style="text-align: left;">Real-estate, being a precious resource in our beautiful part of the world, leaves us with limited practice field availability. Because of the limited availability, AYSO prioritizes premium field usage for our older divisions.</p>
                 <br><p style="text-align: left;"><strong>Insurance:</strong></p>
                 <p style="text-align: left;">For Insurance purposes, AYSO is required to know the days and times where all teams are practicing.</p>
                 <br><p style="text-align: left;"><strong>Permits:</strong></p>

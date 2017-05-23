@@ -135,20 +135,24 @@ class Web_Index
                 $this->m_controller = new Controller_AdminSchedules_Schedule();
                 break;
 
+            case View_Base::SCHEDULE_SCORING_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Scoring();
+                break;
+
             case View_Base::SCHEDULE_PREVIEW_PAGE:
                 $this->m_controller = new Controller_AdminSchedules_Preview();
                 break;
 
-            case View_Base::SCHEDULE_HOME_PAGE:
-                $this->m_controller = new Controller_Schedules_Home();
+            case View_Base::GAMES_HOME_PAGE:
+                $this->m_controller = new Controller_Games_Home();
                 break;
 
-            case View_Base::SCHEDULE_TEAM_PAGE:
-                $this->m_controller = new Controller_Schedules_Team();
+            case View_Base::GAMES_SCHEDULE_PAGE:
+                $this->m_controller = new Controller_Games_Schedule();
                 break;
 
-            case View_Base::SCHEDULE_DIVISION_PAGE:
-                $this->m_controller = new Controller_Schedules_Division();
+            case View_Base::GAMES_STANDINGS_PAGE:
+                $this->m_controller = new Controller_Games_Standings();
                 break;
 
             default:
