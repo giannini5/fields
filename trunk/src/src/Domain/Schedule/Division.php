@@ -13,6 +13,7 @@ use DAG\Services\MySql\DuplicateKeyException;
  * @property int    $id
  * @property Season $season
  * @property string $name
+ * @property string $nameWithGender
  * @property string $gender
  * @property int    $gameDurationMinutes
  * @property string $displayOrder
@@ -161,6 +162,9 @@ class Division extends Domain
             case "gameDurationMinutes":
             case "displayOrder":
                 return $this->divisionOrm->{$propertyName};
+
+            case "nameWithGender":
+                return $this->divisionOrm->name . " " . $this->divisionOrm->gender;
 
             case "season":
                 return $this->{$propertyName};

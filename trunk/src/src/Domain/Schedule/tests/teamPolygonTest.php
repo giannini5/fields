@@ -94,6 +94,30 @@ class TeamPolygonTest extends ORM_TestHelper
         $this->verifyParing($teamPairings, 4, 0);
     }
 
+    public function test_getTeamPairingsRoundRobinOddTournament()
+    {
+        $teamPolygon    = new TeamPolygon($this->oddPoolTeams, TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT);
+        $teamPairings   = $teamPolygon->getTeamPairings();
+
+        $this->assertEquals(2, count($teamPairings));
+
+        $this->verifyParing($teamPairings, 0, 3);
+        $this->verifyParing($teamPairings, 1, 2);
+    }
+
+    public function test_getTeamPairingsRoundRobinOddTournamentWithShift()
+    {
+        $teamPolygon = new TeamPolygon($this->oddPoolTeams, TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT);
+        $teamPolygon->shift();
+        $teamPairings = $teamPolygon->getTeamPairings();
+
+        $this->assertEquals(3, count($teamPairings));
+
+        $this->verifyParing($teamPairings, 4, 2);
+        $this->verifyParing($teamPairings, 0, 1);
+        $this->verifyParing($teamPairings, 3, 4);
+    }
+
     public function test_getTeamPairingsCrossPoolEven()
     {
         $teamPolygon    = new TeamPolygon($this->teams, TeamPolygon::CROSS_POOL_EVEN, $this->crossPoolTeams);

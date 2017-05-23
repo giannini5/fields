@@ -17,6 +17,8 @@ use DAG\Framework\Exception\Precondition;
  * @property string     $email
  * @property string     $phone1
  * @property string     $phone2
+ * @property string     $lastName
+ * @property string     $shortName
  */
 class Coach extends Domain
 {

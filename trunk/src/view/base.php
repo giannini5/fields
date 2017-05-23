@@ -3,6 +3,7 @@
 use \DAG\Domain\Schedule\Division;
 use \DAG\Domain\Schedule\Family;
 use \DAG\Domain\Schedule\Coach;
+use \DAG\Domain\Schedule\GameDate;
 
 /**
  * @brief: Abstract base class for all views.
@@ -43,6 +44,7 @@ abstract class View_Base {
     const SCHEDULE_FAMILY_PAGE      = '/admin_schedule_families';
     const SCHEDULE_DIVISIONS_PAGE   = '/admin_schedule_divisions';
     const SCHEDULE_SCHEDULES_PAGE   = '/admin_schedule_schedules';
+    const SCHEDULE_SCORING_PAGE     = '/admin_schedule_scoring';
     const SCHEDULE_PREVIEW_PAGE     = '/admin_schedule_preview';
 
     # Schedule Viewing Pages
@@ -50,12 +52,18 @@ abstract class View_Base {
     const SCHEDULE_TEAM_PAGE        = '/schedule/team';
     const SCHEDULE_DIVISION_PAGE    = '/schedule/division';
 
+    # Games Viewing Pages
+    const GAMES_HOME_PAGE           = '/games';
+    const GAMES_SCHEDULE_PAGE       = '/games/schedule';
+    const GAMES_STANDINGS_PAGE      = '/games/standings';
+
     # Operations
     const SUBMIT           = 'submit';
 
     # Operation Values
     const CREATE_ACCOUNT        = 'Create Account';
     const CREATE                = 'Create';
+    const ENTER                 = 'Enter';
     const VIEW                  = 'View';
     const UPDATE                = 'Update';
     const SIGN_IN               = 'Sign In';
@@ -64,11 +72,15 @@ abstract class View_Base {
     const SELECT                = 'Select';
     const DELETE                = 'Delete';
     const MOVE                  = 'Move';
+    const SWAP                  = 'Swap';
+    const TOGGLE                = 'Toggle';
+    const ALTER                 = 'Alter';
     const REMOVE                = 'Remove';
     const ADD                   = 'Add';
     const CLEAR                 = 'Clear';
     const POPULATE              = 'Populate';
     const PUBLISH               = 'Publish';
+    const UN_PUBLISH            = 'Un-Publish';
     const FILTER                = 'Filter';
     const UPLOAD_FILE           = 'Upload File';
     const UPLOAD_PLAYER_FILE    = 'Upload Player File';
@@ -122,9 +134,24 @@ abstract class View_Base {
     const CROSS_POOL_UPDATE_DATA    = 'crossPoolUpdateData';
     const GAMES_PER_TEAM            = 'gamesPerTeam';
     const GAME_ID                   = 'gameId';
+    const GAME_ID1                  = 'gameId1';
+    const GAME_ID2                  = 'gameId2';
     const GAME_TIME                 = 'gameTime';
     const FLIGHT_UPDATE_DATA        = 'flightUpdateData';
     const SCHEDULE_TYPE             = 'scheduleType';
+    const INCLUDE_5TH_6TH_GAME      = '5th/6th';
+    const INCLUDE_3RD_4TH_GAME      = '3rd/4th';
+    const INCLUDE_SEMI_FINAL_GAMES  = 'Semi-Finals';
+    const INCLUDE_CHAMPIONSHIP_GAME = 'Championship';
+    const HOME_SCORE                = 'homeScore';
+    const VISITING_SCORE            = 'visitScore';
+    const HOME_YELLOW_CARDS         = 'homeYellows';
+    const VISITING_YELLOW_CARDS     = 'visitYellows';
+    const HOME_RED_CARDS            = 'homeReds';
+    const VISITING_RED_CARDS        = 'visitReds';
+    const GAME_NOTES                = 'gameNotes';
+    const GAME_DATE                 = 'gameDate';
+    const SCORING_TYPE              = 'scoringType';
 
     const SEASON_ID                 = 'seasonId';
     const DIVISION_ID               = 'divisionId';
@@ -136,6 +163,7 @@ abstract class View_Base {
     const SCHEDULE_ID               = 'scheduleId';
     const POOL_ID                   = 'poolIds';
     const FAMILY_ID                 = 'familyId';
+    const TEAM_ID                   = 'teamId';
 
     const EMAIL_ADDRESS             = 'emailAddress';
     const SUBJECT                   = 'subject';
@@ -174,20 +202,22 @@ abstract class View_Base {
     /**
      * @brief: Display an input box used inside of a form to get data.
      *
-     * @param: $request         - String that describes the data being requested.
-     * @param: $type            - Type of input being requested (string, int, password, etc)
-     * @param: $placeHolder     - Placeholder input to show in input box
-     * @param: $requiredString  - String to show just after input box
-     * @param: $collapsible     - Collapsible java script class - defaults to NULL
-     * @param: $newRow          - Defaults to true
-     * @param: $width           - Defaults to 135px
-     * @param: $showError       - Defaults to true
+     * @param string    $request         - String that describes the data being requested.
+     * @param string    $type            - Type of input being requested (string, int, password, etc)
+     * @param string    $placeHolder     - Placeholder input to show in input box
+     * @param string    $requiredString  - String to show just after input box
+     * @param int|null  $collapsible     - Collapsible java script class - defaults to NULL
+     * @param int       $colspan         - Defaults to 1
+     * @param bool      $newRow          - Defaults to true
+     * @param int       $width           - Defaults to 135px
+     * @param bool      $showError       - Defaults to true
      */
-    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = '', $collapsible = NULL, $colspan = 1, $newRow = true, $width = 135, $showError = true) {
+    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = null, $collapsible = NULL, $colspan = 1, $newRow = true, $width = 135, $showError = true, $isRequired = false) {
         $requiredString     = empty($requiredString) ? '&nbsp' : $requiredString;
-        $valueString        = empty($value) ? '' : ", value='$value'";
+        $valueString        = isset($value) ? ", value='$value'" : "";
         $collapsibleClass   = isset($collapsible) ? "class='$collapsible'" : '';
         $width              = $width . 'px';
+        $required           = $isRequired ? " required " : "";
 
         if ($newRow) {
             print "
@@ -201,7 +231,7 @@ abstract class View_Base {
 
         print "
                     <td align='left' colspan='$colspan'>
-                        <input style='width: $width' type='$type' name='$name' placeholder='$placeHolder'$valueString>
+                        <input style='width: $width' $required type='$type' name='$name' placeholder='$placeHolder'$valueString>
                     </td>";
 
         if ($showError) {
@@ -220,17 +250,17 @@ abstract class View_Base {
     /**
      * @brief: Display a selector drop down.
      *
-     * @param: $selectorTitle       - Describes the data being selected
-     * @param: $selectorName        - Name for selector (used when processing POST)
-     * @param: $defaultSelection    - Default selection to show
-     * @param: $selectorData        - Array of data identifier=>string where the identifier is the value selected
-     * @param: $currentSelection    - Current selection (if any) defaults to empty string
-     * @param: $collapsible         - Collapsible java script class - defaults to NULL
-     * @param: $newRow              - defaults to true
-     * @param: $width               - defaults to 140 (px)
-     * @param: $align               - defaults to left
-     * @param: $disabledTag         - defaults to ''; used to prompt for a selection
-     * @param: $selectBackgroundColor   - defaults to ''
+     * @param string        $selectorTitle       - Describes the data being selected
+     * @param string        $selectorName        - Name for selector (used when processing POST)
+     * @param string        $defaultSelection    - Default selection to show
+     * @param array         $selectorData        - Array of data identifier=>string where the identifier is the value selected
+     * @param string        $currentSelection    - Current selection (if any) defaults to empty string
+     * @param string|null   $collapsible         - Collapsible java script class - defaults to NULL
+     * @param bool          $newRow              - defaults to true
+     * @param int           $width               - defaults to 140 (px)
+     * @param string        $align               - defaults to left
+     * @param string        $disabledTag         - defaults to ''; used to prompt for a selection
+     * @param string        $selectBackgroundColor   - defaults to ''
      */
     public function displaySelector($selectorTitle, $selectorName, $defaultSelection, $selectorData, $currentSelection = '', $collapsible = NULL, $newRow = true, $width = 140, $align='left', $disabledTag='', $selectBackgroundColor='')
     {
@@ -245,7 +275,7 @@ abstract class View_Base {
         $width = $width . "px";
         if (!empty($selectorTitle)) {
             print "
-                <td align='$align'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>";
+                <td nowrap align='$align'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>";
         }
 
         print "
@@ -260,13 +290,13 @@ abstract class View_Base {
         if (!empty($disabledTag)) {
             $selected = empty($currentSelection) ? ' selected ' : '';
             print "
-                        <option disabled value=''$selected>$disabledTag</option>";
+                        <option disabled value='' $selected>$disabledTag</option>";
         }
 
         foreach ($selectorData as $identifier=>$data) {
             $selected = $currentSelection == $data ? ' selected ' : '';
             print "
-                        <option value='$identifier'$selected>$data</option>";
+                        <option value='$identifier' $selected>$data</option>";
         }
 
         print "
@@ -938,13 +968,36 @@ abstract class View_Base {
             if ($byName) {
                 $identifier = $division->name;
                 if ($includeGender) {
-                    $identifier .= ' ' . $division->gender;
+                    $identifier = $division->nameWithGender;
                 }
             }
-            $divisionsSelector[$identifier] = $includeGender ? $division->name . ' ' . $division->gender : $division->name;
+            $divisionsSelector[$identifier] = $includeGender ? $division->nameWithGender : $division->name;
         }
 
         return $divisionsSelector;
+    }
+
+    /**
+     * Get selector array for GameDates
+     *
+     * @return array - id => name
+     */
+    public function getGameDateSelector()
+    {
+        $gameDates = [];
+        if (isset($this->m_controller->m_season))
+        {
+            $gameDates = GameDate::lookupBySeason($this->m_controller->m_season);
+        }
+
+        $gameDateSelector = [];
+
+        foreach ($gameDates as $gameDate) {
+            $identifier = $gameDate->id;
+            $gameDateSelector[$identifier] = $gameDate->day;
+        }
+
+        return $gameDateSelector;
     }
 
     /**

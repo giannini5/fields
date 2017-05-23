@@ -106,6 +106,18 @@ class GameTimeTest extends ORM_TestHelper
         $this->assertEquals(0, count($gameTimes));
     }
 
+    public function test_lookupByGameDateAndGenderAndFields()
+    {
+        $fields = [$this->field];
+
+        $gameTimes = GameTime::lookupByGameDateAndGenderAndFields($this->gameDate, GameTimeOrm::BOYS, $fields);
+        $this->assertEquals(1, count($gameTimes));
+        $this->validateGameTime($gameTimes[0], $this->gameDate, $this->field, self::$expectedDefaults);
+
+        $gameTimes = GameTime::lookupByGameDateAndGenderAndFields($this->gameDate, GameTimeOrm::GIRLS, $fields);
+        $this->assertEquals(0, count($gameTimes));
+    }
+
     public function test_lookupByField()
     {
         $gameTimes = GameTime::lookupByField($this->field);

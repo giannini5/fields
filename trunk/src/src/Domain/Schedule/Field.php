@@ -167,6 +167,9 @@ class Field extends Domain
             case "enabled":
                 return $this->fieldOrm->{$propertyName};
 
+            case "fullName":
+                return $this->facility->name . ": " . $this->fieldOrm->name;
+
             case "facility":
                 return $this->{$propertyName};
 

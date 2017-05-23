@@ -12,6 +12,7 @@ use DAG\Framework\Exception\Precondition;
  * @property Flight     $flight
  * @property Schedule   $schedule
  * @property string     $name
+ * @property string     $fullName
  * @property Pool       $gamesAgainstPool
  */
 class Pool extends Domain
@@ -147,6 +148,9 @@ class Pool extends Domain
             case "id":
             case "name":
                 return $this->poolOrm->{$propertyName};
+
+            case "fullName":
+                return $this->flight->name . ":" . $this->poolOrm->name;
 
             case "flight":
             case "schedule":

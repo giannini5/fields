@@ -11,37 +11,43 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const DEFAULT_LEAGUE_NAME = 'Default League';
 
     // Database column names:
-    const NAME                  = 'name';
-    const PASSWORD              = 'password';
-    const START_DATE            = 'startDate';
-    const END_DATE              = 'endDate';
-    const START_TIME            = 'startTime';
-    const END_TIME              = 'endTime';
-    const DAYS_OF_WEEK          = 'daysOfWeek';
-    const PUBLISHED             = 'published';
-    const ENABLED               = 'enabled';
-    const ADDRESS1              = 'address1';
-    const ADDRESS2              = 'address2';
-    const CITY                  = 'city';
-    const STATE                 = 'state';
-    const POSTAL_CODE           = 'postalCode';
-    const COUNTRY               = 'country';
-    const CONTACT_NAME          = 'contactName';
-    const CONTACT_EMAIL         = 'contactEmail';
-    const CONTACT_PHONE         = 'contactPhone';
-    const IMAGE                 = 'image';
-    const DAY                   = 'day';
-    const PHONE                 = 'phone';
-    const EMAIL                 = 'email';
-    const PHONE1                = 'phone1';
-    const PHONE2                = 'phone2';
-    const GENDER                = 'gender';
-    const DISPLAY_ORDER         = 'displayOrder';
-    const GAME_DURATION_MINUTES = 'gameDurationMinutes';
-    const GAMES_PER_TEAM        = 'gamesPerTeam';
-    const GENDER_PREFERENCE     = 'genderPreference';
-    const TITLE                 = 'title';
-    const SCHEDULE_TYPE         = 'scheduleType';
+    const NAME                        = 'name';
+    const PASSWORD                    = 'password';
+    const START_DATE                  = 'startDate';
+    const END_DATE                    = 'endDate';
+    const START_TIME                  = 'startTime';
+    const END_TIME                    = 'endTime';
+    const DAYS_OF_WEEK                = 'daysOfWeek';
+    const PUBLISHED                   = 'published';
+    const ENABLED                     = 'enabled';
+    const ADDRESS1                    = 'address1';
+    const ADDRESS2                    = 'address2';
+    const CITY                        = 'city';
+    const STATE                       = 'state';
+    const POSTAL_CODE                 = 'postalCode';
+    const COUNTRY                     = 'country';
+    const CONTACT_NAME                = 'contactName';
+    const CONTACT_EMAIL               = 'contactEmail';
+    const CONTACT_PHONE               = 'contactPhone';
+    const IMAGE                       = 'image';
+    const DAY                         = 'day';
+    const PHONE                       = 'phone';
+    const EMAIL                       = 'email';
+    const PHONE1                      = 'phone1';
+    const PHONE2                      = 'phone2';
+    const GENDER                      = 'gender';
+    const DISPLAY_ORDER               = 'displayOrder';
+    const GAME_DURATION_MINUTES       = 'gameDurationMinutes';
+    const GAMES_PER_TEAM              = 'gamesPerTeam';
+    const GENDER_PREFERENCE           = 'genderPreference';
+    const TITLE                       = 'title';
+    const LOCKED                      = 'locked';
+    const SCHEDULE_TYPE               = 'scheduleType';
+    const INCLUDE_5TH_6TH_GAME        = 'include5th6thGame';
+    const INCLUDE_3RD_4TH_GAME        = 'include3rd4thGame';
+    const INCLUDE_SEMI_FINAL_GAMES    = 'includeSemiFinalGames';
+    const INCLUDE_CHAMPIONSHIP_GAME   = 'includeChampionshipGame';
+
 
     protected static $defaultSeasonOrmAttributes =
         [
@@ -109,7 +115,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     protected static $defaultFlightOrmAttributes =
         [
-            self::NAME   => 'Test Flight 1',
+            self::NAME                          => 'Test Flight 1',
+            self::INCLUDE_5TH_6TH_GAME          => 0,
+            self::INCLUDE_3RD_4TH_GAME          => 0,
+            self::INCLUDE_SEMI_FINAL_GAMES      => 0,
+            self::INCLUDE_CHAMPIONSHIP_GAME     => 0,
         ];
 
     protected static $defaultScheduleOrmAttributes =
@@ -167,6 +177,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     protected static $defaultGameOrmAttributes =
         [
             self::TITLE     => 'Finals',
+            self::LOCKED    => 0,
         ];
 
     public $defaultLeagueOrm;
@@ -268,7 +279,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
         $this->defaultFlightOrm = FlightOrm::create(
             $this->defaultScheduleOrm->id,
-            self::$defaultFlightOrmAttributes[self::NAME]);
+            self::$defaultFlightOrmAttributes[self::NAME],
+            self::$defaultFlightOrmAttributes[self::INCLUDE_5TH_6TH_GAME],
+            self::$defaultFlightOrmAttributes[self::INCLUDE_3RD_4TH_GAME],
+            self::$defaultFlightOrmAttributes[self::INCLUDE_SEMI_FINAL_GAMES],
+            self::$defaultFlightOrmAttributes[self::INCLUDE_CHAMPIONSHIP_GAME]);
 
         $this->defaultPoolOrm = PoolOrm::create(
             $this->defaultFlightOrm->id,
@@ -320,7 +335,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             $this->defaultGameTimeOrm->id,
             $this->defaultTeamOrm->id,
             $this->defaultVisitingTeamOrm->id,
-            self::$defaultGameOrmAttributes[self::TITLE]);
+            self::$defaultGameOrmAttributes[self::TITLE],
+            self::$defaultGameOrmAttributes[self::LOCKED]);
 
         $this->defaultFamilyGameOrm = FamilyGameOrm::create(
             $this->defaultFamilyOrm->id,

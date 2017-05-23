@@ -16,26 +16,55 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $gameTimeId
  * @property int    $homeTeamId
  * @property int    $visitingTeamId
+ * @property int    $homeTeamScore
+ * @property int    $visitingTeamScore
+ * @property int    $homeTeamYellowCards
+ * @property int    $visitingTeamYellowCards
+ * @property int    $homeTeamRedCards
+ * @property int    $visitingTeamRedCards
+ * @property int    $notes
  * @property string $title
+ * @property int    locked
  */
 class GameOrm extends PersistenceModel
 {
-    const FIELD_ID                  = 'id';
-    const FIELD_FLIGHT_ID           = 'flightId';
-    const FIELD_POOL_ID             = 'poolId';
-    const FIELD_GAME_TIME_ID        = 'gameTimeId';
-    const FIELD_HOME_TEAM_ID        = 'homeTeamId';
-    const FIELD_VISITING_TEAM_ID    = 'visitingTeamId';
-    const FIELD_TITLE               = 'title';
+    const TITLE_5TH_6TH                     = '5th/6th';
+    const TITLE_3RD_4TH                     = '3rd/4th';
+    const TITLE_SEMI_FINAL                  = 'Semi-Final';
+    const TITLE_CHAMPIONSHIP                = 'Championship';
+
+    const FIELD_ID                          = 'id';
+    const FIELD_FLIGHT_ID                   = 'flightId';
+    const FIELD_POOL_ID                     = 'poolId';
+    const FIELD_GAME_TIME_ID                = 'gameTimeId';
+    const FIELD_HOME_TEAM_ID                = 'homeTeamId';
+    const FIELD_VISITING_TEAM_ID            = 'visitingTeamId';
+    const FIELD_HOME_TEAM_SCORE             = 'homeTeamScore';
+    const FIELD_VISITING_TEAM_SCORE         = 'visitingTeamScore';
+    const FIELD_HOME_TEAM_YELLOW_CARDS      = 'homeTeamYellowCards';
+    const FIELD_VISITING_TEAM_YELLOW_CARDS  = 'visitingTeamYellowCards';
+    const FIELD_HOME_TEAM_RED_CARDS         = 'homeTeamRedCards';
+    const FIELD_VISITING_TEAM_RED_CARDS     = 'visitingTeamRedCards';
+    const FIELD_NOTES                       = 'notes';
+    const FIELD_TITLE                       = 'title';
+    const FIELD_LOCKED                      = 'locked';
 
     protected static $fields = [
-        self::FIELD_ID                  => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_FLIGHT_ID           => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_POOL_ID             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_GAME_TIME_ID        => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_HOME_TEAM_ID        => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_VISITING_TEAM_ID    => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_TITLE               => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_ID                          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_FLIGHT_ID                   => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_POOL_ID                     => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_GAME_TIME_ID                => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_HOME_TEAM_ID                => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_VISITING_TEAM_ID            => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_HOME_TEAM_SCORE             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_VISITING_TEAM_SCORE         => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_HOME_TEAM_YELLOW_CARDS      => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_VISITING_TEAM_YELLOW_CARDS  => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_HOME_TEAM_RED_CARDS         => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_VISITING_TEAM_RED_CARDS     => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_NOTES                       => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_TITLE                       => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_LOCKED                      => [FV::INT,    [FV::NO_CONSTRAINTS]],
     ];
 
     protected static $config = [
@@ -55,6 +84,7 @@ class GameOrm extends PersistenceModel
      * @param int       $homeTeamId
      * @param int       $visitingTeamId
      * @param string    $title
+     * @param int       $locked
      *
      * @return GameOrm
      * @throws DuplicateEntryException
@@ -65,7 +95,8 @@ class GameOrm extends PersistenceModel
         $gameTimeId,
         $homeTeamId,
         $visitingTeamId,
-        $title = '')
+        $title = '',
+        $locked = 0)
     {
         // Verify GameTimeOrm exists and a game has not been assigned
         $gameTimeOrm = GameTimeOrm::loadById($gameTimeId);
@@ -80,6 +111,7 @@ class GameOrm extends PersistenceModel
                 self::FIELD_HOME_TEAM_ID        => $homeTeamId,
                 self::FIELD_VISITING_TEAM_ID    => $visitingTeamId,
                 self::FIELD_TITLE               => $title,
+                self::FIELD_LOCKED              => $locked,
             ],
             function ($item) {
                 return $item !== null;

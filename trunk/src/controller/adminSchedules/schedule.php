@@ -13,6 +13,8 @@ use \DAG\Domain\Schedule\Family;
 use \DAG\Domain\Schedule\FamilyGame;
 use \DAG\Domain\Schedule\Field;
 use \DAG\Domain\Schedule\Flight;
+use \DAG\Domain\Schedule\Coach;
+use \DAG\Domain\Schedule\GameDate;
 
 class NotEnoughGameTimesException extends DAG_Exception
 {
@@ -20,6 +22,14 @@ class NotEnoughGameTimesException extends DAG_Exception
     {
         $gamesNeeded = $numberOfTeams * $gamesPerTeam;
         parent::__construct("Need $gamesNeeded available game times.  Only $numberOfGameTimes available.");
+    }
+}
+
+class UnpublishedScheduleException extends DAG_Exception
+{
+    public function __construct($message)
+    {
+        parent::__construct($message);
     }
 }
 
@@ -48,12 +58,20 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
     public $m_moveGameId;
     public $m_moveFieldId;
     public $m_moveGameTime;
+    public $m_primaryGameId;
+    public $m_secondaryGameId;
+    public $m_lockToggleGameId;
+    public $m_teamId;
+    public $m_fieldId;
 
     public function __construct() {
         parent::__construct();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            if ($this->m_operation == View_Base::CREATE or $this->m_operation == View_Base::UPDATE or $this->m_operation == View_Base::DELETE) {
+            if ($this->m_operation == View_Base::CREATE
+                or $this->m_operation == View_Base::UPDATE
+                or $this->m_operation == View_Base::DELETE) {
+
                 $this->m_name = $this->getPostAttribute(
                     View_Base::NAME,
                     '', true, false, 'Error: Schedule Name is a Required Field'
@@ -67,7 +85,9 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 );
             }
 
-            if ($this->m_operation == View_Base::CREATE or $this->m_operation == View_Base::VIEW) {
+            if ($this->m_operation == View_Base::CREATE
+                or $this->m_operation == View_Base::VIEW) {
+
                 $this->m_divisionNames = $this->getPostAttributeArray(
                     View_Base::DIVISION_NAMES
                 );
@@ -76,7 +96,25 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 }
             }
 
-            if ($this->m_operation == View_Base::CREATE or $this->m_operation == View_Base::UPDATE) {
+            if ($this->m_operation == View_Base::CREATE
+                or $this->m_operation == View_Base::UPDATE
+                or $this->m_operation == View_Base::ALTER) {
+
+                $this->m_startDate  = $this->getPostAttribute(View_Base::START_DATE, null, true, false, "Error: Start Date is a required field");
+                $this->m_endDate    = $this->getPostAttribute(View_Base::END_DATE, null, true, false, "Error: End Date is a required field");
+                $this->m_startTime  = $this->getPostAttribute(View_Base::START_TIME, null);
+                $this->m_endTime    = $this->getPostAttribute(View_Base::END_TIME, null);
+
+                // Verify startDate < endDate
+                if ($this->m_startDate > $this->m_endDate) {
+                    $this->m_missingAttributes += 1;
+                    $this->m_errorString = "Error: Start Date ($this->m_startDate) must be less than End Date ($this->m_endDate)";
+                }
+            }
+
+            if ($this->m_operation == View_Base::CREATE
+                or $this->m_operation == View_Base::UPDATE) {
+
                 $this->m_gamesPerTeam = $this->getPostAttribute(
                     View_Base::GAMES_PER_TEAM,
                     0,
@@ -86,11 +124,6 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 if ($this->m_gamesPerTeam == 0) {
                     $this->setErrorString("Error: Games Per Team is a required Field");
                 }
-
-                $this->m_startDate  = $this->getPostAttribute(View_Base::START_DATE, null, true, false, "Error: Start Date is a required field");
-                $this->m_endDate    = $this->getPostAttribute(View_Base::END_DATE, null, true, false, "Error: End Date is a required field");
-                $this->m_startTime  = $this->getPostAttribute(View_Base::START_TIME, null);
-                $this->m_endTime    = $this->getPostAttribute(View_Base::END_TIME, null);
 
                 $this->m_daysSelected[View_Base::MONDAY]    = $this->_isDaySelected(View_Base::MONDAY);
                 $this->m_daysSelected[View_Base::TUESDAY]   = $this->_isDaySelected(View_Base::TUESDAY);
@@ -115,12 +148,6 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 foreach ($this->m_daysSelected as $day=>$selected) {
                     $this->m_daysSelectedString .= $selected ? '1' : '0';
                 }
-
-                // Verify startDate < endDate
-                if ($this->m_startDate > $this->m_endDate) {
-                    $this->m_missingAttributes += 1;
-                    $this->m_errorString = "Error: Start Date ($this->m_startDate) must be less than End Date ($this->m_endDate)";
-                }
             }
 
             if ($this->m_operation == View_Base::UPDATE) {
@@ -132,8 +159,10 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             if ($this->m_operation == View_Base::UPDATE
                 or $this->m_operation == View_Base::POPULATE
                 or $this->m_operation == View_Base::PUBLISH
+                or $this->m_operation == View_Base::UN_PUBLISH
                 or $this->m_operation == View_Base::CLEAR
                 or $this->m_operation == View_Base::DELETE) {
+
                 $this->m_scheduleId = $this->getPostAttribute(
                     View_Base::SCHEDULE_ID,
                     '* schedule required',
@@ -142,9 +171,21 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 );
             }
 
-            if ($this->m_operation == View_Base::FAMILY_VIEW or $this->m_operation == View_Base::FAMILY_FIX) {
+            if ($this->m_operation == View_Base::FAMILY_VIEW
+                or $this->m_operation == View_Base::FAMILY_FIX) {
+
                 $this->m_familyId = $this->getPostAttribute(
                     View_Base::FAMILY_ID,
+                    null,
+                    true,
+                    true);
+            }
+
+            if ($this->m_operation == View_Base::MOVE
+                or $this->m_operation == View_Base::ALTER) {
+
+                $this->m_moveFieldId = $this->getPostAttribute(
+                    View_Base::FIELD_ID,
                     null,
                     true,
                     true);
@@ -157,15 +198,45 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                     true,
                     true);
 
-                $this->m_moveFieldId = $this->getPostAttribute(
-                    View_Base::FIELD_ID,
+                $this->m_moveGameTime = $this->getPostAttribute(
+                    View_Base::GAME_TIME,
+                    null,
+                    true);
+            }
+
+            if ($this->m_operation == View_Base::SWAP) {
+                $this->m_primaryGameId = $this->getPostAttribute(
+                    View_Base::GAME_ID1,
                     null,
                     true,
                     true);
 
-                $this->m_moveGameTime = $this->getPostAttribute(
-                    View_Base::GAME_TIME,
+                $this->m_secondaryGameId = $this->getPostAttribute(
+                    View_Base::GAME_ID2,
                     null,
+                    true,
+                    true);
+            }
+
+            if ($this->m_operation == View_Base::TOGGLE) {
+                $this->m_lockToggleGameId = $this->getPostAttribute(
+                    View_Base::GAME_ID,
+                    null,
+                    true,
+                    true);
+            }
+
+            if ($this->m_operation == View_Base::ALTER) {
+                $this->m_teamId = $this->getPostAttribute(
+                    View_Base::TEAM_ID,
+                    null,
+                    true,
+                    true);
+
+                $this->m_fieldId = $this->getPostAttribute(
+                    View_Base::FIELD_ID,
+                    null,
+                    true,
                     true);
             }
         }
@@ -200,6 +271,10 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                     $this->_publishSchedule();
                     break;
 
+                case View_Base::UN_PUBLISH:
+                    $this->_unPublishSchedule();
+                    break;
+
                 case View_Base::DELETE:
                     $this->_deleteSchedule();
                     break;
@@ -213,6 +288,18 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
 
                 case View_Base::MOVE:
                     $this->_moveGame();
+                    break;
+
+                case View_Base::SWAP:
+                    $this->_swapGame();
+                    break;
+
+                case View_Base::TOGGLE:
+                    $this->_lockToggleGame();
+                    break;
+
+                case View_Base::ALTER:
+                    $this->_alterTeamGames();
                     break;
             }
         }
@@ -245,8 +332,11 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             }
             $this->m_messageString .= " created.";
         } catch (DuplicateEntryException $e) {
+            $this->m_messageString = '';
+            $this->m_errorString = "Schedule already exists for $divisionNameWithGender.  You need to Delete it first before creating a new one.  Or, scroll down and edit the exiting schedule: " . $e->getMessage();
+        } catch (UnpublishedScheduleException $e) {
             $this->m_messageString  = '';
-            $this->m_errorString    = "Schedule already exists for $divisionNameWithGender.  You need to Delete it first before creating a new one.  Or, scroll down and edit the exiting schedule: " . $e->getMessage();
+            $this->m_errorString    = "Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->getMessage();
         } catch (NotEnoughGameTimesException $e) {
             $this->m_messageString  = '';
             $this->m_errorString    = "Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->getMessage();
@@ -293,6 +383,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             }
 
             $schedule->populateGames();
+            $this->m_messageString = "Games populated for '$divisionNameWithGender $schedule->name'";
         } catch (NotEnoughGameTimesException $e) {
             $this->m_messageString  = '';
             $this->m_errorString    = "Schedule population failed for $divisionNameWithGender.  Reason: " . $e->getMessage();
@@ -347,11 +438,22 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
      * Create schedule and pools for specified division.
      *
      * @param Division $division
+     *
      * @return Schedule
+     *
      * @throws NotEnoughGameTimesException
+     * @throws UnpublishedScheduleException
      */
     private function createScheduleForDivision($division)
     {
+        // Verify an unpublished schedule does not already exist
+        $schedules = Schedule::lookupByDivision($division);
+        foreach ($schedules as $schedule) {
+            if ($schedule->published == 0) {
+                throw new UnpublishedScheduleException("Cannot create new schedule for $division->name because there is already an unpublished schedule");
+            }
+        }
+
         // Verify there are enough open time slots for number of games
         $divisionFields = DivisionField::lookupByDivision($division);
         $teams          = Team::lookupByDivision($division);
@@ -432,9 +534,13 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             $team->pool = $pool;
         }
 
-        foreach ($this->m_flightUpdates as $flightId => $name) {
+        foreach ($this->m_flightUpdates as $flightId => $data) {
             $flight = Flight::lookupById($flightId);
-            $flight->name = $name;
+            $flight->name                       = $data[View_Base::NAME];
+            $flight->include5th6thGame          = isset($data[View_Base::INCLUDE_5TH_6TH_GAME]) ? 1 : 0;
+            $flight->include3rd4thGame          = isset($data[View_Base::INCLUDE_3RD_4TH_GAME]) ? 1 : 0;
+            $flight->includeSemiFinalGames      = isset($data[View_Base::INCLUDE_SEMI_FINAL_GAMES]) ? 1 : 0;
+            $flight->includeChampionshipGame    = isset($data[View_Base::INCLUDE_CHAMPIONSHIP_GAME]) ? 1 : 0;
         }
 
         $this->m_messageString  = "Schedule '$divisionNameWithGender: $schedule->name' updated.";
@@ -448,9 +554,9 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         $schedule->published        = 0;
         $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
         $this->m_divisionNames[]    = $divisionNameWithGender;
-        $pools                      = Pool::lookupBySchedule($schedule);
-        foreach ($pools as $pool) {
-            $games = Game::lookupByPool($pool);
+        $flights                    = Flight::lookupBySchedule($schedule);
+        foreach ($flights as $flight) {
+            $games = Game::lookupByFlight($flight);
             foreach ($games as $game) {
                 $game->delete();
             }
@@ -477,6 +583,20 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         $schedule->published        = 1;
 
         $this->m_messageString = "Schedule '$divisionNameWithGender: $schedule->name' published for all to see.";
+    }
+
+    /**
+     * @brief UnPublish Schedule
+     */
+    private function _unPublishSchedule() {
+        $schedule                   = Schedule::lookupById($this->m_scheduleId);
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+
+        // UnPublish schedule
+        $schedule->published = 0;
+
+        $this->m_messageString = "Schedule '$divisionNameWithGender: $schedule->name' un-published so you can make changes.";
     }
 
     /**
@@ -511,28 +631,320 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
         $this->m_divisionNames[]    = $divisionNameWithGender;
 
+        $this->moveGame($game, $gameTimes);
+    }
+
+    /**
+     * Attempt to move a game to new field and time
+     *
+     * @param Game          $game
+     * @param GameTime[]    $gameTimes
+     * @param string        $newGameTime - Find a gameTime in $gamesTimes that matches if this is set
+     *
+     * @return bool         true if game moved, false otherwise
+     */
+    private function moveGame($game, $gameTimes, $newGameTime = null)
+    {
         $this->m_errorString = "Error: Game Time: $this->m_moveGameTime not found for field";
         foreach ($gameTimes as $gameTime) {
-            if ($gameTime->startTime == $this->m_moveGameTime) {
-                // Verify the schedule is not already published
-                if ($game->pool->schedule->published == 1) {
-                    $this->m_errorString = "Error: Cannot move game because schedule has been published.";
-                    break;
-                }
+            if (isset($newGameTime) and $gameTime->startTime != $newGameTime) {
+                continue;
+            }
 
-                // Verify no game already scheduled at this time
-                if (isset($gameTime->game)) {
-                    $this->m_errorString = "Error: Cannot move game to $gameTime->startTime because a game is already scheduled at this time.";
-                    break;
-                }
+            // Verify the game is not locked
+            if ($game->isLocked()) {
+                $this->m_errorString = "Error: Cannot move game because it is locked.  Please unlock the game first.";
+                return false;
+            }
 
-                // Move game
-                $game->move($gameTime);
-                $this->m_messageString  = "Game $this->m_moveGameId successfully moved to new field/time";
-                $this->m_errorString    = "";
-                break;
+            // Verify the schedule is not already published
+            if ($game->pool->schedule->published == 1) {
+                $this->m_errorString = "Error: Cannot move game because schedule has been published.";
+                return false;
+            }
+
+            // Verify no game already scheduled at this time
+            if (isset($gameTime->game)) {
+                $this->m_errorString = "Error: Cannot move game to $gameTime->startTime because a game is already scheduled at this time.";
+                return false;
+            }
+
+            // Move game
+            $game->move($gameTime);
+            $this->m_messageString  = "Game $this->m_moveGameId successfully moved to new field/time";
+            $this->m_errorString    = "";
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check to see if a division is supported by the field
+     *
+     * @param Division  $division
+     * @param Field     $field
+     * @return bool     true if division supported by field; false otherwise
+     */
+    private function isDivisionSupportedByField($division, $field)
+    {
+        $divisionFields = DivisionField::lookupByField($field);
+
+        foreach ($divisionFields as $divisionField) {
+            if ($divisionField->division->id == $division->id) {
+                return true;
             }
         }
+
+        return false;
+    }
+
+    /**
+     * Attempt to swap two games
+     */
+    private function _swapGame()
+    {
+        $primaryGame                = Game::lookupById($this->m_primaryGameId);
+        $secondaryGame              = Game::lookupById($this->m_secondaryGameId);
+        $schedule                   = $primaryGame->pool->schedule;
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+
+        if ($this->swapGame($primaryGame, $secondaryGame)) {
+            $this->m_messageString  = "Primary gameId: $this->m_primaryGameId swapped with secondary gameId: $this->m_secondaryGameId";
+        }
+    }
+
+    /**
+     * Attempt to swap two games
+     *
+     * @param Game  $primaryGame
+     * @param Game  $secondaryGame
+     *
+     * @return bool true if games swapped; false end error string set otherwise
+     */
+    private function swapGame($primaryGame, $secondaryGame)
+    {
+        // Verify not the same gameId
+        if ($primaryGame->id == $secondaryGame->id) {
+            $this->m_errorString = "Error: Trying to move gameId: $secondaryGame->id to gameId: $primaryGame->id, gameIds are identical.";
+            return false;
+        }
+
+        // Verify the primary game has not been published
+        if ($primaryGame->pool->schedule->published == 1) {
+            $this->m_errorString = "Error: Not allowed to move a published gameId: $primaryGame->id";
+            return false;
+        }
+
+        // Verify the secondary game has not been published
+        if ($secondaryGame->pool->schedule->published == 1) {
+            $this->m_errorString = "Error: Not allowed to move a published gameId: $secondaryGame->id";
+            return false;
+        }
+
+        // Verify the primary game has not been locked
+        if ($primaryGame->isLocked()) {
+            $this->m_errorString = "Error: Not allowed to move a locked gameId: $primaryGame->id";
+            return false;
+        }
+
+        // Verify the secondary game has not been locked
+        if ($secondaryGame->isLocked()) {
+            $this->m_errorString = "Error: Not allowed to move a locked gameId: $secondaryGame->id";
+            return false;
+        }
+
+        // Verify secondary game can be played on primary game's field
+        $secondaryDivision = $secondaryGame->flight->schedule->division;
+        if (!$this->isDivisionSupportedByField($secondaryDivision, $primaryGame->gameTime->field)) {
+            $this->m_errorString = "Error: Trying to move secondaryGameId: $secondaryGame->id, to a field that does not support $secondaryDivision->name";
+            return false;
+        }
+
+        // Verify primary game can be played on secondary game's field
+        $primaryDivision = $primaryGame->flight->schedule->division;
+        if (!$this->isDivisionSupportedByField($primaryDivision, $secondaryGame->gameTime->field)) {
+            $this->m_errorString = "Error: Trying to move primaryGameId: $primaryGame->id, to a field that does not support $primaryDivision->name";
+            return false;
+        }
+
+        // Swap the games
+        $primaryGameTime            = $primaryGame->gameTime;
+        $secondaryGameTime          = $secondaryGame->gameTime;
+        $secondaryGame->gameTime    = $primaryGameTime;
+        $primaryGame->gameTime      = $secondaryGameTime;
+
+        $primaryGameTime->game      = null;
+        $secondaryGameTime->game    = null;
+        $primaryGameTime->game      = $secondaryGame;
+        $secondaryGameTime->game    = $primaryGame;
+
+        return true;
+    }
+
+    /**
+     * Toggle the lock setting for specified game
+     */
+    private function _lockToggleGame()
+    {
+        $game                       = Game::lookupById($this->m_lockToggleGameId);
+        $schedule                   = $game->pool->schedule;
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+
+        // Toggle the game's lock setting
+        $operation = 'locked';
+        if ($game->isLocked()) {
+            $game->locked = 0;
+            $operation = 'unlocked';
+        } else {
+            $game->locked = 1;
+        }
+
+        $this->m_messageString  = "GameId: $this->m_lockToggleGameId $operation";
+    }
+
+    /**
+     * Alter team games for specified date range and time range.
+     * Lock the games for this team during the date range
+     */
+    private function _alterTeamGames()
+    {
+        $team                       = Team::lookupById($this->m_teamId);
+        $schedule                   = $team->pool->schedule;
+        $division                   = $schedule->division;
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+        $this->m_startTime          = $this->getNormalizedTime($this->m_startTime);
+        $this->m_endTime            = $this->getNormalizedTime($this->m_endTime);
+        $gamesMoved                 = 0;
+        $gamesNotMoved              = 0;
+
+        // Verify schedule has not been published
+        if ($schedule->published == 1) {
+            $this->m_errorString = "ERROR: Schedule for team has been published. You must un-publish before you can change the schedule";
+            return;
+        }
+
+        // Get Game Dates that need to be modified
+        $allGameDates = GameDate::lookupBySeason($this->m_season, GameDate::ALL_DAYS, $schedule);
+        $gameDates = [];
+        foreach ($allGameDates as $gameDate) {
+            if ($gameDate->day >= $this->m_startDate
+                and $gameDate->day <= $this->m_endDate) {
+                $gameDates[] = $gameDate;
+            }
+        }
+
+        // Get team's games that need to be moved.  A game needs to be moved if any of the following are true:
+        //      - Game falls in day range and
+        //          - Game falls outside of desired time range
+        //          - or Game is not being played on desired field
+        $teamGamesByDay = [];
+        $games = Game::lookupByTeam($team);
+        foreach ($games as $game) {
+            if ($game->gameTime->gameDate->day >= $this->m_startDate
+                and $game->gameTime->gameDate->day <= $this->m_endDate) {
+
+                if ($game->gameTime->startTime < $this->m_startTime
+                    or $game->gameTime->startTime > $this->m_endTime
+                    or ($this->m_fieldId != 0 and $game->gameTime->field->id != $this->m_fieldId))
+                $teamGamesByDay[$game->gameTime->gameDate->day][] = $game;
+            }
+        }
+
+        // Get the list of supported fields for the team's division
+        $divisionFields = DivisionField::lookupByDivision($division);
+        $fieldsById     = [];
+        foreach ($divisionFields as $divisionField) {
+            $fieldsById[$divisionField->field->id] = $divisionField->field;
+        }
+
+        // For each game date, update team games to use a time-slot/field that is desired
+        // and then lock the game.
+        foreach ($gameDates as $gameDate) {
+            // Get acceptable gameTimes
+            $allGameTimes   = GameTime::lookupByGameDate($gameDate);
+            $gameTimes      = [];
+            foreach ($allGameTimes as $gameTime) {
+                if ($gameTime->startTime >= $this->m_startTime
+                    and $gameTime->startTime <= $this->m_endTime) {
+
+                    if (($this->m_fieldId == 0 and isset($fieldsById[$gameTime->field->id]))
+                        or ($this->m_fieldId == $gameTime->field->id)) {
+                        $gameTimes[] = $gameTime;
+                    }
+                }
+            }
+
+            $games = isset($teamGamesByDay[$gameDate->day]) ? $teamGamesByDay[$gameDate->day] : [];
+            foreach ($games as $gameToMove) {
+
+                // Find an available gameTime and "move" the game
+                $gameMoved = false;
+                foreach ($gameTimes as $gameTime) {
+                    if (!isset($gameTime->game)) {
+                        $gameToMove->locked = 0;
+                        $gameMoved = $this->moveGame($gameToMove, [$gameTime]);
+                        Assertion::isTrue($gameMoved, 'Uh-oh, see Dave to help figure this one out');
+                    }
+                }
+
+                // Find a game that is not locked and schedule is not published and swap the game
+                if (!$gameMoved) {
+                    foreach ($gameTimes as $gameTime) {
+                        if (isset($gameTime->game)
+                            and $gameTime->game->locked == 0
+                            and $gameTime->game->flight->schedule->published == 0) {
+
+                            $gameToMove->locked = 0;
+                            $result = $this->swapGame($gameToMove, $gameTime->game);
+                            Assertion::isTrue($result, "Dave needs to look into this");
+                            $gameMoved = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Update counters
+                if ($gameMoved) {
+                    $gamesMoved += 1;
+                    $gameToMove->locked = 1;
+                } else {
+                    $gamesNotMoved += 1;
+                }
+            }
+        }
+
+        $coach                  = Coach::lookupByTeam($team);
+        $teamName               = $team->name . " - " . $coach->shortName;
+        $totalGames             = $gamesMoved + $gamesNotMoved;
+        $this->m_errorString    = '';
+        $this->m_messageString  = "Team ${teamName}: $gamesMoved of $totalGames have been altered.";
+    }
+
+    /**
+     * Return a normalized time string of the form: HH:MM:SS
+     *
+     * @param string $time
+     *
+     * @return string
+     */
+    private function getNormalizedTime($time)
+    {
+        $time = trim($time);
+        if (strlen($time) == 4) {
+            $time = "0" . $time;
+        }
+
+        if (strlen($time) == 5) {
+            $time = $time . ":00";
+        }
+
+        Assertion::isTrue(strlen($time) == 8, "Invalid time: $time");
+
+        return $time;
     }
 
     /**

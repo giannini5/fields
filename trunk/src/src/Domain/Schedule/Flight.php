@@ -11,6 +11,10 @@ use DAG\Framework\Exception\Precondition;
  * @property int        $id
  * @property Schedule   $schedule
  * @property string     $name
+ * @property int        $include5th6thGame
+ * @property int        $include3rd4thGame
+ * @property int        $includeSemiFinalGames
+ * @property int        $includeChampionshipGame
  */
 class Flight extends Domain
 {
@@ -33,14 +37,28 @@ class Flight extends Domain
     /**
      * @param Schedule  $schedule
      * @param string    $name
+     * @param int       $include5th6thGame;
+     * @param int       $include3rd4thGame;
+     * @param int       $includeSemiFinalGames;
+     * @param int       $includeChampionshipGame;
      *
      * @return Flight
      */
     public static function create(
         $schedule,
-        $name)
+        $name,
+        $include5th6thGame,
+        $include3rd4thGame,
+        $includeSemiFinalGames,
+        $includeChampionshipGame)
     {
-        $flightOrm = FlightOrm::create($schedule->id, $name);
+        $flightOrm = FlightOrm::create(
+            $schedule->id,
+            $name,
+            $include5th6thGame,
+            $include3rd4thGame,
+            $includeSemiFinalGames,
+            $includeChampionshipGame);
         return new static($flightOrm, $schedule);
     }
 
@@ -94,6 +112,10 @@ class Flight extends Domain
         switch ($propertyName) {
             case "id":
             case "name":
+            case "include5th6thGame":
+            case "include3rd4thGame":
+            case "includeSemiFinalGames":
+            case "includeChampionshipGame":
                 return $this->flightOrm->{$propertyName};
 
             case "schedule":
@@ -112,7 +134,11 @@ class Flight extends Domain
     {
         switch ($propertyName) {
             case "name":
-                $this->flightOrm->name = $value;
+            case "include5th6thGame":
+            case "include3rd4thGame":
+            case "includeSemiFinalGames":
+            case "includeChampionshipGame":
+                $this->flightOrm->{$propertyName} = $value;
                 $this->flightOrm->save();
                 break;
 
@@ -126,7 +152,17 @@ class Flight extends Domain
      */
     public function delete()
     {
-        // TODO: Delete all pools
+        // Delete games
+        $games = Game::lookupByFlight($this);
+        foreach ($games as $game) {
+            $game->delete();
+        }
+
+        // Delete pools
+        $pools = Pool::lookupByFlight($this);
+        foreach ($pools as $pool) {
+            $pool->delete();
+        }
 
         // Delete flight
         $this->flightOrm->delete();

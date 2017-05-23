@@ -8,12 +8,12 @@ use \DAG\Domain\Schedule\GameTime;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\GameDate;
 use \DAG\Domain\Schedule\Schedule;
-use \DAG\Domain\Schedule\Pool;
 use \DAG\Domain\Schedule\Game;
 use \DAG\Domain\Schedule\Team;
 use \DAG\Domain\Schedule\Family;
 use \DAG\Domain\Schedule\FamilyGame;
 use \DAG\Framework\Exception\Precondition;
+use \DAG\Domain\Schedule\Flight;
 
 /**
  * @brief Show the Preview page and get the user to select a preview to administer or create a new preview.
@@ -302,7 +302,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
             print "
                 <tr>
                     <td>
-            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>";
+            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0' width='700'>";
 
             $interval = $field->getGameDurationInMinutesInterval();
             $divisionFields = DivisionField::lookupByField($field);
@@ -327,7 +327,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
             print "
                 <tr>
                     <td colspan='3'>
-                    <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
+                    <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0' width='700'>
                         <thead>
                         <tr bgcolor='lightskyblue'>
                             <th>&nbsp</th>";
@@ -357,14 +357,20 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                         if ($gameTime->startTime == $defaultGameTime) {
                             if (isset($gameTime->game)) {
                                 $game               = $gameTime->game;
-                                $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
-                                $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
-                                $gender             = $gameTime->game->homeTeam->division->gender;
+                                $gender             = $gameTime->game->flight->schedule->division->gender;
                                 $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
-                                $homeTeam           = $game->homeTeam;
-                                $visitingTeam       = $game->visitingTeam;
-                                $cellHTML           = $homeTeam->name . "<br>" . $visitingTeam->name;
-                                $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+
+                                if (isset($game->homeTeam)) {
+                                    $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
+                                    $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
+                                    $homeTeam           = $game->homeTeam;
+                                    $visitingTeam       = $game->visitingTeam;
+                                    $cellHTML           = $homeTeam->name . "<br>" . $visitingTeam->name;
+                                    $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+                                } else {
+                                    $cellHTML           = $game->title;
+                                    $title              = "title='" . $game->title . "'";
+                                }
                             } else {
                                 $bgHTML = $gameTime->genderPreference == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
                             }
@@ -408,7 +414,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                     <td valign='top'>";
 
         foreach ($schedules as $schedule) {
-            $this->_printSchedule($schedule);
+            View_Games_Division::printSchedule($this->m_controller->m_season, $schedule);
         }
 
         print "
@@ -417,203 +423,34 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
             </table>";
     }
 
-    /**
-     * @brief Display schedule
-     *
-     * @param Schedule $schedule  - Schedule to be edited
-     */
-    private function _printSchedule($schedule) {
-        $startTime          = $this->m_controller->m_season->startTime;
-        $endTime            = $this->m_controller->m_season->endTime;
-        $interval           = new \DateInterval("PT" . $schedule->division->gameDurationMinutes . "M");
-        $defaultGameTimes   = GameTime::getDefaultGameTimes($startTime, $endTime, $interval);
-        $pools              = Pool::lookupBySchedule($schedule);
-
-        foreach ($pools as $pool) {
-            $games = Game::lookupByPool($pool);
-            $gamesByDateByFieldByTime = [];
-            foreach ($games as $game) {
-                $day        = $game->gameTime->gameDate->day;
-                $startTime  = $game->gameTime->startTime;
-                $fieldName  = $game->gameTime->field->facility->name . ": " . $game->gameTime->field->name;
-                $gamesByDateByFieldByTime[$day][$fieldName][$startTime] = $game;
-            }
-            ksort($gamesByDateByFieldByTime);
-
-            // Print table header
-            print "
-            <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>";
-
-            $colspan    = 2 + count($defaultGameTimes);
-            $headerRow  = $schedule->division->name . ' ' . $schedule->division->gender . ' ' . $pool->name;
-            print "
-                <thead>
-                <tr bgcolor='lightskyblue'>
-                    <th colspan='$colspan' align='center'>$headerRow</th>
-                </tr>
-                <tr bgcolor='lightskyblue'>
-                    <th>Day</th>
-                    <th>Field</th>";
-
-            foreach ($defaultGameTimes as $gameTime) {
-                $gameTime = ltrim(substr($gameTime, 0, 5), "0");
-                print "
-                    <th nowrap>$gameTime</th>";
-            }
-
-            print "
-                </tr>
-                </thead>";
-
-
-            // Print table rows
-            foreach ($gamesByDateByFieldByTime as $day => $gameFieldData) {
-                ksort($gameFieldData);
-
-                $rowspan = count($gameFieldData);
-                $loopIndex = 0;
-                foreach ($gameFieldData as $fieldName => $gameTimeData) {
-                    ksort($gameTimeData);
-
-                    if ($loopIndex == 0) {
-                        print "
-                        <tr>
-                            <td nowrap rowspan='$rowspan'>$day</td>";
-                    } else {
-                        print "
-                        <tr>";
-                    }
-                    $loopIndex += 1;
-
-                    print "
-                    <td nowrap>$fieldName</td>";
-
-                    foreach ($defaultGameTimes as $defaultGameTime) {
-                        $entryFound = false;
-                        foreach ($gameTimeData as $gameTime => $game) {
-                            if ($gameTime == $defaultGameTime) {
-                                $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
-                                $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
-                                $gender             = $game->homeTeam->division->gender;
-                                $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
-                                // $gameData           = $game->homeTeam->name . " vs " . $game->visitingTeam->name;
-                                $gameData           = "Game Id: " . $game->id . "<br>";
-                                $gameData           .= "H: " . $game->homeTeam->name . ": " . $homeTeamCoach->lastName . "<br>";
-                                $gameData           .= "V: " . $game->visitingTeam->name . ": " . $visitingTeamCoach->lastName;
-                                $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
-
-                                print "
-                                    <td nowrap $bgHTML $title>$gameData</td>";
-                                $entryFound = true;
-                            }
-                        }
-
-                        if (!$entryFound) {
-                            print "
-                                    <td nowrap>&nbsp</td>";
-                        }
-                    }
-
-                    print "
-                </tr>";
-                }
-            }
-
-            print "
-            </table><br>";
-        }
-    }
-
     private function printSchedulesByTeam()
     {
         Precondition::isTrue(count($this->m_controller->m_divisions) == 1, "Just pick one Division, no support yet to display schedules by team across divisions");
         $division = $this->m_controller->m_divisions[0];
 
-        // Get teams in division
-        $teams = Team::lookupByDivision($division);
+        // Get schedules for division
+        $schedules = Schedule::lookupByDivision($division);
+
+        // Get games across all schedules for division
+        $games = [];
+        foreach ($schedules as $schedule) {
+            $flights = Flight::lookupBySchedule($schedule);
+            foreach ($flights as $flight) {
+                $games = array_merge($games, Game::lookupByFlight($flight));
+            }
+        }
+
+        // Track games by day
+        $gamesByDay = [];
+        foreach ($games as $game) {
+            $gamesByDay[$game->gameTime->gameDate->day][] = $game;
+        }
+        ksort($gamesByDay);
 
         // For each team, display games ordered by date and time
+        $teams = Team::lookupByDivision($division);
         foreach ($teams as $team) {
-            $games      = Game::lookupByTeam($team);
-            $coach      = Coach::lookupByTeam($team);
-            $teamName   = $division->name . ": " . $team->name . " (" . $coach->shortName . ")";
-            $gamesByDay = [];
-
-            foreach ($games as $game) {
-                $gamesByDay[$game->gameTime->gameDate->day][] = $game;
-            }
-
-
-            // Print table header
-            print "
-            <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0' width='600'>
-                <thead>
-                    <tr bgcolor='lightskyblue'>
-                        <th align='center' colspan='6'>$teamName</th>
-                    </tr>
-                    <tr bgcolor='lightskyblue'>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Field</th>
-                        <th>Game Id</th>
-                        <th>Home Team</th>
-                        <th>Visiting Team</th>
-                    </tr>
-                </thead>";
-
-            $gameCount          = 0;
-            $homeTeamCount      = 0;
-            $visitingTeamCount  = 0;
-            $dayCount           = 0;
-            foreach ($gamesByDay as $day => $games) {
-                $dayCount   += 1;
-                $rowSpan    = count($games);
-
-                $dayCellPrinted = false;
-                foreach ($games as $game) {
-                    $field              = $game->gameTime->field;
-                    $gameId             = $game->id;
-                    $facility           = $field->facility;
-                    $fieldName          = $facility->name . ": " . $field->name;
-                    $homeCoach          = Coach::lookupByTeam($game->homeTeam);
-                    $visitingCoach      = Coach::lookupByTeam($game->visitingTeam);
-                    $homeTeamName       = $game->homeTeam->name . ": " . $homeCoach->lastName;
-                    $visitingTeamName   = $game->visitingTeam->name . ": " . $visitingCoach->lastName;
-                    $startTime          = $game->gameTime->startTime;
-                    $dayCell            = $dayCellPrinted ? '' : "<td nowrap rowspan='$rowSpan'>$day</td>";
-                    $dayCellPrinted     = true;
-
-                    $homeTeamStyle      = '';
-                    $visitingTeamStyle  = '';
-                    if ($team->name == $game->homeTeam->name) {
-                        $homeTeamCount += 1;
-                        $homeTeamStyle = "style='color: red'";
-                    } else {
-                        $visitingTeamCount += 1;
-                        $visitingTeamStyle = "style='color: red'";
-                    }
-
-                    $bgcolor = ($dayCount % 2 == 0) ? "" : "bgcolor='lightgray'";
-
-                    print "
-                    <tr $bgcolor>
-                        $dayCell
-                        <td nowrap>$startTime</td>
-                        <td nowrap>$fieldName</td>
-                        <td nowrap align='center'>$gameId</td>
-                        <td nowrap $homeTeamStyle>$homeTeamName</td>
-                        <td nowrap $visitingTeamStyle>$visitingTeamName</td>
-                    </tr>";
-
-                    $gameCount += 1;
-                }
-            }
-
-            print "
-                    <tr>
-                        <td colspan='6'>Home Games: $homeTeamCount, Visiting Games: $visitingTeamCount</td>
-                    </tr>
-            </table><br>";
+            View_Games_Team::printScheduleForTeam($team, null, $gamesByDay, $schedules, true);
         }
     }
 

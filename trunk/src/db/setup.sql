@@ -49,16 +49,16 @@ insert into field (facilityId, name, enabled) values (2, 'Field 1B', 1);
 insert into field (facilityId, name, enabled) values (2, 'Field 1C', 1);
 insert into field (facilityId, name, enabled) values (2, 'Field 1D', 1);
 
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U5', 30, 30, 1);
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U6', 60, 60, 1);
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U7', 60, 60, 1);
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U8', 60, 60, 1);
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U9', 60, 120, 1);
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U10', 60, 120, 1);
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U11', 90, 180, 1);
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U12', 90, 180, 1);
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U14', 90, 180, 1);
-insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, 'U16-19', 120, 240, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '5U', 30, 30, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '6U', 60, 60, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '7U', 60, 60, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '8U', 60, 60, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '9U', 60, 120, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '10U', 60, 120, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '11U', 90, 180, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '12U', 90, 180, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '14U', 90, 180, 1);
+insert into division (leagueId, name, maxMinutesPerPractice, maxMinutesPerWeek, enabled) values (1, '19U', 120, 240, 1);
 
 insert into divisionField (divisionId, facilityId, fieldId) values (6, 1, 1); -- Girsh A
 insert into divisionField (divisionId, facilityId, fieldId) values (6, 1, 2); -- Girsh B

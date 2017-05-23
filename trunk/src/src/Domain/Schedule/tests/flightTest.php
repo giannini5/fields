@@ -17,7 +17,11 @@ class FlightTest extends ORM_TestHelper
      * Expected values on create and load
      */
     protected static $expectedDefaults = array(
-        'name'          => 'TEST Domain flight name',
+        'name'                      => 'TEST Domain flight name',
+        'include5th6thGame'         => 0,
+        'include3rd4thGame'         => 1,
+        'includeSemiFinalGames'     => 0,
+        'includeChampionshipGame'   => 1,
     );
 
     protected $flightsToCleanup = array();
@@ -31,7 +35,11 @@ class FlightTest extends ORM_TestHelper
 
         $this->flightsToCleanup[] = Flight::create(
             $this->schedule,
-            self::$expectedDefaults['name']);
+            self::$expectedDefaults['name'],
+            self::$expectedDefaults['include5th6thGame'],
+            self::$expectedDefaults['include3rd4thGame'],
+            self::$expectedDefaults['includeSemiFinalGames'],
+            self::$expectedDefaults['includeChampionshipGame']);
     }
 
     protected function tearDown()
@@ -79,7 +87,11 @@ class FlightTest extends ORM_TestHelper
     public function validateFlight($flight, $schedule, $expectedDefaults)
     {
         $this->assertTrue($flight->id > 0);
-        $this->assertEquals($expectedDefaults['name'],  $flight->name);
-        $this->assertEquals($schedule,                  $flight->schedule);
+        $this->assertEquals($expectedDefaults['name'],                      $flight->name);
+        $this->assertEquals($expectedDefaults['include5th6thGame'],         $flight->include5th6thGame);
+        $this->assertEquals($expectedDefaults['include3rd4thGame'],         $flight->include3rd4thGame);
+        $this->assertEquals($expectedDefaults['includeSemiFinalGames'],     $flight->includeSemiFinalGames);
+        $this->assertEquals($expectedDefaults['includeChampionshipGame'],   $flight->includeChampionshipGame);
+        $this->assertEquals($schedule,                                      $flight->schedule);
     }
 }

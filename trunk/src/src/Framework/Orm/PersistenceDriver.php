@@ -322,7 +322,11 @@ class PersistenceDriver
         foreach ($this->fields as $fieldName => $fieldValue) {
             if ($fieldValue[FV::RULESET_INDEX_DATATYPE] == FV::INT) {
                 foreach ($results as $resultNumber => $value) {
-                    $results[$resultNumber][$fieldName] = (int) $value[$fieldName];
+                    if (is_null($value[$fieldName])) {
+                        $results[$resultNumber][$fieldName] = $value[$fieldName];
+                    } else {
+                        $results[$resultNumber][$fieldName] = (int) $value[$fieldName];
+                    }
                 }
             } elseif ($fieldValue[FV::RULESET_INDEX_DATATYPE] == FV::BOOL) {
                 foreach ($results as $resultNumber => $value) {

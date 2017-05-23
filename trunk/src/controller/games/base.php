@@ -4,12 +4,12 @@ use \DAG\Domain\Schedule\League;
 use \DAG\Domain\Schedule\Season;
 
 /**
- * Class Controller_Schedules_Base
+ * Class Controller_Games_Base
  *
  * @brief Encapsulates everything that is common for the Schedules controllers.
  *        Derived classes must implement all abstract method.
  */
-abstract class Controller_Schedules_Base extends Controller_Base
+abstract class Controller_Games_Base extends Controller_Base
 {
     public function __construct()
     {
