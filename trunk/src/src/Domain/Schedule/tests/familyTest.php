@@ -42,7 +42,10 @@ class FamilyTest extends ORM_TestHelper
         $this->team2 = TeamOrm::create(
             $this->defaultDivisionOrm->id,
             null,
-            'team2');
+            'team2',
+            'id2',
+            '122',
+            'Santa Barbara');
     }
 
     protected function tearDown()
@@ -279,7 +282,10 @@ class FamilyTest extends ORM_TestHelper
         $team3 = TeamOrm::create(
             $this->defaultDivisionOrm->id,
             null,
-            'team3');
+            'team3',
+            'id3',
+            '122',
+            'Santa Barbara');
 
         CoachOrm::create(
             $this->team2->id,

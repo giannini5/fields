@@ -456,8 +456,8 @@ abstract class View_Base {
      */
     public function printGameTimeSelectors(
         $maxColumns,
-        $defaultStartTime='08:00:00',
-        $defaultEndTime='17:00:00',
+        $defaultStartTime='07:00:00',
+        $defaultEndTime='19:00:00',
         $collapsible = NULL,
         $colspan = 1,
         $startTimeLabel,
@@ -468,7 +468,7 @@ abstract class View_Base {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         $minute = 0;
-        for ($hour = 8; $hour <= 17; ++$hour) {
+        for ($hour = 7; $hour <= 19; ++$hour) {
             while ($minute <= 45) {
                 $time = sprintf("%2d:%02d", $hour, $minute);
 

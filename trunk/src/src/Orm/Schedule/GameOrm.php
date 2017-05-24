@@ -49,6 +49,13 @@ class GameOrm extends PersistenceModel
     const FIELD_TITLE                       = 'title';
     const FIELD_LOCKED                      = 'locked';
 
+    public static $titles = [
+        self::TITLE_5TH_6TH,
+        self::TITLE_SEMI_FINAL,
+        self::TITLE_3RD_4TH,
+        self::TITLE_CHAMPIONSHIP,
+    ];
+
     protected static $fields = [
         self::FIELD_ID                          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_FLIGHT_ID                   => [FV::INT,    [FV::NO_CONSTRAINTS]],

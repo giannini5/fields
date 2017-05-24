@@ -97,7 +97,7 @@ class SeasonTest extends ORM_TestHelper
         $this->assertTrue(count($seasons) == 2);
     }
 
-    public function test_populateDivisions()
+    public function test_populateDivisions_old()
     {
         // Setup
         $data = 'Approved,Team,Type,eAYSO Vol App,AYSO ID,Name,Phone,Cell,Email,Certifications
@@ -113,7 +113,7 @@ New,U9B-16,Asst,,,John Anderson,805-967-0674,805-689-2964,johnanderson@andersys.
         $season = Season::lookupById($this->defaultSeasonOrm->id);
 
         // Run Test
-        $season->populateDivisions($data, true);
+        $season->populateDivisions_old($data, true);
 
         // Validate Results
         $division = Division::lookupByNameAndGender($season, 'U12', 'Girls');
@@ -136,6 +136,56 @@ New,U9B-16,Asst,,,John Anderson,805-967-0674,805-689-2964,johnanderson@andersys.
         $this->assertEquals(50, $division->displayOrder);
 
         $team             = Team::lookupByName($division, 'U9B-16');
+        $assistantCoaches = AssistantCoach::lookupByTeam($team);
+        $this->assertTrue(count($assistantCoaches) == 1);
+        $this->assertEquals('John Anderson', $assistantCoaches[0]->name);
+        $this->assertEquals('805-967-0674', $assistantCoaches[0]->phone1);
+        $this->assertEquals('805-689-2964', $assistantCoaches[0]->phone2);
+        $this->assertEquals('johnanderson@andersys.com', $assistantCoaches[0]->email);
+    }
+
+    public function test_populateDivisions()
+    {
+        // Setup
+        $data = 'TeamName,TeamId,Region,City,Division,Gender,CoachType,CoachName,CoachPhone,CoachCell,CoachEmail
+apples,U12G-02,122,Santa Barbara,U12,G,Coach,Walid Afifi,805-679-1812,805-679-1810,w-afifi@comm.ucsb.edu
+oranges,U12B-05,122,Santa Barbara,U12,B,Coach,David Aguilar,805-284-2045,805-259-9680,davidoaguilar@gmail.com
+bananas,U6B-29,122,Santa Barbara,U6,B,Coach,Gerardo Aldana,805-637-0256,,soccercoachga@gmail.com
+grapes,U7G-16,122,Santa Barbara,U7,G,Coach,Juan Aldana,805-448-1506,805-448-1506,jjaldana10@yahoo.com
+plums,U6B-11,122,Santa Barbara,U6,B,Coach,Gaete Alex,805-252-4711,805-358-1114,alexgranch@gmail.com
+pecons,U16/19G-02,122,Santa Barbara,U16/19,G,Coach,Geoff Alexander,805-687-6455,818-359-4883,geoffalexander737@gmail.com
+walnuts,U9B-01,122,Santa Barbara,Coach,U9,B,Ken Almada,805-685-0225,805-450-9885,almada5@verizon.net
+kiwis,U9B-16,122,Santa Barbara,U9,B,Asst,John Anderson,805-967-0674,805-689-2964,johnanderson@andersys.com';
+
+        $season = Season::lookupById($this->defaultSeasonOrm->id);
+
+        // Run Test
+        $season->populateDivisions($data, true);
+
+        // Validate Results
+        $division = Division::lookupByNameAndGender($season, 'U12', 'Girls');
+        $this->assertEquals('U12', $division->name);
+        $this->assertEquals('Girls', $division->gender);
+        $this->assertEquals(80, $division->displayOrder);
+
+        // $team = Team::lookupByName($division, 'U12G-02');
+        // $this->assertEquals('U12G-02', $team->name);
+        $team = Team::lookupByName($division, 'apples');
+        $this->assertEquals('apples', $team->name);
+        $this->assertEquals('U12G-02', $team->nameId);
+
+        $coach = Coach::lookupByTeam($team);
+        $this->assertEquals('Walid Afifi', $coach->name);
+        $this->assertEquals('805-679-1812', $coach->phone1);
+        $this->assertEquals('805-679-1810', $coach->phone2);
+        $this->assertEquals('w-afifi@comm.ucsb.edu', $coach->email);
+
+        $division         = Division::lookupByNameAndGender($season, 'U9', 'Boys');
+        $this->assertEquals('U9', $division->name);
+        $this->assertEquals('Boys', $division->gender);
+        $this->assertEquals(50, $division->displayOrder);
+
+        $team             = Team::lookupByName($division, 'kiwis');
         $assistantCoaches = AssistantCoach::lookupByTeam($team);
         $this->assertTrue(count($assistantCoaches) == 1);
         $this->assertEquals('John Anderson', $assistantCoaches[0]->name);

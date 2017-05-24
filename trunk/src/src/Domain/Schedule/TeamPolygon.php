@@ -57,7 +57,7 @@ class TeamPolygon
                     // For tournament play, 1=>5 is returned when shiftCounter is odd
                     $this->pointPairings[$i] = $this->points - $i;
                 }
-                $this->pointPairings[5] = 1; // Second game pairing
+                $this->pointPairings[$this->points] = 1; // Second game pairing
                 break;
 
             case self::CROSS_POOL_EVEN:

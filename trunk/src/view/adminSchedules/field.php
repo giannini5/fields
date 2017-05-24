@@ -219,7 +219,7 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
         }
 
         print "
-            </table>";
+            </table><br><br>";
     }
 
     /**

@@ -1,7 +1,7 @@
-drop procedure if exists 028_addGameStatsToGame;
+drop procedure if exists 027_addGameStatsToGame;
 
 delimiter $$
-create procedure 028_addGameStatsToGame()
+create procedure 027_addGameStatsToGame()
   begin
 
     if not exists(
@@ -25,5 +25,5 @@ create procedure 028_addGameStatsToGame()
   end $$
 delimiter ;
 
-call 028_addGameStatsToGame();
-drop procedure if exists 028_addGameStatsToGame;
+call 027_addGameStatsToGame();
+drop procedure if exists 027_addGameStatsToGame;

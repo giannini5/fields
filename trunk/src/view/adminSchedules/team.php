@@ -37,6 +37,9 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                 <thead>
                     <tr bgcolor='lightskyblue'>
                         <th>Team</th>
+                        <th>TeamId</th>
+                        <th>Region</th>
+                        <th>City</th>
                         <th>Coach</th>
                         <th>Assistant Coach</th>";
 
@@ -83,6 +86,9 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                 print "
                     <tr>
                         <td rowspan='$rowspan'>$team->name</td>
+                        <td rowspan='$rowspan'>$team->nameId</td>
+                        <td rowspan='$rowspan'>$team->region</td>
+                        <td rowspan='$rowspan'>$team->city</td>
                         <td rowspan='$rowspan'>$coachInfo</td>";
 
                 if ($assistantCoachCount == 0) {

@@ -12,6 +12,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     // Database column names:
     const NAME                        = 'name';
+    const NAME_ID                     = 'nameId';
+    const REGION                      = 'region';
     const PASSWORD                    = 'password';
     const START_DATE                  = 'startDate';
     const END_DATE                    = 'endDate';
@@ -137,12 +139,18 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     protected static $defaultTeamOrmAttributes =
         [
-            self::NAME   => 'Test Default Team 1',
+            self::NAME      => 'Test Default Team 1',
+            self::NAME_ID   => 'Test Id1',
+            self::REGION    => '686',
+            self::CITY      => 'Who Knows',
         ];
 
     protected static $defaultVisitingTeamOrmAttributes =
         [
-            self::NAME   => 'Test Default Team 2',
+            self::NAME      => 'Test Default Team 2',
+            self::NAME_ID   => 'Test Id2',
+            self::REGION    => '688',
+            self::CITY      => 'Uhhh',
         ];
 
     protected static $defaultCoachOrmAttributes =
@@ -293,12 +301,18 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         $this->defaultTeamOrm = TeamOrm::create(
             $this->defaultDivisionOrm->id,
             $this->defaultPoolOrm->id,
-            self::$defaultTeamOrmAttributes[self::NAME]);
+            self::$defaultTeamOrmAttributes[self::NAME],
+            self::$defaultTeamOrmAttributes[self::NAME_ID],
+            self::$defaultTeamOrmAttributes[self::REGION],
+            self::$defaultTeamOrmAttributes[self::CITY]);
 
         $this->defaultVisitingTeamOrm = TeamOrm::create(
             $this->defaultDivisionOrm->id,
             $this->defaultPoolOrm->id,
-            self::$defaultVisitingTeamOrmAttributes[self::NAME]);
+            self::$defaultVisitingTeamOrmAttributes[self::NAME],
+            self::$defaultVisitingTeamOrmAttributes[self::NAME_ID],
+            self::$defaultVisitingTeamOrmAttributes[self::REGION],
+            self::$defaultVisitingTeamOrmAttributes[self::CITY]);
 
         $this->defaultCoachOrm = CoachOrm::create(
             $this->defaultTeamOrm->id,

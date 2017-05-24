@@ -1,6 +1,5 @@
 <?php
 
-use \DAG\Domain\Schedule\Division;
 use \DAG\Domain\Schedule\GameTime;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\Schedule;
@@ -125,8 +124,8 @@ class View_Games_Division {
                                         $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
                                         $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
                                         $gameData           = "Game Id: $game->id<br>";
-                                        $gameData           .= "H: " . $game->homeTeam->name . ": " . $homeTeamCoach->lastName . "<br>";
-                                        $gameData           .= "V: " . $game->visitingTeam->name . ": " . $visitingTeamCoach->lastName;
+                                        $gameData           .= "H: " . $game->homeTeam->nameId . ": " . $homeTeamCoach->lastName . "<br>";
+                                        $gameData           .= "V: " . $game->visitingTeam->nameId . ": " . $visitingTeamCoach->lastName;
                                         $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
                                     } else {
                                         $gameData           = "Game Id: $game->id<br>$game->title";

@@ -8,6 +8,7 @@ use \DAG\Domain\Schedule\Pool;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Orm\Schedule\ScheduleOrm;
 use \DAG\Domain\Schedule\Team;
+use \DAG\Orm\Schedule\GameOrm;
 
 /**
  * @brief Show the Standings Viewing page
@@ -263,7 +264,7 @@ class View_Games_Standings extends View_Games_Base
 
                     print "
                         <tr>
-                            <td>$team->name</td>
+                            <td>$team->nameId: $team->name<br>&nbsp&nbsp&nbsp&nbsp$team->region - $team->city</td>
                             <td>$coach->shortName</td>";
 
                     foreach ($games as $game) {
@@ -318,7 +319,13 @@ class View_Games_Standings extends View_Games_Base
         }
 
         if (count($titleGames) > 0) {
-            foreach ($titleGames as $title => $games) {
+            foreach (GameOrm::$titles as $title) {
+                if (!isset($titleGames[$title]))
+                {
+                    continue;
+                }
+                $games = $titleGames[$title];
+
                 print "
                     <table bgcolor='white' valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
                         <tr bgcolor='lightskyblue'>

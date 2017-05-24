@@ -39,17 +39,17 @@ class TeamPolygonTest extends ORM_TestHelper
 
         // Add six teams to pool
         for ($i = 1; $i <= 6; $i++) {
-            $this->teams[] = Team::create($this->division, $this->pool, "TeamPolygon $i");
+            $this->teams[] = Team::create($this->division, $this->pool, "TeamPolygon $i", '', '', '');
         }
 
         // Add six teams to cross pool
         for ($i = 7; $i <= 12; $i++) {
-            $this->crossPoolTeams[] = Team::create($this->division, $this->pool, "Corss Pool TeamPolygon $i");
+            $this->crossPoolTeams[] = Team::create($this->division, $this->pool, "Corss Pool TeamPolygon $i", '', '', '');
         }
 
         // Add five teams to odd pool
         for ($i = 13; $i <= 17; $i++) {
-            $this->oddPoolTeams[] = Team::create($this->division, $this->oddPool, "Odd Pool TeamPolygon $i");
+            $this->oddPoolTeams[] = Team::create($this->division, $this->oddPool, "Odd Pool TeamPolygon $i", '', '', '');
         }
     }
 
@@ -116,6 +116,27 @@ class TeamPolygonTest extends ORM_TestHelper
         $this->verifyParing($teamPairings, 4, 2);
         $this->verifyParing($teamPairings, 0, 1);
         $this->verifyParing($teamPairings, 3, 4);
+    }
+
+    public function test_getTeamPairingsRoundRobinOddTournamentWithShiftThreeTeams()
+    {
+        $oddPoolTeams = [];
+        for ($i = 0; $i < 3; $i++) {
+            $oddPoolTeams[] = $this->oddPoolTeams[$i];
+        }
+
+        $teamPolygon = new TeamPolygon($oddPoolTeams, TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT);
+        $teamPolygon->shift();
+        $teamPairings = $teamPolygon->getTeamPairings();
+
+        $this->assertEquals(2, count($teamPairings));
+        $this->verifyParing($teamPairings, 2, 0);
+        $this->verifyParing($teamPairings, 1, 2);
+
+        $teamPolygon->shift();
+        $teamPairings = $teamPolygon->getTeamPairings();
+        $this->assertEquals(1, count($teamPairings));
+        $this->verifyParing($teamPairings, 1, 2);
     }
 
     public function test_getTeamPairingsCrossPoolEven()

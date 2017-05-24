@@ -308,7 +308,8 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
             $divisionFields = DivisionField::lookupByField($field);
             $selectedDivisions = '';
             foreach ($divisionFields as $divisionField) {
-                $selectedDivisions = $divisionField->division->name . " ";
+                $gender = $divisionField->division->gender == 'Girls' ? "G" : "B";
+                $selectedDivisions .= $divisionField->division->name . $gender . " ";
             }
 
             print "
@@ -365,7 +366,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                                     $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
                                     $homeTeam           = $game->homeTeam;
                                     $visitingTeam       = $game->visitingTeam;
-                                    $cellHTML           = $homeTeam->name . "<br>" . $visitingTeam->name;
+                                    $cellHTML           = "H: " . $homeTeam->nameId . "<br>" . "V: " . $visitingTeam->nameId;
                                     $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
                                 } else {
                                     $cellHTML           = $game->title;
@@ -396,7 +397,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
         }
 
         print "
-            </table>";
+            </table><br><br>";
     }
 
     /**
@@ -450,7 +451,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
         // For each team, display games ordered by date and time
         $teams = Team::lookupByDivision($division);
         foreach ($teams as $team) {
-            View_Games_Team::printScheduleForTeam($team, null, $gamesByDay, $schedules, true);
+            View_Games_Team::printScheduleForTeam($team, null, $gamesByDay, $schedules, true, false);
         }
     }
 

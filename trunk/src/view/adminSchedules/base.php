@@ -1,7 +1,5 @@
 <?php
 
-use \DAG\Domain\Schedule\Division;
-
 /**
  * @brief: Abstract base class for all adminPractice views.
  */
@@ -23,6 +21,7 @@ abstract class View_AdminSchedules_Base extends View_Base {
         $headerButton = View_Base::SIGN_OUT;
         $nextPage = View_Base::SCHEDULE_UPLOAD_PAGE;
         $headerImage = "/images/aysoLogo.jpeg";
+        $splashImage = "/images/logo-splash.png";
         $name = isset($this->m_controller->m_coordinator) ? $this->m_controller->m_coordinator->name : '';
         $collapsibleCount = $this->getCollapsibleCount();
 
@@ -47,6 +46,7 @@ abstract class View_AdminSchedules_Base extends View_Base {
                     <tr>
                         <td width='50'><img src='$headerImage' alt='Organization Icon' width='75' height='75'></td>
                         <td align='left'><h1>$headerTitle</h1><br></td>
+                        <td width='50'><img src='$splashImage' alt='Organization Icon' width='75' height='75'></td>
                         <form method='post' action='${nextPage}$this->m_urlParams'>
                             <td nowrap width='100' align='left'>";
 

@@ -140,10 +140,10 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
                 <tr>
                     <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Divisions, Teams, Coaches and Assistant Coaches</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong>
                     <br><p style='font-size: 12px'>
-                        Approved,Team,Type,eAYSO Vol App,AYSO ID,Name,Phone,Cell,Email,Certifications<br>
-                        New,U12G-2,Coach,,,Walid Afifi,805-679-1812,805-679-1810,w-afifi@comm.ucsb.edu,\"Needs training\"<br>
-                        New,U12B-5,Coach,,,David Aguilar,805-284-2045,805-259-9680,davidoaguilar@gmail.com,\"Needs training\"<br>
-                        Yes,U6B-29,Coach,,58302620,Gerardo Aldana,805-637-0256,,soccercoachga@gmail.com,\"U-6 Coach,Needs training\"
+                        TeamName,TeamId,Region,City,Division,Gender,CoachType,CoachName,CoachPhone,CoachCell,CoachEmail<br>
+                        apples,U12G-02,122,Santa Barbara,U12,G,Coach,Walid Afifi,805-679-1812,805-679-1810,w-afifi@comm.ucsb.edu<br>
+                        oranges,U12B-05,122,Santa Barbara,U12,B,Coach,David Aguilar,805-284-2045,805-259-9680,davidoaguilar@gmail.com<br>
+                        bananas,U6B-29,122,Santa Barbara,U6,B,Coach,Gerardo Aldana,805-637-0256,,soccercoachga@gmail.com
                         </p>
                     </td>
                 </tr>
