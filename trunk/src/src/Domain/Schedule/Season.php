@@ -200,7 +200,7 @@ class Season extends Domain
      *
      * @param bool  $ignoreHeaderRow - defaults to true
      */
-    public function populateDivisions($data, $ignoreHeaderRow = true )
+    public function populateDivisions_old($data, $ignoreHeaderRow = true )
     {
         $line = '';
 
@@ -256,7 +256,7 @@ class Season extends Domain
 
                 // Create division, team and coach or assistant coach
                 $division       = Division::create($this, $divisionName, $gender, $gameDurationMinutes, $displayOrder, true);
-                $team           = Team::create($division, null, $teamName, true);
+                $team           = Team::create($division, null, $teamName, '', '', '', true);
 
                 switch (strtolower($fields[2])) {
                     case 'coach':
@@ -264,6 +264,84 @@ class Season extends Domain
                         break;
                     default:
                         AssistantCoach::create($team, null, $name, $email, $phone1, $phone2, true);
+                        break;
+                }
+            }
+        } catch (\Exception $e) {
+            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
+        }
+    }
+
+    /**
+     * Populate Divisions, Teams, Coaches, Assistant Coaches
+     *
+     * @param string $data - Expected format:
+     *      TeamName,TeamId,Region,City,Division,Gender,CoachType,CoachName,CoachPhone,CoachCell,CoachEmail
+     *      Multi line data where fields are comma separated.  Example:
+     *      Rattlesnakes,U12G-3,122,Santa Barbara,U10,G,Coach,Raul Baez,805-845-8124,805-680-1687,familyrb805@yahoo.com
+     *
+     *      where:
+     *          CoachType is "Coach" or "Asst"
+     *
+     * @param bool  $ignoreHeaderRow - defaults to true
+     */
+    public function populateDivisions($data, $ignoreHeaderRow = true )
+    {
+        $line = '';
+
+        try {
+            $lines = explode("\n", $data);
+            $processedLines = 0;
+
+            foreach ($lines as $line) {
+                $processedLines += 1;
+
+                // Skip first line if requested
+                if ($processedLines == 1 and $ignoreHeaderRow) {
+                    continue;
+                }
+
+                // Skip empty lines
+                if (empty(trim($line))) {
+                    continue;
+                }
+
+                $fields = explode(',', $line);
+                Assertion::isTrue(count($fields) >= 11, "Invalid line: $line");
+
+                $teamName       = $fields[0];
+                $teamId         = $fields[1];
+                $region         = $fields[2];
+                $city           = $fields[3];
+                $divisionName   = $fields[4];
+                $gender         = $fields[5] == 'B' ? "Boys" : "Girls";
+                $coachType      = $fields[6];
+                $coachName      = $fields[7];
+                $coachPhone     = in_array($fields[8], self::$phoneNumbersToSkip) ? '' : $fields[8];
+                $coachCell      = in_array($fields[9], self::$phoneNumbersToSkip) ? '' : $fields[9];
+                $coachEmail     = $fields[10];
+
+                $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
+                $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
+
+                // Do not store the same phone number a second time for a  coach
+                $coachPhone = ($coachPhone == $coachCell) ? '' : $coachPhone;
+
+                // Skip teams where there is no coach
+                if (empty($coachName)) {
+                    continue;
+                }
+
+                // Create division, team and coach or assistant coach
+                $division       = Division::create($this, $divisionName, $gender, $gameDurationMinutes, $displayOrder, true);
+                $team           = Team::create($division, null, $teamName, $teamId, $region, $city, true);
+
+                switch (strtolower($coachType)) {
+                    case 'coach':
+                        Coach::create($team, null, $coachName, $coachEmail, $coachPhone, $coachCell, true);
+                        break;
+                    default:
+                        AssistantCoach::create($team, null, $coachName, $coachEmail, $coachPhone, $coachCell, true);
                         break;
                 }
             }
@@ -421,7 +499,7 @@ class Season extends Domain
                 $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
 
                 $division       = Division::create($this, $divisionName, $gender, $gameDurationMinutes, $displayOrder, true);
-                $team           = Team::create($division, null, $teamName, true);
+                $team           = Team::create($division, null, $teamName, '', '', '', true);
                 Player::create($team, null, $playerName, '', $fields[6], true);
             }
         } catch (\Exception $e) {

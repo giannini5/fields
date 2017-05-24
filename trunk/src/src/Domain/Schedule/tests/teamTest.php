@@ -24,7 +24,10 @@ class TeamTest extends ORM_TestHelper
     protected function setUp()
     {
         $this->expectedDefaults = array(
-            'name' => 'TEST Domain team name',
+            'name'   => 'TEST Domain team name',
+            'nameId' => 'TEST 1',
+            'region' => '4',
+            'city'   => 'Temecula',
         );
 
         $this->primeDatabase();
@@ -35,7 +38,10 @@ class TeamTest extends ORM_TestHelper
         $this->teamsToCleanup[] = Team::create(
             $this->division,
             $this->pool,
-            $this->expectedDefaults['name']);
+            $this->expectedDefaults['name'],
+            $this->expectedDefaults['nameId'],
+            $this->expectedDefaults['region'],
+            $this->expectedDefaults['city']);
     }
 
     protected function tearDown()
@@ -59,7 +65,10 @@ class TeamTest extends ORM_TestHelper
         $team = Team::create(
             $this->division,
             null,
-            $this->expectedDefaults['name']);
+            $this->expectedDefaults['name'],
+            $this->expectedDefaults['nameId'],
+            $this->expectedDefaults['region'],
+            $this->expectedDefaults['city']);
         $this->teamsToCleanup[] = $team;
 
         $this->validateTeam($team, $this->division, null, $this->expectedDefaults);
@@ -92,8 +101,11 @@ class TeamTest extends ORM_TestHelper
     public function validateTeam($team, $division, $pool, $expectedDefaults)
     {
         $this->assertTrue($team->id > 0);
-        $this->assertEquals($expectedDefaults['name'],  $team->name);
-        $this->assertEquals($division,                  $team->division);
-        $this->assertEquals($pool,                      $team->pool);
+        $this->assertEquals($expectedDefaults['name'],   $team->name);
+        $this->assertEquals($expectedDefaults['nameId'], $team->nameId);
+        $this->assertEquals($expectedDefaults['region'], $team->region);
+        $this->assertEquals($expectedDefaults['city'],   $team->city);
+        $this->assertEquals($division,                   $team->division);
+        $this->assertEquals($pool,                       $team->pool);
     }
 }

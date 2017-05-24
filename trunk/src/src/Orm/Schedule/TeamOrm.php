@@ -12,6 +12,9 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $divisionId
  * @property int    $poolId
  * @property string $name
+ * @property string $nameId
+ * @property string $region
+ * @property string $city
  */
 class TeamOrm extends PersistenceModel
 {
@@ -19,12 +22,18 @@ class TeamOrm extends PersistenceModel
     const FIELD_DIVISION_ID = 'divisionId';
     const FIELD_POOL_ID     = 'poolId';
     const FIELD_NAME        = 'name';
+    const FIELD_NAME_ID     = 'nameId';
+    const FIELD_REGION      = 'region';
+    const FIELD_CITY        = 'city';
 
     protected static $fields = [
         self::FIELD_ID          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_DIVISION_ID => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_POOL_ID     => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_NAME        => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_NAME_ID     => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_REGION      => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_CITY        => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
     ];
 
     protected static $config = [
@@ -41,6 +50,9 @@ class TeamOrm extends PersistenceModel
      * @param int       $divisionId
      * @param int       $poolId
      * @param string    $name
+     * @param string    $nameId     - Example: U10G-1A
+     * @param string    $region     - Example: 122
+     * @param string    $city
      *
      * @return TeamOrm
      * @throws DuplicateEntryException
@@ -48,13 +60,19 @@ class TeamOrm extends PersistenceModel
     public static function create(
         $divisionId,
         $poolId,
-        $name)
-    {
+        $name,
+        $nameId,
+        $region,
+        $city
+    ) {
         $result = self::getPersistenceDriver()->create(
             [
                 self::FIELD_DIVISION_ID => $divisionId,
                 self::FIELD_POOL_ID     => $poolId,
                 self::FIELD_NAME        => $name,
+                self::FIELD_NAME_ID     => $nameId,
+                self::FIELD_REGION      => $region,
+                self::FIELD_CITY        => $city,
             ],
             function ($item) {
                 return $item !== null;

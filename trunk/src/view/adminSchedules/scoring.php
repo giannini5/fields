@@ -229,7 +229,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
             <form method='post' action='" . self::SCHEDULE_SCORING_PAGE . $this->m_urlParams . "'>";
 
         $coach = Coach::lookupByTeam($game->homeTeam);
-        $name = $game->homeTeam->name . ' ' . $coach->shortName;
+        $name = $game->homeTeam->nameId . ' ' . $coach->shortName . ' ' . $game->homeTeam->region . ' (' . $game->homeTeam->city . ')';
         print "
                 <tr>
                     <td style='color: " . View_Base::AQUA . "'><strong>Home Team:</strong></td>
@@ -246,7 +246,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                 </tr>";
 
         $coach = Coach::lookupByTeam($game->visitingTeam);
-        $name = $game->visitingTeam->name . ' ' . $coach->shortName;
+        $name = $game->visitingTeam->nameId . ' ' . $coach->shortName . ' ' . $game->visitingTeam->region . ' (' . $game->visitingTeam->city . ')';
         print "
                 <tr>
                     <td style='color: " . View_Base::AQUA . "'><strong>Visiting Team:</strong></td>

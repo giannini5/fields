@@ -7,7 +7,6 @@ use \DAG\Domain\Schedule\GameTime;
 use \DAG\Domain\Schedule\DivisionField;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Orm\Schedule\ScheduleOrm;
-use \DAG\Domain\Schedule\Flight;
 
 /**
  * @brief Show the Schedule page and get the user to select a schedule to administer or create a new schedule.
@@ -536,10 +535,12 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
             $teams = Team::lookupByPool($pool);
             foreach ($teams as $team) {
+                $coach = Coach::lookupByTeam($team);
+                $title = "title='$coach->name'";
                 print "
                 <tr>
                     <td>&nbsp</td>
-                    <td>$team->name</td>";
+                    <td $title>$team->nameId</td>";
 
                 $name = View_Base::TEAM_POOL_UPDATE_DATA . "[$team->id][" . View_Base::POOL_ID . "]";
                 $this->displaySelector('Pool:', $name, '', $poolSelector, $team->pool->fullName, null, false, 120, 'right');
@@ -830,7 +831,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                                 $gender             = $game->homeTeam->division->gender;
                                 $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
                                 $gameData           = "Game Id: " . $game->id . "<br>";
-                                $gameData           .= $game->homeTeam->name . " vs " . $game->visitingTeam->name;
+                                $gameData           .= $game->homeTeam->nameId . " vs " . $game->visitingTeam->nameId;
                                 $locked             = $game->isLocked() ? "\nLOCKED" : "";
                                 $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "$locked'";
 

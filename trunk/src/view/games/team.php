@@ -85,7 +85,7 @@ class View_Games_Team
 
             foreach ($teams as $team) {
                 $coach = Coach::lookupByTeam($team);
-                $sortedCoaches[$coach->id] = $team->name . ": " . $coach->lastName;
+                $sortedCoaches[$coach->id] = $team->nameId . ": " . $coach->lastName;
             }
         }
 
@@ -109,12 +109,13 @@ class View_Games_Team
      * @param array $gamesByDay         - List of games by day, defaults to null
      * @param array $schedules          - List of schedules, defaults to null
      * @param bool  $showHomeTeamCount  - If true then show the number of home vs away games
+     * @param bool  $publishedOnly      - Defaults to true
      */
-    public static function printScheduleForTeam($team, $coach = null, $gamesByDay = null, $schedules = null, $showHomeTeamCount = false)
+    public static function printScheduleForTeam($team, $coach = null, $gamesByDay = null, $schedules = null, $showHomeTeamCount = false, $publishedOnly = true)
     {
         $coach      = isset($coach) ? $coach : Coach::lookupByTeam($team);
         $division   = $team->division;
-        $schedules  = Schedule::lookupByDivision($division, true);
+        $schedules  = Schedule::lookupByDivision($division, $publishedOnly);
         $teamName   = $division->name . ": " . $team->name . " (" . $coach->lastName . ")";
 
         if (!isset($gamesByDay)) {
@@ -139,6 +140,7 @@ class View_Games_Team
 
         if (count($schedules) == 0) {
             print "<p style='color: red; font-size: medium' align='center'>Schedules have not yet been published for Division: $division->name $division->gender.</p>";
+            return;
         } else {
             // Print Schedule header
             print "
@@ -175,11 +177,12 @@ class View_Games_Team
 
                 $dayCount       += 1;
                 $dayCellPrinted = false;
+                $lastStartTime  = '';
                 foreach ($gamesByTime as $startTime => $games) {
                     foreach ($games as $game) {
                         $field              = $game->gameTime->field;
                         $facility           = $field->facility;
-                        $startTime          = $game->gameTime->startTime;
+                        $startTime          = substr($game->gameTime->startTime, 0, 5);
                         $dayCell            = $dayCellPrinted ? '' : "<td nowrap rowspan='$rowSpan'>$day</td>";
                         $dayCellPrinted     = true;
                         $fieldName          = $facility->name . ": " . $field->name;
@@ -188,12 +191,17 @@ class View_Games_Team
                         $homeTeamStyle      = '';
                         $visitingTeamStyle  = '';
                         $result             = '';
+                        $homeTeamTitle      = '';
+                        $visitingTeamTitle  = '';
+                        $startTimeBgColor   = self::diffInHours($lastStartTime, $startTime) < 2 ? "bgcolor='red'" : "";
+                        $lastStartTime      = $startTime;
 
                         if (isset($game->homeTeam)) {
                             $homeCoach      = Coach::lookupByTeam($game->homeTeam);
-                            $homeTeamName   = $game->homeTeam->name . ": " . $homeCoach->lastName;
+                            $homeTeamName   = $game->homeTeam->nameId . ": " . $homeCoach->lastName;
+                            $homeTeamTitle  = "title='" . $game->homeTeam->name . ": " . $game->homeTeam->region . " (" . $game->homeTeam->city . ")'";
 
-                            if ($team->name == $game->homeTeam->name) {
+                            if ($team->id == $game->homeTeam->id) {
                                 $homeTeamCount  += 1;
                                 $homeTeamStyle  = "style='color: red'";
                                 $result         = self::computeResult($game, true);
@@ -206,7 +214,8 @@ class View_Games_Team
 
                         if (isset($game->visitingTeam)) {
                             $visitingCoach = Coach::lookupByTeam($game->visitingTeam);
-                            $visitingTeamName = $game->visitingTeam->name . ": " . $visitingCoach->lastName;
+                            $visitingTeamName   = $game->visitingTeam->nameId . ": " . $visitingCoach->lastName;
+                            $visitingTeamTitle  = "title='" . $game->visitingTeam->name . ": " . $game->visitingTeam->region . " (" . $game->visitingTeam->city . ")'";
                         }
 
                         $bgcolor = ($dayCount % 2 == 0) ? "" : "bgcolor='lightgray'";
@@ -216,10 +225,10 @@ class View_Games_Team
                             <tr $bgcolor>
                                 $dayCell
                                 <td>$game->id</td>
-                                <td>$startTime</td>
+                                <td $startTimeBgColor>$startTime</td>
                                 <td>$fieldName</td>
-                                <td $homeTeamStyle>$homeTeamName</td>
-                                <td $visitingTeamStyle>$visitingTeamName</td>
+                                <td $homeTeamStyle $homeTeamTitle>$homeTeamName</td>
+                                <td $visitingTeamStyle $visitingTeamTitle>$visitingTeamName</td>
                                 <td>$result</td>
                             </tr>";
                         } else {
@@ -287,5 +296,21 @@ class View_Games_Team
         }
 
         return $result;
+    }
+
+    /**
+     * @param string    $startTime  - Of the form HH:MM:SS
+     * @param string    $endTime    - Of the form HH:MM:SS
+     * @return int      hours between startTime and endTime
+     */
+    static private function diffInHours($startTime, $endTime)
+    {
+        date_default_timezone_set('America/Los_Angeles');
+        $startDate  = new DateTime("2017-01-01T$startTime");
+        $endDate    = new DateTime("2017-01-01T$endTime");
+
+        $diff = $endDate->diff($startDate);
+
+        return $diff->h;
     }
 }

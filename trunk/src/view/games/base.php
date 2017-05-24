@@ -1,7 +1,5 @@
 <?php
 
-use \DAG\Domain\Schedule\Division;
-
 /**
  * @brief: Abstract base class for all schedule views.
  */
@@ -23,8 +21,8 @@ abstract class View_Games_Base extends View_Base {
      */
     public function displayPage()
     {
-        $sessionId      = $this->m_controller->getSessionId();
         $headerImage    = "/images/aysoLogo.jpeg";
+        $splashImage = "/images/logo-splash.png";
         $seasonTitle    = isset($this->m_controller->m_season) ? $this->m_controller->m_season->name : 'No Season Enabled';
         $headerTitle    = "<font color='darkblue'>AYSO Region 122:<br></font><font color='red'>Game Schedules<br>$seasonTitle</font>";
 
@@ -46,6 +44,7 @@ abstract class View_Games_Base extends View_Base {
                     <tr>
                         <td width='50'><img src='$headerImage' alt='Organization Icon' width='75' height='75'></td>
                         <td align='left'><h1>$headerTitle</h1><br></td>
+                        <td width='50'><img src='$splashImage' alt='Tournament Icon' width='75' height='75'></td>
                     </tr>
                 </table>";
 

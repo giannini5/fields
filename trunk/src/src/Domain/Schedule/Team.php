@@ -13,6 +13,9 @@ use DAG\Framework\Exception\Precondition;
  * @property Division   $division
  * @property Pool       $pool
  * @property string     $name
+ * @property string     $nameId
+ * @property string     $region
+ * @property string     $city
  */
 class Team extends Domain
 {
@@ -41,6 +44,9 @@ class Team extends Domain
      * @param Division  $division
      * @param Pool      $pool
      * @param string    $name
+     * @param string    $nameId
+     * @param string    $region
+     * @param string    $city
      *
      * @param bool      $ignore - defaults to false and duplicates raise an exception
      *
@@ -53,12 +59,15 @@ class Team extends Domain
         $division,
         $pool,
         $name,
+        $nameId,
+        $region,
+        $city,
         $ignore = false)
     {
         $poolId = isset($pool) ? $pool->id : null;
 
         try {
-            $teamOrm = TeamOrm::create($division->id, $poolId, $name);
+            $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city);
             return new static($teamOrm, $division, $pool);
         } catch (DuplicateEntryException $e) {
             if ($ignore) {
@@ -148,6 +157,9 @@ class Team extends Domain
         switch ($propertyName) {
             case "id":
             case "name":
+            case "nameId":
+            case "region":
+            case "city":
                 return $this->teamOrm->{$propertyName};
 
             case "division":
@@ -192,6 +204,9 @@ class Team extends Domain
         switch ($propertyName) {
             case "id":
             case "name":
+            case "nameId":
+            case "region":
+            case "city":
             case "division":
                 return true;
 

@@ -220,6 +220,48 @@ class GameTime extends Domain
 
     /**
      * @param GameDate      $gameDate
+     * @param bool          $availableOnly defaults to false (only return times where a game has not been scheduled)
+     * @param string        $minStartTime
+     * @param string        $maxEndTime
+     *
+     * @return array        $gameTimes
+     */
+    public static function lookupByGameDateAndFields(
+        $gameDate,
+        $allowedFields,
+        $availableOnly  = false,
+        $minStartTime   = null,
+        $maxEndTime     = null)
+    {
+        $gameTimes          = [];
+        $minStartTime       = isset($minStartTime) ? $minStartTime : '00:00:00';
+        $maxEndTime         = isset($maxEndTime) ? $maxEndTime : '24:59:59';
+        $allowedFieldIds    = [];
+
+        foreach ($allowedFields as $field) {
+            $allowedFieldIds[$field->id] = $field->id;
+        }
+
+        $gameTimeOrms = GameTimeOrm::loadByGameDateId($gameDate->id);
+        foreach ($gameTimeOrms as $gameTimeOrm) {
+            if ($availableOnly and isset($gameTimeOrm->gameId)) {
+                continue;
+            }
+
+            if (!in_array($gameTimeOrm->fieldId, $allowedFieldIds)) {
+                continue;
+            }
+
+            if ($minStartTime <= $gameTimeOrm->startTime and $maxEndTime >= $gameTimeOrm->startTime) {
+                $gameTimes[] = new static($gameTimeOrm, $gameDate, null, null);
+            }
+        }
+
+        return $gameTimes;
+    }
+
+    /**
+     * @param GameDate      $gameDate
      * @param Field         $field
      * @param bool          $availableOnly defaults to false
      *

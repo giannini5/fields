@@ -6,7 +6,6 @@ use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\Schedule;
 use \DAG\Domain\Schedule\Game;
 use \DAG\Domain\Schedule\Flight;
-use \DAG\Domain\Schedule\GameTime;
 
 /**
  * @brief Show the Schedule Viewing page
@@ -106,7 +105,7 @@ class View_Games_Schedule extends View_Games_Base
         $schedulePrinted = false;
         foreach ($schedules as $schedule) {
             if ($schedule->published == 1) {
-                $this->printSchedule($this->m_controller->m_season, $schedule);
+                $this->printSchedule($schedule);
                 $schedulePrinted = true;
             }
         }
@@ -122,10 +121,9 @@ class View_Games_Schedule extends View_Games_Base
     }
 
     /**
-     * @param Season    $season
      * @param Schedule  $schedule
      */
-    private function printSchedule($season, $schedule)
+    private function printSchedule($schedule)
     {
         $flights = Flight::lookupBySchedule($schedule);
         foreach ($flights as $flight) {
@@ -253,14 +251,18 @@ class View_Games_Schedule extends View_Games_Base
                     $visitingTeamName   = "&nbsp";
                     $homeTeamScore      = "&nbsp";
                     $visitingTeamScore  = "&nbsp";
+                    $homeTeamTitle      = '';
+                    $visitingTeamTitle  = '';
                     $title              = $game->title;
                     if (isset($game->homeTeam)) {
                         $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
                         $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
-                        $homeTeamName       = $game->homeTeam->name . ": " . $homeTeamCoach->lastName;
-                        $visitingTeamName   = $game->visitingTeam->name . ": " . $visitingTeamCoach->lastName;
+                        $homeTeamName       = $game->homeTeam->nameId . ": " . $homeTeamCoach->lastName;
+                        $visitingTeamName   = $game->visitingTeam->nameId . ": " . $visitingTeamCoach->lastName;
                         $homeTeamScore      = isset($game->homeTeamScore) ? $game->homeTeamScore : "&nbsp";
                         $visitingTeamScore  = isset($game->visitingTeamScore) ? $game->visitingTeamScore : "&nbsp";
+                        $homeTeamTitle      = "title='" . $game->homeTeam->name . " " . $game->homeTeam->region . " (" . $game->homeTeam->city . ")'";
+                        $visitingTeamTitle  = "title='" . $game->visitingTeam->name . " " . $game->visitingTeam->region . " (" . $game->visitingTeam->city . ")'";
                     }
 
                     $dayRow         = $dayRowPrinted ? "" : "<td nowrap rowspan='$dayRowSpan'>$day</td>";
@@ -274,9 +276,9 @@ class View_Games_Schedule extends View_Games_Base
                             <td nowrap>$fieldName</td>
                             <td nowrap>$gameTime</td>
                             <td nowrap align='center'>$game->id</td>
-                            <td nowrap>$homeTeamName</td>
+                            <td nowrap $homeTeamTitle>$homeTeamName</td>
                             <td nowrap align='center'>$homeTeamScore</td>
-                            <td nowrap>$visitingTeamName</td>
+                            <td nowrap $visitingTeamTitle>$visitingTeamName</td>
                             <td nowrap align='center'>$visitingTeamScore</td>
                         </tr>";
                 }
