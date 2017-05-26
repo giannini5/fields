@@ -212,11 +212,16 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
         $day            = $game->gameTime->gameDate->day;
         $time           = $game->gameTime->startTime;
         $fieldName      = $game->gameTime->field->fullName;
+        $flightName     = $game->flight->name;
+        $poolName       = isset($game->pool) ? $game->pool->name : $game->title;
 
         print "
             <table bgcolor='$bgcolor' valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
             <tr><td>
             <table bgcolor='$bgcolor' valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <td style='color: " . View_Base::AQUA . "'><strong>$flightName $poolName</strong></td>
+                </tr>
                 <tr>
                     <td style='color: " . View_Base::AQUA . "'><strong>Game Id:</strong></td>
                     <td colspan='1'>$game->id</td>

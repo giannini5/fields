@@ -8,6 +8,7 @@ use \DAG\Domain\Schedule\Pool;
 use \DAG\Domain\Schedule\Team;
 use \DAG\Orm\Schedule\GameOrm;
 use \DAG\Framework\Exception\Assertion;
+use \DAG\Framework\Exception\Precondition;
 
 /**
  * Class Controller_AdminSchedules_Scoring
@@ -154,9 +155,15 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
         $game->notes                    = $this->m_gameNotes;
 
         // Populate title games if any and all flight games are complete
-        $this->populateTitleGame($game);
+        $result = $this->populateTitleGames($game);
+        $titleGameMessage = '';
+        if ($result == 1) {
+            $titleGameMessage = "<br>Medal Round Games Populated with Teams";
+        } else if ($result == 2) {
+            $titleGameMessage = "<br>Medal Round Games Ready for Population, but tie-breaker rules need to be consulted.  Manual population required.";
+        }
 
-        $this->m_messageString = "Result $operation for game $this->m_gameId";
+        $this->m_messageString = "Score $operation for game $this->m_gameId" . $titleGameMessage;
     }
 
     /**
@@ -179,7 +186,7 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
                 $game->visitingTeamRedCards     = 0;
                 $game->notes                    = '';
             } else {
-                $this->processGameScoring();
+                $this->processGameScoring($this->m_operation == View_Base::UPDATE);
             }
         }
     }
@@ -193,68 +200,236 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
     }
 
     /**
-     * @param Game  $game
+     * @param Game  $game   - Game that was just scored
+     *
+     * @return int   0 if title games not ready to populate
+     *              1 if title games populated
+     *              2 if title games ready to populate, but there is a tie in points
      */
-    private function populateTitleGame($game)
+    private function populateTitleGames($game)
     {
-        // Skip if this is a title game
-        if ($game->title != '') {
-            return;
-        }
-
         // Skip if schedule does not support tournament play
         if ($game->flight->schedule->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT) {
-            return;
+            return 0;
+        }
+
+        // Skip if this is a title game that does not require follow-on scheduling
+        // Simi-final games require follow-on scheduling
+        if ($game->title != '' and $game->title != GameOrm::TITLE_SEMI_FINAL) {
+            return 0;
         }
 
         // Skip if flight games are not 100% complete
-        $titleGames = [];
-        $games = Game::lookupByFlight($game->flight);
+        $titleGames     = [];
+        $semiFinalGames = [];
+        $games          = Game::lookupByFlight($game->flight);
         foreach ($games as $game) {
             if ($game->title != '') {
-                $titleGames[$game->title] = $game;
-                break;
+                if ($game->title == GameOrm::TITLE_SEMI_FINAL) {
+                    $semiFinalGames[] = $game;
+                } else {
+                    $titleGames[$game->title] = $game;
+                }
+                continue;
             }
 
             if (!isset($game->homeTeamScore)) {
-                return;
+                return 0;
             }
+        }
+
+        // Skip if flight does not have any title games
+        if (count($titleGames) == 0) {
+            return 0;
         }
 
         // Get teams by pool with points
         $pools = Pool::lookupByFlight($game->flight);
-        $standingsByPoolByPoints = [];
-        $standingsByPoints = [];
+        $standingsByPoolByPoints    = [];
+        $teamsById                  = [];
         foreach ($pools as $pool) {
-            $teams = Team::lookupByPool($pool);
+            $standingsByPoints  = [];
+            $teams              = Team::lookupByPool($pool);
 
             foreach ($teams as $team) {
-                $points = $team->getPoints($games);
-                $standingsByPoints[$points][$team->id][] = $team;
+                $teamsById[$team->id]                       = $team;
+                $points                                     = $team->getPoints($games);
+                // TODO: Deal better with ties here!!!
+                if (isset($standingsByPoints["$points"])) {
+                    // Bail for now.
+                    return 2;
+                }
+                /*
+                while (isset($standingsByPoints["$points"])) {
+                    $points = $points + .01;
+                }
+                */
+                $standingsByPoints["$points"] = $team->id;
             }
 
             krsort($standingsByPoints);
             $standingsByPoolByPoints[$pool->id] = $standingsByPoints;
         }
 
+        Assertion::isTrue(count($standingsByPoolByPoints) == 2,
+            "Support only implemented for flights with two pools. This flight has " . count($standingsByPoolByPoints) . " pools.");
+
+        $teamsByPool = [];
+        foreach ($standingsByPoolByPoints as $poolId => $standingsByPoints) {
+            foreach ($standingsByPoints as $points => $teamId) {
+                $teamsByPool[$poolId][] = $teamsById[$teamId];
+            }
+        }
+
+        // Get Semi-Final games
+        if (count($semiFinalGames) > 0) {
+            Assertion::isTrue(count($semiFinalGames) == 2, "Incorrect number of semi-final games found: " . count($semiFinalGames));
+
+            $semiFinalTeams = [];
+            foreach ($teamsByPool as $poolId => $teams) {
+                $semiFinalTeams[] = $teams[0];
+                $semiFinalTeams[] = $teams[1];
+            }
+            Assertion::isTrue(count($semiFinalTeams) == 4, "Incorrect number of semi-final teams found: " . count($semiFinalTeams));
+
+            // Populate with first from pool1 vs second from pool2
+            $semiFinalGames[0]->homeTeam        = $semiFinalTeams[0];
+            $semiFinalGames[0]->visitingTeam    = $semiFinalTeams[3];
+
+            // Populate with first from pool2 vs second from pool1
+            $semiFinalGames[1]->homeTeam        = $semiFinalTeams[2];
+            $semiFinalGames[1]->visitingTeam    = $semiFinalTeams[1];
+        }
+
         // Populate title games
         foreach ($titleGames as $titleGame) {
             switch ($titleGame->title) {
                 case GameOrm::TITLE_5TH_6TH:
+                    // Populate 5th/6th game with third place finisher in pool1 and pool2
+                    $thirdPlaceTeams            = $this->getTeamsForTitleGame($teamsByPool, $titleGame->title, 2);
+                    $titleGame->homeTeam        = $thirdPlaceTeams[0];
+                    $titleGame->visitingTeam    = $thirdPlaceTeams[1];
                     break;
 
                 case GameOrm::TITLE_3RD_4TH:
+                    // Use semi-final games if any; otherwise use pool teams
+                    if (count($semiFinalGames) > 0) {
+                        if ($this->areSemiFinalGamesScored($semiFinalGames)) {
+                            $semiFinalLosers            = $this->getSemiFinalGameLosers($semiFinalGames);
+                            $titleGame->homeTeam        = $semiFinalLosers[0];
+                            $titleGame->visitingTeam    = $semiFinalLosers[1];
+                        }
+                    } else {
+                        $secondPlaceTeams           = $this->getTeamsForTitleGame($teamsByPool, $titleGame->title, 1);
+                        $titleGame->homeTeam        = $secondPlaceTeams[0];
+                        $titleGame->visitingTeam    = $secondPlaceTeams[1];
+                    }
                     break;
 
                 case GameOrm::TITLE_CHAMPIONSHIP:
+                    // Use semi-final games if any; otherwise use pool teams
+                    if (count($semiFinalGames) > 0) {
+                        if ($this->areSemiFinalGamesScored($semiFinalGames)) {
+                            $semiFinalWinners           = $this->getSemiFinalGameWinners($semiFinalGames);
+                            $titleGame->homeTeam        = $semiFinalWinners[0];
+                            $titleGame->visitingTeam    = $semiFinalWinners[1];
+                        }
+                    } else {
+                        $thirdPlaceTeams            = $this->getTeamsForTitleGame($teamsByPool, $titleGame->title, 0);
+                        $titleGame->homeTeam        = $thirdPlaceTeams[0];
+                        $titleGame->visitingTeam    = $thirdPlaceTeams[1];
+                    }
                     break;
 
                 default:
                     Assertion::isTrue(false, "$titleGame->title not supported");
             }
-
-            // How to deal with ties???
         }
 
+        return 1;
+    }
+
+    /**
+     * @param array     $teamsByPoolSortedByPoints
+     * @param string    $gameTitle
+     * @param int       $teamIndex  - index into $teamsByPoolSortedByPoints's teams array for teams to return
+     *
+     * @return Team[]   Array of two Team entries
+     */
+    private function getTeamsForTitleGame($teamsByPoolSortedByPoints, $gameTitle, $teamIndex)
+    {
+        Precondition::isTrue(count($teamsByPoolSortedByPoints) == 2, "Incorrect number of pools for $gameTitle teams: " . count($teamsByPoolSortedByPoints));
+
+        $teams = [];
+        foreach ($teamsByPoolSortedByPoints as $poolId => $teamsSortedByPoints) {
+            $teams[] = $teamsSortedByPoints[$teamIndex];
+        }
+
+        Assertion::isTrue(count($teams) == 2, "Incorrect number of $gameTitle teams found: " . count($teams));
+        return $teams;
+    }
+
+    /**
+     * @param Game[]    $semiFinalGames
+     *
+     * @return bool     true if all games have been scored; false otherwise
+     */
+    private function areSemiFinalGamesScored($semiFinalGames)
+    {
+        foreach ($semiFinalGames as $semiFinalGame) {
+            if (!isset($semiFinalGame->homeTeamScore)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param Game[]    $semiFinalGames
+     *
+     * @return Team[]   Semi final game losers
+     */
+    private function getSemiFinalGameLosers($semiFinalGames)
+    {
+        $teams = [];
+
+        foreach ($semiFinalGames as $semiFinalGame) {
+            if ($semiFinalGame->homeTeamScore > $semiFinalGame->visitingTeamScore) {
+                $teams[] = $semiFinalGame->visitingTeam;
+            } else if ($semiFinalGame->homeTeamScore < $semiFinalGame->visitingTeamScore) {
+                $teams[] = $semiFinalGame->homeTeam;
+            }
+        }
+
+        // TODO: Cleaner error message here to support case where scorer accidentally enters a tie
+        Assertion::isTrue(count($teams) == 2,
+            "Incorrect number of loser Semi-Final teams found (did scorer enter a tie for the semi-final games?): " . count($teams));
+
+        return $teams;
+    }
+
+    /**
+     * @param Game[]    $semiFinalGames
+     *
+     * @return Team[]   Semi final game winners
+     */
+    private function getSemiFinalGameWinners($semiFinalGames)
+    {
+        $teams = [];
+
+        foreach ($semiFinalGames as $semiFinalGame) {
+            if ($semiFinalGame->homeTeamScore > $semiFinalGame->visitingTeamScore) {
+                $teams[] = $semiFinalGame->homeTeam;
+            } else if ($semiFinalGame->homeTeamScore < $semiFinalGame->visitingTeamScore) {
+                $teams[] = $semiFinalGame->visitingTeam;
+            }
+        }
+
+        // TODO: Cleaner error message here to support case where scorer accidentally enters a tie
+        Assertion::isTrue(count($teams) == 2,
+            "Incorrect number of loser Semi-Final teams found (did scorer enter a tie for the semi-final games?): " . count($teams));
+
+        return $teams;
     }
 }

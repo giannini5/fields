@@ -428,12 +428,14 @@ class Season extends Domain
 
             case 'U9':
             case 'U10':
-                return 75;
-
             case 'U11':
             case 'U12':
+                return 75;
+
             case 'U13':
             case 'U14':
+                return 80;
+
             case 'U15':
             case 'U16':
             case 'U17':

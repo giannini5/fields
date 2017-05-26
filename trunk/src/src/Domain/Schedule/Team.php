@@ -145,7 +145,7 @@ class Team extends Domain
      */
     public static function compare($a, $b)
     {
-        return strcmp($a->name, $b->name);
+        return strcmp($a->nameId, $b->nameId);
     }
 
     /**
@@ -216,6 +216,33 @@ class Team extends Domain
             default:
                 Precondition::isTrue(false, "Unrecognized isset property: $propertyName");
         }
+    }
+
+    /**
+     * @param Game[]    $games List of games to evaluate when computing points.  If empty then lookup games for team
+     *
+     * @return int  Number of points for team
+     */
+    public function getPoints($games = null)
+    {
+        $points = 0;
+
+        if (!isset($games)) {
+            $games = Game::lookupByTeam($this);
+        }
+
+        foreach ($games as $game) {
+            // Exclude title games
+            if ($game->title == '') {
+                if ($game->homeTeam->id == $this->id) {
+                    $points += $game->computeGamePoints(true);
+                } else if ($game->visitingTeam->id == $this->id) {
+                    $points += $game->computeGamePoints(false);
+                }
+            }
+        }
+
+        return $points;
     }
 
     /**

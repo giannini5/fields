@@ -235,8 +235,8 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 if (isset($gameTime->game)) {
                     $gameIds[$gameTime->game->id] = $gameTime->game->id;
                     $gamesByPoolId[$gameTime->game->pool->id] += 1;
-                    $teamSelector[$gameTime->game->homeTeam->id]        = $gameTime->game->homeTeam->name;
-                    $teamSelector[$gameTime->game->visitingTeam->id]    = $gameTime->game->visitingTeam->name;
+                    $teamSelector[$gameTime->game->homeTeam->id]        = $gameTime->game->homeTeam->nameId;
+                    $teamSelector[$gameTime->game->visitingTeam->id]    = $gameTime->game->visitingTeam->nameId;
                 }
             }
         }
@@ -735,8 +735,8 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
         $this->displaySelector('Team:', View_Base::TEAM_ID, '', $teamSelector, '', NULL, true, 150, 'left', 'Select Team');
         $this->displayCalendarDateSelector(4, View_Base::START_DATE, 'From Date', $this->m_controller->m_season->startDate, null, 1, 135);
         $this->displayCalendarDateSelector(4, View_Base::END_DATE, 'To Date', $this->m_controller->m_season->endDate, null, 1, 135);
-        $this->printTimeSelector(View_Base::START_TIME, "From Time", "08:00:00");
-        $this->printTimeSelector(View_Base::END_TIME, "To Time", "17:00:00");
+        $this->printTimeSelector(View_Base::START_TIME, "From Time", "07:00:00");
+        $this->printTimeSelector(View_Base::END_TIME, "To Time", "19:00:00");
         $this->displaySelector('Field:', View_Base::FIELD_ID, 0, $fieldSelector, '', NULL, true, 150, 'left');
 
         print "

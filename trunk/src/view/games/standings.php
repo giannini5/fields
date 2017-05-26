@@ -260,7 +260,7 @@ class View_Games_Standings extends View_Games_Base
                 foreach ($teams as $team) {
                     $coach  = Coach::lookupByTeam($team);
                     $games  = Game::lookupByTeam($team);
-                    $points = 0;
+                    $points = '';
 
                     print "
                         <tr>
@@ -274,17 +274,16 @@ class View_Games_Standings extends View_Games_Base
                         }
 
                         $isHomeTeam         = $game->homeTeam->id == $team->id;
-                        $gamePoints         = 0;
                         $gameResultString   = "&nbsp";
                         if (isset($game->homeTeamScore)) {
-                            $gamePoints         = $this->computeGamePoints($game, $isHomeTeam);
+                            $gamePoints         = $game->computeGamePoints($isHomeTeam);
                             $gameResultString   = $this->getGameResultString($game, $isHomeTeam);
+                            $points             = $points == '' ? 0 : $points;
+                            $points             += $gamePoints;
                         }
 
                         print "
                             <td align='center'>$gameResultString</td>";
-
-                        $points += $gamePoints;
                     }
 
                     print "
@@ -347,29 +346,39 @@ class View_Games_Standings extends View_Games_Base
                     $field              = $game->gameTime->field->fullName;
                     $homeTeamName       = "&nbsp";
                     $visitingTeamName   = "&nbsp";
+                    $homeTeamTitle      = '';
+                    $visitingTeamTitle  = '';
                     $score              = "&nbsp";
                     $winningTeam        = "&nbsp";
+                    $winningTeamTitle   = '';
                     if (isset($game->homeTeam)) {
-                        $team = $game->homeTeam;
-                        $coach = Coach::lookupByTeam($team);
-                        $homeTeamName = $team->name . ": " . $coach->shortName;
+                        $team           = $game->homeTeam;
+                        $coach          = Coach::lookupByTeam($team);
+                        $homeTeamName   = $team->nameId . ": " . $coach->shortName;
+                        $homeTeamTitle  = "title='" . $team->name . " " . $team->region . " (" . $team->city . ")'";
 
-                        $team = $game->visitingTeam;
-                        $coach = Coach::lookupByTeam($team);
-                        $visitingTeamName = $team->name . ": " . $coach->shortName;
+                        $team               = $game->visitingTeam;
+                        $coach              = Coach::lookupByTeam($team);
+                        $visitingTeamName   = $team->nameId . ": " . $coach->shortName;
+                        $visitingTeamTitle  = "title='" . $team->name . " " . $team->region . " (" . $team->city . ")'";
 
-                        $score = $game->homeTeamScore . " - " . $game->visitingTeamScore;
-                        $winningTeam = $game->homeTeamScore > $game->visitingTeamScore ? $homeTeamName : $visitingTeamName;
+                        $score          = '';
+                        $winningTeam    = '';
+                        if (isset($game->homeTeamScore)) {
+                            $score              = $game->homeTeamScore . " - " . $game->visitingTeamScore;
+                            $winningTeam        = $game->homeTeamScore > $game->visitingTeamScore ? $homeTeamName : $visitingTeamName;
+                            $winningTeamTitle   = "title='" . $team->name . " " . $team->region . " (" . $team->city . ")'";
+                        }
                     }
                     print "
                         <tr>
                             <td>$date</td>
                             <td>$time</td>
                             <td>$field</td>
-                            <td>$homeTeamName</td>
-                            <td>$visitingTeamName</td>
+                            <td $homeTeamTitle>$homeTeamName</td>
+                            <td $visitingTeamTitle>$visitingTeamName</td>
                             <td align='center'>$score</td>
-                            <td>$winningTeam</td>
+                            <td $winningTeamTitle>$winningTeam</td>
                         </tr>";
                 }
 
@@ -406,7 +415,7 @@ class View_Games_Standings extends View_Games_Base
             $stats[self::LOSSES]        += $computeForHomeTeam ? ($game->homeTeamScore < $game->visitingTeamScore ? 1 : 0) : 0;
             $stats[self::LOSSES]        += !$computeForHomeTeam ? ($game->homeTeamScore > $game->visitingTeamScore ? 1 : 0) : 0;
             $stats[self::TIES]          += $game->homeTeamScore == $game->visitingTeamScore ? 1 : 0;
-            $stats[self::POINTS]        += $this->computeGamePoints($game, $computeForHomeTeam);
+            $stats[self::POINTS]        += $game->computeGamePoints($computeForHomeTeam);
             $stats[self::GOALS_FOR]     += $computeForHomeTeam ? $game->homeTeamScore : $game->visitingTeamScore;
             $stats[self::GOALS_AGAINST] += $computeForHomeTeam ? $game->visitingTeamScore : $game->homeTeamScore;
             $stats[self::SHUTOUTS]      += $computeForHomeTeam ? ($game->visitingTeamScore == 0 ? 1 : 0) : ($game->homeTeamScore == 0 ? 1 : 0);
@@ -415,37 +424,6 @@ class View_Games_Standings extends View_Games_Base
         }
 
         return $stats;
-    }
-
-    /**
-     * Game points are computed as follows:
-     *      - 6 points for a win
-     *      - 3 points for a tie
-     *      - 1 point for a shutout
-     *      - 1 point for every goal scored up to 3 goals
-     *      - -2 points for every red card
-     *  10 points maximum.
-     *
-     * @param Game  $game
-     * @param bool  $computeForHomeTeam
-     *
-     * @return int  $points for desired team
-     */
-    private function computeGamePoints($game, $computeForHomeTeam)
-    {
-        $goals          = $computeForHomeTeam ? $game->homeTeamScore : $game->visitingTeamScore;
-        $opposingGoals  = $computeForHomeTeam ? $game->visitingTeamScore : $game->homeTeamScore;
-        $reds           = $computeForHomeTeam ? $game->homeTeamRedCards : $game->visitingTeamRedCards;
-        $win            = $computeForHomeTeam ? $game->homeTeamScore > $game->visitingTeamScore : $game->visitingTeamScore > $game->homeTeamScore;
-        $tie            = $game->homeTeamScore == $game->visitingTeamScore;
-
-        $points = $win ? 6 : 0;
-        $points = $tie ? 3 : $points;
-        $points += $goals > 3 ? 3 : $goals;
-        $points += $opposingGoals == 0 ? 1 : 0;
-        $points += $reds * -2;
-
-        return $points;
     }
 
     /**
@@ -463,20 +441,26 @@ class View_Games_Standings extends View_Games_Base
      */
     private function getGameResultString($game, $computeForHomeTeam)
     {
-        $points             = $this->computeGamePoints($game, $computeForHomeTeam);
+        $points             = $game->computeGamePoints($computeForHomeTeam);
         $resultString       = "";
         $redCardString      = "";
         $yellowCardString   = "";
 
         if ($computeForHomeTeam) {
-            $resultString       = $game->homeTeamScore . " - " . $game->visitingTeamScore;
-            $redCardString      = $game->homeTeamRedCards > 0 ? "$game->homeTeamRedCards" . "R" : "";
-            $yellowCardString   = $game->homeTeamYellowCards > 0 ? "$game->homeTeamYellowCards" . "Y" : "";
+            $resultString       .= $game->homeTeamScore . " - " . $game->visitingTeamScore;
+            $redCardString      .= $game->homeTeamRedCards > 0 ? "$game->homeTeamRedCards" . "R" : "";
+            $yellowCardString   .= $game->homeTeamYellowCards > 0 ? "$game->homeTeamYellowCards" . "Y" : "";
+            $score1             = $game->homeTeamScore;
+            $score2             = $game->visitingTeamScore;
         } else {
-            $resultString       = $game->visitingTeamScore . " - " . $game->homeTeamScore;
-            $redCardString      = $game->visitingTeamRedCards > 0 ? "$game->visitingTeamRedCards" . "R" : "";
-            $yellowCardString   = $game->visitingTeamYellowCards > 0 ? "$game->visitingTeamYellowCards" . "Y" : "";
+            $score1             = $game->visitingTeamScore;
+            $score2             = $game->homeTeamScore;
+            $resultString       .= $game->visitingTeamScore . " - " . $game->homeTeamScore;
+            $redCardString      .= $game->visitingTeamRedCards > 0 ? "$game->visitingTeamRedCards" . "R" : "";
+            $yellowCardString   .= $game->visitingTeamYellowCards > 0 ? "$game->visitingTeamYellowCards" . "Y" : "";
         }
+
+        $resultString .= $score1 > $score2 ? " W" : ($score2 > $score1 ? " L" : " T");
 
         if ($redCardString != "" and $yellowCardString != "") {
             $resultString .= "<br>" . "(" . $redCardString . ", " . "$yellowCardString" . ")";
