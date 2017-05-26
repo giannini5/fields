@@ -931,7 +931,7 @@ class Schedule extends Domain
                 $flightData = [1 => [4, 4], 2 => [5]];
                 break;
             case 14:
-                $flightData = [1 => [4, 4], 2 => [3, 3]];
+                $flightData = [1 => [3, 3], 2 => [4, 4]];
                 break;
             case 15:
                 $flightData = [1 => [5], 2 => [5], 3 => [5]];
@@ -946,7 +946,7 @@ class Schedule extends Domain
                 $flightData = [1 => [4, 4], 2 => [5], 3 => [5]];
                 break;
             case 19:
-                $flightData = [1 => [4, 4], 2 => [3, 3], 3 => [5]];
+                $flightData = [1 => [5], 2 => [4, 4], 3 => [3, 3]];
                 break;
             case 20:
                 $flightData = [1 => [4, 4], 2 => [3, 3], 3 => [3, 3]];
@@ -955,7 +955,7 @@ class Schedule extends Domain
                 $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [5]];
                 break;
             case 22:
-                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [3, 3]];
+                $flightData = [1 => [3, 3], 2 => [4, 4], 3 => [4, 4]];
                 break;
             case 23:
                 $flightData = [1 => [4, 4], 2 => [5, 5], 3 => [5]];

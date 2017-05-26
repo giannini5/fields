@@ -510,13 +510,13 @@ abstract class View_Base {
     public function printTimeSelector(
         $tag,
         $label,
-        $defaultTime='08:00:00',
+        $defaultTime='07:00:00',
         $colspan = 1)
     {
         $timeSectionHTML = '';
 
         $minute = 0;
-        for ($hour = 8; $hour <= 17; ++$hour) {
+        for ($hour = 7; $hour <= 19; ++$hour) {
             while ($minute <= 45) {
                 $time = sprintf("%2d:%02d", $hour, $minute);
 

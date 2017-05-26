@@ -113,10 +113,11 @@ class View_Games_Team
      */
     public static function printScheduleForTeam($team, $coach = null, $gamesByDay = null, $schedules = null, $showHomeTeamCount = false, $publishedOnly = true)
     {
-        $coach      = isset($coach) ? $coach : Coach::lookupByTeam($team);
-        $division   = $team->division;
-        $schedules  = Schedule::lookupByDivision($division, $publishedOnly);
-        $teamName   = $division->name . ": " . $team->name . " (" . $coach->lastName . ")";
+        $coach          = isset($coach) ? $coach : Coach::lookupByTeam($team);
+        $division       = $team->division;
+        $schedules      = Schedule::lookupByDivision($division, $publishedOnly);
+        $teamName       = $division->name . ": " . $team->nameId . " (" . $coach->lastName . ")";
+        $teamNameTitle  = "title='" . $team->name . " " . $team->region . " (" . $team->city . ")'";
 
         if (!isset($gamesByDay)) {
             // Get games across all schedules for division
@@ -147,7 +148,7 @@ class View_Games_Team
             <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0' width='650'>
                 <thead>
                     <tr bgcolor='lightskyblue'>
-                        <th align='center' colspan='7'>$teamName</th>
+                        <th align='center' colspan='7' $teamNameTitle>$teamName</th>
                     </tr>
                     <tr bgcolor='lightskyblue'>
                         <th>Date</th>

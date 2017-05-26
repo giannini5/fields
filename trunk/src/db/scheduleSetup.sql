@@ -18,6 +18,12 @@ select * from facility;
 select * from field;
 select count(1) from familyGame;
 
+select * from division; -- u10G 1
+select * from schedule where divisionId = 1;
+select * from flight where scheduleId = 90;
+select * from pool where flightId = 105;
+select * from team where poolId = 347;
+
 select familyId, count(1) from familyGame group by 1;
 select * from coach where name like "%Brennan%";
 select * from familyGame where familyId = 19;

@@ -4,7 +4,7 @@ delimiter $$
 create procedure 029_updateDivisionNameIndexOnTeam()
   begin
 
-    if not exists(
+    if exists(
         select
           *
         from
@@ -15,7 +15,7 @@ create procedure 029_updateDivisionNameIndexOnTeam()
           and index_name = 'ux_divisionName')
     then
       drop index ux_divisionName on team;
-      create unique index ux_divisionNameIdName on gameDate(divisionId, nameId, name);
+      create unique index ux_divisionNameIdName on team(divisionId, nameId, name);
     end if;
   end $$
 delimiter ;

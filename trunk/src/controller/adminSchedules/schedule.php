@@ -631,7 +631,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
         $this->m_divisionNames[]    = $divisionNameWithGender;
 
-        $this->moveGame($game, $gameTimes);
+        $this->moveGame($game, $gameTimes, $this->m_moveGameTime);
     }
 
     /**

@@ -320,6 +320,18 @@ class Game extends Domain
                 $this->gameTime = $value;
                 break;
 
+            case "homeTeam":
+                $this->gameOrm->homeTeamId = $value->id;
+                $this->gameOrm->save();
+                $this->homeTeam = $value;
+                break;
+
+            case "visitingTeam":
+                $this->gameOrm->visitingTeamId = $value->id;
+                $this->gameOrm->save();
+                $this->visitingTeam = $value;
+                break;
+
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
         }
@@ -462,6 +474,36 @@ class Game extends Domain
         }
 
         return false;
+    }
+
+    /**
+     * Game points are computed as follows:
+     *      - 6 points for a win
+     *      - 3 points for a tie
+     *      - 1 point for a shutout
+     *      - 1 point for every goal scored up to 3 goals
+     *      - -2 points for every red card
+     *  10 points maximum.
+     *
+     * @param bool  $computeForHomeTeam
+     *
+     * @return int  $points for desired team
+     */
+    public function computeGamePoints($computeForHomeTeam)
+    {
+        $goals          = $computeForHomeTeam ? $this->homeTeamScore : $this->visitingTeamScore;
+        $opposingGoals  = $computeForHomeTeam ? $this->visitingTeamScore : $this->homeTeamScore;
+        $reds           = $computeForHomeTeam ? $this->homeTeamRedCards : $this->visitingTeamRedCards;
+        $win            = $computeForHomeTeam ? $this->homeTeamScore > $this->visitingTeamScore : $this->visitingTeamScore > $this->homeTeamScore;
+        $tie            = $this->homeTeamScore == $this->visitingTeamScore;
+
+        $points = $win ? 6 : 0;
+        $points = $tie ? 3 : $points;
+        $points += $goals > 3 ? 3 : $goals;
+        $points += $opposingGoals == 0 ? 1 : 0;
+        $points += $reds * -2;
+
+        return $points;
     }
 
     /**
