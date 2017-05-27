@@ -195,7 +195,7 @@ class View_Games_Team
                         $homeTeamTitle      = '';
                         $visitingTeamTitle  = '';
                         $startTimeBgColor   = '';
-                        if ($lastStartTime != '') {
+                        if ($lastStartTime != '' and !$publishedOnly) {
                             $diffInHours        = self::diffInHours($lastStartTime, $startTime);
                             $startTimeBgColor   = ($diffInHours < 2 or $diffInHours > 4) ? "bgcolor='red'" : "";
                         }
