@@ -194,7 +194,11 @@ class View_Games_Team
                         $result             = '';
                         $homeTeamTitle      = '';
                         $visitingTeamTitle  = '';
-                        $startTimeBgColor   = self::diffInHours($lastStartTime, $startTime) < 2 ? "bgcolor='red'" : "";
+                        $startTimeBgColor   = '';
+                        if ($lastStartTime != '') {
+                            $diffInHours        = self::diffInHours($lastStartTime, $startTime);
+                            $startTimeBgColor   = ($diffInHours < 2 or $diffInHours >= 4) ? "bgcolor='red'" : "";
+                        }
                         $lastStartTime      = $startTime;
 
                         if (isset($game->homeTeam)) {

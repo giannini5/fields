@@ -706,7 +706,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
     {
         $primaryGame                = Game::lookupById($this->m_primaryGameId);
         $secondaryGame              = Game::lookupById($this->m_secondaryGameId);
-        $schedule                   = $primaryGame->pool->schedule;
+        $schedule                   = $primaryGame->flight->schedule;
         $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
         $this->m_divisionNames[]    = $divisionNameWithGender;
 
