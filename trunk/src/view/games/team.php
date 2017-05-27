@@ -197,7 +197,7 @@ class View_Games_Team
                         $startTimeBgColor   = '';
                         if ($lastStartTime != '') {
                             $diffInHours        = self::diffInHours($lastStartTime, $startTime);
-                            $startTimeBgColor   = ($diffInHours < 2 or $diffInHours >= 4) ? "bgcolor='red'" : "";
+                            $startTimeBgColor   = ($diffInHours < 2 or $diffInHours > 4) ? "bgcolor='red'" : "";
                         }
                         $lastStartTime      = $startTime;
 
