@@ -6,6 +6,7 @@ use DAG\Domain\Domain;
 use DAG\Framework\Orm\NoResultsException;
 use DAG\Orm\Schedule\GameOrm;
 use DAG\Framework\Exception\Precondition;
+use DAG\Orm\Schedule\MoveGameException;
 
 
 /**
@@ -438,7 +439,7 @@ class Game extends Domain
             Precondition::isTrue($newGameTime->gameDate->day == $this->gameTime->gameDate->day, "ERROR, attempt to move a game to a different day");
 
             // Verify new game time's field is supported for this day
-            DivisionField::lookupByDivisionAndField($this->pool->schedule->division, $newGameTime->field);
+            DivisionField::lookupByDivisionAndField($this->flight->schedule->division, $newGameTime->field);
 
             // Update the GameTime objects
             $oldGameTime        = $this->gameTime;

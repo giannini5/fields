@@ -1,6 +1,6 @@
 <?php
 
-namespace DAG\Domain\Schedule;
+namespace DAG\Orm\Schedule;
 
 /**
  * This represents a failed game move
