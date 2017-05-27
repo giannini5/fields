@@ -627,7 +627,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         $game                       = Game::lookupById($this->m_moveGameId);
         $field                      = Field::lookupById($this->m_moveFieldId);
         $gameTimes                  = GameTime::lookupByGameDateAndField($game->gameTime->gameDate, $field);
-        $schedule                   = $game->pool->schedule;
+        $schedule                   = $game->flight->schedule;
         $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
         $this->m_divisionNames[]    = $divisionNameWithGender;
 
