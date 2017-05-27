@@ -296,17 +296,18 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
                             $gender             = $gameTime->game->flight->schedule->division->gender;
                             $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
                             $cellHTML           = "Game Id: " . $game->id . "<br>";
+                            $titleGameDivisionFlight = $game->flight->schedule->division->name . $game->flight->schedule->division->gender;
 
                             if (isset($game->homeTeam)) {
                                 $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
                                 $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
                                 $homeTeam           = $game->homeTeam;
                                 $visitingTeam       = $game->visitingTeam;
-                                $cellHTML           .= $homeTeam->name . "<br>" . $visitingTeam->name;
+                                $cellHTML           .= $homeTeam->nameId . "<br>" . $visitingTeam->nameId;
                                 $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
                             } else {
                                 $cellHTML           .= $game->title;
-                                $title              = "title='" . $game->title . "'";
+                                $title              = "title='" . $titleGameDivisionFlight . " " . $game->flight->name . "'";
                             }
 
                             if ($game->id == $this->m_controller->m_moveGameId) {
