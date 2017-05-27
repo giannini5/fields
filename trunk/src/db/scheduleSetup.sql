@@ -39,6 +39,7 @@ select * from field where id = 1;
 
 insert into league (name) values ('AYSO Region 122');
 insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'dave@giannini5.com', 'David Giannini', '1234');
+insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'admin', 'Admin', 'admin');
 
 truncate table assistantCoach;
 truncate table coach;
