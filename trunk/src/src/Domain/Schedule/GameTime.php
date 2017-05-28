@@ -220,6 +220,7 @@ class GameTime extends Domain
 
     /**
      * @param GameDate      $gameDate
+     * @param Field[]       $allowedFields
      * @param bool          $availableOnly defaults to false (only return times where a game has not been scheduled)
      * @param string        $minStartTime
      * @param string        $maxEndTime

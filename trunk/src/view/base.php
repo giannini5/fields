@@ -46,6 +46,7 @@ abstract class View_Base {
     const SCHEDULE_SCHEDULES_PAGE   = '/admin_schedule_schedules';
     const SCHEDULE_SCORING_PAGE     = '/admin_schedule_scoring';
     const SCHEDULE_PREVIEW_PAGE     = '/admin_schedule_preview';
+    const SCHEDULE_REFEREE_PAGE     = '/admin_schedule_referee';
 
     # Schedule Viewing Pages
     const SCHEDULE_HOME_PAGE        = '/schedule';

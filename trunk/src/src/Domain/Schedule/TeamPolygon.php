@@ -47,7 +47,6 @@ class TeamPolygon
                 break;
 
             case self::ROUND_ROBIN_ODD:
-            case self::ROUND_ROBIN_ODD_TOURNAMENT:
                 Precondition::isTrue(count($teams) % 2 == 1, "Number of teams must be an odd number: " . count($teams));
                 Precondition::isTrue(!isset($crossPoolTeams), "Round Robin pool type does not support cross pool teams");
 
@@ -58,6 +57,17 @@ class TeamPolygon
                     $this->pointPairings[$i] = $this->points - $i;
                 }
                 $this->pointPairings[$this->points] = 1; // Second game pairing
+                break;
+
+            case self::ROUND_ROBIN_ODD_TOURNAMENT:
+                Precondition::isTrue(count($teams) % 2 == 1, "Number of teams must be an odd number: " . count($teams));
+                Precondition::isTrue(!isset($crossPoolTeams), "Round Robin pool type does not support cross pool teams");
+
+                for ($i = 1; $i <= floor($this->points / 2); $i++) {
+                    // For 5 points
+                    // 1 => 4, 2 => 3
+                    $this->pointPairings[$i + 1] = $this->points - ($i - 1);
+                }
                 break;
 
             case self::CROSS_POOL_EVEN:
@@ -97,11 +107,13 @@ class TeamPolygon
         switch ($this->poolType) {
             case self::ROUND_ROBIN_EVEN:
             case self::ROUND_ROBIN_ODD:
+            case self::ROUND_ROBIN_ODD_TOURNAMENT:
                 foreach ($this->pointPairings as $point1 => $point2) {
                         $parings[$this->pointAssignments[$point1]] = $this->pointAssignments[$point2];
                 }
                 break;
 
+                /*
             case self::ROUND_ROBIN_ODD_TOURNAMENT:
                 $pairingsToReturn = count($this->pointPairings);
                 if ($this->shiftCounter % 2 == 0) {
@@ -115,7 +127,7 @@ class TeamPolygon
                     }
                 }
                 break;
-
+*/
             case self::CROSS_POOL_EVEN:
                 foreach ($this->pointPairings as $point1 => $point2) {
                     $parings[$this->pointAssignments[$point1]] = $point2 - 1;
@@ -146,6 +158,14 @@ class TeamPolygon
                 break;
 
             case self::ROUND_ROBIN_ODD:
+                $prior = $this->pointAssignments[$this->points];
+                for ($i = 1; $i <= $this->points; $i++) {
+                    $current = $this->pointAssignments[$i];
+                    $this->pointAssignments[$i] = $prior;
+                    $prior = $current;
+                }
+                break;
+
             case self::ROUND_ROBIN_ODD_TOURNAMENT:
                 $prior = $this->pointAssignments[$this->points];
                 for ($i = 1; $i <= $this->points; $i++) {

@@ -143,6 +143,10 @@ class Web_Index
                 $this->m_controller = new Controller_AdminSchedules_Preview();
                 break;
 
+            case View_Base::SCHEDULE_REFEREE_PAGE:
+                $this->m_controller = new Controller_AdminSchedules_Referee();
+                break;
+
             case View_Base::GAMES_HOME_PAGE:
                 $this->m_controller = new Controller_Games_Home();
                 break;

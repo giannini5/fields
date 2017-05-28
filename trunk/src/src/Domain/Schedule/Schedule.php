@@ -605,23 +605,43 @@ class Schedule extends Domain
                 $gamesPerDay            = 2;
                 $currentGamesPerDay     = 0;
                 $firstGameTime          = null;
+                $gameCount              = 0;
+                $maxIterations          = $poolType == TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT ? count($teams) + 1 : count($teams);
 
                 // At most two games on Saturday
                 // Remaining games on Sunday
                 // Medal round on Sunday
                 $minStartTime = '05:00:00';
-                for ($gameNumber = 1; $gameNumber < count($teams); $gameNumber++) {
+                for ($gameNumber = 1; $gameNumber < $maxIterations; $gameNumber++) {
                     Assertion::isTrue($gameDateIndex < count($gameDates), "Ran out of games dates - need to add more dates or write code to allow more than two games per day");
 
                     $currentGamesPerDay += 1;
-                    $gameDate           = $gameDates[$gameDateIndex];
-                    $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
-                    ksort($gameTimesByTime);
                     $teamPairings       = $teamPolygon->getTeamPairings();
-                    $lastGameTime       = null;
-                    $teamIdsWithGame    = [];
+
+                    if ($gameNumber == 1 or $poolType != TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT) {
+                        $gameDate           = $gameDates[$gameDateIndex];
+                        $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
+                        ksort($gameTimesByTime);
+                        $lastGameTime       = null;
+                        $teamIdsWithGame    = [];
+                    }
 
                     foreach ($teamPairings as $team1Index => $team2Index) {
+                        // HACK to deal with ODD POOL Sizes of 3 or 5
+                        if ($poolType == TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT and $gameCount == count($teams)) {
+                            // Switch to next day for next set of games
+                            $gameDateIndex          += 1;
+                            $currentGamesPerDay     = 0;
+                            $minStartTime           = '05:00:00';
+                            $firstGameTime          = null;
+
+                            $gameDate           = $gameDates[$gameDateIndex];
+                            $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
+                            ksort($gameTimesByTime);
+                            $lastGameTime       = null;
+                            $teamIdsWithGame    = [];
+                        }
+
                         // Advance startTime if one of the teams has played already (odd pool problem where bye teams play late)
                         if (in_array($teams[$team1Index]->id, $teamIdsWithGame)
                             or in_array($teams[$team2Index]->id, $teamIdsWithGame)) {
@@ -660,6 +680,7 @@ class Schedule extends Domain
                         $game = Game::create($flight, $pool, $gameTime, $homeTeam, $visitingTeam);
                         $teamIdsWithGame[$homeTeam->id]     = $homeTeam->id;
                         $teamIdsWithGame[$visitingTeam->id] = $visitingTeam->id;
+                        $gameCount                          += 1;
 
                         // Create the familyGame to help find game overlaps for a family
                         $coach = Coach::lookupByTeam($homeTeam);
@@ -680,7 +701,7 @@ class Schedule extends Domain
 
                     $teamPolygon->shift();
                     $shiftCount += 1;
-                    if ($currentGamesPerDay == $gamesPerDay) {
+                    if ($currentGamesPerDay >= $gamesPerDay and $poolType != TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT) {
                         $gameDateIndex          += 1;
                         $currentGamesPerDay     = 0;
                         $minStartTime           = '05:00:00';
