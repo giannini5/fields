@@ -112,6 +112,8 @@ abstract class View_AdminSchedules_Base extends View_Base {
                 '<li><div>SCORING</div></li>' : '<li><a href="' . self::SCHEDULE_SCORING_PAGE . '">SCORING</a></li>')
             . ($this->m_pageName == self::SCHEDULE_PREVIEW_PAGE ?
                 '<li><div>PREVIEW</div></li>' : '<li><a href="' . self::SCHEDULE_PREVIEW_PAGE . '">PREVIEW</a></li>')
+            . ($this->m_pageName == self::SCHEDULE_REFEREE_PAGE ?
+                '<li><div>REFEREE</div></li>' : '<li><a href="' . self::SCHEDULE_REFEREE_PAGE . '">REFEREE</a></li>')
             . '
                </ul>';
     }

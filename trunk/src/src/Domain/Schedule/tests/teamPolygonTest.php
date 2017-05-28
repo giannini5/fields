@@ -101,20 +101,41 @@ class TeamPolygonTest extends ORM_TestHelper
 
         $this->assertEquals(2, count($teamPairings));
 
-        $this->verifyParing($teamPairings, 0, 3);
-        $this->verifyParing($teamPairings, 1, 2);
+        $this->verifyParing($teamPairings, 1, 4);
+        $this->verifyParing($teamPairings, 2, 3);
     }
 
     public function test_getTeamPairingsRoundRobinOddTournamentWithShift()
     {
         $teamPolygon = new TeamPolygon($this->oddPoolTeams, TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT);
+
+        $teamPairings = $teamPolygon->getTeamPairings();
+        $this->assertEquals(2, count($teamPairings));
+        $this->verifyParing($teamPairings, 1, 4);
+        $this->verifyParing($teamPairings, 2, 3);
+
         $teamPolygon->shift();
         $teamPairings = $teamPolygon->getTeamPairings();
+        $this->assertEquals(2, count($teamPairings));
+        $this->verifyParing($teamPairings, 0, 3);
+        $this->verifyParing($teamPairings, 1, 2);
 
-        $this->assertEquals(3, count($teamPairings));
-
+        $teamPolygon->shift();
+        $teamPairings = $teamPolygon->getTeamPairings();
+        $this->assertEquals(2, count($teamPairings));
         $this->verifyParing($teamPairings, 4, 2);
         $this->verifyParing($teamPairings, 0, 1);
+
+        $teamPolygon->shift();
+        $teamPairings = $teamPolygon->getTeamPairings();
+        $this->assertEquals(2, count($teamPairings));
+        $this->verifyParing($teamPairings, 3, 1);
+        $this->verifyParing($teamPairings, 4, 0);
+
+        $teamPolygon->shift();
+        $teamPairings = $teamPolygon->getTeamPairings();
+        $this->assertEquals(2, count($teamPairings));
+        $this->verifyParing($teamPairings, 2, 0);
         $this->verifyParing($teamPairings, 3, 4);
     }
 
@@ -126,17 +147,20 @@ class TeamPolygonTest extends ORM_TestHelper
         }
 
         $teamPolygon = new TeamPolygon($oddPoolTeams, TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT);
-        $teamPolygon->shift();
         $teamPairings = $teamPolygon->getTeamPairings();
 
-        $this->assertEquals(2, count($teamPairings));
-        $this->verifyParing($teamPairings, 2, 0);
+        $this->assertEquals(1, count($teamPairings));
         $this->verifyParing($teamPairings, 1, 2);
 
         $teamPolygon->shift();
         $teamPairings = $teamPolygon->getTeamPairings();
         $this->assertEquals(1, count($teamPairings));
-        $this->verifyParing($teamPairings, 1, 2);
+        $this->verifyParing($teamPairings, 0, 1);
+
+        $teamPolygon->shift();
+        $teamPairings = $teamPolygon->getTeamPairings();
+        $this->assertEquals(1, count($teamPairings));
+        $this->verifyParing($teamPairings, 2, 0);
     }
 
     public function test_getTeamPairingsCrossPoolEven()
