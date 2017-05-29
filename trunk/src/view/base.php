@@ -55,6 +55,7 @@ abstract class View_Base {
 
     # Games Viewing Pages
     const GAMES_HOME_PAGE           = '/games';
+    const GAMES_FLIGHTS_PAGE        = '/games/flights';
     const GAMES_SCHEDULE_PAGE       = '/games/schedule';
     const GAMES_STANDINGS_PAGE      = '/games/standings';
 
