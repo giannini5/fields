@@ -71,6 +71,8 @@ abstract class View_Games_Base extends View_Base {
     public function displayHeaderNavigation() {
         print '
                 <ul id="nav">'
+            . ($this->m_pageName == self::GAMES_FLIGHTS_PAGE ?
+                '<li><div>FLIGHTS</div></li>' : '<li><a href="' . self::GAMES_FLIGHTS_PAGE . '">FLIGHTS</a></li>')
             . ($this->m_pageName == self::GAMES_SCHEDULE_PAGE ?
                 '<li><div>SCHEDULE</div></li>' : '<li><a href="' . self::GAMES_SCHEDULE_PAGE . '">SCHEDULE</a></li>')
             . ($this->m_pageName == self::GAMES_STANDINGS_PAGE ?

@@ -151,6 +151,10 @@ class Web_Index
                 $this->m_controller = new Controller_Games_Home();
                 break;
 
+            case View_Base::GAMES_FLIGHTS_PAGE:
+                $this->m_controller = new Controller_Games_Flights();
+                break;
+
             case View_Base::GAMES_SCHEDULE_PAGE:
                 $this->m_controller = new Controller_Games_Schedule();
                 break;

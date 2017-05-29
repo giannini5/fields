@@ -140,7 +140,7 @@ class View_Games_Schedule extends View_Games_Base
             }
 
             print "
-            <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
+            <table bgcolor='lightgray' valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td valign='top'>";
 
@@ -199,7 +199,7 @@ class View_Games_Schedule extends View_Games_Base
 
         // Print table header
         print "
-            <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0' width='750'>";
+            <table bgcolor='white' valign='top' align='center' border='1' cellpadding='5' cellspacing='0' width='750'>";
 
         $headerRow  = $schedule->division->name . ' ' . $schedule->division->gender . ' ' . $flight->name . ": " . $poolName;
         if (isset($pool) and $pool->gamesAgainstPool->id != $pool->id) {
