@@ -65,12 +65,14 @@ class View_Games_Flights extends View_Games_Base
 
                 $pools = Pool::lookupByFlight($flight);
                 foreach ($pools as $pool) {
-                    $flightColor = $flightColors[$flightColorIndex];
+                    $teams          = Team::lookupByPool($pool);
+                    $flightColor    = $flightColors[$flightColorIndex];
+                    $playType       = count($teams) == 5 ? "(round robin play)" : "";
 
                     print "
                         <table bgcolor='white' valign='top' align='center' width='700' border='1' cellpadding='5' cellspacing='0'>
                             <tr>
-                                <th colspan='5' bgcolor='$flightColor' style='color:white'>$pool->name</th>
+                                <th colspan='5' bgcolor='$flightColor' style='color:white'>$pool->name $playType</th>
                             </tr>
                             <tr>
                                 <th>Team Id</th>
@@ -80,7 +82,6 @@ class View_Games_Flights extends View_Games_Base
                                 <th>Coach</th>
                             </tr>";
 
-                    $teams = Team::lookupByPool($pool);
                     foreach ($teams as $team) {
                         $coach = Coach::lookupByTeam($team);
 
