@@ -154,6 +154,7 @@ abstract class View_Base {
     const GAME_NOTES                = 'gameNotes';
     const GAME_DATE                 = 'gameDate';
     const SCORING_TYPE              = 'scoringType';
+    const IS_TITLE_GAME             = 'isTitleGame';
 
     const SEASON_ID                 = 'seasonId';
     const DIVISION_ID               = 'divisionId';
@@ -166,6 +167,8 @@ abstract class View_Base {
     const POOL_ID                   = 'poolIds';
     const FAMILY_ID                 = 'familyId';
     const TEAM_ID                   = 'teamId';
+    const HOME_TEAM_ID              = 'homeTeamId';
+    const VISITING_TEAM_ID          = 'visitingTeamId';
 
     const EMAIL_ADDRESS             = 'emailAddress';
     const SUBJECT                   = 'subject';
@@ -252,19 +255,20 @@ abstract class View_Base {
     /**
      * @brief: Display a selector drop down.
      *
-     * @param string        $selectorTitle       - Describes the data being selected
-     * @param string        $selectorName        - Name for selector (used when processing POST)
-     * @param string        $defaultSelection    - Default selection to show
-     * @param array         $selectorData        - Array of data identifier=>string where the identifier is the value selected
-     * @param string        $currentSelection    - Current selection (if any) defaults to empty string
-     * @param string|null   $collapsible         - Collapsible java script class - defaults to NULL
-     * @param bool          $newRow              - defaults to true
-     * @param int           $width               - defaults to 140 (px)
-     * @param string        $align               - defaults to left
-     * @param string        $disabledTag         - defaults to ''; used to prompt for a selection
-     * @param string        $selectBackgroundColor   - defaults to ''
+     * @param string        $selectorTitle          - Describes the data being selected
+     * @param string        $selectorName           - Name for selector (used when processing POST)
+     * @param string        $defaultSelection       - Default selection to show
+     * @param array         $selectorData           - Array of data identifier=>string where the identifier is the value selected
+     * @param string        $currentSelection       - Current selection (if any) defaults to empty string
+     * @param string|null   $collapsible            - Collapsible java script class - defaults to NULL
+     * @param bool          $newRow                 - defaults to true
+     * @param int           $width                  - defaults to 140 (px)
+     * @param string        $align                  - defaults to left
+     * @param string        $disabledTag            - defaults to ''; used to prompt for a selection
+     * @param string        $selectBackgroundColor  - defaults to ''
+     * @param int           $selectorColSpan        - defaults to 1
      */
-    public function displaySelector($selectorTitle, $selectorName, $defaultSelection, $selectorData, $currentSelection = '', $collapsible = NULL, $newRow = true, $width = 140, $align='left', $disabledTag='', $selectBackgroundColor='')
+    public function displaySelector($selectorTitle, $selectorName, $defaultSelection, $selectorData, $currentSelection = '', $collapsible = NULL, $newRow = true, $width = 140, $align='left', $disabledTag='', $selectBackgroundColor='', $selectorColSpan = 1)
     {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
         $selectBgColorHTML = empty($selectBackgroundColor) ? '' : "background-color: $selectBackgroundColor";
@@ -281,7 +285,7 @@ abstract class View_Base {
         }
 
         print "
-                <td align='left'>
+                <td align='left' colspan='$selectorColSpan'>
                     <select style='width: $width; $selectBgColorHTML' name='$selectorName' required>";
 
         if (!empty($defaultSelection)) {
@@ -920,9 +924,10 @@ abstract class View_Base {
     /**
      * @brief: Return the unique set of teams based on gener
      *
-     * @param array $reservations - list of reservations
-     * @param char $gender - Gender 'B' or 'G'
-     * @return int - Count of teams
+     * @param array     $reservations - list of reservations
+     * @param string    $gender - Gender 'B' or 'G'
+     *
+     * @return int      - Count of teams
      */
     public function getTeamCount($reservations, $gender) {
         $teams = array();

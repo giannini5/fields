@@ -378,7 +378,7 @@ class View_Games_Standings extends View_Games_Base
                             <td $homeTeamTitle>$homeTeamName</td>
                             <td $visitingTeamTitle>$visitingTeamName</td>
                             <td align='center'>$score</td>
-                            <td $winningTeamTitle>$winningTeam</td>
+                            <td $winningTeamTitle bgcolor='lightgreen'>$winningTeam</td>
                         </tr>";
                 }
 
