@@ -30,6 +30,8 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
     public $m_division;
     public $m_gameDate;
     public $m_gameDateId;
+    public $m_homeTeamId;
+    public $m_visitingTeamId;
 
     private $m_homeScore;
     private $m_homeRedCards;
@@ -38,6 +40,7 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
     private $m_visitRedCards;
     private $m_visitYellowCards;
     private $m_gameNotes;
+    private $m_isTitleGame;
 
 
     public function __construct()
@@ -45,7 +48,9 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
         parent::__construct();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->m_scoringType = $this->getPostAttribute(View_Base::SCORING_TYPE, '', true, false);
+            $this->m_scoringType    = $this->getPostAttribute(View_Base::SCORING_TYPE, '', true, false);
+            $isTitleGameString      = $this->getPostAttribute(View_Base::IS_TITLE_GAME, 'no', false, false);
+            $this->m_isTitleGame    = $isTitleGameString == 'no' ? false : true;
 
             if ($this->m_scoringType == self::TEAM_SCORING) {
                 $this->m_coachId = $this->getPostAttribute(View_Base::FILTER_COACH_ID, null, false, true);
@@ -72,7 +77,14 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
                     $this->m_gameDate = GameDate::lookupById($this->m_gameDateId);
                 }
 
-                $this->populateGameAttributes(false);
+                if ($this->m_isTitleGame) {
+                    $this->m_homeTeamId     = $this->getPostAttribute(View_Base::HOME_TEAM_ID, '', true, true);
+                    $this->m_visitingTeamId = $this->getPostAttribute(View_Base::VISITING_TEAM_ID, '', true, true);
+                    $this->m_gameId         = $this->getPostAttribute(View_Base::GAME_ID, null, true, true);
+                    $this->populateGameAttributes(true, false);
+                } else {
+                    $this->populateGameAttributes(false, true);
+                }
             }
         }
     }
@@ -80,18 +92,19 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
     /**
      * If gameId exist then populate all scoring attributes for game
      *
-     * @param bool  $rememberIfGameIdMissing - If true then error tracked if gameId is missing
+     * @param bool  $rememberIfGameIdMissing        - If true then error tracked if gameId is missing
+     * @param bool  $rememberIfGameDataIsMissing    - If true then error tracked if game data is missing
      */
-    private function populateGameAttributes($rememberIfGameIdMissing = true)
+    private function populateGameAttributes($rememberIfGameIdMissing = true, $rememberIfGameDataIsMissing = true)
     {
         $this->m_gameId = $this->getPostAttribute(View_Base::GAME_ID, null, $rememberIfGameIdMissing, true);
         if (isset($this->m_gameId)) {
-            $this->m_homeScore = $this->getPostAttribute(View_Base::HOME_SCORE, '', true, true);
-            $this->m_homeRedCards = $this->getPostAttribute(View_Base::HOME_RED_CARDS, '', true, true);
-            $this->m_homeYellowCards = $this->getPostAttribute(View_Base::HOME_YELLOW_CARDS, '', true, true);
-            $this->m_visitScore = $this->getPostAttribute(View_Base::VISITING_SCORE, '', true, true);
-            $this->m_visitRedCards = $this->getPostAttribute(View_Base::VISITING_RED_CARDS, '', true, true);
-            $this->m_visitYellowCards = $this->getPostAttribute(View_Base::VISITING_YELLOW_CARDS, '', true, true);
+            $this->m_homeScore = $this->getPostAttribute(View_Base::HOME_SCORE, '', $rememberIfGameDataIsMissing, true);
+            $this->m_homeRedCards = $this->getPostAttribute(View_Base::HOME_RED_CARDS, '', $rememberIfGameDataIsMissing, true);
+            $this->m_homeYellowCards = $this->getPostAttribute(View_Base::HOME_YELLOW_CARDS, '', $rememberIfGameDataIsMissing, true);
+            $this->m_visitScore = $this->getPostAttribute(View_Base::VISITING_SCORE, '', $rememberIfGameDataIsMissing, true);
+            $this->m_visitRedCards = $this->getPostAttribute(View_Base::VISITING_RED_CARDS, '', $rememberIfGameDataIsMissing, true);
+            $this->m_visitYellowCards = $this->getPostAttribute(View_Base::VISITING_YELLOW_CARDS, '', $rememberIfGameDataIsMissing, true);
             $this->m_gameNotes = $this->getPostAttribute(View_Base::GAME_NOTES, '', false, false);
         }
     }
@@ -192,11 +205,49 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
     }
 
     /**
+     * Set the teams and enter or Update score for a title game
+     */
+    private function processTitleGameScoring()
+    {
+        if (isset($this->m_gameId)) {
+            if (!Game::findById((int)$this->m_gameId, $game)) {
+                $this->m_errorString = "Game with id $this->m_gameId not found";
+                return;
+            }
+
+            if ($this->m_operation == View_Base::CLEAR) {
+                $game->homeTeamScore            = null;
+                $game->homeTeamYellowCards      = 0;
+                $game->homeTeamRedCards         = 0;
+                $game->visitingTeamScore        = null;
+                $game->visitingTeamYellowCards  = 0;
+                $game->visitingTeamRedCards     = 0;
+                $game->notes                    = '';
+            } else {
+                // Set the teams
+                $homeTeam           = Team::lookupById((int)$this->m_homeTeamId);
+                $visitingTeam       = Team::lookupById((int)$this->m_visitingTeamId);
+                $game->homeTeam     = $homeTeam;
+                $game->visitingTeam = $visitingTeam;
+
+                // Enter/Update games scores if passed along in request
+                if ($this->m_homeScore != '') {
+                    $this->processGameScoring($this->m_operation == View_Base::UPDATE);
+                }
+            }
+        }
+    }
+
+    /**
      * Update scores for division
      */
     private function processDivisionScoring()
     {
-        $this->processTeamScoring();
+        if ($this->m_isTitleGame) {
+            $this->processTitleGameScoring();
+        } else {
+            $this->processTeamScoring();
+        }
     }
 
     /**
