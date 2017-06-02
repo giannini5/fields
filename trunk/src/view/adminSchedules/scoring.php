@@ -249,7 +249,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                     <td>&nbsp</td>";
 
         $numberWidth = 25;
-        $this->displayInput('Score:', 'int', View_Base::HOME_SCORE, '', '', $game->homeTeamScore, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Goals:', 'int', View_Base::HOME_SCORE, '', '', $game->homeTeamScore, null, 1, false, $numberWidth, false, true);
         $this->displayInput('Yellow Cards:', 'int', View_Base::HOME_YELLOW_CARDS, '', '', $game->homeTeamYellowCards, null, 1, false, $numberWidth, false, true);
         $this->displayInput('Red Cards:', 'int', View_Base::HOME_RED_CARDS, '', '', $game->homeTeamRedCards, null, 1, false, $numberWidth, false, true);
         print "
@@ -265,7 +265,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                 <tr>
                     <td>&nbsp</td>";
 
-        $this->displayInput('Score:', 'int', View_Base::VISITING_SCORE, '', '', $game->visitingTeamScore, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Goals:', 'int', View_Base::VISITING_SCORE, '', '', $game->visitingTeamScore, null, 1, false, $numberWidth, false, true);
         $this->displayInput('Yellow Cards:', 'int', View_Base::VISITING_YELLOW_CARDS, '', '', $game->visitingTeamYellowCards, null, 1, false, $numberWidth, false, true);
         $this->displayInput('Red Cards:', 'int', View_Base::VISITING_RED_CARDS, '', '', $game->visitingTeamRedCards, null, 1, false, $numberWidth, false, true);
         print "
@@ -402,7 +402,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                     <td>&nbsp</td>";
 
             $numberWidth = 25;
-            $this->displayInput('Score:', 'int', View_Base::HOME_SCORE, '', '', $game->homeTeamScore, null, 1, false, $numberWidth, false, true);
+            $this->displayInput('Goals:', 'int', View_Base::HOME_SCORE, '', '', $game->homeTeamScore, null, 1, false, $numberWidth, false, true);
             $this->displayInput('Yellow Cards:', 'int', View_Base::HOME_YELLOW_CARDS, '', '', $game->homeTeamYellowCards, null, 1, false, $numberWidth, false, true);
             $this->displayInput('Red Cards:', 'int', View_Base::HOME_RED_CARDS, '', '', $game->homeTeamRedCards, null, 1, false, $numberWidth, false, true);
 
@@ -440,7 +440,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                 <tr>
                     <td>&nbsp</td>";
 
-            $this->displayInput('Score:', 'int', View_Base::VISITING_SCORE, '', '', $game->visitingTeamScore, null, 1, false, $numberWidth, false, true);
+            $this->displayInput('Goals:', 'int', View_Base::VISITING_SCORE, '', '', $game->visitingTeamScore, null, 1, false, $numberWidth, false, true);
             $this->displayInput('Yellow Cards:', 'int', View_Base::VISITING_YELLOW_CARDS, '', '', $game->visitingTeamYellowCards, null, 1, false, $numberWidth, false, true);
             $this->displayInput('Red Cards:', 'int', View_Base::VISITING_RED_CARDS, '', '', $game->visitingTeamRedCards, null, 1, false, $numberWidth, false, true);
             print "
