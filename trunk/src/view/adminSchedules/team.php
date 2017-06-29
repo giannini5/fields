@@ -185,7 +185,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                     <td colspan='2'><strong> View Teams</strong></td>
                 </tr>";
 
-        $this->printDivisionSelector($filterDivisionId);
+        $this->printDivisionSelector($filterDivisionId, true);
         $this->printTeamSelector($filterTeamId);
         $this->printCoachSelector($filterCoachId);
         $this->printCheckboxSelector(View_Base::SHOW_PLAYERS, "Show Players", $showPlayers, 2);
