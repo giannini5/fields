@@ -308,7 +308,7 @@ abstract class Controller_Base
     /**
      * @brief Return this sessions identifier
      *
-     * @return Session identifier; 0 if no session established
+     * @return int - Session identifier; 0 if no session enabled
      */
     public function getSessionId()
     {

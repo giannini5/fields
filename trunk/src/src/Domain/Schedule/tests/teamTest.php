@@ -82,7 +82,7 @@ class TeamTest extends ORM_TestHelper
 
     public function test_lookupByName()
     {
-        $team = Team::lookupByName($this->division, $this->expectedDefaults['name']);
+        $team = Team::lookupByNameId($this->division, $this->expectedDefaults['nameId']);
         $this->validateTeam($team, $this->division, $this->pool, $this->expectedDefaults);
     }
 

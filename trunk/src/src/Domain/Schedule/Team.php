@@ -71,7 +71,7 @@ class Team extends Domain
             return new static($teamOrm, $division, $pool);
         } catch (DuplicateEntryException $e) {
             if ($ignore) {
-                return static::lookupByName($division, $name);
+                return static::lookupByNameId($division, $nameId);
             } else {
                 throw $e;
             }
@@ -91,14 +91,14 @@ class Team extends Domain
 
     /**
      * @param Division  $division
-     * @param string    $name
+     * @param string    $nameId
      *
      * @return Team
      */
-    public static function lookupByName($division, $name)
+    public static function lookupByNameId($division, $nameId)
     {
-        Precondition::isNonEmpty($name, 'name should not be empty');
-        $teamOrm = TeamOrm::loadByDivisionIdAndName($division->id, $name);
+        Precondition::isNonEmpty($nameId, 'nameId should not be empty');
+        $teamOrm = TeamOrm::loadByDivisionIdAndNameId($division->id, $nameId);
         return new static($teamOrm, $division);
     }
 

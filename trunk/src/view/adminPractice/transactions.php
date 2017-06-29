@@ -68,7 +68,7 @@ class View_AdminPractice_Transactions extends View_AdminPractice_Base {
             $creationDate = $transaction->creationDate;
             $type = $transaction->type == Model_Fields_ReservationHistory::ADD ? 'Add' : 'Delete';
             $typeBgColor = $transaction->type == Model_Fields_ReservationHistory::ADD ? 'lightgreen' : 'lightsalmon';
-            $division = $transaction->m_team->m_division->name . $transaction->m_team->gender;
+            $division = $transaction->m_team->gender . $transaction->m_team->m_division->name;
             $coach = $transaction->m_team->m_coach->name;
             $field = $transaction->m_field->m_facility->name . ": Field " . $transaction->m_field->name;
             $days = $this->m_controller->getDaysSelectedString($transaction);

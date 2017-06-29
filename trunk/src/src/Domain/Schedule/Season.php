@@ -327,8 +327,13 @@ class Season extends Domain
                 // Do not store the same phone number a second time for a  coach
                 $coachPhone = ($coachPhone == $coachCell) ? '' : $coachPhone;
 
-                // Skip teams where there is no coach
-                if (empty($coachName)) {
+                // Skip teams where there is no coach (or the team number is 0)
+                $teamIdAttributes   = explode("-", $teamId);
+                $teamNumber         = $teamIdAttributes[count($teamIdAttributes) - 1];
+                unset($teamIdAttributes[count($teamIdAttributes) - 1]);
+                $teamName           = implode("-", $teamIdAttributes);
+                $teamName           = sprintf("%s-%02d", $teamName, $teamNumber);
+                if (empty($coachName) or $teamNumber == 0) {
                     continue;
                 }
 
@@ -358,48 +363,71 @@ class Season extends Domain
     {
         switch ($divisionName) {
             case 'U5':
+            case '5U':
+            case '5U-2013':
                 return 10;
 
             case 'U6':
+            case '6U':
+            case '6U-2012':
                 return 20;
 
             case 'U7':
+            case '7U':
+            case '7U-2011':
                 return 30;
 
             case 'U8':
+            case '8U':
+            case '8U-2010':
                 return 40;
 
             case 'U9':
+            case '9U':
                 return 50;
 
             case 'U10':
+            case '10U':
+            case '10U-2009-8':
                 return 60;
 
             case 'U11':
+            case '11U':
                 return 70;
 
             case 'U12':
+            case '12U':
+            case '12U-2007-6':
                 return 80;
 
             case 'U13':
+            case '13U':
                 return 90;
 
             case 'U14':
+            case '14U':
+            case '14U-2005-4':
                 return 100;
 
             case 'U15':
+            case '15U':
                 return 110;
 
             case 'U16':
+            case '16U':
                 return 120;
 
             case 'U17':
+            case '17U':
                 return 130;
 
             case 'U18':
+            case '18U':
+            case '18U-2003-0':
                 return 140;
 
             case 'U19':
+            case '19U':
                 return 150;
 
             case 'U16/19':
@@ -428,14 +456,12 @@ class Season extends Domain
 
             case 'U9':
             case 'U10':
-            case 'U11':
-            case 'U12':
                 return 75;
 
+            case 'U11':
+            case 'U12':
             case 'U13':
             case 'U14':
-                return 80;
-
             case 'U15':
             case 'U16':
             case 'U17':

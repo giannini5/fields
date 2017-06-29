@@ -1,5 +1,7 @@
 <?php
 
+use \DAG\Domain\Schedule\Coach;
+
 /**
  * @brief: Abstract base class for all adminPractice views.
  */
@@ -130,24 +132,37 @@ abstract class View_AdminSchedules_Base extends View_Base {
     /**
      * @brief Print the drop down list of teams by division for selection
      *
-     * @param int $filterTeamId - Default selection
+     * @param int       $filterTeamId       - Default team selection
+     * @param bool      $includeAllOption   - Default to true
+     * @param bool      $disabledName       - Default to null
+     * @param string    $displayName        - Field's display name
      */
-    public function printTeamSelector($filterTeamId) {
-        $teams = $this->m_controller->m_teams;
+    public function printTeamSelector($filterTeamId, $includeAllOption = true, $disabledName = null, $displayName = null) {
+        $teams          = $this->m_controller->m_teams;
+        $displayName    = isset($displayName) ? $displayName : "Team";
 
         $selectorHTML = '';
-        $selectorHTML .= "<option value='0' ";
-        $selectorHTML .= ">All</option>";
+
+        if (isset($disabledName)) {
+            $selected       = isset($filterTeamId) ? '' : ' selected ';
+            $selectorHTML   .= "<option disabled value='' $selected>$disabledName</option>";
+        }
+
+        if ($includeAllOption) {
+            $selectorHTML .= "<option value='0' ";
+            $selectorHTML .= ">All</option>";
+        }
 
         foreach ($teams as $team) {
-            $selected = ($team->id == $filterTeamId) ? ' selected ' : '';
-            $teamName = $team->name;
+            $coach      = Coach::lookupByTeam($team);
+            $selected   = ($team->id == $filterTeamId) ? ' selected ' : '';
+            $teamName   = $team->nameId . " - " . $coach->shortName;
             $selectorHTML .= "<option value='$team->id' $selected>$teamName</option>";
         }
 
         print "
                 <tr>
-                    <td><font color='#069'><b>Team:&nbsp</b></font></td>
+                    <td nowrap><font color='#069'><b>$displayName:&nbsp</b></font></td>
                     <td><select name='" . View_Base::FILTER_TEAM_ID . "'>" . $selectorHTML . "</select></td>
                 </tr>";
     }
@@ -162,7 +177,7 @@ abstract class View_AdminSchedules_Base extends View_Base {
 
         $sortedCoaches = [];
         foreach ($coaches as $coach) {
-            $sortedCoaches[$coach->id] = $coach->name . " (" . $coach->team->name . ")";
+            $sortedCoaches[$coach->id] = $coach->name . " (" . $coach->team->nameId . ")";
         }
         asort($sortedCoaches);
 

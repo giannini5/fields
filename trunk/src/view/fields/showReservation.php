@@ -59,7 +59,7 @@ class View_Fields_ShowReservation extends View_Fields_Base {
         ";
 
         foreach ($reservations as $reservation) {
-            $division = $reservation->m_team->m_division->name . $reservation->m_team->gender;
+            $division = $reservation->m_team->gender . $reservation->m_team->m_division->name;
             $coach = $reservation->m_team->m_coach->name;
             $email = $reservation->m_team->m_coach->email;
             $phone = $reservation->m_team->m_coach->phone;
