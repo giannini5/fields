@@ -804,14 +804,15 @@ abstract class View_Base {
      *
      * @param $filterDivisionId - Show selected division or the coaches division if the filter is 0
      */
-    public function printDivisionSelector($filterDivisionId) {
+    public function printDivisionSelector($filterDivisionId, $includeGender = false) {
         $selectorHTML = '';
         $selectorHTML .= "<option value='0' ";
         $selectorHTML .= ">All</option>";
 
         foreach ($this->m_controller->m_divisions as $division) {
             $selected       = ($division->id == $filterDivisionId) ? ' selected ' : '';
-            $selectorHTML   .= "<option value='$division->id' $selected>$division->nameWithGender</option>";
+            $divisionName   = $includeGender ?  $division->nameWithGender : $division->name;
+            $selectorHTML   .= "<option value='$division->id' $selected>$divisionName</option>";
         }
 
         print "
