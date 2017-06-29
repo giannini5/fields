@@ -36,6 +36,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
             <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
                 <thead>
                     <tr bgcolor='lightskyblue'>
+                        <th>Division</th>
                         <th>Team</th>
                         <th>TeamId</th>
                         <th>Region</th>
@@ -79,12 +80,14 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                     continue;
                 }
 
-                $assistantCoaches = AssistantCoach::lookupByTeam($team);
-                $assistantCoachCount = count($assistantCoaches);
-                $rowspan = 1; // $assistantCoachCount > 0 ? $assistantCoachCount : 1;
+                $assistantCoaches       = AssistantCoach::lookupByTeam($team);
+                $assistantCoachCount    = count($assistantCoaches);
+                $rowspan                = 1; // $assistantCoachCount > 0 ? $assistantCoachCount : 1;
+                $divisionName           = $team->division->nameWithGender;
 
                 print "
                     <tr>
+                        <td rowspan='$rowspan'>$divisionName</td>
                         <td rowspan='$rowspan'>$team->name</td>
                         <td rowspan='$rowspan'>$team->nameId</td>
                         <td rowspan='$rowspan'>$team->region</td>
@@ -129,10 +132,10 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
     }
 
     /**
-     * @param $filterDivisionId
-     * @param $filterTeamId
-     * @param $filterCoachId
-     * @param $showPlayers
+     * @param int   $filterDivisionId
+     * @param int   $filterTeamId
+     * @param int   $filterCoachId
+     * @param bool  $showPlayers
      */
     private function printTeamSelectors($filterDivisionId, $filterTeamId, $filterCoachId, $showPlayers)
     {
@@ -141,26 +144,90 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
         print "
             <table bgcolor='" . View_Base::VIEW_COLOR . "' valign='top' align='center' width='625' border='1' cellpadding='5' cellspacing='0'>
                 <tr><td>
-                    <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
-                        <form method='post' action='" . self::SCHEDULE_TEAMS_PAGE . $this->m_urlParams . "'>";
+                    <table valign='top' align='center' width='300' border='0' cellpadding='5' cellspacing='0'>
+                        <tr>
+                            <td valign='top'>";
+
+        $this->printSelectTeam($sessionId, $filterDivisionId, $filterTeamId, $filterCoachId, $showPlayers);
+
+        print "
+                            </td>
+                        </tr>
+                    </table>
+                    </td>
+                    <td valign='top'>
+                    <table valign='top' align='center' width='200' border='0' cellpadding='5' cellspacing='0'>
+                        <tr>
+                            <td>";
+
+        $this->printSwapTeams($sessionId, $filterDivisionId, $filterTeamId, $filterCoachId, $showPlayers);
+
+        print "
+                            </td>
+                        </tr>
+                    </table>
+                </td></tr>
+            </table>";
+    }
+
+    /**
+     * @param int   $sessionId
+     * @param int   $filterDivisionId
+     * @param int   $filterTeamId
+     * @param int   $filterCoachId
+     * @param bool  $showPlayers
+     */
+    private function printSelectTeam($sessionId, $filterDivisionId, $filterTeamId, $filterCoachId, $showPlayers)
+    {
+        print "
+            <form method='post' action='" . self::SCHEDULE_TEAMS_PAGE . $this->m_urlParams . "'>
+                <tr>
+                    <td colspan='2'><strong> View Teams</strong></td>
+                </tr>";
 
         $this->printDivisionSelector($filterDivisionId);
         $this->printTeamSelector($filterTeamId);
         $this->printCoachSelector($filterCoachId);
-        $this->printCheckboxSelector(View_Base::SHOW_PLAYERS, "Show Players", $showPlayers);
+        $this->printCheckboxSelector(View_Base::SHOW_PLAYERS, "Show Players", $showPlayers, 2);
 
         // Print Filter button and end form
         print "
-                        <tr>
-                            <td align='left'>
-                                <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::FILTER . "'>
-                                <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
-                            </td>
-                        </tr>
-                        </form>
-                    </table>
-                </td></tr>
-            </table>";
+                <tr>
+                    <td align='left'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::FILTER . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>";
+    }
+
+    /**
+     * @param int   $sessionId
+     * @param int   $filterDivisionId
+     * @param int   $filterTeamId
+     * @param int   $filterCoachId
+     * @param bool  $showPlayers
+     */
+    private function printSwapTeams($sessionId, $filterDivisionId, $filterTeamId, $filterCoachId, $showPlayers)
+    {
+        print "
+            <form method='post' action='" . self::SCHEDULE_TEAMS_PAGE . $this->m_urlParams . "'>
+                <tr>
+                    <td colspan='2' title='Swap two teams such that team 1 now plays team 2s game schedule and vice versa'><strong>Swap Teams</strong></td>
+                </tr>";
+
+        $this->printTeamSelector(null, false, "Select Team", "Team 1");
+        $this->printTeamSelector(null, false, "Select Team", "Team 2");
+
+        // Print Filter button and end form
+        print "
+                <tr>
+                    <td align='left' colspan='2'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SWAP . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>";
     }
 
     /**

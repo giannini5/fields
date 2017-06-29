@@ -47,7 +47,7 @@ class View_AdminPractice_Reservations extends View_AdminPractice_Base {
                 </tr>";
 
         foreach ($reservations as $reservation) {
-            $division = $reservation->m_team->m_division->name . $reservation->m_team->gender;
+            $division = $reservation->m_team->gender . $reservation->m_team->m_division->name;
             $coach = $reservation->m_team->m_coach->name;
             $email = $reservation->m_team->m_coach->email;
             $phone = $reservation->m_team->m_coach->phone;

@@ -122,6 +122,7 @@ abstract class View_Base {
     const FILTER_TEAM_ID            = 'filterTeamId';
     const FILTER_COACH_ID           = 'filterCoachId';
     const NAME                      = 'name';
+    const GENDER                    = 'gender';
     const ENABLED                   = 'enabled';
     const ADDRESS1                  = 'address1';
     const ADDRESS2                  = 'address2';
@@ -140,6 +141,7 @@ abstract class View_Base {
     const GAME_ID2                  = 'gameId2';
     const GAME_TIME                 = 'gameTime';
     const FLIGHT_UPDATE_DATA        = 'flightUpdateData';
+    const DIVISION_UPDATE_DATA      = 'divisionUpdateData';
     const SCHEDULE_TYPE             = 'scheduleType';
     const INCLUDE_5TH_6TH_GAME      = '5th/6th';
     const INCLUDE_3RD_4TH_GAME      = '3rd/4th';
@@ -161,6 +163,8 @@ abstract class View_Base {
     const DIVISION_IDS              = 'divisionIds';
     const DIVISION_NAMES            = 'divisionNames';
     const DIVISION_NAME             = 'divisionName';
+    const DISPLAY_ORDER             = 'displayOrder';
+    const GAME_DURATION_MINUTES     = 'gameDurationMinutes';
     const LOCATION_ID               = 'locationId';
     const LOCATION_IDS              = 'locationIds';
     const SCHEDULE_ID               = 'scheduleId';
@@ -185,6 +189,8 @@ abstract class View_Base {
 
     # Member variables
     protected $m_urlParams;
+
+    /** @var  Controller_Base */
     protected $m_controller;
 
     protected $m_pageName;
@@ -216,8 +222,10 @@ abstract class View_Base {
      * @param bool      $newRow          - Defaults to true
      * @param int       $width           - Defaults to 135px
      * @param bool      $showError       - Defaults to true
+     * @param bool      $isRequired      - Defaults to false
+     * @param string    $align           - Defaults to 'left'
      */
-    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = null, $collapsible = NULL, $colspan = 1, $newRow = true, $width = 135, $showError = true, $isRequired = false) {
+    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = null, $collapsible = NULL, $colspan = 1, $newRow = true, $width = 135, $showError = true, $isRequired = false, $align='left') {
         $requiredString     = empty($requiredString) ? '&nbsp' : $requiredString;
         $valueString        = isset($value) ? ", value='$value'" : "";
         $collapsibleClass   = isset($collapsible) ? "class='$collapsible'" : '';
@@ -235,7 +243,7 @@ abstract class View_Base {
         }
 
         print "
-                    <td align='left' colspan='$colspan'>
+                    <td align='$align' colspan='$colspan'>
                         <input style='width: $width' $required type='$type' name='$name' placeholder='$placeHolder'$valueString>
                     </td>";
 
@@ -802,8 +810,8 @@ abstract class View_Base {
         $selectorHTML .= ">All</option>";
 
         foreach ($this->m_controller->m_divisions as $division) {
-            $selected = ($division->id == $filterDivisionId) ? ' selected ' : '';
-            $selectorHTML .= "<option value='$division->id' $selected>$division->name</option>";
+            $selected       = ($division->id == $filterDivisionId) ? ' selected ' : '';
+            $selectorHTML   .= "<option value='$division->id' $selected>$division->nameWithGender</option>";
         }
 
         print "
@@ -865,17 +873,18 @@ abstract class View_Base {
     /**
      * @brief Print checkbox
      *
-     * @param $checkboxName - Name of the checkbox
-     * @param $description  - Description of the checkbox
-     * @param $isChecked    - True if box should be checked
+     * @param string    $checkboxName - Name of the checkbox
+     * @param string    $description  - Description of the checkbox
+     * @param bool      $isChecked    - True if box should be checked
+     * @param int       $colspan      - Default to 1
      */
-    public function printCheckboxSelector($checkboxName, $description, $isChecked)
+    public function printCheckboxSelector($checkboxName, $description, $isChecked, $colspan = 1)
     {
         $checked = $isChecked ? 'checked' : '';
 
         print "
         <tr>
-            <td>
+            <td colspan='$colspan'>
                 <input type='checkbox' name='$checkboxName' value='checked' $checked> $description
             </td>
         </tr>";

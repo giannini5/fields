@@ -30,8 +30,8 @@ class TeamOrm extends PersistenceModel
         self::FIELD_ID          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_DIVISION_ID => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_POOL_ID     => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_NAME        => [FV::STRING, [FV::NO_CONSTRAINTS]],
-        self::FIELD_NAME_ID     => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_NAME        => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_NAME_ID     => [FV::STRING, [FV::NO_CONSTRAINTS]],
         self::FIELD_REGION      => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_CITY        => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
     ];
@@ -100,16 +100,16 @@ class TeamOrm extends PersistenceModel
      * Load a TeamOrm by divisionId, name
      *
      * @param int       $divisionId
-     * @param string    $name
+     * @param string    $nameId
      *
      * @return TeamOrm
      */
-    public static function loadByDivisionIdAndName($divisionId, $name)
+    public static function loadByDivisionIdAndNameId($divisionId, $nameId)
     {
         $result = self::getPersistenceDriver()->getOne(
             [
                 self::FIELD_DIVISION_ID => $divisionId,
-                self::FIELD_NAME        => $name,
+                self::FIELD_NAME_ID     => $nameId,
             ]);
 
         return new static($result);

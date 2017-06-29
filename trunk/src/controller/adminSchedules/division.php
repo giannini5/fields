@@ -1,5 +1,10 @@
 <?php
 
+use \DAG\Domain\Schedule\Division;
+use \DAG\Services\MySql\DuplicateKeyException;
+use \DAG\Domain\Schedule\GameDate;
+use \DAG\Domain\Schedule\GameTime;
+
 /**
  * Class Controller_AdminSchedules_Division
  *
@@ -7,8 +12,16 @@
  */
 class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base {
 
+    private $m_divisionUpdates;
+
     public function __construct() {
         parent::__construct();
+
+        if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
+            if ($this->m_operation == View_Base::UPDATE) {
+                $this->m_divisionUpdates = $this->getPostAttributeArray(View_Base::DIVISION_UPDATE_DATA);
+            }
+        }
     }
 
     /**
@@ -19,7 +32,7 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
         if ($this->m_missingAttributes == 0) {
             switch ($this->m_operation) {
                 case View_Base::UPDATE:
-                    // TODO
+                    $this->updateDivisions();
                     break;
             }
         }
@@ -41,9 +54,33 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
     }
 
     /**
-     * @brief Update Division
+     * @brief Update Divisions
      */
-    private function _updateDivision() {
-        // TODO
+    private function updateDivisions() {
+        try {
+            $anyGameTimesSet    = false;
+            $gameDates          = GameDate::lookupBySeason($this->m_season);
+            if (count($gameDates) > 0) {
+                $gameTimes          = GameTime::lookupByGameDate($gameDates[0]);
+                $anyGameTimesSet    = count($gameTimes) > 0;
+            }
+
+            foreach ($this->m_divisionUpdates as $divisionId => $data) {
+                $division                       = Division::lookupById($divisionId);
+                $division->name                 = $data[View_Base::NAME];
+                $division->displayOrder         = $data[View_Base::DISPLAY_ORDER];
+
+                if (!$anyGameTimesSet) {
+                    $division->gameDurationMinutes  = $data[View_Base::GAME_DURATION_MINUTES];
+                }
+            }
+
+            $this->m_messageString  = "Division meta data successfully updated.";
+            if ($anyGameTimesSet) {
+                $this->m_messageString .= " Field Use Minutes not changed since game times have already been set";
+            }
+        } catch (DuplicateKeyException $e) {
+            $this->m_errorString = "Sorry, updated failed, two divisions cannot have the same name: " . $e->getMessage();
+        }
     }
 }

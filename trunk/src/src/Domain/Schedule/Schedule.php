@@ -806,6 +806,14 @@ class Schedule extends Domain
             case 'U6':
             case 'U7':
             case 'U8':
+            case '5U':
+            case '6U':
+            case '7U':
+            case '8U':
+            case '5U-2013':
+            case '6U-2012':
+            case '7U-2011':
+            case '8U-2010':
                 return array(1000);
 
             default:
@@ -985,7 +993,7 @@ class Schedule extends Domain
                 $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [4, 4]];
                 break;
             case 25:
-                $flightData = [1 => [4, 4], 2 => [3, 3], 2 => [3, 3], 3 => [5]];
+                $flightData = [1 => [4, 4], 2 => [3, 3], 3 => [3, 3], 4 => [5]];
                 break;
             case 26:
                 $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [5], 4 => [5]];

@@ -142,7 +142,7 @@ class Division extends Domain
      */
     public static function compare($a, $b)
     {
-        if ($a->gender != $b->gender) {
+        if ($a->displayOrder == $b->displayOrder) {
             return strcmp($a->gender, $b->gender);
         }
 
@@ -171,6 +171,25 @@ class Division extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+        }
+    }
+
+    /**
+     * @param string    $propertyName
+     * @param mixed     $value
+     */
+    public function __set($propertyName, $value)
+    {
+        switch ($propertyName) {
+            case "name":
+            case "gameDurationMinutes":
+            case "displayOrder":
+                $this->divisionOrm->{$propertyName} = $value;
+                $this->divisionOrm->save();
+                break;
+
+            default:
+                Precondition::isTrue(false, "Set not supported for property: $propertyName");
         }
     }
 

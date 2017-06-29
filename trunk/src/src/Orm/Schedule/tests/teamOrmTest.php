@@ -50,9 +50,9 @@ class TeamOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($teamOrm, self::$defaultTeamOrmAttributes);
     }
 
-    public function test_loadByName()
+    public function test_loadByNameId()
     {
-        $teamOrm = TeamOrm::loadByDivisionIdAndName($this->defaultDivisionOrm->id, self::$defaultTeamOrmAttributes[self::NAME]);
+        $teamOrm = TeamOrm::loadByDivisionIdAndNameId($this->defaultDivisionOrm->id, self::$defaultTeamOrmAttributes[self::NAME_ID]);
         $this->verifyExpectedAttributes($teamOrm, self::$defaultTeamOrmAttributes);
     }
 

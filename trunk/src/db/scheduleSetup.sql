@@ -60,5 +60,3 @@ truncate table season;
 truncate table team;
 truncate table familyGame;
 truncate table flight;
-
-select * from game where id = 13;
