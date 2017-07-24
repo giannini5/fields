@@ -7,7 +7,7 @@ class View_Fields_ShowReservation extends View_Fields_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::SHOW_RESERVATION_PAGE, $controller);
@@ -16,23 +16,22 @@ class View_Fields_ShowReservation extends View_Fields_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render() {
-        $facilities = $this->m_controller->getFacilities();
-        $filterFacilityId = $this->m_controller->m_filterFacilityId;
-        $filterDivisionId = $this->m_controller->m_filterDivisionId;
-        $filterTeamId = $this->m_controller->m_filterTeamId;
+    public function renderPage() {
+        $facilities         = $this->m_controller->getFacilities();
+        $filterFacilityId   = $this->m_controller->m_filterFacilityId;
+        $filterDivisionId   = $this->m_controller->m_filterDivisionId;
+        $filterTeamId       = $this->m_controller->m_filterTeamId;
 
         $this->_printConfirmationMessage();
 
         $this->_printReservationSelectors($facilities, $filterFacilityId, $filterDivisionId, $filterTeamId);
         print "<h1>&nbsp;</h1>";
 
-        $reservations = $this->_getReservations($filterFacilityId, $filterDivisionId, $filterTeamId);
-        $boyTeamCount = $this->getTeamCount($reservations, 'B');
-        $girlTeamCount = $this->getTeamCount($reservations, 'G');
-        $teamCount = $boyTeamCount + $girlTeamCount;
-
-        $colspan = $this->m_controller->m_show ? 9 : 7;
+        $reservations   = $this->_getReservations($filterFacilityId, $filterDivisionId, $filterTeamId);
+        $boyTeamCount   = $this->getTeamCount($reservations, 'B');
+        $girlTeamCount  = $this->getTeamCount($reservations, 'G');
+        $teamCount      = $boyTeamCount + $girlTeamCount;
+        $colspan        = $this->m_controller->m_show ? 9 : 7;
 
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>

@@ -7,8 +7,8 @@ class View_Fields_Image extends View_Fields_Base {
     /**
      * @brief Construct he View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
-     * @param $page       - Page name
+     * @param Controller_Base   $controller - Controller that contains data used when rendering this view.
+     * @param string            $page       - Page name
      */
     public function __construct($controller, $page = self::IMAGE_PAGE) {
         parent::__construct($page, $controller);
@@ -17,7 +17,7 @@ class View_Fields_Image extends View_Fields_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render() {
+    public function renderPage() {
         $result = strpos($this->m_controller->m_image, 'http://');
 
         if (is_bool($result)) {

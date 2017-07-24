@@ -7,7 +7,7 @@ class View_Fields_Welcome extends View_Fields_Base {
     /**
      * @brief Construct he View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::WELCOME_PAGE, $controller);
@@ -16,7 +16,7 @@ class View_Fields_Welcome extends View_Fields_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render() {
+    public function renderPage() {
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0' style='max-width:900px;'>
             <tr><td>

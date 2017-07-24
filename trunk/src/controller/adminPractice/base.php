@@ -107,4 +107,36 @@ abstract class Controller_AdminPractice_Base extends Controller_Base
 
         return '';
     }
+
+    /**
+     * @return string
+     */
+    public function getHeaderButtonToShow()
+    {
+        return View_Base::SIGN_OUT;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCoachName()
+    {
+        return isset($this->m_coordinator) ? $this->m_coordinator->name : '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getDivisionName()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getGender()
+    {
+        return '';
+    }
 }

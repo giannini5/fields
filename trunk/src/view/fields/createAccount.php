@@ -7,16 +7,17 @@ class View_Fields_CreateAccount extends View_Fields_Base {
     /**
      * @brief Construct he View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base   $controller - Controller that contains data used when rendering this view.
+     * @param string            $page
      */
     public function __construct($controller, $page = self::CREATE_ACCOUNT_PAGE) {
-        parent::__construct($page, $controller);
+        parent::__construct($controller, $page);
     }
 
     /**
      * @brief Render data for display on the page.
      */
-    public function render()
+    public function renderPage()
     {
         if ($this->m_controller->m_season->createAllowed) {
             $this->renderCreateAccountView();

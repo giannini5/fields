@@ -184,6 +184,24 @@ class AssistantCoach extends Domain
     }
 
     /**
+     * @param $propertyName
+     * @param $value
+     */
+    public function __set($propertyName, $value)
+    {
+        switch ($propertyName) {
+            case "team":
+                $this->assistantCoachOrm->teamId    = $value->id;
+                $this->assistantCoachOrm->save();
+                $this->team                         = $value;
+                break;
+
+            default:
+                Precondition::isTrue(false, "Unrecognized property: $propertyName");
+        }
+    }
+
+    /**
      *  Delete the assistantCoach
      *  TODO: Change to cascading delete
      */

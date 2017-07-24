@@ -197,6 +197,50 @@ class Coach extends Domain
 
     /**
      * @param $propertyName
+     * @param $value
+     */
+    public function __set($propertyName, $value)
+    {
+        switch ($propertyName) {
+            case "team":
+                $this->coachOrm->teamId = $value->id;
+                $this->coachOrm->save();
+                $this->team             = $value;
+                break;
+
+            default:
+                Precondition::isTrue(false, "Unrecognized property: $propertyName");
+        }
+    }
+
+    /**
+     * Swap teams with passed in coach
+     *
+     * @param Coach $coach
+     */
+    public function swapTeams($coach)
+    {
+        // Verify same division
+        Precondition::isTrue($this->team->division->id == $coach->team->division->id,
+            "Swap cannot proceed - different divisions");
+
+        $team1  = $this->team;
+        $team2  = $coach->team;
+
+        $this->coachOrm->teamId  = -1;
+        $this->coachOrm->save();
+
+        $coach->team                = $team1;
+        $coach->coachOrm->teamId    = $team1->id;
+        $coach->coachOrm->save();
+
+        $this->team              = $team2;
+        $this->coachOrm->teamId  = $team2->id;
+        $this->coachOrm->save();
+    }
+
+    /**
+     * @param $propertyName
      * @return int|string
      */
     public function __isset($propertyName)

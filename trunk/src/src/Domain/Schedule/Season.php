@@ -331,8 +331,12 @@ class Season extends Domain
                 $teamIdAttributes   = explode("-", $teamId);
                 $teamNumber         = $teamIdAttributes[count($teamIdAttributes) - 1];
                 unset($teamIdAttributes[count($teamIdAttributes) - 1]);
-                $teamName           = implode("-", $teamIdAttributes);
-                $teamName           = sprintf("%s-%02d", $teamName, $teamNumber);
+                $teamId             = implode("-", $teamIdAttributes);
+                $teamId             = sprintf("%s-%02d", $teamId, $teamNumber);
+
+                if (empty($teamName)) {
+                    $teamName = $teamId;
+                }
                 if (empty($coachName) or $teamNumber == 0) {
                     continue;
                 }
@@ -452,10 +456,15 @@ class Season extends Domain
             case 'U6':
             case 'U7':
             case 'U8':
+            case '5U-2013':
+            case '6U-2012':
+            case '7U-2011':
+            case '8U-2010':
                 return 60;
 
             case 'U9':
             case 'U10':
+            case '10U-2009-8':
                 return 75;
 
             case 'U11':
@@ -468,6 +477,9 @@ class Season extends Domain
             case 'U18':
             case 'U19':
             case 'U16/19':
+            case '12U-2007-6':
+            case '14U-2005-4':
+            case '18U-2003-0':
             default:
                 return 90;
         }
