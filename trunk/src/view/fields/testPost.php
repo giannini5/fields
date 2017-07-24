@@ -7,7 +7,8 @@ class View_Fields_TestPost extends View_Fields_Base {
     /**
      * @brief Construct he View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base   $controller - Controller that contains data used when rendering this view.
+     * @param string            $page
      */
     public function __construct($controller, $page = self::TEST_POST_PAGE) {
         parent::__construct($page, $controller);
@@ -16,7 +17,7 @@ class View_Fields_TestPost extends View_Fields_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render() {
+    public function renderPage() {
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
             <tr><td>

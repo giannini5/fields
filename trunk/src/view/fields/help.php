@@ -7,8 +7,8 @@ class View_Fields_Help extends View_Fields_Base {
     /**
      * @brief Construct he View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
-     * @param $page       - Page name
+     * @param Controller_Base   $controller - Controller that contains data used when rendering this view.
+     * @param string            $page       - Page name
      */
     public function __construct($controller, $page = self::HELP_PAGE) {
         parent::__construct($page, $controller);
@@ -17,7 +17,7 @@ class View_Fields_Help extends View_Fields_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render() {
+    public function renderPage() {
         $emailAddress = View_Base::EMAIL_ADDRESS;
         $subject      = View_Base::SUBJECT;
         $helpRequest  = View_Base::HELP_REQUEST;

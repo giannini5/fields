@@ -23,6 +23,7 @@ abstract class View_Base {
     const ADMIN_FIELD_PAGE        = '/admin_practice_field';
     const ADMIN_TRANSACTION_PAGE  = '/admin_practice_transaction';
     const ADMIN_RESERVATIONS_PAGE = '/admin_practice_reservations';
+    const ADMIN_SELECT_FIELD_PAGE = '/admin_practice_select';
 
     # Coach/Manager Practice Field Selection Pages
     const WELCOME_PAGE               = '/welcome';
@@ -120,6 +121,8 @@ abstract class View_Base {
     const FILTER_DIVISION_ID        = 'filterDivisionId';
     const FILTER_LOCATION_ID        = 'filterGeographicAreaId';
     const FILTER_TEAM_ID            = 'filterTeamId';
+    const SWAP_TEAM_ID1             = 'swapTeamId1';
+    const SWAP_TEAM_ID2             = 'swapTeamId2';
     const FILTER_COACH_ID           = 'filterCoachId';
     const NAME                      = 'name';
     const GENDER                    = 'gender';
@@ -187,27 +190,46 @@ abstract class View_Base {
     const CREATE_COLOR  = 'lightskyblue';
     const VIEW_COLOR    = 'aquamarine';
 
-    # Member variables
+    /** @var string */
     protected $m_urlParams;
 
     /** @var  Controller_Base */
     protected $m_controller;
 
+    /** @var  string */
     protected $m_pageName;
+
+    /** @var View_Styles */
     protected $m_styles;
+
+    /** @var View_Navigation */
+    protected $navigation;
+
+    /** @var int */
+    protected $collapsibleCount;
+
+    /** @var string */
+    protected $pageTitle;
 
     /**
      * @brief: Construct a new instance of this base class.
      *
-     * @param: $page - Name of the page being constructed.  Must be defined as a const
-     *                 in the above list.
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param View_Navigation   $navigation         - Tab navigation
+     * @param string            $page               - Name of the page being constructed.  Must be defined as a const
+     *                                                  in the above list.
+     * @param Controller_Base   $controller         - Controller that contains data used when rendering this view.
+     * @param string            $pageTitle          - Title that appears in browser tab
+     * @param int               $collapsibleCount   - Count for accordion-style java script
      */
-    public function __construct($page, $controller) {
-        $this->m_pageName = $page;
-        $this->m_styles = new View_Styles();
-        $this->m_urlParams = '';
-        $this->m_controller = $controller;
+    public function __construct($navigation, $page, $pageTitle, $controller, $collapsibleCount = 0)
+    {
+        $this->navigation       = $navigation;
+        $this->m_pageName       = $page;
+        $this->pageTitle        = $pageTitle;
+        $this->m_styles         = new View_Styles();
+        $this->m_urlParams      = '';
+        $this->m_controller     = $controller;
+        $this->collapsibleCount = $collapsibleCount;
     }
 
     /**
@@ -1062,15 +1084,36 @@ abstract class View_Base {
      * @brief: Print out HTML to display this page.  Derived classes must implement
      *         the "render()" method to print out their page content.
      */
-    abstract function displayPage();
+    public function displayPage()
+    {
+        print "
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en'>";
 
-    /**
-     * @brief Display Header Navigation (Welcome, Show Reservatio, etc.)
-     */
-    abstract function displayHeaderNavigation();
+        $this->navigation->displayHeader($this->m_styles, $this->pageTitle, $this->collapsibleCount);
+
+        print "
+    <body bgcolor='#FFFFFF'>
+        <div id='wrap'>";
+
+        $this->navigation->displayBodyHeader($this->m_urlParams);
+        $this->navigation->displayNavigation();
+        $this->printError();
+        $this->render();
+
+        print "
+        <br>";
+
+// print $this-htmlFormatArray($_REQUEST);
+// print $this->htmlFormatArray($_POST);
+
+        print "
+    </body>
+</html>";
+    }
 
     /**
      * @brief Render the contents of the page
      */
-    abstract function render();
+    abstract public function render();
 }

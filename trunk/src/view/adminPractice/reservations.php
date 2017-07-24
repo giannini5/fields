@@ -7,7 +7,7 @@ class View_AdminPractice_Reservations extends View_AdminPractice_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::ADMIN_RESERVATIONS_PAGE, $controller);
@@ -17,10 +17,11 @@ class View_AdminPractice_Reservations extends View_AdminPractice_Base {
      * @brief Render data for display on the page.
      */
     public function render() {
-        $facilities = $this->m_controller->getFacilities();
-        $filterFacilityId = $this->m_controller->m_filterFacilityId;
-        $filterDivisionId = $this->m_controller->m_filterDivisionId;
-        $filterTeamId = $this->m_controller->m_filterTeamId;
+        $facilities         = $this->m_controller->getFacilities();
+        $filterFacilityId   = $this->m_controller->m_filterFacilityId;
+        $filterDivisionId   = $this->m_controller->m_filterDivisionId;
+        $filterTeamId       = $this->m_controller->m_filterTeamId;
+        $sessionId          = $this->m_controller->getSessionId();
 
         $this->_printReservationSelectors($facilities, $filterFacilityId, $filterDivisionId, $filterTeamId);
         print "<h1>&nbsp;</h1>";
@@ -33,7 +34,7 @@ class View_AdminPractice_Reservations extends View_AdminPractice_Base {
         print "
             <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
                 <tr bgcolor='lightskyblue'>
-                    <td colspan=9 align='center' style='font-size:24px'><font color='darkblue'><b>Reservations</b></font><br><font size='2'>$teamCount (Boys: $boyTeamCount, Girls: $girlTeamCount)</font></td>
+                    <td colspan=10 align='center' style='font-size:24px'><font color='darkblue'><b>Reservations</b></font><br><font size='2'>$teamCount (Boys: $boyTeamCount, Girls: $girlTeamCount)</font></td>
                 </tr>
                 <tr bgcolor='lightskyblue'>
                     <th>Division</th    >
@@ -44,6 +45,7 @@ class View_AdminPractice_Reservations extends View_AdminPractice_Base {
                     <th>Field</th>
                     <th>Days</th>
                     <th>Times</th>
+                    <th>&nbsp</th>
                 </tr>";
 
         foreach ($reservations as $reservation) {
@@ -65,7 +67,18 @@ class View_AdminPractice_Reservations extends View_AdminPractice_Base {
                     <td>$facility</td>
                     <td>$field</td>
                     <td>$days</td>
-                    <td>$times</td>
+                    <td>$times</td>";
+
+            print "
+                    <form method='post' action='" . self::ADMIN_RESERVATIONS_PAGE . $this->m_urlParams . "'>
+                    <td>
+                        <input style='background-color: yellow' name=" . self::SUBMIT . " type='submit' value='" . self::DELETE . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        <input type='hidden' id='" . self::RESERVATION_ID . "' name='" . self::RESERVATION_ID . "' value='$reservation->id'>
+                    </td>
+                    </form>";
+
+            print "
                 </tr>";
         }
 

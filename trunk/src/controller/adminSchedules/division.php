@@ -4,6 +4,8 @@ use \DAG\Domain\Schedule\Division;
 use \DAG\Services\MySql\DuplicateKeyException;
 use \DAG\Domain\Schedule\GameDate;
 use \DAG\Domain\Schedule\GameTime;
+use \DAG\Domain\Schedule\Facility;
+use \DAG\Domain\Schedule\Field;
 
 /**
  * Class Controller_AdminSchedules_Division
@@ -59,10 +61,17 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
     private function updateDivisions() {
         try {
             $anyGameTimesSet    = false;
+            $anyGamesSet        = false;
             $gameDates          = GameDate::lookupBySeason($this->m_season);
             if (count($gameDates) > 0) {
                 $gameTimes          = GameTime::lookupByGameDate($gameDates[0]);
                 $anyGameTimesSet    = count($gameTimes) > 0;
+                foreach ($gameTimes as $gameTime) {
+                    if (isset($gameTime->game)) {
+                        $anyGamesSet = true;
+                        break;
+                    }
+                }
             }
 
             foreach ($this->m_divisionUpdates as $divisionId => $data) {
@@ -70,14 +79,25 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
                 $division->name                 = $data[View_Base::NAME];
                 $division->displayOrder         = $data[View_Base::DISPLAY_ORDER];
 
-                if (!$anyGameTimesSet) {
+                if (!$anyGamesSet) {
                     $division->gameDurationMinutes  = $data[View_Base::GAME_DURATION_MINUTES];
                 }
             }
 
+            // Re-create game times if they existed prior and no games have been set
+            if (!$anyGamesSet and $anyGameTimesSet) {
+                $facilities = Facility::lookupBySeason($this->m_season);
+                foreach ($facilities as $facility) {
+                    $fields = Field::lookupByFacility($facility);
+                    foreach ($fields as $field) {
+                        $this->m_season->createGameTimes($field, true);
+                    }
+                }
+            }
+
             $this->m_messageString  = "Division meta data successfully updated.";
-            if ($anyGameTimesSet) {
-                $this->m_messageString .= " Field Use Minutes not changed since game times have already been set";
+            if ($anyGamesSet) {
+                $this->m_messageString .= " FIELD USE MINUTES NOT CHANGED SINCE GAMES HAVE ALREADY BEEN CREATED.";
             }
         } catch (DuplicateKeyException $e) {
             $this->m_errorString = "Sorry, updated failed, two divisions cannot have the same name: " . $e->getMessage();

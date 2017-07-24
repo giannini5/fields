@@ -31,6 +31,7 @@ abstract class Controller_Base
     # Filters
     public $m_filterFacilityId;
     public $m_filterDivisionId;
+    public $m_filterLocationId;
     public $m_filterTeamId;
     public $m_filterCoachId;
 
@@ -75,13 +76,21 @@ abstract class Controller_Base
 
     /**
      * @brief Return a list of teams ordered by Division and gender
+     *        Only return teams for current season
+     *
+     * @return Model_Fields_Team[]
      */
     public function getTeams()
     {
-        $teams = array();
+        $teams = [];
         foreach ($this->m_divisions as $division) {
             $divisionTeams = Model_Fields_Team::GetTeams($division);
-            $teams = array_merge($teams, $divisionTeams);
+            foreach ($divisionTeams as $divisionTeam) {
+                $coach = Model_Fields_Coach::LookupById($divisionTeam->coachId);
+                if ($coach->seasonId == $this->m_season->id) {
+                    $teams[] = $divisionTeam;
+                }
+            }
         }
 
         return $teams;
@@ -269,7 +278,7 @@ abstract class Controller_Base
     /**
      * @brief Get list of facilities
      *
-     * @return Array of facilities; empty array if no facilities found
+     * @return Model_Fields_Facility[] - array of facilities; empty array if no facilities found
      */
     public function getFacilities()
     {
@@ -281,7 +290,7 @@ abstract class Controller_Base
     /**
      * @brief Get list of locations
      *
-     * @return Array of locations; empty array if no locations found
+     * @return Model_Fields_Location[] - Array of locations; empty array if no locations found
      */
     public function getLocations()
     {
@@ -296,7 +305,7 @@ abstract class Controller_Base
      * @param $facility - Model_Fields_Facility instance
      * @param bool $enabledOnly - If TRUE then get enabled fields only; otherwise get all fields
      *
-     * @return Array of Model_Fields_Field instances; empty array if no fields found
+     * @return Model_Fields_Fieldodel_Fields_FieldArray of Model_Fields_Field instances; empty array if no fields found
      */
     public function getFields($facility, $enabledOnly = FALSE)
     {
@@ -424,6 +433,22 @@ abstract class Controller_Base
         }
 
         return $reservations;
+    }
+
+
+    /**
+     * @brief Get list of reservations for field
+     *
+     * @param: $field - Field to get reservations for
+     * @return array|Model_Fields_Reservation
+     */
+    public function getReservationsForField($field) {
+        if ($this->m_isAuthenticated) {
+            $reservations = Model_Fields_Reservation::LookupByField($this->m_season, $field, FALSE);
+            return $reservations;
+        }
+
+        return array();
     }
 
     abstract public function process();

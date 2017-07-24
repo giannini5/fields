@@ -34,7 +34,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             $this->m_filterFacilityId = $this->getPostAttribute(View_Base::FILTER_FACILITY_ID, 0);
             $this->m_filterDivisionId = $this->getPostAttribute(View_Base::FILTER_DIVISION_ID, 0);
             $this->m_filterLocationId = $this->getPostAttribute(View_Base::FILTER_LOCATION_ID, 0);
-
+            $this->m_filterTeamId     = $this->getPostAttribute(View_Base::FILTER_TEAM_ID, 0);
         } elseif (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'GET') {
             $this->m_newSelection = $this->getGetAttribute(View_Base::NEW_SELECTION, 0);
         }
@@ -57,9 +57,9 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             switch ($this->m_operation) {
                 case View_Base::SELECT:
                     if ($this->createReservation()) {
-                        $this->m_filterFacilityId = 0;
-                        $this->m_filterDivisionId = 0;
-                        $this->m_filterTeamId = $this->m_team->id;
+                        $this->m_filterFacilityId   = 0;
+                        $this->m_filterDivisionId   = 0;
+                        $this->m_filterTeamId       = $this->m_filterTeamId == 0 ? $this->m_team->id : $this->m_filterTeamId;
 
                         $view = new View_Fields_ShowReservation($this);
                     } else {
@@ -92,7 +92,12 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $view->displayPage();
     }
 
-    private function createReservation() {
+    /**
+     * @param bool $adminOverride - default to false.  When true then override rule 7
+     *
+     * @return bool
+     */
+    public function createReservation($adminOverride = false) {
         // All of the following must be TRUE or the reservation is denied:
         // 0. Season is open for practice field reservations
         // 1. StartTime is less then EndTime
@@ -104,37 +109,46 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         // 6. Reservation does not overlap with another team's reservation
         // 7. Division is allowed to practice at selected field
 
+        // If adminOverride enabled then update team, coach, division and reservations
+
+        if ($adminOverride) {
+            $this->m_team       = Model_Fields_Team::LookupById($this->m_filterTeamId);
+            $this->m_coach      = $this->m_team->m_coach;
+            $this->m_division   = Model_Fields_Division::LookupById($this->m_coach->divisionId);
+            $this->_getReservations();
+        }
+
         // 0. Make sure we are taking reservations
         if (!$this->m_season->okayToReserveField()) {
-            $beginDateTime = DateTime::createFromFormat('Y-m-d H:i:s', $this->m_season->beginReservationsDate);
-            $beginDateString = $beginDateTime->format('m-d-Y');
+            $beginDateTime                  = DateTime::createFromFormat('Y-m-d H:i:s', $this->m_season->beginReservationsDate);
+            $beginDateString                = $beginDateTime->format('m-d-Y');
             $this->m_createReservationError =  "The earliest you can use this tool to select a field for practice is<br>$beginDateString.";
-            return FALSE;
+            return false;
         }
 
         // 1. StartTime is less then EndTime
-        $startDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $this->m_startTime" . ":00");
-        $endDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $this->m_endTime" . ":00");
+        $startDateTime  = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $this->m_startTime" . ":00");
+        $endDateTime    = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $this->m_endTime" . ":00");
 
         // Normalize the start and end time for proper comparison in below tests
-        $this->m_startTime = $startDateTime->format('H:i:s');
-        $this->m_endTime = $endDateTime->format('H:i:s');
+        $this->m_startTime  = $startDateTime->format('H:i:s');
+        $this->m_endTime    = $endDateTime->format('H:i:s');
 
         $diff = $startDateTime->diff($endDateTime);
         if ($diff->invert >= 1) {
             $this->m_createReservationError = "ERROR 1:<br>Start Time ($this->m_startTime) occurs on or after End Time ($this->m_endTime).";
             $this->m_createReservationError .= "<br>Please try again.";
-            return FALSE;
+            return false;
         }
 
         // 2. Verify that at least one day is selected and that the day selected is available for reserving
-        $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
-        $daysSelected = 0;
-        $dayOfWeekIndex = 0;
+        $fieldAvailability  = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
+        $daysSelected       = 0;
+        $dayOfWeekIndex     = 0;
         $daysSelectedString = '';
         foreach ($this->m_daysSelected as $day=>$selected) {
             $daysSelectedString .= $selected ? '1' : '0';
-            $daysSelected += $selected ? 1 : 0;
+            $daysSelected       += $selected ? 1 : 0;
             if ($selected) {
                 if (!$fieldAvailability->isFieldAvailable($dayOfWeekIndex)) {
                     $this->m_createReservationError = "ERROR 2:<br>Permit not available on day selected.";
@@ -169,7 +183,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             return FALSE;
         }
 
-        // 5a. Total time for all reservations for team is within limit allowed
+        // 5a. Total time for reservation for team is within limit allowed per practice
         $currentReservationMinutesPerPractice = ($diff->h * 60 + $diff->i);
         if ($currentReservationMinutesPerPractice > $this->m_team->m_division->maxMinutesPerPractice) {
             $hoursPerPractice = $this->m_team->m_division->maxMinutesPerPractice / 60;
@@ -196,12 +210,14 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         }
 
         // 7. Team's division is allowed to practice at the selected field
-        $divisionField = Model_Fields_DivisionField::LookupByDivisionField($this->m_team->m_division->id, $this->m_facility->id, $this->m_field->id);
-        if (!isset($divisionField)) {
-            $divisionName = $this->m_team->m_division->name;
-            $this->m_createReservationError = "ERROR 7:<br>Select field is not currently availabe for the $divisionName division.";
-            $this->m_createReservationError .= "<br>Please try again.";
-            return FALSE;
+        if (!$adminOverride) {
+            $divisionField = Model_Fields_DivisionField::LookupByDivisionField($this->m_team->m_division->id, $this->m_facility->id, $this->m_field->id);
+            if (!isset($divisionField)) {
+                $divisionName = $this->m_team->m_division->name;
+                $this->m_createReservationError = "ERROR 7:<br>Select field is not currently availabe for the $divisionName division.";
+                $this->m_createReservationError .= "<br>Please try again.";
+                return FALSE;
+            }
         }
 
         // All is good, create the reservation
@@ -228,11 +244,11 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         // Compute total minutes of reservation time for team
         $minutes = $currentReservationMinutes;
         foreach ($reservations as $reservation) {
-            $startDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $reservation->startTime");
-            $endDateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $reservation->endTime");
-            $diff = $startDateTime->diff($endDateTime);
-            $numberOfDays = $reservation->getNumberOfDays();
-            $minutes += ($diff->h * 60 + $diff->i) * $numberOfDays;
+            $startDateTime  = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $reservation->startTime");
+            $endDateTime    = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $reservation->endTime");
+            $diff           = $startDateTime->diff($endDateTime);
+            $numberOfDays   = $reservation->getNumberOfDays();
+            $minutes        += ($diff->h * 60 + $diff->i) * $numberOfDays;
         }
 
         // Verify total time is under the weekly minute limit for team
@@ -248,27 +264,27 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $practiceFieldCoordinators = Model_Fields_PracticeFieldCoordinator::LookupByLeague($this->m_league);
         assertion(count($practiceFieldCoordinators) >= 1, "ERROR: Zero Practice Field Coordinators found for league: " . $this->m_league->name);
 
-        $practiceFieldCoordinatorName = $practiceFieldCoordinators[0]->name;
-        $fromAddress = $practiceFieldCoordinators[0]->email;
-        $toAddress = $this->m_coach->email;
-        $preApproved = $this->m_facility->preApproved == 1;
-        $subject = $preApproved ? 'AYSO Practice Field Approval' : 'AYSO Practice Field Pending';
-        $intro = $preApproved ? "Your team's practice field request has been approved." : "Your team's practice field request is pending.";
-        $coachName = $this->m_coach->name;
-        $divisionName = $this->m_division->name;
-        $gender = $this->m_team->gender;
-        $facilityName = $this->m_facility->name;
-        $fieldName = $this->m_field->name;
-        $imageURL = $this->getImageURL($this->m_facility->image);
-        $daysSelected = $this->getDaysSelectedString($reservation);
-        $times = "$reservation->startTime - $reservation->endTime";
-        $title = $this->m_league->name . " Practice Field Coordinator";
-        $fieldAvailability = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
-        $startDate = $fieldAvailability->startDate;
-        $endDate = $fieldAvailability->endDate;
-        $contactName = $this->m_facility->contactName;
-        $contactEmail = $this->m_facility->contactEmail;
-        $contactPhone = $this->m_facility->contactPhone;
+        $practiceFieldCoordinatorName   = $practiceFieldCoordinators[0]->name;
+        $fromAddress                    = $practiceFieldCoordinators[0]->email;
+        $toAddress                      = $this->m_coach->email;
+        $preApproved                    = $this->m_facility->preApproved == 1;
+        $subject                        = $preApproved ? 'AYSO Practice Field Approval' : 'AYSO Practice Field Pending';
+        $intro                          = $preApproved ? "Your team's practice field request has been approved." : "Your team's practice field request is pending.";
+        $coachName                      = $this->m_coach->name;
+        $divisionName                   = $this->m_division->name;
+        $gender                         = $this->m_team->gender;
+        $facilityName                   = $this->m_facility->name;
+        $fieldName                      = $this->m_field->name;
+        $imageURL                       = $this->getImageURL($this->m_facility->image);
+        $daysSelected                   = $this->getDaysSelectedString($reservation);
+        $times                          = "$reservation->startTime - $reservation->endTime";
+        $title                          = $this->m_league->name . " Practice Field Coordinator";
+        $fieldAvailability              = Model_Fields_FieldAvailability::LookupByFieldId($this->m_field->id);
+        $startDate                      = $fieldAvailability->startDate;
+        $endDate                        = $fieldAvailability->endDate;
+        $contactName                    = $this->m_facility->contactName;
+        $contactEmail                   = $this->m_facility->contactEmail;
+        $contactPhone                   = $this->m_facility->contactPhone;
 
         $headers = "From: region122@webyouthsoccer.com\r\n";
         $headers .= "Cc: $fromAddress\r\n";

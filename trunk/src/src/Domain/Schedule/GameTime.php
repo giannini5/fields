@@ -117,7 +117,7 @@ class GameTime extends Domain
     public static function getDefaultGameTimes($startTime, $endTime, $interval)
     {
         Precondition::isTrue($startTime < $endTime, "StartTime: $startTime is greater than or equal to EndTime: $endTime");
-        Precondition::isTrue($interval->i >= 30, "Interval must be 30 minutes or greater");
+        Precondition::isTrue($interval->i >= 30, "Interval must be 30 minutes or greater: " . $interval->i);
 
         $gameTimes = [];
         $dateTime = \DateTime::createFromFormat('Y-m-d H:i:s', '2016-12-01 ' . $startTime);

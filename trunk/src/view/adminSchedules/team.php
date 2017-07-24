@@ -13,7 +13,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::SCHEDULE_TEAMS_PAGE, $controller);
@@ -28,6 +28,12 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
         $filterTeamId       = $this->m_controller->m_filterTeamId;
         $filterCoachId      = $this->m_controller->m_filterCoachId;
         $showPlayers        = $this->m_controller->m_showPlayers;
+
+        $messageString  = $this->m_controller->m_messageString;
+        if (!empty($messageString)) {
+            print "
+                <p style='color: green' align='center'><strong>$messageString</strong></p><br>";
+        }
 
         $this->printTeamSelectors($filterDivisionId, $filterTeamId, $filterCoachId, $showPlayers);
 
@@ -216,8 +222,8 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                     <td colspan='2' title='Swap two teams such that team 1 now plays team 2s game schedule and vice versa'><strong>Swap Teams</strong></td>
                 </tr>";
 
-        $this->printTeamSelector(null, false, "Select Team", "Team 1");
-        $this->printTeamSelector(null, false, "Select Team", "Team 2");
+        $this->printTeamSelector(null, false, "Select Team", "Team 1", View_Base::SWAP_TEAM_ID1);
+        $this->printTeamSelector(null, false, "Select Team", "Team 2", View_Base::SWAP_TEAM_ID2);
 
         // Print Filter button and end form
         print "

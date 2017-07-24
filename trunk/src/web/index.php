@@ -25,7 +25,7 @@ class Web_Index
 
     public function __construct()
     {
-        $this->m_requestPage = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : self::WELCOME;
+        $this->m_requestPage = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : View_Base::WELCOME_PAGE;
 
         // Strip off the URI Params if any
         $position = strpos($this->m_requestPage, "?");
@@ -97,6 +97,10 @@ class Web_Index
 
             case View_Base::ADMIN_RESERVATIONS_PAGE:
                 $this->m_controller = new Controller_AdminPractice_Reservations();
+                break;
+
+            case View_Base::ADMIN_SELECT_FIELD_PAGE:
+                $this->m_controller = new Controller_AdminPractice_Select();
                 break;
 
             case View_Base::SCHEDULE_UPLOAD_PAGE:

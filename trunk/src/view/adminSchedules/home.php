@@ -7,7 +7,7 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
     /**
      * @brief Construct he View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::SCHEDULE_UPLOAD_PAGE, $controller);
@@ -39,16 +39,14 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         print "
             <p align='left' style='font-size: 15px; text-indent: 25px'>Welcome ... let's create schedules - follow the instructions below</p>
             <ol>
-                <li>Click on <strong><font color='blue'>SEASON</font></strong> tab and create a season.</li>
+                <li>Click on <strong style='color: blue'>SEASON</strong> tab and create a season.</li>
                 <li>Upload Coaches file to create divisions, teams, coaches, assistant coaches and families.</li>
-                <li>Upload Players file to assign players to teams.</li>
-                <li>Upload a Facility file using the Upload box below or go to the <strong><font color='blue'>FACILITY</font></strong> tab to manually create.</li>
-                <li>Upload a Field file using the Upload box below or go to the <strong><font color='blue'>FIELD</font></strong> tab to manually create.</li>
-                <li>TBD - Game Dates</li>
-                <li>TBD - Game Times</li>
-                <li>TBD - Fields Modifications</li>
-                <li>TBD - Schedule Creation</li>
-
+                <li>OPTIONAL: Upload Players file to assign players to teams.</li>
+                <li>Go to the <strong  style='color: blue'>GAME DATE</strong> tab and delete Game Dates that are not in the calendar</li>
+                <li>Upload a Facility file using the Upload box below or go to the <strong style='color: blue'>FACILITY</strong> tab to manually create.</li>
+                <li>Upload a Field file using the Upload box below or go to the <strong  style='color: blue'>FIELD</strong> tab to manually create.</li>
+                <li>Go to the <strong  style='color: blue'>FIELD</strong> tab and delete Game Dates that are not in the calendar</li>
+                <li>Go to the <strong  style='color: blue'>SCHEDULE</strong> tab and start creating schedules for each division</li>
             </ol>";
 
         $this->renderLoadCoachesFromFile();

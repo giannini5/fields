@@ -7,7 +7,8 @@ class View_Fields_Login extends View_Fields_Base {
     /**
      * @brief Construct he View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base   $controller - Controller that contains data used when rendering this view.
+     * @param string            $page
      */
     public function __construct($controller, $page = self::LOGIN_PAGE) {
         parent::__construct($page, $controller);
@@ -16,7 +17,7 @@ class View_Fields_Login extends View_Fields_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render()
+    public function renderPage()
     {
         if ($this->m_controller->m_season->createAllowed) {
             $this->renderLoginView();

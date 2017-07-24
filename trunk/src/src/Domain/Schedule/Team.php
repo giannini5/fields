@@ -178,6 +178,14 @@ class Team extends Domain
     public function __set($propertyName, $value)
     {
         switch ($propertyName) {
+            case "name":
+            case "nameId":
+            case "region":
+            case "city":
+                $this->teamOrm->{$propertyName} = $value;
+                $this->teamOrm->save();
+                break;
+
             case "pool":
                 $this->pool = $value;
 

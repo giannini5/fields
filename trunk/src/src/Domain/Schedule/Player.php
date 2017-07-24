@@ -154,6 +154,24 @@ class Player extends Domain
     }
 
     /**
+     * @param $propertyName
+     * @param $value
+     */
+    public function __set($propertyName, $value)
+    {
+        switch ($propertyName) {
+            case "team":
+                $this->playerOrm->teamId    = $value->id;
+                $this->playerOrm->save();
+                $this->team                 = $value;
+                break;
+
+            default:
+                Precondition::isTrue(false, "Unrecognized property: $propertyName");
+        }
+    }
+
+    /**
      *  Delete the player
      *  TODO: Change to cascading delete
      */

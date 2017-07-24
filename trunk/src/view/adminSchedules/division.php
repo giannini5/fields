@@ -10,7 +10,7 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::SCHEDULE_DIVISIONS_PAGE, $controller);
@@ -53,7 +53,7 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
                     <tr>";
 
             $name = View_Base::DIVISION_UPDATE_DATA . "[$division->id][" . View_Base::NAME . "]";
-            $this->displayInput('', 'string', $name, '', '', $division->name, null, 1, false, 75, false, true, 'right');
+            $this->displayInput('', 'string', $name, '', '', $division->name, null, 1, false, 90, false, true, 'right');
 
             print "
                     <td>$division->gender</td>";

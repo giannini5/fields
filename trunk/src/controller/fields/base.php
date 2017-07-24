@@ -29,6 +29,9 @@ abstract class Controller_Fields_Base extends Controller_Base
     public $m_daysSelected;
     public $m_reservationId;
     public $m_filterLocationId;
+    public $m_filterFacilityId;
+    public $m_filterDivisionId;
+    public $m_filterTeamId;
 
     # Attributes constructed from session
     public $m_coach;
@@ -151,7 +154,7 @@ abstract class Controller_Fields_Base extends Controller_Base
     /**
      * @brief Initialize m_reservations, m_field and m_facility
      */
-    private function _getReservations()
+    protected function _getReservations()
     {
         $this->m_reservations = Model_Fields_Reservation::LookupByTeam($this->m_season, $this->m_team, FALSE);
         if (count($this->m_reservations) > 0
@@ -263,20 +266,6 @@ abstract class Controller_Fields_Base extends Controller_Base
             }
 
             return $this->m_reservations;
-        }
-
-        return array();
-    }
-
-    /**
-     * @brief Get list of reservations for team
-     *
-     * @param: $getFromScratch - If TRUE, then force get the reservations from the database
-     */
-    public function getReservationsForField($field) {
-        if ($this->m_isAuthenticated) {
-            $reservations = Model_Fields_Reservation::LookupByField($this->m_season, $field, FALSE);
-            return $reservations;
         }
 
         return array();

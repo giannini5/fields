@@ -11,17 +11,22 @@ class View_Fields_SelectField extends View_Fields_Base {
 
     private $m_days;
     private $m_times;
+    private $showTeamSelector;
 
     /**
      * @brief Construct the Select Facility View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base       $controller         - Controller that contains data used when rendering this view
+     * @param string                $page               - Name of the page being rendered
+     * @param null|View_Navigation  $navigation         - Override navigation
+     * @param bool                  $showTeamSelector   - Default to false
      */
-    public function __construct($controller) {
-        parent::__construct(self::SELECT_FIELD_PAGE, $controller);
+    public function __construct($controller, $page = self::SELECT_FIELD_PAGE, $navigation = null, $showTeamSelector = false) {
+        parent::__construct($page, $controller, $navigation);
 
-        $this->m_days = array();
-        $this->m_times = array();
+        $this->showTeamSelector = $showTeamSelector;
+        $this->m_days           = array();
+        $this->m_times          = array();
 
         $this->m_days[View_Base::MONDAY][self::LONG_NAME]       = View_Base::MONDAY;
         $this->m_days[View_Base::MONDAY][self::SHORT_NAME]      = 'Mon';
@@ -47,13 +52,14 @@ class View_Fields_SelectField extends View_Fields_Base {
     /**
      * @brief Render data for display on the page.
      */
-    public function render() {
-        $facilities = $this->m_controller->getFacilities();
-        $filterFacilityId = $this->m_controller->m_filterFacilityId;
-        $filterDivisionId = $this->m_controller->m_filterDivisionId;
-        $filterLocationId = $this->m_controller->m_filterLocationId;
+    public function renderPage() {
+        $facilities         = $this->m_controller->getFacilities();
+        $filterFacilityId   = $this->m_controller->m_filterFacilityId;
+        $filterDivisionId   = $this->m_controller->m_filterDivisionId;
+        $filterLocationId   = $this->m_controller->m_filterLocationId;
+        $filterTeamId       = $this->m_controller->m_filterTeamId;
 
-        if ($filterDivisionId == 0 and $this->m_controller->m_operation != View_Base::FILTER) {
+        if ($filterDivisionId == 0 and $this->m_controller->m_operation != View_Base::FILTER and isset($this->m_controller->m_coach)) {
             $filterDivisionId = $this->m_controller->m_coach->divisionId;
         }
 
@@ -64,8 +70,7 @@ class View_Fields_SelectField extends View_Fields_Base {
         }
 
         $this->_printReservationError();
-        $this->_printFacilitySelectors($facilities, $filterFacilityId, $filterDivisionId, $filterLocationId);
-        // print "<p>&nbsp;</p>";
+        $this->_printFacilitySelectors($facilities, $filterFacilityId, $filterDivisionId, $filterLocationId, $filterTeamId);
         print "<br>";
 
         $javaScriptClassIdentifier = 0;
@@ -107,8 +112,15 @@ class View_Fields_SelectField extends View_Fields_Base {
                     <td>";
 */
 
-            $this->_printSelectFieldForm(4, $facility, $filterDivisionId,
-                "expandContract$javaScriptClassIdentifier", "collapsible$javaScriptClassIdentifier");
+            $this->_printSelectFieldForm(
+                4,
+                $facility,
+                $filterDivisionId,
+                "expandContract$javaScriptClassIdentifier",
+                "collapsible$javaScriptClassIdentifier",
+                $filterFacilityId,
+                $filterLocationId,
+                $filterTeamId);
 
 /*
             print "
@@ -140,23 +152,27 @@ class View_Fields_SelectField extends View_Fields_Base {
     /**
      * @brief Print the filtering selectors
      *
-     * @param $facilities - List of facilities for filtering
-     * @param $filterFacilityId - Show selected facility or All if none selected
-     * @param $filterDivisionId - Show selected division or All if non selected
-     * @param $filterLocationId - Show selected geographicArea or All if non selected
+     * @param Model_Fields_Facility[]   $facilities         - List of facilities for filtering
+     * @param int                       $filterFacilityId   - Show selected facility or All if none selected
+     * @param int                       $filterDivisionId   - Show selected division or All if non selected
+     * @param int                       $filterLocationId   - Show selected geographicArea or All if non selected
+     * @param int                       $filterTeamId       - Show selected team or All if non selected and showTeamSelector is true
      */
-    private function _printFacilitySelectors($facilities, $filterFacilityId, $filterDivisionId, $filterLocationId) {
+    private function _printFacilitySelectors($facilities, $filterFacilityId, $filterDivisionId, $filterLocationId, $filterTeamId) {
         $sessionId = $this->m_controller->getSessionId();
 
         print "
             <table valign='top' align='center' width='625' border='1' cellpadding='5' cellspacing='0'>
             <tr><td>
             <table valign='top' align='center' width='625' border='0' cellpadding='5' cellspacing='0'>
-            <form method='post' action='" . self::SELECT_FIELD_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . $this->m_pageName . $this->m_urlParams . "'>";
 
-        print $this->printFacilitySelector($facilities, $filterFacilityId);
-        print $this->printDivisionSelector($filterDivisionId);
-        print $this->printGeographicSelector($filterLocationId);
+        $this->printFacilitySelector($facilities, $filterFacilityId);
+        $this->printDivisionSelector($filterDivisionId);
+        $this->printGeographicSelector($filterLocationId);
+        if ($this->showTeamSelector) {
+            $this->printTeamSelector($filterTeamId);
+        }
 
         // Print Filter button and end form
         print "
@@ -179,13 +195,24 @@ class View_Fields_SelectField extends View_Fields_Base {
      *        - Field assignments
      *        - Selectors for start time, end time and days
      *
-     * @param $maxColumns - Number of columns the form is covering
-     * @param $facility - Facility that contains the fields
-     * @param $filterDivisionId - Filter out fields that are not allowed for the specified division
-     * @param $expandContract - Expand contract java script class
-     * @param $collapsible - Collapsible java script class
+     * @param int                   $maxColumns         - Number of columns the form is covering
+     * @param Model_Fields_Facility $facility           - Facility that contains the fields
+     * @param int                   $filterDivisionId   - Filter out fields that are not allowed for the specified division
+     * @param bool                  $expandContract     - Expand contract java script class
+     * @param bool                  $collapsible        - Collapsible java script class
+     * @param int                   $filterFacilityId   - Filter selected for facility
+     * @param int                   $filterLocationId   - Filter selected for location
+     * @param int                   $filterTeamId       - Filter selected for team
      */
-    private function _printSelectFieldForm($maxColumns, $facility, $filterDivisionId, $expandContract, $collapsible) {
+    private function _printSelectFieldForm(
+        $maxColumns,
+        $facility,
+        $filterDivisionId,
+        $expandContract,
+        $collapsible,
+        $filterFacilityId,
+        $filterLocationId,
+        $filterTeamId) {
         $sessionId = $this->m_controller->getSessionId();
 
         // Print the start of the form to select a facility
@@ -193,7 +220,7 @@ class View_Fields_SelectField extends View_Fields_Base {
         print "<div class='pane'>";
         print "
             <table id='viewTable' class='table' valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
-            <form method='post' action='" . self::SELECT_FIELD_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . $this->m_pageName . $this->m_urlParams . "'>";
 
         $this->_printFacilityInfo($maxColumns, $facility, $expandContract, $collapsible);
 
@@ -214,6 +241,9 @@ class View_Fields_SelectField extends View_Fields_Base {
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SELECT . "'>
                         <input type='hidden' id='facilityId' name='facilityId' value='$facility->id'>
+                        <input type='hidden' id='" . View_Base::FILTER_TEAM_ID . "' name='" . View_Base::FILTER_TEAM_ID . "' value='$filterTeamId'>
+                        <input type='hidden' id='" . View_Base::FILTER_FACILITY_ID . "' name='" . View_Base::FILTER_FACILITY_ID . "' value='$filterFacilityId'>
+                        <input type='hidden' id='" . View_Base::FILTER_LOCATION_ID . "' name='" . View_Base::FILTER_LOCATION_ID . "' value='$filterLocationId'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
@@ -442,7 +472,7 @@ class View_Fields_SelectField extends View_Fields_Base {
      * @param $time - Start time being checked
      * @param $fieldAvailability - Days/Times that the field is available
      *
-     * @return blue if slot reserved; salmon if slot not available; white if slot is available
+     * @return string - blue if slot reserved; salmon if slot not available; white if slot is available
      */
     private function _getAssignmentBackgroundColor($reservations, $day, $time, $fieldAvailability) {
         // Check to see if field is available
@@ -481,7 +511,7 @@ class View_Fields_SelectField extends View_Fields_Base {
      *
      * @param $day - Day being checked
      *
-     * @return Index for the specified day (NULL if day not found)
+     * @return int - Index for the specified day (NULL if day not found)
      */
     private function _getIndexForDay($day) {
         $index = 0;
