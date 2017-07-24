@@ -11,7 +11,7 @@ class View_Fields_CreateAccount extends View_Fields_Base {
      * @param string            $page
      */
     public function __construct($controller, $page = self::CREATE_ACCOUNT_PAGE) {
-        parent::__construct($controller, $page);
+        parent::__construct($page, $controller);
     }
 
     /**

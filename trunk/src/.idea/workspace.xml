@@ -1,46 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="Added ability to swap team schedules.  Added ability for administrator&#10;to reserve practice space for a team with override for field&#10;restriction by division.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminPractice/select.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminPractice/navigation.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminPractice/select.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminSchedules/navigation.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/fields/navigation.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/games/navigation.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/navigation.php" />
+    <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="Bug fix.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminPractice/base.php" afterPath="$PROJECT_DIR$/controller/adminPractice/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminPractice/reservations.php" afterPath="$PROJECT_DIR$/controller/adminPractice/reservations.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminSchedules/division.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/division.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminSchedules/team.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/base.php" afterPath="$PROJECT_DIR$/controller/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/fields/base.php" afterPath="$PROJECT_DIR$/controller/fields/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/fields/selectFacility.php" afterPath="$PROJECT_DIR$/controller/fields/selectFacility.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/AssistantCoach.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/AssistantCoach.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Coach.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Coach.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/GameTime.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/GameTime.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Player.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Player.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Season.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Season.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Team.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminPractice/base.php" afterPath="$PROJECT_DIR$/view/adminPractice/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminPractice/reservations.php" afterPath="$PROJECT_DIR$/view/adminPractice/reservations.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminSchedules/base.php" afterPath="$PROJECT_DIR$/view/adminSchedules/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminSchedules/division.php" afterPath="$PROJECT_DIR$/view/adminSchedules/division.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminSchedules/home.php" afterPath="$PROJECT_DIR$/view/adminSchedules/home.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminSchedules/team.php" afterPath="$PROJECT_DIR$/view/adminSchedules/team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/base.php" afterPath="$PROJECT_DIR$/view/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/base.php" afterPath="$PROJECT_DIR$/view/fields/base.php" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/createAccount.php" afterPath="$PROJECT_DIR$/view/fields/createAccount.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/help.php" afterPath="$PROJECT_DIR$/view/fields/help.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/image.php" afterPath="$PROJECT_DIR$/view/fields/image.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/login.php" afterPath="$PROJECT_DIR$/view/fields/login.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/selectField.php" afterPath="$PROJECT_DIR$/view/fields/selectField.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/showReservation.php" afterPath="$PROJECT_DIR$/view/fields/showReservation.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/testPost.php" afterPath="$PROJECT_DIR$/view/fields/testPost.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/welcome.php" afterPath="$PROJECT_DIR$/view/fields/welcome.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/games/base.php" afterPath="$PROJECT_DIR$/view/games/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/index.php" afterPath="$PROJECT_DIR$/web/index.php" />
     </list>
     <ignored path="src.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -78,28 +41,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="createAccount.php" pinned="false" current-in-tab="false">
+      <file leaf-file-name="createAccount.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/view/fields/createAccount.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="172">
-              <caret line="12" column="32" lean-forward="true" selection-start-line="12" selection-start-column="32" selection-end-line="12" selection-end-column="32" />
+            <state relative-caret-position="187">
+              <caret line="13" column="46" lean-forward="false" selection-start-line="13" selection-start-column="46" selection-end-line="13" selection-end-column="46" />
               <folding>
-                <marker date="1500907071000" expanded="true" signature="1038:1150" ph="..." />
-                <marker date="1500907071000" expanded="true" signature="1055:1150" ph="..." />
-                <marker date="1500907071000" expanded="true" signature="1059:1150" ph="..." />
-                <marker date="1500907071000" expanded="true" signature="2787:3190" ph="..." />
-                <marker date="1500907071000" expanded="true" signature="2838:3133" ph="..." />
-                <marker date="1500907071000" expanded="false" signature="2878:2902" ph="..." />
+                <marker date="1500924346000" expanded="true" signature="1038:1150" ph="..." />
+                <marker date="1500924346000" expanded="true" signature="1055:1150" ph="..." />
+                <marker date="1500924346000" expanded="true" signature="1059:1150" ph="..." />
+                <marker date="1500924346000" expanded="true" signature="2787:3190" ph="..." />
+                <marker date="1500924346000" expanded="true" signature="2838:3133" ph="..." />
+                <marker date="1500924346000" expanded="false" signature="2878:2902" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="base.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="base.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/view/fields/base.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="104">
-              <caret line="9" column="7" lean-forward="true" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
+            <state relative-caret-position="218">
+              <caret line="17" column="20" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
               <folding>
                 <marker date="1500907071000" expanded="true" signature="1267:1421" ph="..." />
                 <marker date="1500907071000" expanded="true" signature="1288:1400" ph="..." />
@@ -222,8 +185,8 @@
         <option value="$PROJECT_DIR$/view/adminSchedules/division.php" />
         <option value="$PROJECT_DIR$/view/adminSchedules/team.php" />
         <option value="$PROJECT_DIR$/web/index.php" />
-        <option value="$PROJECT_DIR$/view/fields/createAccount.php" />
         <option value="$PROJECT_DIR$/view/fields/base.php" />
+        <option value="$PROJECT_DIR$/view/fields/createAccount.php" />
       </list>
     </option>
   </component>
@@ -669,14 +632,7 @@
       <workItem from="1499277738600" duration="117000" />
       <workItem from="1499471183422" duration="2757000" />
       <workItem from="1499887585182" duration="37000" />
-      <workItem from="1500414339259" duration="25554000" />
-    </task>
-    <task id="LOCAL-00001" summary="Login, Create, Reserve and Show Reservations all working.  Still need admin interface to administer fields.">
-      <created>1443881954552</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1443881954552</updated>
+      <workItem from="1500414339259" duration="25822000" />
     </task>
     <task id="LOCAL-00002" summary="Fix autoloader bug so that files will load on CentOS">
       <created>1443967899251</created>
@@ -1014,7 +970,14 @@
       <option name="project" value="LOCAL" />
       <updated>1498749967989</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="Added ability to swap team schedules.  Added ability for administrator&#10;to reserve practice space for a team with override for field&#10;restriction by division.">
+      <created>1500907246497</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1500907246498</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1050,7 +1013,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="194806000" />
+    <option name="totallyTimeSpent" value="195074000" />
   </component>
   <component name="TodoView" selected-index="0">
     <todo-panel id="selected-file">
@@ -1179,9 +1142,9 @@
     <MESSAGE value="Updated scoring model with improved title game support" />
     <MESSAGE value="Change Score to Goals" />
     <MESSAGE value="Added support for 7U division naming style." />
-    <MESSAGE value="Bug fix." />
     <MESSAGE value="Added ability to swap team schedules.  Added ability for administrator&#10;to reserve practice space for a team with override for field&#10;restriction by division." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added ability to swap team schedules.  Added ability for administrator&#10;to reserve practice space for a team with override for field&#10;restriction by division." />
+    <MESSAGE value="Bug fix." />
+    <option name="LAST_COMMIT_MESSAGE" value="Bug fix." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1994,25 +1957,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/view/fields/createAccount.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="172">
-          <caret line="12" column="32" lean-forward="true" selection-start-line="12" selection-start-column="32" selection-end-line="12" selection-end-column="32" />
-          <folding>
-            <marker date="1500907071000" expanded="true" signature="1038:1150" ph="..." />
-            <marker date="1500907071000" expanded="true" signature="1055:1150" ph="..." />
-            <marker date="1500907071000" expanded="true" signature="1059:1150" ph="..." />
-            <marker date="1500907071000" expanded="true" signature="2787:3190" ph="..." />
-            <marker date="1500907071000" expanded="true" signature="2838:3133" ph="..." />
-            <marker date="1500907071000" expanded="false" signature="2878:2902" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/view/fields/base.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="104">
-          <caret line="9" column="7" lean-forward="true" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
+        <state relative-caret-position="218">
+          <caret line="17" column="20" lean-forward="false" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
           <folding>
             <marker date="1500907071000" expanded="true" signature="1267:1421" ph="..." />
             <marker date="1500907071000" expanded="true" signature="1288:1400" ph="..." />
@@ -2025,6 +1973,21 @@
             <marker date="1500907071000" expanded="true" signature="2320:2764" ph="..." />
             <marker date="1500907071000" expanded="false" signature="2792:2809" ph="..." />
             <marker date="1500907071000" expanded="false" signature="2883:2900" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/view/fields/createAccount.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="13" column="46" lean-forward="false" selection-start-line="13" selection-start-column="46" selection-end-line="13" selection-end-column="46" />
+          <folding>
+            <marker date="1500924346000" expanded="true" signature="1038:1150" ph="..." />
+            <marker date="1500924346000" expanded="true" signature="1055:1150" ph="..." />
+            <marker date="1500924346000" expanded="true" signature="1059:1150" ph="..." />
+            <marker date="1500924346000" expanded="true" signature="2787:3190" ph="..." />
+            <marker date="1500924346000" expanded="true" signature="2838:3133" ph="..." />
+            <marker date="1500924346000" expanded="false" signature="2878:2902" ph="..." />
           </folding>
         </state>
       </provider>
