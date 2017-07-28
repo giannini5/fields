@@ -7,7 +7,7 @@ class View_AdminPractice_Field extends View_AdminPractice_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::ADMIN_FIELD_PAGE, $controller);
@@ -72,7 +72,7 @@ class View_AdminPractice_Field extends View_AdminPractice_Base {
         print "
             <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
                 <tr class='$expandContract'>
-                    <th align='center'colspan='$maxColumns'>
+                    <th align='center' colspan='$maxColumns'>
                         $facility->name
                     </th>
                 </tr>";

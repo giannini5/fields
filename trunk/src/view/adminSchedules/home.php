@@ -47,6 +47,10 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
                 <li>Upload a Field file using the Upload box below or go to the <strong  style='color: blue'>FIELD</strong> tab to manually create.</li>
                 <li>Go to the <strong  style='color: blue'>FIELD</strong> tab and delete Game Dates that are not in the calendar</li>
                 <li>Go to the <strong  style='color: blue'>SCHEDULE</strong> tab and start creating schedules for each division</li>
+                <li>Using the <strong  style='color: blue'>SCHEDULE</strong> tab apply schedule customizations (fix coach overlaps, apply special requests, etc.)</li>
+                <li>Go to the <strong  style='color: blue'>PREVIEW</strong> tab, copy link and send to board members for schedule approval</li>
+                <li>Once schedule approved, go to the <strong  style='color: blue'>SCHEDULE</strong> tab and publish each of the schedules</li>
+                <li>Verify schedules correctly published</li>
             </ol>";
 
         $this->renderLoadCoachesFromFile();
