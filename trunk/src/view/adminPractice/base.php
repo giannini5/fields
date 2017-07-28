@@ -15,17 +15,8 @@ abstract class View_AdminPractice_Base extends View_Base {
     public function __construct($page, $controller)
     {
         $navigation         = new View_AdminPractice_Navigation($controller, $page);
-        $collapsibleCount   = $this->getCollapsibleCount();
+        $collapsibleCount   = count($controller->getFacilities());
 
         parent::__construct($navigation, $page, "Administer Practice Fields", $controller, $collapsibleCount);
-    }
-
-    /**
-     * @brief Return the count of classes that need to be created to support collapsing tables.
-     *
-     * @return int $collapsibleCount
-     */
-    public function getCollapsibleCount() {
-        return 0;
     }
 }

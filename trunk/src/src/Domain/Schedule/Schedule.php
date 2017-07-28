@@ -526,11 +526,14 @@ class Schedule extends Domain
                         $family = null;
                         if (Family::findByPhone($season, $coach->phone1, $family)) {
                             FamilyGame::create($family, $game, true);
+                        } else if (Family::findByPhone($season, $coach->phone2, $family)) {
+                            FamilyGame::create($family, $game, true);
                         }
-
                         $family = null;
                         $coach = Coach::lookupByTeam($visitingTeam);
                         if (Family::findByPhone($season, $coach->phone1, $family)) {
+                            FamilyGame::create($family, $game, true);
+                        } else if (Family::findByPhone($season, $coach->phone2, $family)) {
                             FamilyGame::create($family, $game, true);
                         }
 
@@ -907,6 +910,12 @@ class Schedule extends Domain
                         break;
                     case 32:
                         $poolSizes = array(8, 6, 6, 6, 6);
+                        break;
+                    case 36:
+                        $poolSizes = array(6, 6, 6, 6, 6, 6);
+                        break;
+                    case 37:
+                        $poolSizes = array(6, 6, 6, 6, 6, 7);
                         break;
 
                     default:
