@@ -7,6 +7,12 @@ require_once dirname(dirname(__FILE__)) . '/lib/autoload.php';
 
 class ControllerException extends DAG_Exception
 {
+    /**
+     * ControllerException constructor.
+     *
+     * @param string        $message
+     * @param \Exception    $exception
+     */
     public function __construct($message, $exception) {
         parent::__construct($message, 0, $exception);
     }
@@ -139,16 +145,16 @@ class Web_Index
                 $this->m_controller = new Controller_AdminSchedules_Schedule();
                 break;
 
-            case View_Base::SCHEDULE_SCORING_PAGE:
-                $this->m_controller = new Controller_AdminSchedules_Scoring();
-                break;
-
             case View_Base::SCHEDULE_PREVIEW_PAGE:
                 $this->m_controller = new Controller_AdminSchedules_Preview();
                 break;
 
-            case View_Base::SCHEDULE_REFEREE_PAGE:
-                $this->m_controller = new Controller_AdminSchedules_Referee();
+            case View_Base::REFEREE_HOME_PAGE:
+                $this->m_controller = new Controller_AdminReferee_Home();
+                break;
+
+            case View_Base::SCORING_HOME_PAGE:
+                $this->m_controller = new Controller_AdminScoring_Home();
                 break;
 
             case View_Base::GAMES_HOME_PAGE:

@@ -24,10 +24,11 @@ class TeamTest extends ORM_TestHelper
     protected function setUp()
     {
         $this->expectedDefaults = array(
-            'name'   => 'TEST Domain team name',
-            'nameId' => 'TEST 1',
-            'region' => '4',
-            'city'   => 'Temecula',
+            'name'              => 'TEST Domain team name',
+            'nameId'            => 'TEST 1',
+            'region'            => '4',
+            'city'              => 'Temecula',
+            'volunteerPoints'   => 5,
         );
 
         $this->primeDatabase();
@@ -41,7 +42,9 @@ class TeamTest extends ORM_TestHelper
             $this->expectedDefaults['name'],
             $this->expectedDefaults['nameId'],
             $this->expectedDefaults['region'],
-            $this->expectedDefaults['city']);
+            $this->expectedDefaults['city'],
+            false,
+            $this->expectedDefaults['volunteerPoints']);
     }
 
     protected function tearDown()
@@ -68,7 +71,9 @@ class TeamTest extends ORM_TestHelper
             $this->expectedDefaults['name'],
             $this->expectedDefaults['nameId'],
             $this->expectedDefaults['region'],
-            $this->expectedDefaults['city']);
+            $this->expectedDefaults['city'],
+            false,
+            $this->expectedDefaults['volunteerPoints']);
         $this->teamsToCleanup[] = $team;
 
         $this->validateTeam($team, $this->division, null, $this->expectedDefaults);
@@ -101,11 +106,12 @@ class TeamTest extends ORM_TestHelper
     public function validateTeam($team, $division, $pool, $expectedDefaults)
     {
         $this->assertTrue($team->id > 0);
-        $this->assertEquals($expectedDefaults['name'],   $team->name);
-        $this->assertEquals($expectedDefaults['nameId'], $team->nameId);
-        $this->assertEquals($expectedDefaults['region'], $team->region);
-        $this->assertEquals($expectedDefaults['city'],   $team->city);
-        $this->assertEquals($division,                   $team->division);
-        $this->assertEquals($pool,                       $team->pool);
+        $this->assertEquals($expectedDefaults['name'],              $team->name);
+        $this->assertEquals($expectedDefaults['nameId'],            $team->nameId);
+        $this->assertEquals($expectedDefaults['region'],            $team->region);
+        $this->assertEquals($expectedDefaults['city'],              $team->city);
+        $this->assertEquals($expectedDefaults['volunteerPoints'],   $team->volunteerPoints);
+        $this->assertEquals($division,                              $team->division);
+        $this->assertEquals($pool,                                  $team->pool);
     }
 }

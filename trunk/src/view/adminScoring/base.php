@@ -3,9 +3,9 @@
 use \DAG\Domain\Schedule\Coach;
 
 /**
- * @brief: Abstract base class for all adminSchedule views.
+ * @brief: Abstract base class for all adminScoring views.
  */
-abstract class View_AdminSchedules_Base extends View_Base {
+abstract class View_AdminScoring_Base extends View_Base {
 
     /**
      * @brief: Construct a new instance of this base class.
@@ -15,8 +15,8 @@ abstract class View_AdminSchedules_Base extends View_Base {
      */
     public function __construct($page, $controller)
     {
-        $navigation         = new View_AdminSchedules_Navigation($controller, $page);
-        parent::__construct($navigation, $page, "Administer Game Schedules", $controller, 0);
+        $navigation         = new View_AdminScoring_Navigation($controller, $page);
+        parent::__construct($navigation, $page, "Administer Scoring", $controller, 0);
     }
 
     /**

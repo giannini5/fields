@@ -49,6 +49,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const INCLUDE_3RD_4TH_GAME        = 'include3rd4thGame';
     const INCLUDE_SEMI_FINAL_GAMES    = 'includeSemiFinalGames';
     const INCLUDE_CHAMPIONSHIP_GAME   = 'includeChampionshipGame';
+    const VOLUNTEER_POINTS            = 'volunteerPoints';
 
 
     protected static $defaultSeasonOrmAttributes =
@@ -139,18 +140,20 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     protected static $defaultTeamOrmAttributes =
         [
-            self::NAME      => 'Test Default Team 1',
-            self::NAME_ID   => 'Test Id1',
-            self::REGION    => '686',
-            self::CITY      => 'Who Knows',
+            self::NAME              => 'Test Default Team 1',
+            self::NAME_ID           => 'Test Id1',
+            self::REGION            => '686',
+            self::CITY              => 'Who Knows',
+            self::VOLUNTEER_POINTS  => 0,
         ];
 
     protected static $defaultVisitingTeamOrmAttributes =
         [
-            self::NAME      => 'Test Default Team 2',
-            self::NAME_ID   => 'Test Id2',
-            self::REGION    => '688',
-            self::CITY      => 'Uhhh',
+            self::NAME              => 'Test Default Team 2',
+            self::NAME_ID           => 'Test Id2',
+            self::REGION            => '688',
+            self::CITY              => 'Uhhh',
+            self::VOLUNTEER_POINTS  => 0,
         ];
 
     protected static $defaultCoachOrmAttributes =
@@ -304,7 +307,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultTeamOrmAttributes[self::NAME],
             self::$defaultTeamOrmAttributes[self::NAME_ID],
             self::$defaultTeamOrmAttributes[self::REGION],
-            self::$defaultTeamOrmAttributes[self::CITY]);
+            self::$defaultTeamOrmAttributes[self::CITY],
+            self::$defaultTeamOrmAttributes[self::VOLUNTEER_POINTS]);
 
         $this->defaultVisitingTeamOrm = TeamOrm::create(
             $this->defaultDivisionOrm->id,
@@ -312,7 +316,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultVisitingTeamOrmAttributes[self::NAME],
             self::$defaultVisitingTeamOrmAttributes[self::NAME_ID],
             self::$defaultVisitingTeamOrmAttributes[self::REGION],
-            self::$defaultVisitingTeamOrmAttributes[self::CITY]);
+            self::$defaultVisitingTeamOrmAttributes[self::CITY],
+            self::$defaultVisitingTeamOrmAttributes[self::VOLUNTEER_POINTS]);
 
         $this->defaultCoachOrm = CoachOrm::create(
             $this->defaultTeamOrm->id,

@@ -141,6 +141,13 @@ class View_Games_Standings extends View_Games_Base
             }
         }
 
+        // Add in volunteer points
+        foreach ($teams as $teamId => $team) {
+            $teamPoints[$teamId]                += $team->volunteerPoints;
+            $teamStats[$teamId][self::POINTS]   += $team->volunteerPoints;
+        }
+
+        // Sort by points, highest to lowest
         arsort($teamPoints);
 
         foreach ($flights as $flight) {
@@ -156,7 +163,7 @@ class View_Games_Standings extends View_Games_Base
                 print "
                     <table valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
                         <tr bgcolor='lightskyblue'>
-                            <th colspan='11'>$flight->name: $pool->name</th>
+                            <th colspan='12'>$flight->name: $pool->name</th>
                         </tr>
                         <tr bgcolor='lightskyblue'>
                             <th>Team</th>
@@ -169,29 +176,31 @@ class View_Games_Standings extends View_Games_Base
                             <th>Shutouts</th>
                             <th>Yellow Cards</th>
                             <th>Red Cards</th>
-                            <th>Points</th>
+                            <th>Volunteer Points</th>
+                            <th>Total Points</th>
                         </tr>";
 
                 foreach ($teamPoints as $teamId => $points) {
                     if ($teams[$teamId]->pool->id == $pool->id) {
-                        $stats          = $teamStats[$teamId];
-                        $teamName       = $teams[$teamId]->name;
-                        $wins           = $stats[self::WINS];
-                        $losses         = $stats[self::LOSSES];
-                        $ties           = $stats[self::TIES];
-                        $goalsFor       = $stats[self::GOALS_FOR];
-                        $goalsAgainst   = $stats[self::GOALS_AGAINST];
-                        $shutouts       = $stats[self::SHUTOUTS];
-                        $points         = $stats[self::POINTS];
-                        $yellows        = $stats[self::YELLOWS];
-                        $reds           = $stats[self::REDS];
-                        $coach          = Coach::lookupByTeam($teams[$teamId]);
-                        $coachName      = $coach->shortName;
+                        $stats              = $teamStats[$teamId];
+                        $teamName           = $teams[$teamId]->name;
+                        $wins               = $stats[self::WINS];
+                        $losses             = $stats[self::LOSSES];
+                        $ties               = $stats[self::TIES];
+                        $goalsFor           = $stats[self::GOALS_FOR];
+                        $goalsAgainst       = $stats[self::GOALS_AGAINST];
+                        $shutouts           = $stats[self::SHUTOUTS];
+                        $volunteerPoints    = $teams[$teamId]->volunteerPoints;
+                        $points             = $stats[self::POINTS];
+                        $yellows            = $stats[self::YELLOWS];
+                        $reds               = $stats[self::REDS];
+                        $coach              = Coach::lookupByTeam($teams[$teamId]);
+                        $coachName          = $coach->shortName;
 
                         print "
                             <tr>
-                                <td>$teamName</td>
-                                <td>$coachName</td>
+                                <td nowrap>$teamName</td>
+                                <td nowrap>$coachName</td>
                                 <td align='right'>$wins</td>
                                 <td align='right'>$losses</td>
                                 <td align='right'>$ties</td>
@@ -200,6 +209,7 @@ class View_Games_Standings extends View_Games_Base
                                 <td align='right'>$shutouts</td>
                                 <td align='right'>$yellows</td>
                                 <td align='right'>$reds</td>
+                                <td align='right'>$volunteerPoints</td>
                                 <td align='right'>$points</td>
                             </tr>";
                     }

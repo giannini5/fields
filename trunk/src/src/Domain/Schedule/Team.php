@@ -16,6 +16,7 @@ use DAG\Framework\Exception\Precondition;
  * @property string     $nameId
  * @property string     $region
  * @property string     $city
+ * @property int        $volunteerPoints
  */
 class Team extends Domain
 {
@@ -47,8 +48,8 @@ class Team extends Domain
      * @param string    $nameId
      * @param string    $region
      * @param string    $city
-     *
      * @param bool      $ignore - defaults to false and duplicates raise an exception
+     * @param int       $volunteerPoints - defaults to 0
      *
      * @return Team
      *
@@ -62,12 +63,13 @@ class Team extends Domain
         $nameId,
         $region,
         $city,
-        $ignore = false)
+        $ignore = false,
+        $volunteerPoints = 0)
     {
         $poolId = isset($pool) ? $pool->id : null;
 
         try {
-            $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city);
+            $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints);
             return new static($teamOrm, $division, $pool);
         } catch (DuplicateEntryException $e) {
             if ($ignore) {
@@ -160,6 +162,7 @@ class Team extends Domain
             case "nameId":
             case "region":
             case "city":
+            case "volunteerPoints":
                 return $this->teamOrm->{$propertyName};
 
             case "division":
@@ -182,6 +185,7 @@ class Team extends Domain
             case "nameId":
             case "region":
             case "city":
+            case "volunteerPoints":
                 $this->teamOrm->{$propertyName} = $value;
                 $this->teamOrm->save();
                 break;
@@ -216,6 +220,7 @@ class Team extends Domain
             case "region":
             case "city":
             case "division":
+            case "volunteerPoints":
                 return true;
 
             case "pool":
@@ -233,7 +238,7 @@ class Team extends Domain
      */
     public function getPoints($games = null)
     {
-        $points = 0;
+        $points = $this->volunteerPoints;
 
         if (!isset($games)) {
             $games = Game::lookupByTeam($this);

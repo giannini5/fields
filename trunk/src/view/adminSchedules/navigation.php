@@ -72,12 +72,8 @@ class View_AdminSchedules_Navigation extends View_Navigation
                 '<li><div>FIELD</div></li>' : '<li><a href="' . View_Base::SCHEDULE_FIELDS_PAGE . '">FIELD</a></li>')
             . ($this->pageName == View_Base::SCHEDULE_SCHEDULES_PAGE ?
                 '<li><div>SCHEDULE</div></li>' : '<li><a href="' . View_Base::SCHEDULE_SCHEDULES_PAGE . '">SCHEDULE</a></li>')
-            . ($this->pageName == View_Base::SCHEDULE_SCORING_PAGE ?
-                '<li><div>SCORING</div></li>' : '<li><a href="' . View_Base::SCHEDULE_SCORING_PAGE . '">SCORING</a></li>')
             . ($this->pageName == View_Base::SCHEDULE_PREVIEW_PAGE ?
                 '<li><div>PREVIEW</div></li>' : '<li><a href="' . View_Base::SCHEDULE_PREVIEW_PAGE . '">PREVIEW</a></li>')
-            . ($this->pageName == View_Base::SCHEDULE_REFEREE_PAGE ?
-                '<li><div>REFEREE</div></li>' : '<li><a href="' . View_Base::SCHEDULE_REFEREE_PAGE . '">REFEREE</a></li>')
             . '
                </ul>';
     }

@@ -8,10 +8,12 @@
  */
 class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterface {
 
-    const COACH_USER_TYPE = 0;
-    const MANAGER_USER_TYPE = 1;
-    const PRACTICE_FIELD_COORDINATOR_USER_TYPE = 2;
-    const SCHEDULE_COORDINATOR_USER_TYPE = 3;
+    const COACH_USER_TYPE                       = 0;
+    const MANAGER_USER_TYPE                     = 1;
+    const PRACTICE_FIELD_COORDINATOR_USER_TYPE  = 2;
+    const SCHEDULE_COORDINATOR_USER_TYPE        = 3;
+    const SCORING_COORDINATOR_USER_TYPE         = 4;
+    const REFEREE_COORDINATOR_USER_TYPE         = 5;
 
     /**
      * @brief: Constructor
