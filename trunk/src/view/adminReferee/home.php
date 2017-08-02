@@ -7,18 +7,18 @@ use \DAG\Domain\Schedule\GameDate;
 use \DAG\Domain\Schedule\GameTime;
 
 /**
- * @brief Show the Referee page
+ * @brief Show the Referee home page
  */
-class View_AdminSchedules_Referee extends View_AdminSchedules_Base
+class View_AdminReferee_Home extends View_AdminReferee_Base
 {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller)
     {
-        parent::__construct(self::SCHEDULE_REFEREE_PAGE, $controller);
+        parent::__construct(self::REFEREE_HOME_PAGE, $controller);
     }
 
     /**
@@ -119,7 +119,7 @@ class View_AdminSchedules_Referee extends View_AdminSchedules_Base
                 <tr>
                     <th nowrap colspan='2' align='left'>View Existing Field(s)</th>
                 </tr>
-            <form method='post' action='" . self::SCHEDULE_REFEREE_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . self::REFEREE_HOME_PAGE . $this->m_urlParams . "'>";
 
         $this->displaySelector('Facility:', View_Base::FACILITY_ID, $this->m_controller->m_facilityId, $facilitySelectorData, $facilityName);
 

@@ -11,16 +11,16 @@ use \DAG\Framework\Exception\Assertion;
 use \DAG\Framework\Exception\Precondition;
 
 /**
- * Class Controller_AdminSchedules_Scoring
+ * Class Controller_AdminScoring_Home
  *
- * @brief Controller for game scoring
+ * @brief Controller for scoring
  */
-class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
+class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
 {
-
     const GAME_SCORING      = 'game';
     const TEAM_SCORING      = 'team';
     const DIVISION_SCORING  = 'division';
+    const VOLUNTEER_POINTS  = 'volunteerPoints';
 
     public $m_scoringType;
     public $m_gameId;
@@ -41,14 +41,14 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
     private $m_visitYellowCards;
     private $m_gameNotes;
     private $m_isTitleGame;
-
+    private $m_volunteerPointsData = [];
 
     public function __construct()
     {
         parent::__construct();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->m_scoringType    = $this->getPostAttribute(View_Base::SCORING_TYPE, '', true, false);
+            $this->m_scoringType    = $this->getPostAttribute(View_Base::SCORING_TYPE, '', false, false);
             $isTitleGameString      = $this->getPostAttribute(View_Base::IS_TITLE_GAME, 'no', false, false);
             $this->m_isTitleGame    = $isTitleGameString == 'no' ? false : true;
 
@@ -85,6 +85,22 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
                 } else {
                     $this->populateGameAttributes(false, true);
                 }
+            } else if ($this->m_scoringType == self::VOLUNTEER_POINTS) {
+                $this->m_divisionName   = $this->getPostAttribute(View_Base::DIVISION_NAME, '', false, false);
+                $divisionNameAttributes = explode(' ', $this->m_divisionName);
+                if (count($divisionNameAttributes) == 2) {
+                    $this->m_division               = Division::lookupByNameAndGender($this->m_season, $divisionNameAttributes[0], $divisionNameAttributes[1]);
+                    $this->m_volunteerPointsData    = $this->getPostAttributeArray(View_Base::VOLUNTEER_POINTS_DATA);
+                }
+            } else {
+                $this->m_email = $this->getPostAttribute(
+                    Model_Fields_CoachDB::DB_COLUMN_EMAIL,
+                    '* Email Address is required'
+                );
+                $this->m_password = $this->getPostAttribute(
+                    Model_Fields_CoachDB::DB_COLUMN_PASSWORD,
+                    '* Password is required'
+                );
             }
         }
     }
@@ -128,14 +144,18 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
                 case self::DIVISION_SCORING:
                     $this->processDivisionScoring();
                     break;
+
+                case self::VOLUNTEER_POINTS:
+                    $this->processVolunteerPoints();
+                    break;
+
+                default:
+                    $this->_login();
+                    break;
             }
         }
 
-        if ($this->m_isAuthenticated) {
-            $view = new View_AdminSchedules_Scoring($this);
-        } else {
-            $view = new View_AdminSchedules_Home($this);
-        }
+        $view = new View_AdminScoring_Home($this);
 
         $view->displayPage();
     }
@@ -482,5 +502,18 @@ class Controller_AdminSchedules_Scoring extends Controller_AdminSchedules_Base
             "Incorrect number of loser Semi-Final teams found (did scorer enter a tie for the semi-final games?): " . count($teams));
 
         return $teams;
+    }
+
+    /**
+     * Update volunteer points for teams
+     */
+    private function processVolunteerPoints()
+    {
+        foreach ($this->m_volunteerPointsData as $teamId => $volunteerPoints) {
+            $team = Team::lookupById($teamId);
+            $team->volunteerPoints = $volunteerPoints;
+        }
+
+        $this->m_messageString = count($this->m_volunteerPointsData) > 0 ? "Volunteer Points Updated" : "";
     }
 }

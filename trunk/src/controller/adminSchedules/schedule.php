@@ -305,7 +305,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         }
 
         if ($this->m_isAuthenticated) {
-            $this->m_divisions = $this->_getDivisionsFromNames();
+            $this->m_divisions = $this->_getDivisionsFromNames($this->m_divisionNames);
             $view              = new View_AdminSchedules_Schedule($this);
         } else {
             $view = new View_AdminSchedules_Home($this);
@@ -323,7 +323,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         try {
             $this->m_messageString = "Schedule(s)";
 
-            $this->m_divisions = $this->_getDivisionsFromNames();
+            $this->m_divisions = $this->_getDivisionsFromNames($this->m_divisionNames);
             foreach ($this->m_divisions as $division) {
                 // Create Schedule
                 $divisionNameWithGender = $division->name . " " . $division->gender;
@@ -411,27 +411,6 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         }
 
         return false;
-    }
-
-    /**
-     * @brief get Divisions from division names
-     *
-     * @return Division[]
-     */
-    private function _getDivisionsFromNames()
-    {
-        $divisions = [];
-        foreach ($this->m_divisionNames as $divisionNameWithGender) {
-            // DivisionName: <name> <gender>
-            $divisionNameAttributes = explode(' ', $divisionNameWithGender);
-            Assertion::isTrue(2 == count($divisionNameAttributes), "Invalid divisionName: $divisionNameWithGender");
-
-            $divisionName   = $divisionNameAttributes[0];
-            $gender         = $divisionNameAttributes[1];
-            $divisions[]    = Division::lookupByNameAndGender($this->m_season, $divisionName, $gender);
-        }
-
-        return $divisions;
     }
 
     /**

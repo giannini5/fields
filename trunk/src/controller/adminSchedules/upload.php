@@ -103,7 +103,7 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
     }
 
     /**
-     * @brief Login to existing account and then transition to show reservation page
+     * @brief Login to existing account
      */
     private function _login() {
         try {

@@ -45,9 +45,13 @@ abstract class View_Base {
     const SCHEDULE_FAMILY_PAGE      = '/admin_schedule_families';
     const SCHEDULE_DIVISIONS_PAGE   = '/admin_schedule_divisions';
     const SCHEDULE_SCHEDULES_PAGE   = '/admin_schedule_schedules';
-    const SCHEDULE_SCORING_PAGE     = '/admin_schedule_scoring';
     const SCHEDULE_PREVIEW_PAGE     = '/admin_schedule_preview';
-    const SCHEDULE_REFEREE_PAGE     = '/admin_schedule_referee';
+
+    # Admin Scoring pages
+    const SCORING_HOME_PAGE     = '/admin_scoring_home';
+
+    # Admin Referee pages
+    const REFEREE_HOME_PAGE         = '/admin_referee_home';
 
     # Schedule Viewing Pages
     const SCHEDULE_HOME_PAGE        = '/schedule';
@@ -158,6 +162,7 @@ abstract class View_Base {
     const VISITING_RED_CARDS        = 'visitReds';
     const GAME_NOTES                = 'gameNotes';
     const GAME_DATE                 = 'gameDate';
+    const GAME_DATES                = 'gameDates';
     const SCORING_TYPE              = 'scoringType';
     const IS_TITLE_GAME             = 'isTitleGame';
 
@@ -176,6 +181,7 @@ abstract class View_Base {
     const TEAM_ID                   = 'teamId';
     const HOME_TEAM_ID              = 'homeTeamId';
     const VISITING_TEAM_ID          = 'visitingTeamId';
+    const VOLUNTEER_POINTS_DATA     = 'volunteerPointsData';
 
     const EMAIL_ADDRESS             = 'emailAddress';
     const SUBJECT                   = 'subject';
@@ -189,6 +195,7 @@ abstract class View_Base {
     const AQUA          = '#069';
     const CREATE_COLOR  = 'lightskyblue';
     const VIEW_COLOR    = 'aquamarine';
+    const DELETE_COLOR  = 'lightyellow';
 
     /** @var string */
     protected $m_urlParams;
@@ -372,8 +379,12 @@ abstract class View_Base {
             <tr $collapsibleClass>";
         }
 
+        if (!empty($selectorTitle)) {
+            print "
+                <td align='left' rowspan='$rowSpan'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>";
+        }
+
         print "
-                <td align='left' rowspan='$rowSpan'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
                 <td align='left' colspan='$colspan' rowspan='$rowSpan'>
                     <select size=$size name='" . $selectorName . "[]' multiple='multiple'>$dropDownHTML</select>
                 </td>";

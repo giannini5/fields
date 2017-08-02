@@ -465,7 +465,7 @@ class Schedule extends Domain
                         // Find next available gameTime for division/field
                         while (count($gameTimes) == 0) {
                             $divisionFieldsIndex += 1;
-                            if (!$anyGamesAddedForThisDate and $divisionFieldsIndex >= count($divisionFields)) {
+                            if (!$anyGamesAddedForThisDate and $divisionFieldsIndex >= count($divisionFields) and $triedOppositeGender) {
                                 break;
                             } elseif (!$triedOppositeGender and $divisionFieldsIndex >= count($divisionFields)) {
                                 $triedOppositeGender = true;

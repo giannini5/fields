@@ -18,22 +18,24 @@ use DAG\Framework\Orm\DuplicateEntryException;
  */
 class TeamOrm extends PersistenceModel
 {
-    const FIELD_ID          = 'id';
-    const FIELD_DIVISION_ID = 'divisionId';
-    const FIELD_POOL_ID     = 'poolId';
-    const FIELD_NAME        = 'name';
-    const FIELD_NAME_ID     = 'nameId';
-    const FIELD_REGION      = 'region';
-    const FIELD_CITY        = 'city';
+    const FIELD_ID                  = 'id';
+    const FIELD_DIVISION_ID         = 'divisionId';
+    const FIELD_POOL_ID             = 'poolId';
+    const FIELD_NAME                = 'name';
+    const FIELD_NAME_ID             = 'nameId';
+    const FIELD_REGION              = 'region';
+    const FIELD_CITY                = 'city';
+    const FIELD_VOLUNTEER_POINTS    = 'volunteerPoints';
 
     protected static $fields = [
-        self::FIELD_ID          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_DIVISION_ID => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_POOL_ID     => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_NAME        => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
-        self::FIELD_NAME_ID     => [FV::STRING, [FV::NO_CONSTRAINTS]],
-        self::FIELD_REGION      => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
-        self::FIELD_CITY        => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_ID                  => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_DIVISION_ID         => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_POOL_ID             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_NAME                => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_NAME_ID             => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_REGION              => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_CITY                => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
+        self::FIELD_VOLUNTEER_POINTS    => [FV::INT, [FV::NO_CONSTRAINTS], 0],
     ];
 
     protected static $config = [
@@ -53,6 +55,7 @@ class TeamOrm extends PersistenceModel
      * @param string    $nameId     - Example: U10G-1A
      * @param string    $region     - Example: 122
      * @param string    $city
+     * @param int       $volunteerPoints - defaults to 0
      *
      * @return TeamOrm
      * @throws DuplicateEntryException
@@ -63,16 +66,18 @@ class TeamOrm extends PersistenceModel
         $name,
         $nameId,
         $region,
-        $city
+        $city,
+        $volunteerPoints = 0
     ) {
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_DIVISION_ID => $divisionId,
-                self::FIELD_POOL_ID     => $poolId,
-                self::FIELD_NAME        => $name,
-                self::FIELD_NAME_ID     => $nameId,
-                self::FIELD_REGION      => $region,
-                self::FIELD_CITY        => $city,
+                self::FIELD_DIVISION_ID         => $divisionId,
+                self::FIELD_POOL_ID             => $poolId,
+                self::FIELD_NAME                => $name,
+                self::FIELD_NAME_ID             => $nameId,
+                self::FIELD_REGION              => $region,
+                self::FIELD_CITY                => $city,
+                self::FIELD_VOLUNTEER_POINTS    => $volunteerPoints,
             ],
             function ($item) {
                 return $item !== null;

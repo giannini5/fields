@@ -1,6 +1,9 @@
 <?php
 
 use \DAG\Domain\Schedule\GameDate;
+use \DAG\Domain\Schedule\GameTime;
+use \DAG\Domain\Schedule\DivisionField;
+use \DAG\Domain\Schedule\Division;
 
 /**
  * Class Controller_AdminSchedules_GameDate
@@ -9,7 +12,8 @@ use \DAG\Domain\Schedule\GameDate;
  */
 class Controller_AdminSchedules_GameDate extends Controller_AdminSchedules_Base {
     public $m_day           = NULL;
-    public $m_gameDateId    = NULL;
+    public $m_gameDateIds   = [];
+    public $m_divisionNames = [];
 
     public function __construct() {
         parent::__construct();
@@ -21,17 +25,31 @@ class Controller_AdminSchedules_GameDate extends Controller_AdminSchedules_Base 
                     'YYYY-MM-DD',
                     true,
                     false,
-                    "* day required"
-                );
+                    "* day required");
             }
 
             if ($this->m_operation == View_Base::DELETE) {
-                $this->m_gameDateId = $this->getPostAttribute(
-                    View_Base::GAME_DATE_ID,
-                    null,
-                    false,
-                    true
+                $this->m_gameDateIds = $this->getPostAttributeArray(
+                    View_Base::GAME_DATES
                 );
+                if (count($this->m_gameDateIds) == 0) {
+                    $this->setErrorString("Error: Game Date(s) is a Required Field");
+                }
+            }
+
+            if ($this->m_operation == View_Base::REMOVE) {
+                $this->m_gameDateId     = $this->getPostAttribute(
+                    View_Base::GAME_DATE,
+                    null,
+                    true,
+                    false);
+
+                $this->m_divisionNames = $this->getPostAttributeArray(
+                    View_Base::DIVISION_NAMES
+                );
+                if (count($this->m_divisionNames) == 0) {
+                    $this->setErrorString("Error: Division Name(s) is a Required Field");
+                }
             }
         }
     }
@@ -48,7 +66,11 @@ class Controller_AdminSchedules_GameDate extends Controller_AdminSchedules_Base 
                     break;
 
                 case View_Base::DELETE:
-                    $this->_deleteGameDate();
+                    $this->_deleteGameDates();
+                    break;
+
+                case View_Base::REMOVE:
+                    $this->removeGameDateForDivisions();
                     break;
             }
         }
@@ -74,12 +96,73 @@ class Controller_AdminSchedules_GameDate extends Controller_AdminSchedules_Base 
     }
 
     /**
-     * @brief Update GameDate
+     * @brief Delete GameDate
      */
-    private function _deleteGameDate() {
-        $gameDate = GameDate::lookupById($this->m_gameDateId);
-        $gameDate->delete();
+    private function _deleteGameDates() {
+        $gameDatesString    = '';
+        $gameDates          = [];
 
-        $this->m_messageString = "Game Date '$gameDate->day' successfully deleted (Warning, not cascading).";
+        // Verify games have not been assigned
+        foreach ($this->m_gameDateIds as $gameDateId) {
+            $gameDate       = GameDate::lookupById($gameDateId);
+            $gameDates[]    = $gameDate;
+
+            $gameTimes = GameTime::lookupByGameDate($gameDate);
+            foreach ($gameTimes as $gameTime) {
+                if (isset($gameTime->game)) {
+                    $this->m_errorString = "Games have already been set.  You must delete the schedule before you can remove game dates";
+                    return;
+                }
+            }
+
+        }
+
+        // Delete the game dates
+        foreach ($gameDates as $gameDate) {
+            $gameDatesString .= empty($gameDatesString) ? $gameDate->day : ", " . $gameDate->day;
+            $gameDate->delete();
+        }
+
+        $this->m_messageString = "Game Date(s) successfully deleted for: $gameDatesString.";
+    }
+
+    /**
+     * @brief Remove GameDate for specified divisions
+     */
+    private function removeGameDateForDivisions() {
+        $divisionNames  = '';
+        $gameDate       = GameDate::lookupById((int)$this->m_gameDateId);
+        $divisions      = [];
+
+        foreach ($this->m_divisionNames as $divisionName) {
+            $newDivisions = Division::lookupByName($this->m_season, $divisionName);
+            $divisions = array_merge($divisions, $newDivisions);
+        }
+
+        // Verify games have not already been set
+        foreach ($divisions as $division) {
+            $divisionFields = DivisionField::lookupByDivision($division);
+            foreach ($divisionFields as $divisionField) {
+                $field = $divisionField->field;
+
+                if ($field->gamesExists(null, array($gameDate))) {
+                    $this->m_errorString = "Games have already been set.  You must delete the schedule before you can remove game dates";
+                    return;
+                }
+            }
+
+            $divisionNames .= empty($divisionNames) ? $division->nameWithGender : ", " . $division->nameWithGender;
+        }
+
+        // Delete game times for division fields.  Exception thrown if a gameTime has an assigned game
+        foreach ($divisions as $division) {
+            $divisionFields = DivisionField::lookupByDivision($division);
+            foreach ($divisionFields as $divisionField) {
+                $field = $divisionField->field;
+                $field->deleteGameTimes(true, $gameDate);
+            }
+        }
+
+        $this->m_messageString = "Game Date '$gameDate->day' successfully removed for divisions: $divisionNames.";
     }
 }

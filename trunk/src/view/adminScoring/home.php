@@ -11,22 +11,68 @@ use \DAG\Domain\Schedule\Team;
 /**
  * @brief Show the Schedule page and get the user to select a schedule to administer or create a new schedule.
  */
-class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
+class View_AdminScoring_Home extends View_AdminScoring_Base
 {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller)
     {
-        parent::__construct(self::SCHEDULE_SCORING_PAGE, $controller);
+        parent::__construct(self::SCORING_HOME_PAGE, $controller);
     }
 
     /**
      * @brief Render data for display on the page.
      */
     public function render()
+    {
+        if ($this->m_controller->m_isAuthenticated) {
+            $this->renderScoring();
+        } else {
+            $this->renderLogin();
+        }
+    }
+
+    /**
+     * @brief Render sign-in screen
+     */
+    public function renderLogin() {
+        print "
+            <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
+            <tr><td>
+            <table align='center' valign='top' border='0' cellpadding='5' cellspacing='0'>";
+
+        print "
+            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
+
+        print "
+                <tr>
+                    <td colspan='2' style='font-size:24px'><font color='darkblue'><b>Sign In</b></font></td>
+                </tr>";
+
+        $this->displayInput('Email Address:', 'text', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_EMAIL, 'email address', $this->m_controller->m_email);
+        $this->displayInput('Password:', 'password', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_PASSWORD, 'password', $this->m_controller->m_password);
+
+        print "
+                <tr>
+                    <td colspan='2' align='right'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
+                    </td>
+                    <td>&nbsp</td>
+                </tr>
+            </form>";
+
+        print "
+            </table>
+            </td></tr></table>";
+    }
+
+    /**
+     * @brief Render data for display on the page.
+     */
+    public function renderScoring()
     {
         $sessionId          = $this->m_controller->getSessionId();
         $divisionsSelector  = $this->getDivisionsSelector(true, false, true);
@@ -58,20 +104,31 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
         $this->_printEnterScoreForDay($sessionId, $divisionsSelector, $gameDateSelector);
 
         print "
+                    </td>";
+
+        print "
+                    </td>
+                    <td valign='top' bgcolor='" . View_Base::VIEW_COLOR . "'>";
+
+        $this->_printEnterVolunteerPoints($sessionId, $divisionsSelector);
+
+        print "
                     </td>
                 </tr>
             </table>
             <br><br>";
 
-        if ($this->m_controller->m_scoringType == Controller_AdminSchedules_Scoring::GAME_SCORING) {
+        if ($this->m_controller->m_scoringType == Controller_AdminScoring_Home::GAME_SCORING) {
             if (Game::findById($this->m_controller->m_gameId, $game)) {
-                $this->printUpdateGameForm($sessionId, $game, Controller_AdminSchedules_Scoring::GAME_SCORING);
+                $this->printUpdateGameForm($sessionId, $game, Controller_AdminScoring_Home::GAME_SCORING);
             }
-        } else if ($this->m_controller->m_scoringType == Controller_AdminSchedules_Scoring::TEAM_SCORING) {
+        } else if ($this->m_controller->m_scoringType == Controller_AdminScoring_Home::TEAM_SCORING) {
             $coach = Coach::lookupById($this->m_controller->m_coachId);
             $this->printUpdateTeamGamesForm($sessionId, $coach);
-        } else if ($this->m_controller->m_scoringType == Controller_AdminSchedules_Scoring::DIVISION_SCORING) {
+        } else if ($this->m_controller->m_scoringType == Controller_AdminScoring_Home::DIVISION_SCORING) {
             $this->printUpdateDivisionGamesForm($sessionId, $this->m_controller->m_division, $this->m_controller->m_gameDate);
+        } else if ($this->m_controller->m_scoringType == Controller_AdminScoring_Home::VOLUNTEER_POINTS) {
+            $this->printUpdateDivisionVolunteerPointsForm($sessionId, $this->m_controller->m_division);
         }
     }
 
@@ -93,7 +150,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                 <tr>
                     <th nowrap align='left' colspan='7'>Enter Score for Game</th>
                 </tr>
-                <form method='post' action='" . self::SCHEDULE_SCORING_PAGE . $this->m_urlParams . "'>";
+                <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
 
         $this->displayInput('Game Id:', 'int', View_Base::GAME_ID, '', '', "", null, 6, true, 50, false, true);
 
@@ -130,7 +187,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                 <tr>
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ENTER . "'>
-                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminSchedules_Scoring::GAME_SCORING . "'>
+                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::GAME_SCORING . "'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
@@ -151,12 +208,12 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
             $this->m_controller->m_season,
             $coachId,
             "Enter Scores For Team",
-            self::SCHEDULE_SCORING_PAGE,
+            self::SCORING_HOME_PAGE,
             $sessionId,
             '0',
             'post',
             View_Base::ENTER,
-            Controller_AdminSchedules_Scoring::TEAM_SCORING);
+            Controller_AdminScoring_Home::TEAM_SCORING);
     }
 
     /**
@@ -175,7 +232,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                 <tr>
                     <th nowrap align='left' colspan='2'>Enter/Update Scores</th>
                 </tr>
-            <form method='post' action='" . self::SCHEDULE_SCORING_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
 
         $this->displaySelector('Division:', View_Base::DIVISION_NAME, '', $divisionsSelector, $this->m_controller->m_divisionName);
         $this->displaySelector('Game Date:', View_Base::GAME_DATE, '', $gameDateSelector, $this->m_controller->m_gameDate->day);
@@ -185,7 +242,38 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                 <tr>
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ENTER . "'>
-                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminSchedules_Scoring::DIVISION_SCORING . "'>
+                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::DIVISION_SCORING . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>";
+    }
+
+    /**
+     * @brief Print the form to enter volunteer points for teams by division.  Form includes the following
+     *        - List of Divisions
+     *
+     * @param int   $sessionId          - Session Identifier
+     * @param array $divisionsSelector  - List of divisionId => name
+     */
+    private function _printEnterVolunteerPoints($sessionId, $divisionsSelector)
+    {
+        print "
+            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <th nowrap align='left' colspan='2'>Enter/Update Volunteer Points</th>
+                </tr>
+            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
+
+        $this->displaySelector('Division:', View_Base::DIVISION_NAME, '', $divisionsSelector, $this->m_controller->m_divisionName);
+
+        // Print Enter button and end form
+        print "
+                <tr>
+                    <td align='left'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ENTER . "'>
+                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::VOLUNTEER_POINTS . "'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
@@ -236,7 +324,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                     <td colspan='1'>$time</td>
                     <td colspan='1'>$fieldName</td>
                 </tr>
-            <form method='post' action='" . self::SCHEDULE_SCORING_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
 
         $coach = Coach::lookupByTeam($game->homeTeam);
         $name = $game->homeTeam->nameId . ' ' . $coach->shortName . ' ' . $game->homeTeam->region . ' (' . $game->homeTeam->city . ')';
@@ -369,7 +457,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                     <td colspan='1'>$time</td>
                     <td colspan='1'>$fieldName</td>
                 </tr>
-            <form method='post' action='" . self::SCHEDULE_SCORING_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
 
         $defaultTeamSelection = '';
         if (isset($game->homeTeam)) {
@@ -440,6 +528,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
                 <tr>
                     <td>&nbsp</td>";
 
+            $numberWidth = 25;
             $this->displayInput('Goals:', 'int', View_Base::VISITING_SCORE, '', '', $game->visitingTeamScore, null, 1, false, $numberWidth, false, true);
             $this->displayInput('Yellow Cards:', 'int', View_Base::VISITING_YELLOW_CARDS, '', '', $game->visitingTeamYellowCards, null, 1, false, $numberWidth, false, true);
             $this->displayInput('Red Cards:', 'int', View_Base::VISITING_RED_CARDS, '', '', $game->visitingTeamRedCards, null, 1, false, $numberWidth, false, true);
@@ -505,7 +594,7 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
 
         // For each game, create form for score input/update
         foreach ($games as $game) {
-            $this->printUpdateGameForm($sessionId, $game, Controller_AdminSchedules_Scoring::TEAM_SCORING, $coach);
+            $this->printUpdateGameForm($sessionId, $game, Controller_AdminScoring_Home::TEAM_SCORING, $coach);
         }
     }
 
@@ -522,7 +611,61 @@ class View_AdminSchedules_Scoring extends View_AdminSchedules_Base
 
         $games = Game::lookupByDivisionDay($division, $gameDate->day, true);
         foreach ($games as $game) {
-            $this->printUpdateGameForm($sessionId, $game, Controller_AdminSchedules_Scoring::DIVISION_SCORING, null, $division, $gameDate);
+            $this->printUpdateGameForm($sessionId, $game, Controller_AdminScoring_Home::DIVISION_SCORING, null, $division, $gameDate);
         }
+    }
+
+    /**
+     * @param int       $sessionId
+     * @param Division  $division
+     */
+    private function printUpdateDivisionVolunteerPointsForm($sessionId, $division)
+    {
+        if (!isset($division)) {
+            return;
+        }
+
+        $divisionName   = $division->nameWithGender;
+        $teams          = Team::lookupByDivision($division);
+        $scoringType    = Controller_AdminScoring_Home::VOLUNTEER_POINTS;
+        $bgColor        = 'lightskyblue';
+
+        print "
+            <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
+                <tr bgcolor='$bgColor'>
+                    <th colspan='3'>$divisionName</th>
+                </tr>
+                <tr bgcolor='$bgColor'>
+                    <th>Team Id</th>
+                    <th>Coach</th>
+                    <th>Volunteer Points</th>
+                </tr>
+                <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
+
+        foreach ($teams as $team) {
+            $coach = Coach::lookupByTeam($team);
+            print "
+                <tr>
+                    <td>$team->nameId</td>
+                    <td>$coach->shortName</td>";
+
+            $name = View_Base::VOLUNTEER_POINTS_DATA . "[$team->id]";
+            $this->displayInput('', 'int', $name, '', '', $team->volunteerPoints, null, 1, false, 50, false, true, 'center');
+
+            print "
+                </tr>";
+        }
+
+        print "
+                <tr>
+                    <td colspan='3' align='left'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
+                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='$scoringType'>
+                        <input type='hidden' id='" . View_Base::DIVISION_NAME . "' name='" . View_Base::DIVISION_NAME . "' value='$divisionName'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>";
     }
 }

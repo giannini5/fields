@@ -30,10 +30,23 @@ class View_AdminSchedules_GameDate extends View_AdminSchedules_Base {
 
         print "
             <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
-                <tr bgcolor='" . View_Base::CREATE_COLOR  . "'>
-                    <td>";
+                <tr>
+                    <td bgcolor='" . View_Base::CREATE_COLOR  . "'>";
 
         $this->_printCreateGameDateForm($sessionId);
+
+
+        print "
+                    </td>
+                    <td bgcolor='" . View_Base::DELETE_COLOR  . "'>";
+
+        $this->_printDeleteGameDates($sessionId);
+
+        print "
+                    </td>
+                    <td bgcolor='" . View_Base::DELETE_COLOR  . "'>";
+
+        $this->_printRemoveGameDatesByDivision($sessionId);
 
         print "
                     </td>
@@ -51,7 +64,7 @@ class View_AdminSchedules_GameDate extends View_AdminSchedules_Base {
                 <tr>
                     <td>";
 
-        $this->_printUpdateGameDateForm($sessionId, $gameDates);
+        $this->_printGameDates($gameDates);
 
         print "
                     </td>
@@ -63,14 +76,14 @@ class View_AdminSchedules_GameDate extends View_AdminSchedules_Base {
      * @brief Print the form to create a gameDate.  Form includes the following
      *        - GameDate Attributes
      *
-     * @param $sessionId
+     * @param int   $sessionId
      */
     private function _printCreateGameDateForm($sessionId) {
         // Print the start of the form to select a gameDate
         print "
             <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <th align='center'>Create New GameDate</th>
+                    <th align='center' colspan='2'>Create New GameDate</th>
                 </tr>
             <form method='post' action='" . self::SCHEDULE_GAME_DATE_PAGE . $this->m_urlParams . "'>";
 
@@ -89,32 +102,84 @@ class View_AdminSchedules_GameDate extends View_AdminSchedules_Base {
     }
 
     /**
-     * @brief Print the form to update a season.  Form includes the following
-     *        - GameDate Attributes
+     * @brief Print the form to delete the selected game dates
      *
-     * @param $sessionId
-     * @param $gameDates - GameDates to be updated
+     * @param int   $sessionId
      */
-    private function _printUpdateGameDateForm($sessionId, $gameDates) {
+    private function _printDeleteGameDates($sessionId)
+    {
+        $gameDateSelector   = $this->getGameDateSelector();
+
+        print "
+            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
+                <tr bgcolor='" . View_Base::DELETE_COLOR  . "'>
+                    <th align='center' colspan='1' nowrap>Delete Game Dates</th>
+                </tr>
+            <form method='post' action='" . self::SCHEDULE_GAME_DATE_PAGE . $this->m_urlParams . "'>";
+
+        $this->displayMultiSelector('', View_Base::GAME_DATES, '', $gameDateSelector, count($gameDateSelector));
+
+        // Print Delete button and end form
+        print "
+                <tr>
+                    <td align='left'>
+                        <input style='background-color: salmon' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::DELETE . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>";
+    }
+
+    /**
+     * @brief Print the form to remove game slots by selected division
+     *
+     * @param int   $sessionId
+     */
+    private function _printRemoveGameDatesByDivision($sessionId)
+    {
+        $divisionsSelector  = $this->getDivisionsSelector(true);
+        $gameDateSelector   = $this->getGameDateSelector();
+
+        print "
+            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
+                <tr bgcolor='" . View_Base::DELETE_COLOR  . "'>
+                    <th align='center' colspan='2' nowrap>Remove Game Dates for Specified Division(s)</th>
+                </tr>
+            <form method='post' action='" . self::SCHEDULE_GAME_DATE_PAGE . $this->m_urlParams . "'>";
+
+        $this->displayMultiSelector('Divisions', View_Base::DIVISION_NAMES, '', $divisionsSelector, count($divisionsSelector));
+        $this->displaySelector('Game Date:', View_Base::GAME_DATE, '', $gameDateSelector, '');
+
+        // Print Delete button and end form
+        print "
+                <tr>
+                    <td align='left'>
+                        <input style='background-color: salmon' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::REMOVE . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>";
+    }
+
+    /**
+     * @brief Display the game dates
+     *
+     * @param $gameDates - GameDates to be displayed
+     */
+    private function _printGameDates($gameDates) {
         // Print the start of the form to select a gameDate
         print "
             <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
                 <tr>
                     <th align='center'>Day</th>
-                    <th align='center'>&nbsp</th>
                 </tr>";
 
         foreach ($gameDates as $gameDate) {
             print "
                 <tr>
-                <form method='post' action='" . self::SCHEDULE_GAME_DATE_PAGE . $this->m_urlParams . "'>
                     <td>$gameDate->day</td>
-                    <td align='left'>
-                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::DELETE . "'>
-                        <input type='hidden' id='gameDateId' name='gameDateId' value='$gameDate->id'>
-                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
-                    </td>
-                </form>
                 </tr>";
         }
 
