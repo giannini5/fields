@@ -100,10 +100,15 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 or $this->m_operation == View_Base::UPDATE
                 or $this->m_operation == View_Base::ALTER) {
 
-                $this->m_startDate  = $this->getPostAttribute(View_Base::START_DATE, null, true, false, "Error: Start Date is a required field");
-                $this->m_endDate    = $this->getPostAttribute(View_Base::END_DATE, null, true, false, "Error: End Date is a required field");
+                $startDateId        = $this->getPostAttribute(View_Base::START_DATE, null, true, true, "Error: Start Date is a required field");
+                $endDateId          = $this->getPostAttribute(View_Base::END_DATE, null, true, true, "Error: End Date is a required field");
                 $this->m_startTime  = $this->getPostAttribute(View_Base::START_TIME, null);
                 $this->m_endTime    = $this->getPostAttribute(View_Base::END_TIME, null);
+
+                $startDate          = GameDate::lookupById((int)$startDateId);
+                $endDate            = GameDate::lookupById((int)$endDateId);
+                $this->m_startDate  = $startDate->day;
+                $this->m_endDate    = $endDate->day;
 
                 // Verify startDate < endDate
                 if ($this->m_startDate > $this->m_endDate) {
