@@ -20,7 +20,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::SCHEDULE_SCHEDULES_PAGE, $controller);
@@ -33,6 +33,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
     {
         $sessionId          = $this->m_controller->getSessionId();
         $divisionsSelector  = $this->getDivisionsSelector(true, false, true);
+        $gameDateSelector   = $this->getGameDateSelector();
 
         $messageString  = $this->m_controller->m_messageString;
         if (!empty($messageString)) {
@@ -45,7 +46,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 <tr>
                     <td bgcolor='" . View_Base::CREATE_COLOR  . "'>";
 
-        $this->_printCreateScheduleForm($sessionId, $divisionsSelector);
+        $this->_printCreateScheduleForm($sessionId, $divisionsSelector, $gameDateSelector);
 
         print "
                     </td>
@@ -76,7 +77,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
             $dataPrinted = false;
             foreach ($schedules as $schedule) {
-                $this->_printUpdateScheduleForm($schedule, $sessionId);
+                $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
                 $dataPrinted = true;
             }
 
@@ -94,8 +95,9 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      *
      * @param $sessionId            - Session Identifier
      * @param $divisionsSelector    - List of divisionId => name
+     * @param $gameDateSelector     - List of gameDateId => day
      */
-    private function _printCreateScheduleForm($sessionId, $divisionsSelector) {
+    private function _printCreateScheduleForm($sessionId, $divisionsSelector, $gameDateSelector) {
         print "
             <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
                 <tr>
@@ -115,11 +117,13 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 </tr>
                 <tr>";
         $this->displayMultiSelector('Divisions', View_Base::DIVISION_NAMES, '', $divisionsSelector, count($divisionsSelector), null, 1, false, 6);
-        $this->displayCalendarDateSelector(4, View_Base::START_DATE, 'First Day of Schedule', $this->m_controller->m_season->startDate, null, 1, 135, false);
+        $this->displaySelector('First Day of Schedule', View_Base::START_DATE, '', $gameDateSelector, "", null, false, 135);
+        // $this->displayCalendarDateSelector(4, View_Base::START_DATE, 'First Day of Schedule', $this->m_controller->m_season->startDate, null, 1, 135, false);
         print "
                 </tr>
                 <tr>";
-        $this->displayCalendarDateSelector(4, View_Base::END_DATE, 'Last Day of Schedule', $this->m_controller->m_season->endDate, null, 1, 135, false);
+        $this->displaySelector('Last Day of Schedule', View_Base::END_DATE, '', $gameDateSelector, end($gameDateSelector), null, false, 135);
+        // $this->displayCalendarDateSelector(4, View_Base::END_DATE, 'Last Day of Schedule', $this->m_controller->m_season->endDate, null, 1, 135, false);
         print "
                 </tr>
                 <tr>";
@@ -185,9 +189,10 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      *        - Division
      *
      * @param $schedule             - Schedule to be edited
+     * @param $gameDateSelector     - List of gameDateId => day
      * @param $sessionId            - Session Identifier
      */
-    private function _printUpdateScheduleForm($schedule, $sessionId) {
+    private function _printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId) {
 \DAG\Framework\Utils\TimeUtils::time_elapsed("Prime");
         $pools          = Pool::lookupBySchedule($schedule);
 \DAG\Framework\Utils\TimeUtils::time_elapsed("Pools Lookup");
@@ -233,10 +238,18 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 $fieldSelector[$gameTime->field->id]                    = $fieldName;
                 $gamesByDateByFieldByTime[$day][$fieldName][$startTime] = $gameTime->game;
                 if (isset($gameTime->game)) {
-                    $gameIds[$gameTime->game->id] = $gameTime->game->id;
-                    $gamesByPoolId[$gameTime->game->pool->id] += 1;
-                    $teamSelector[$gameTime->game->homeTeam->id]        = $gameTime->game->homeTeam->nameId;
-                    $teamSelector[$gameTime->game->visitingTeam->id]    = $gameTime->game->visitingTeam->nameId;
+                    $gameIds[$gameTime->game->id]               = $gameTime->game->id;
+                    $gamesByPoolId[$gameTime->game->pool->id]   += 1;
+
+                    $homeTeamCoachName      = '';
+                    $visitingTeamCoachName  = '';
+                    if (isset($gameTime->game->homeTeam)) {
+                        $homeTeamCoachName      = ': ' . Coach::lookupByTeam($gameTime->game->homeTeam)->shortName;
+                        $visitingTeamCoachName  = ': ' . Coach::lookupByTeam($gameTime->game->visitingTeam)->shortName;
+                    }
+
+                    $teamSelector[$gameTime->game->homeTeam->id]        = $gameTime->game->homeTeam->nameId . $homeTeamCoachName;
+                    $teamSelector[$gameTime->game->visitingTeam->id]    = $gameTime->game->visitingTeam->nameId . $visitingTeamCoachName;
                 }
             }
         }
@@ -252,7 +265,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             <tr>
                                 <td>";
 
-        $this->_printUpdatePoolsForm($schedule, $pools, $gamesByPoolId, $sessionId);
+        $this->_printUpdatePoolsForm($schedule, $pools, $gamesByPoolId, $gameDateSelector, $sessionId);
 
         print "
                                 </td>
@@ -288,7 +301,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             <tr>
                                 <td>";
 
-        $this->_printAlterTeamGames($teamSelector, $fieldSelector, $sessionId);
+        $this->_printAlterTeamGames($teamSelector, $fieldSelector, $gameDateSelector, $sessionId);
 
 
         print "
@@ -391,12 +404,14 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      *        - Number of Games
      *        - Update and Delete options
      *
-     * @param Schedule  $schedule       - Schedule to be edited
-     * @param Pool[]    $pools          - Pools in schedule
-     * @param array     $gamesByPoolId  - Games by poolId
-     * @param int       $sessionId      - Session Identifier
+     * @param Schedule  $schedule           - Schedule to be edited
+     * @param Pool[]    $pools              - Pools in schedule
+     * @param array     $gamesByPoolId      - Games by poolId
+     * @param array     $gameDateSelector   - List of gameDateId => day
+     * @param int       $sessionId          - Session Identifier
      */
-    private function _printUpdatePoolsForm($schedule, $pools, $gamesByPoolId, $sessionId) {
+    private function _printUpdatePoolsForm($schedule, $pools, $gamesByPoolId, $gameDateSelector, $sessionId)
+    {
         $errorString = ($this->m_controller->m_scheduleId == $schedule->id and $this->m_controller->m_missingAttributes > 0) ? $this->m_controller->m_name : '';
         $startTime   = $schedule->startTime;
         $endTime     = $schedule->endTime;
@@ -426,14 +441,14 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
         print "
                 </tr>
                     <td colspan='3' nowrap align='right'><strong>First Day of Schedule:</strong></td>";
-        $this->displayCalendarDateSelector(4, View_Base::START_DATE, '', $schedule->startDate, null, 1, 75, false);
+        $this->displaySelector('', View_Base::START_DATE, '', $gameDateSelector, $schedule->startDate, null, false, 100);
         print "
                 </tr>";
 
         print "
                 </tr>
                     <td colspan='3' nowrap align='right'><strong>Last Day of Schedule:</strong></td>";
-        $this->displayCalendarDateSelector(4, View_Base::END_DATE, '', $schedule->endDate, null, 1, 75, false);
+        $this->displaySelector('', View_Base::END_DATE, '', $gameDateSelector, $schedule->endDate, null, false, 100);
         print "
                 </tr>";
 
@@ -717,9 +732,10 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      *
      * @param array $teamSelector
      * @param array $fieldSelector
+     * @param array $gameDateSelector - List of gameDateId => day
      * @param int   $sessionId
      */
-    private function _printAlterTeamGames($teamSelector, $fieldSelector, $sessionId)
+    private function _printAlterTeamGames($teamSelector, $fieldSelector, $gameDateSelector, $sessionId)
     {
         // Print controls and button to support moving a teams games during a date range to between a selected time
         // range and field.
@@ -733,8 +749,10 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
         asort($teamSelector);
         $this->displaySelector('Team:', View_Base::TEAM_ID, '', $teamSelector, '', NULL, true, 150, 'left', 'Select Team');
-        $this->displayCalendarDateSelector(4, View_Base::START_DATE, 'From Date', $this->m_controller->m_season->startDate, null, 1, 135);
-        $this->displayCalendarDateSelector(4, View_Base::END_DATE, 'To Date', $this->m_controller->m_season->endDate, null, 1, 135);
+        $this->displaySelector('From Date', View_Base::START_DATE, '', $gameDateSelector, '');
+        $this->displaySelector('To Date', View_Base::END_DATE, '', $gameDateSelector, end($gameDateSelector));
+        // $this->displayCalendarDateSelector(4, View_Base::START_DATE, 'From Date', $this->m_controller->m_season->startDate, null, 1, 135);
+        // $this->displayCalendarDateSelector(4, View_Base::END_DATE, 'To Date', $this->m_controller->m_season->endDate, null, 1, 135);
         $this->printTimeSelector(View_Base::START_TIME, "From Time", "07:00:00");
         $this->printTimeSelector(View_Base::END_TIME, "To Time", "19:00:00");
         $this->displaySelector('Field:', View_Base::FIELD_ID, 0, $fieldSelector, '', NULL, true, 150, 'left');
