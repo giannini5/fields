@@ -917,6 +917,9 @@ class Schedule extends Domain
                     case 37:
                         $poolSizes = array(6, 6, 6, 6, 6, 7);
                         break;
+                    case 42:
+                        $poolSizes = array(6, 6, 6, 6, 6, 6, 6);
+                        break;
 
                     default:
                         Assertion::isTrue(false, "$numberOfTeams is too large.  Current code only support 32 teams per division");
