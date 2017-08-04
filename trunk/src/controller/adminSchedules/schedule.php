@@ -18,6 +18,13 @@ use \DAG\Domain\Schedule\GameDate;
 
 class NotEnoughGameTimesException extends DAG_Exception
 {
+    /**
+     * NotEnoughGameTimesException constructor
+     *
+     * @param int $numberOfTeams
+     * @param int $gamesPerTeam
+     * @param int $numberOfGameTimes
+     */
     public function __construct($numberOfTeams, $gamesPerTeam, $numberOfGameTimes)
     {
         $gamesNeeded = $numberOfTeams * $gamesPerTeam;
@@ -447,7 +454,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             $gameTimes = array_merge($gameTimes, GameTime::lookupByField($divisionField->field, true));
         }
 
-        if ((count($teams) * $this->m_gamesPerTeam) > count($gameTimes)) {
+        if ((round(count($teams) / 2) * $this->m_gamesPerTeam) > count($gameTimes)) {
             throw new NotEnoughGameTimesException(count($teams), $this->m_gamesPerTeam, count($gameTimes));
         }
 
