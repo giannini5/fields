@@ -49,6 +49,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const INCLUDE_3RD_4TH_GAME        = 'include3rd4thGame';
     const INCLUDE_SEMI_FINAL_GAMES    = 'includeSemiFinalGames';
     const INCLUDE_CHAMPIONSHIP_GAME   = 'includeChampionshipGame';
+    const SCHEDULE_GAMES              = 'scheduleGames';
     const VOLUNTEER_POINTS            = 'volunteerPoints';
 
 
@@ -123,6 +124,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::INCLUDE_3RD_4TH_GAME          => 0,
             self::INCLUDE_SEMI_FINAL_GAMES      => 0,
             self::INCLUDE_CHAMPIONSHIP_GAME     => 0,
+            self::SCHEDULE_GAMES                => 1,
         ];
 
     protected static $defaultScheduleOrmAttributes =

@@ -16,7 +16,7 @@ abstract class View_AdminSchedules_Base extends View_Base {
     public function __construct($page, $controller)
     {
         $navigation         = new View_AdminSchedules_Navigation($controller, $page);
-        parent::__construct($navigation, $page, "Administer Game Schedules", $controller, 0);
+        parent::__construct($navigation, $page, "Administer Game Schedules", $controller, 10);
     }
 
     /**

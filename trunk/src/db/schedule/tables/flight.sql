@@ -6,6 +6,7 @@ create table flight (
     include3rd4thGame         tinyint not NULL default 0,
     includeSemiFinalGames     tinyint not NULL default 0,
     includeChampionshipGame   tinyint not NULL default 0,
+    scheudleGames             tinyint not NULL default 1,
 
     PRIMARY KEY (id),
     unique index ux_scheduleName(scheduleId, name)

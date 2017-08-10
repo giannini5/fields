@@ -20,6 +20,7 @@ class FlightOrmTest extends ORM_TestHelper
             self::INCLUDE_3RD_4TH_GAME          => 0,
             self::INCLUDE_SEMI_FINAL_GAMES      => 1,
             self::INCLUDE_CHAMPIONSHIP_GAME     => 0,
+            self::SCHEDULE_GAMES                => 1,
         ];
 
     protected function setUp()
@@ -66,5 +67,6 @@ class FlightOrmTest extends ORM_TestHelper
         $this->assertEquals($attributes[self::INCLUDE_3RD_4TH_GAME],        $flightOrm->include3rd4thGame);
         $this->assertEquals($attributes[self::INCLUDE_SEMI_FINAL_GAMES],    $flightOrm->includeSemiFinalGames);
         $this->assertEquals($attributes[self::INCLUDE_CHAMPIONSHIP_GAME],   $flightOrm->includeChampionshipGame);
+        $this->assertEquals($attributes[self::SCHEDULE_GAMES],              $flightOrm->scheduleGames);
     }
 }

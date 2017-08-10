@@ -15,6 +15,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $include3rd4thGame
  * @property int    $includeSemiFinalGames
  * @property int    $includeChampionshipGame
+ * @property int    $scheduleGames
  */
 class FlightOrm extends PersistenceModel
 {
@@ -25,6 +26,7 @@ class FlightOrm extends PersistenceModel
     const FIELD_INCLUDE_3RD_4TH_GAME        = 'include3rd4thGame';
     const FIELD_INCLUDE_SEMI_FINAL_GAMES    = 'includeSemiFinalGames';
     const FIELD_INCLUDE_CHAMPIONSHIP_GAME   = 'includeChampionshipGame';
+    const FIELD_SCHEDULE_GAMES              = 'scheduleGames';
 
     protected static $fields = [
         self::FIELD_ID                          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
@@ -34,6 +36,7 @@ class FlightOrm extends PersistenceModel
         self::FIELD_INCLUDE_3RD_4TH_GAME        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_INCLUDE_SEMI_FINAL_GAMES    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_INCLUDE_CHAMPIONSHIP_GAME   => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_SCHEDULE_GAMES              => [FV::INT,    [FV::NO_CONSTRAINTS], 1],
     ];
 
     protected static $config = [
@@ -53,6 +56,7 @@ class FlightOrm extends PersistenceModel
      * @param int       $include3rd4thGame;
      * @param int       $includeSemiFinalGames;
      * @param int       $includeChampionshipGame;
+     * @param int       $scheduleGames;
      *
      * @return FlightOrm
      * @throws DuplicateEntryException
@@ -63,7 +67,8 @@ class FlightOrm extends PersistenceModel
         $include5th6thGame,
         $include3rd4thGame,
         $includeSemiFinalGames,
-        $includeChampionshipGame)
+        $includeChampionshipGame,
+        $scheduleGames = 1)
     {
         $result = self::getPersistenceDriver()->create(
             [
@@ -73,7 +78,7 @@ class FlightOrm extends PersistenceModel
                 self::FIELD_INCLUDE_3RD_4TH_GAME        => $include3rd4thGame,
                 self::FIELD_INCLUDE_SEMI_FINAL_GAMES    => $includeSemiFinalGames,
                 self::FIELD_INCLUDE_CHAMPIONSHIP_GAME   => $includeChampionshipGame,
-
+                self::FIELD_SCHEDULE_GAMES              => $scheduleGames,
             ],
             function ($item) {
                 return $item !== null;

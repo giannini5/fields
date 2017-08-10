@@ -151,6 +151,11 @@ class View_Games_Standings extends View_Games_Base
         arsort($teamPoints);
 
         foreach ($flights as $flight) {
+            // Skip flights where no games are scheduled
+            if ($flight->scheduleGames != 1) {
+                continue;
+            }
+
             $standingsPrinted   = true;
 
             print "
@@ -239,6 +244,11 @@ class View_Games_Standings extends View_Games_Base
         $flights = Flight::lookupBySchedule($schedule);
 
         foreach ($flights as $flight) {
+            // Skip flights where no games are scheduled
+            if ($flight->scheduleGames != 1) {
+                continue;
+            }
+
             $pools = Pool::lookupByFlight($flight);
 
             print "

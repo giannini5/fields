@@ -70,6 +70,11 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
     public $m_lockToggleGameId;
     public $m_teamId;
     public $m_fieldId;
+    public $m_showPublishedSchedules;
+    public $m_flightId;
+    public $m_poolId;
+    public $m_flightName;
+    public $m_poolName;
 
     public function __construct() {
         parent::__construct();
@@ -173,8 +178,16 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 or $this->m_operation == View_Base::PUBLISH
                 or $this->m_operation == View_Base::UN_PUBLISH
                 or $this->m_operation == View_Base::CLEAR
-                or $this->m_operation == View_Base::DELETE) {
-
+                or $this->m_operation == View_Base::DELETE
+                or $this->m_operation == View_Base::MOVE
+                or $this->m_operation == View_Base::SWAP
+                or $this->m_operation == View_Base::TOGGLE
+                or $this->m_operation == View_Base::ALTER
+                or $this->m_operation == View_Base::CREATE_FLIGHT
+                or $this->m_operation == View_Base::CREATE_POOL
+                or $this->m_operation == View_Base::DELETE_FLIGHT
+                or $this->m_operation == View_Base::DELETE_POOL
+            ) {
                 $this->m_scheduleId = $this->getPostAttribute(
                     View_Base::SCHEDULE_ID,
                     '* schedule required',
@@ -251,6 +264,37 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                     true,
                     true);
             }
+
+            if ($this->m_operation == View_Base::CREATE_FLIGHT) {
+                $this->m_flightName = $this->getPostAttribute(
+                    View_Base::FLIGHT_NAME,
+                    '', true, false, 'Error: Flight Name is a Required Field'
+                );
+            }
+
+            if ($this->m_operation == View_Base::DELETE_FLIGHT
+                or $this->m_operation == View_Base::CREATE_POOL) {
+                $this->m_flightId = $this->getPostAttribute(
+                    View_Base::FLIGHT_ID,
+                    '', true, true, 'Error: Flight Id is a Required Field'
+                );
+            }
+
+            if ($this->m_operation == View_Base::CREATE_POOL) {
+                $this->m_poolName = $this->getPostAttribute(
+                    View_Base::POOL_NAME,
+                    '', true, false, 'Error: Pool Name is a Required Field'
+                );
+            }
+
+            if ($this->m_operation == View_Base::DELETE_POOL) {
+                $this->m_poolId = $this->getPostAttribute(
+                    View_Base::POOL_ID,
+                    '', true, true, 'Error: Pool Id is a Required Field'
+                );
+            }
+
+            $this->m_showPublishedSchedules = $this->getPostCheckboxAttribute(View_Base::SHOW_PUBLISHED, false);
         }
     }
 
@@ -259,61 +303,81 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
      *        On POST, complete the transaction and then render the page (with error message if any)
      */
     public function process() {
-        $this->m_divisions = [];
+        try {
+            $this->m_divisions = [];
 
-        if ($this->m_missingAttributes == 0) {
-            switch ($this->m_operation) {
-                case View_Base::CREATE:
-                    $this->_createSchedule();
-                    break;
+            if ($this->m_missingAttributes == 0) {
+                switch ($this->m_operation) {
+                    case View_Base::CREATE:
+                        $this->_createSchedule();
+                        break;
 
-                case View_Base::POPULATE:
-                    $this->_populateSchedule();
-                    break;
+                    case View_Base::POPULATE:
+                        $this->_populateSchedule();
+                        break;
 
-                case View_Base::UPDATE:
-                    $this->_updateSchedule();
-                    break;
+                    case View_Base::UPDATE:
+                        $this->_updateSchedule();
+                        break;
 
-                case View_Base::CLEAR:
-                    $this->_clearSchedule();
-                    break;
+                    case View_Base::CLEAR:
+                        $this->_clearSchedule();
+                        break;
 
-                case View_Base::PUBLISH:
-                    $this->_publishSchedule();
-                    break;
+                    case View_Base::PUBLISH:
+                        $this->_publishSchedule();
+                        break;
 
-                case View_Base::UN_PUBLISH:
-                    $this->_unPublishSchedule();
-                    break;
+                    case View_Base::UN_PUBLISH:
+                        $this->_unPublishSchedule();
+                        break;
 
-                case View_Base::DELETE:
-                    $this->_deleteSchedule();
-                    break;
+                    case View_Base::DELETE:
+                        $this->_deleteSchedule();
+                        break;
 
-                case View_Base::VIEW:
-                    break;
+                    case View_Base::VIEW:
+                        break;
 
-                case View_Base::FAMILY_FIX:
-                    $this->_fixSchedule();
-                    break;
+                    case View_Base::FAMILY_FIX:
+                        $this->_fixSchedule();
+                        break;
 
-                case View_Base::MOVE:
-                    $this->_moveGame();
-                    break;
+                    case View_Base::CREATE_FLIGHT:
+                        $this->_createFlight();
+                        break;
 
-                case View_Base::SWAP:
-                    $this->_swapGame();
-                    break;
+                    case View_Base::DELETE_FLIGHT:
+                        $this->_deleteFlight();
+                        break;
 
-                case View_Base::TOGGLE:
-                    $this->_lockToggleGame();
-                    break;
+                    case View_Base::CREATE_POOL:
+                        $this->_createPool();
+                        break;
 
-                case View_Base::ALTER:
-                    $this->_alterTeamGames();
-                    break;
+                    case View_Base::DELETE_POOL:
+                        $this->_deletePool();
+                        break;
+
+                    case View_Base::MOVE:
+                        $this->_moveGame();
+                        break;
+
+                    case View_Base::SWAP:
+                        $this->_swapGame();
+                        break;
+
+                    case View_Base::TOGGLE:
+                        $this->_lockToggleGame();
+                        break;
+
+                    case View_Base::ALTER:
+                        $this->_alterTeamGames();
+                        break;
+                }
             }
+        } catch (\Exception $e) {
+            $this->m_errorString = "Operation failed: " . $e->getMessage();
         }
 
         if ($this->m_isAuthenticated) {
@@ -532,6 +596,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             $flight->include3rd4thGame          = isset($data[View_Base::INCLUDE_3RD_4TH_GAME]) ? 1 : 0;
             $flight->includeSemiFinalGames      = isset($data[View_Base::INCLUDE_SEMI_FINAL_GAMES]) ? 1 : 0;
             $flight->includeChampionshipGame    = isset($data[View_Base::INCLUDE_CHAMPIONSHIP_GAME]) ? 1 : 0;
+            $flight->scheduleGames              = isset($data[View_Base::FLIGHT_SCHEDULE_GAMES]) ? 1 : 0;
         }
 
         $this->m_messageString  = "Schedule '$divisionNameWithGender: $schedule->name' updated.";
@@ -608,6 +673,77 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         }
 
         $this->m_messageString = "Best attempt made to fix Family Schedule.  Some overlaps may remain.";
+    }
+
+    /**
+     * Create a new flight
+     */
+    private function _createFlight()
+    {
+        $schedule                   = Schedule::lookupById((int)$this->m_scheduleId);
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+        $flight                     = Flight::create($schedule, $this->m_flightName, 0, 0, 0, 0);
+
+        $this->m_messageString  = "Flight $flight->name successfully created";
+    }
+
+    /**
+     * Create a new pool
+     */
+    private function _createPool()
+    {
+        $schedule                   = Schedule::lookupById((int)$this->m_scheduleId);
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+        $flight                     = Flight::lookupById((int)$this->m_flightId);
+        $pool                       = Pool::create($flight, $schedule, $this->m_poolName);
+
+        $this->m_messageString  = "Pool $pool->fullName successfully created";
+    }
+
+    /**
+     * Delete a flight
+     */
+    private function _deleteFlight()
+    {
+        $schedule                   = Schedule::lookupById((int)$this->m_scheduleId);
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+        $flight                     = Flight::lookupById((int)$this->m_flightId);
+
+        // Error if flight has games
+        $games = Game::lookupByFlight($flight);
+        if (count($games) > 0) {
+            $this->m_errorString = "Cannot delete flight because it has assigned games.  Try 'Clear' command first.";
+            return;
+        }
+
+        $flight->delete();
+
+        $this->m_messageString  = "Flight $this->m_flightName successfully deleted";
+    }
+
+    /**
+     * Delete a pool
+     */
+    private function _deletePool()
+    {
+        $schedule                   = Schedule::lookupById((int)$this->m_scheduleId);
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+        $pool                       = Pool::lookupById((int)$this->m_poolId);
+
+        // Error if pool has teams
+        $teams = Team::lookupByPool($pool);
+        if (count($teams) > 0) {
+            $this->m_errorString = "Cannot delete pool because it has assigned teams.  Move teams to other pools first.";
+            return;
+        }
+
+        $pool->delete();
+
+        $this->m_messageString  = "Pool $pool->fullName successfully deleted";
     }
 
     /**

@@ -37,11 +37,6 @@ select * from game where poolId = 592;
 select * from gameTime where id in (1, 2, 3, 4);
 select * from field where id = 1;
 
-insert into league (name) values ('AYSO Region 122');
-insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'dave@giannini5.com', 'David Giannini', '1234');
-insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'geoffayso122@gmail.com', 'Geoff Friedman', '1234');
--- insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'admin', 'Admin', 'admin');
-
 truncate table assistantCoach;
 truncate table coach;
 truncate table division;
@@ -61,3 +56,7 @@ truncate table season;
 truncate table team;
 truncate table familyGame;
 truncate table flight;
+insert into league (name) values ('AYSO Region 122');
+insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'dave@giannini5.com', 'David Giannini', '1234');
+insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'geoffayso122@gmail.com', 'Geoff Friedman', '1234');
+-- insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'admin', 'Admin', 'admin');

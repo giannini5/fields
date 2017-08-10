@@ -4,6 +4,7 @@ namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
 use DAG\Orm\Schedule\GameOrm;
+use DAG\Orm\Schedule\GameTimeOrm;
 use DAG\Orm\Schedule\ScheduleOrm;
 use DAG\Framework\Exception\Precondition;
 use DAG\Framework\Exception\Assertion;
@@ -28,7 +29,8 @@ class Schedule extends Domain
                             2 => 'Santa Cruz',
                             3 => 'Santa Rosa',
                             4 => 'San Miguel',
-                            5 => 'Catalina'];
+                            5 => 'Catalina',
+                            6 => 'San Nicholas'];
 
     /** @var ScheduleOrm */
     private $scheduleOrm;
@@ -282,6 +284,7 @@ class Schedule extends Domain
         // Create Flights and Pools and add teams to pools (2 pools per flight)
         $teamIndex                  = 0;
         $flightIndex                = 0;
+        $flightPoolIndex            = 0;
         $flight                     = null;
         $include5th6thPlaceGame     = 0;
         $includeQuarterFinalGames   = 0;
@@ -290,9 +293,10 @@ class Schedule extends Domain
         for ($index = 0; $index < $numberOfPools; $index++) {
             // Create Flight (or re-use previousFlight)
             if ($index % 2 == 0) {
-                $flightIndex += 1;
-                $flightName = "$flightIndex";
-                $flight = Flight::create(
+                $flightIndex        += 1;
+                $flightPoolIndex    = 0;
+                $flightName         = "$flightIndex";
+                $flight             = Flight::create(
                     $this,
                     $flightName,
                     $include5th6thPlaceGame,
@@ -302,9 +306,10 @@ class Schedule extends Domain
             }
 
             // Create Pool
-            $poolName   = sprintf("Pool %s", chr(ord('A') + $index));
-            $pool       = Pool::create($flight, $this, $poolName);
-            $pools[]    = $pool;
+            $poolName           = sprintf("Pool %s", chr(ord('A') + $flightPoolIndex));
+            $pool               = Pool::create($flight, $this, $poolName);
+            $pools[]            = $pool;
+            $flightPoolIndex    += 1;
 
             // Add Teams to pool
             $teamsInPool = $poolSizes[$index];
@@ -413,6 +418,11 @@ class Schedule extends Domain
         $flights                = Flight::lookupBySchedule($this);
 
         foreach ($flights as $flight) {
+            if ($flight->scheduleGames != 1) {
+                // Skip game scheduling for this flight
+                continue;
+            }
+
             $pools = Pool::lookupByFlight($flight);
             foreach ($pools as $pool) {
                 // With cross-pool play, games may have already been created for this pool.  Check and skip if so.
@@ -596,6 +606,11 @@ class Schedule extends Domain
         }
 
         foreach ($flights as $flight) {
+            if ($flight->scheduleGames != 1) {
+                // Skip game scheduling for this flight
+                continue;
+            }
+
             $pools = Pool::lookupByFlight($flight);
             foreach ($pools as $pool) {
                 Assertion::isTrue($pool->gamesAgainstPool->id == $pool->id, "Cross pool play not supported for tournament play");
@@ -608,6 +623,7 @@ class Schedule extends Domain
                 $gamesPerDay            = 2;
                 $currentGamesPerDay     = 0;
                 $firstGameTime          = null;
+                $triedOppositeGender    = false;
                 $gameCount              = 0;
                 $maxIterations          = $poolType == TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT ? count($teams) + 1 : count($teams);
 
@@ -660,7 +676,15 @@ class Schedule extends Domain
                             $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
                         }
 
-                        Assertion::isTrue(isset($gameTime), "No available gameTime found for $gender, add more code to try different gender");
+                        // If still no gameTime found then try with different gender
+                        if (!isset($gameTime) and !$triedOppositeGender) {
+                            $triedOppositeGender    = true;
+                            $oppositeGender         = $gender == GameTimeOrm::BOYS ? GameTimeOrm::GIRLS : GameTimeOrm::BOYS;
+                            $minStartTime           = '05:00:00';
+                            $gameTime               = $this->findGameTime($gameTimesByTime, $minStartTime, $oppositeGender);
+                        }
+
+                        Assertion::isTrue(isset($gameTime), "No available gameTime found for $gender: " . $pool->fullName);
 
                         $lastGameTime   = $gameTime;
                         $firstGameTime  = isset($firstGameTime) ? $firstGameTime : $gameTime;
@@ -709,18 +733,27 @@ class Schedule extends Domain
                         $currentGamesPerDay     = 0;
                         $minStartTime           = '05:00:00';
                         $firstGameTime          = null;
+                        $triedOppositeGender    = false;
                     }
                 }
             }
 
-            // 5th/6th game if any
-            $minStartTime       = date("H:i:s", strtotime($lastGameTime->startTime) + 60*60*3);
-            $gameDate           = $gameDates[count($gameDates) - 1];  // Final day
+            // Prepare for medal round game assignments
+            //   - Set gameDay to last day of play
+            //   - Set minStartTime to beginning of day if no games have been assigned; otherwise
+            //     set to last game that was assigned
+            if (isset($gameDate) and $gameDate->day == $gameDates[count($gameDates) - 1]->day) {
+                $minStartTime       = date("H:i:s", strtotime($lastGameTime->startTime) + 60*60*3);
+            } else {
+                $minStartTime       = '05:00:00';
+                $gameDate           = $gameDates[count($gameDates) - 1];  // Final day
+            }
             $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
             ksort($gameTimesByTime);
+
+            // 5th/6th game if any
             if ($flight->include5th6thGame) {
                 // Reset minStartTime to beginning of day
-                $minStartTime       = '05:00:00';
                 $gameTime           = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
                 Assertion::isTrue(isset($gameTime), 'Unable to find game time for 5th/6th place game');
                 Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_5TH_6TH);
@@ -1027,6 +1060,9 @@ class Schedule extends Domain
                 break;
             case 32:
                 $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [4, 4], 4 => [4, 4]];
+                break;
+            case 42:
+                $flightData = [1 => [4, 4], 2 => [4, 4], 3 => [4, 4], 4 => [4, 4], 5 => [5], 6 => [5]];
                 break;
 
             default:

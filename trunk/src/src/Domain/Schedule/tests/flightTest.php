@@ -22,6 +22,7 @@ class FlightTest extends ORM_TestHelper
         'include3rd4thGame'         => 1,
         'includeSemiFinalGames'     => 0,
         'includeChampionshipGame'   => 1,
+        'scheduleGames'             => 1,
     );
 
     protected $flightsToCleanup = array();
@@ -78,6 +79,15 @@ class FlightTest extends ORM_TestHelper
         $this->validateFlight($flight, $this->schedule, $expectedValues);
     }
 
+    public function test_setScheduleGames()
+    {
+        $flight = Flight::lookupById($this->flightsToCleanup[0]->id);
+        $flight->scheduleGames = 0;
+        $expectedValues = self::$expectedDefaults;
+        $expectedValues['scheduleGames'] = 0;
+        $this->validateFlight($flight, $this->schedule, $expectedValues);
+    }
+
     public function test_lookupBySchedule()
     {
         $flights = Flight::lookupBySchedule($this->schedule);
@@ -92,6 +102,7 @@ class FlightTest extends ORM_TestHelper
         $this->assertEquals($expectedDefaults['include3rd4thGame'],         $flight->include3rd4thGame);
         $this->assertEquals($expectedDefaults['includeSemiFinalGames'],     $flight->includeSemiFinalGames);
         $this->assertEquals($expectedDefaults['includeChampionshipGame'],   $flight->includeChampionshipGame);
+        $this->assertEquals($expectedDefaults['scheduleGames'],             $flight->scheduleGames);
         $this->assertEquals($schedule,                                      $flight->schedule);
     }
 }

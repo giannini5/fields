@@ -7,6 +7,7 @@ use \DAG\Domain\Schedule\GameTime;
 use \DAG\Domain\Schedule\DivisionField;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Orm\Schedule\ScheduleOrm;
+use \DAG\Domain\Schedule\Flight;
 
 /**
  * @brief Show the Schedule page and get the user to select a schedule to administer or create a new schedule.
@@ -52,7 +53,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     </td>
                     <td valign='top' bgcolor='" . View_Base::VIEW_COLOR  . "'>";
 
-        $this->_printViewScheduleForm($sessionId, $divisionsSelector);
+        $this->_printViewScheduleForm($sessionId, $divisionsSelector, $this->m_controller->m_showPublishedScheduled);
 
         print "
                     </td>
@@ -77,13 +78,49 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
             $dataPrinted = false;
             foreach ($schedules as $schedule) {
-                $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
-                $dataPrinted = true;
+                // If not VIEW then only show schedules just created
+                if (($this->m_controller->m_operation == View_Base::CREATE
+                    or $this->m_controller->m_operation == View_Base::UPDATE)
+                    and $schedule->name == $this->m_controller->m_name) {
+                    $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
+                    $dataPrinted = true;
+                }
+
+                // If View then only show published schedules if checked
+                if (($this->m_controller->m_operation == View_Base::VIEW)
+                    and ($this->m_controller->m_showPublishedSchedules or !$schedule->published)) {
+                    $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
+                    $dataPrinted = true;
+                }
+
+                // View schedule if it was just published
+                if (($this->m_controller->m_operation == View_Base::POPULATE
+                    or $this->m_controller->m_operation == View_Base::PUBLISH
+                    or $this->m_controller->m_operation == View_Base::UN_PUBLISH
+                    or $this->m_controller->m_operation == View_Base::CLEAR
+                    or $this->m_controller->m_operation == View_Base::MOVE
+                    or $this->m_controller->m_operation == View_Base::SWAP
+                    or $this->m_controller->m_operation == View_Base::ALTER
+                    or $this->m_controller->m_operation == View_Base::TOGGLE
+                    or $this->m_controller->m_operation == View_Base::CREATE_FLIGHT
+                    or $this->m_controller->m_operation == View_Base::DELETE_FLIGHT
+                    or $this->m_controller->m_operation == View_Base::CREATE_POOL
+                    or $this->m_controller->m_operation == View_Base::DELETE_POOL)
+                    and $this->m_controller->m_scheduleId == $schedule->id) {
+
+                    $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
+                    $dataPrinted = true;
+                }
             }
 
             if (!$dataPrinted and $this->m_controller->m_operation == View_Base::VIEW) {
-                print "
+                if ($this->m_controller->m_showPublishedSchedules) {
+                    print "
                     <p align='center' style='color: red; font-size: medium'>No schedules found for the selected division.  Use 'Create New Schedule' to create a schedule.</p>";
+                } else {
+                    print "
+                    <p align='center' style='color: red; font-size: medium'>No unpublished schedules found for the selected division.  Try selecting the 'Show Published Scheduled' checkbox.</p>";
+                }
             }
         }
     }
@@ -159,8 +196,9 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      *
      * @param int       $sessionId
      * @param mixed[]   $divisionsSelector
+     * @param bool      $showPublishedScheduled
      */
-    private function _printViewScheduleForm($sessionId, $divisionsSelector) {
+    private function _printViewScheduleForm($sessionId, $divisionsSelector, $showPublishedScheduled) {
         // Print the start of the form to select which field to view
         print "
                     <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
@@ -170,6 +208,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                         <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>";
 
         $this->displayMultiSelector('Divisions', View_Base::DIVISION_NAMES, $this->m_controller->m_divisionNames, $divisionsSelector, count($divisionsSelector));
+        $this->printCheckboxSelector(View_Base::SHOW_PUBLISHED, "Show Published Schedules", $showPublishedScheduled, 2);
 
         // Print View button and end form
         print "
@@ -194,6 +233,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      */
     private function _printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId) {
 \DAG\Framework\Utils\TimeUtils::time_elapsed("Prime");
+        $flights        = Flight::lookupBySchedule($schedule);
         $pools          = Pool::lookupBySchedule($schedule);
 \DAG\Framework\Utils\TimeUtils::time_elapsed("Pools Lookup");
         $gameIds        = [];
@@ -274,7 +314,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             <tr>
                                 <td>";
 
-        $this->_printMoveGameForm($gameIds, $fieldIds, $gameTimesSelector, $sessionId);
+        $this->_printCreateFlightForm($schedule->id, $flights, $sessionId);
 
         print "
                                 </td>
@@ -283,7 +323,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             <tr>
                                 <td>";
 
-        $this->_printSwapGameForm($gameIds, $sessionId);
+        $this->_printCreateDeletePoolForm($schedule->id, $flights, $pools, $sessionId);
 
         print "
                                 </td>
@@ -292,7 +332,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             <tr>
                                 <td>";
 
-        $this->_printLockGameForm($gameIds, $sessionId);
+        $this->_printMoveGameForm($schedule->id, $gameIds, $fieldIds, $gameTimesSelector, $sessionId);
 
         print "
                                 </td>
@@ -301,7 +341,25 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             <tr>
                                 <td>";
 
-        $this->_printAlterTeamGames($teamSelector, $fieldSelector, $gameDateSelector, $sessionId);
+        $this->_printSwapGameForm($schedule->id, $gameIds, $sessionId);
+
+        print "
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp</td></tr>
+                            <tr>
+                                <td>";
+
+        $this->_printLockGameForm($schedule->id, $gameIds, $sessionId);
+
+        print "
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp</td></tr>
+                            <tr>
+                                <td>";
+
+        $this->_printAlterTeamGames($schedule->id, $teamSelector, $fieldSelector, $gameDateSelector, $sessionId);
 
 
         print "
@@ -510,6 +568,9 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 $name = View_Base::FLIGHT_UPDATE_DATA . "[$flight->id][" . View_Base::NAME . "]";
                 $this->displayInput('', 'text', $name, 'Flight Name', '', $flight->name, null, 1, false, 75);
 
+                $name = View_Base::FLIGHT_UPDATE_DATA . "[$flight->id][" . View_Base::FLIGHT_SCHEDULE_GAMES . "]";
+                $this->printCheckboxSelector($name, "Schedule Games", $flight->scheduleGames == 1, 1, false);
+
                 if ($pool->schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT) {
                     print "
                             </tr>
@@ -555,7 +616,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 print "
                 <tr>
                     <td>&nbsp</td>
-                    <td $title>$team->nameId</td>";
+                    <td $title nowrap>$team->nameId</td>";
 
                 $name = View_Base::TEAM_POOL_UPDATE_DATA . "[$team->id][" . View_Base::POOL_ID . "]";
                 $this->displaySelector('Pool:', $name, '', $poolSelector, $team->pool->fullName, null, false, 120, 'right');
@@ -624,33 +685,150 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
     }
 
     /**
+     * Print form to create a flight
+     *
+     * @param int       $scheduleId
+     * @param Flight[]  $flights
+     * @param int       $sessionId
+     * @param int       $javaScriptClassIdentifier - Used for expand/collapse
+     */
+    private function _printCreateFlightForm($scheduleId, $flights, $sessionId, $javaScriptClassIdentifier = 5)
+    {
+        $expandContract = "expandContract$javaScriptClassIdentifier";
+        $collapsible    = "collapsible$javaScriptClassIdentifier";
+        $flightSelector   = [];
+        foreach ($flights as $flight) {
+            $flightSelector[$flight->id] = $flight->name;
+        }
+
+        print "
+            <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
+            <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
+            <tr class='$expandContract'>
+                <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium'><strong>Create Flight</strong></td>
+            </tr>";
+
+        print "
+            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
+                <tr class='$collapsible'>";
+
+        $this->displayInput('', 'text', View_Base::FLIGHT_NAME, 'Flight Name', '', '', null, 1, false, 75, false, true);
+
+        print "
+                    <td align='left' colspan='1' title='Create a new flight'>
+                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::CREATE_FLIGHT . "'>
+                        <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>
+            </td></tr>
+            </table>";
+    }
+
+    /**
+     * Print form to create/delete a pool
+     *
+     * @param int       $scheduleId
+     * @param Flight[]  $flights
+     * @param Pool[]    $pools
+     * @param int       $sessionId
+     * @param int       $javaScriptClassIdentifier - Used for expand/collapse
+     */
+    private function _printCreateDeletePoolForm($scheduleId, $flights, $pools, $sessionId, $javaScriptClassIdentifier = 6)
+    {
+        $expandContract = "expandContract$javaScriptClassIdentifier";
+        $collapsible    = "collapsible$javaScriptClassIdentifier";
+        $flightSelector = [];
+        $poolSelector   = [];
+
+        foreach ($flights as $flight) {
+            $flightSelector[$flight->id] = $flight->name;
+        }
+
+        foreach ($pools as $pool) {
+            $poolSelector[$pool->id] = $pool->fullName;
+        }
+
+        print "
+            <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
+            <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
+            <tr class='$expandContract'>
+                <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium'><strong>Create/Delete Pool</strong></td>
+            </tr>";
+
+        print "
+            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>";
+
+        $this->displayInput('', 'text', View_Base::POOL_NAME, 'Pool Name', '', '', $collapsible, 2, true, 75, false, true);
+
+        print "
+                <tr class='$collapsible'>";
+
+        $this->displaySelector('', View_Base::FLIGHT_ID, '', $flightSelector, '', $collapsible, false, 120, 'right', 'Select Flight');
+
+        print "
+                    <td align='left' colspan='1' title='Create a new pool'>
+                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::CREATE_POOL . "'>
+                        <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
+                <tr class='$collapsible'>";
+
+        $this->displaySelector('', View_Base::POOL_ID, '', $poolSelector, '', $collapsible, false, 120, 'right', 'Select Pool');
+
+        print "
+                    <td align='left' colspan='1' title='Create a new pool'>
+                        <input style='background-color: salmon' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::DELETE_POOL . "'>
+                        <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+
+            </table>
+            </td></tr>
+            </table>";
+    }
+
+    /**
      * Print form to move a game to an open time-slot
      *
+     * @param int   $scheduleId
      * @param array $gameIds
      * @param array $fieldIds
      * @param array $gameTimeSelector
      * @param int   $sessionId
+     * @param int   $javaScriptClassIdentifier - Used for expand/collapse
      */
-    private function _printMoveGameForm($gameIds, $fieldIds, $gameTimeSelector, $sessionId)
+    private function _printMoveGameForm($scheduleId, $gameIds, $fieldIds, $gameTimeSelector, $sessionId, $javaScriptClassIdentifier = 1)
     {
+        $expandContract = "expandContract$javaScriptClassIdentifier";
+        $collapsible    = "collapsible$javaScriptClassIdentifier";
+
         // Print Move controls and button
         print "
             <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
             <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
-            <tr>
+            <tr class='$expandContract'>
                 <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium'><strong>Move game to an open time-slot</strong></td>
             </tr>";
 
         asort($gameIds);
-        $this->displaySelector('Game Id To Move:', View_Base::GAME_ID, '', $gameIds, '', NULL, true, 150, 'left', 'Select Game Id to Move');
-        $this->displaySelector('New Field:', View_Base::FIELD_ID, '', $fieldIds, '', NULL, true, 150, 'left', 'Select New Field');
-        $this->displaySelector('New Game Time:', View_Base::GAME_TIME, '', $gameTimeSelector, '', NULL, true, 150, 'left', 'Select New Game Time');
+        $this->displaySelector('Game Id To Move:', View_Base::GAME_ID, '', $gameIds, '', $collapsible, true, 150, 'left', 'Select Game Id to Move');
+        $this->displaySelector('New Field:', View_Base::FIELD_ID, '', $fieldIds, '', $collapsible, true, 150, 'left', 'Select New Field');
+        $this->displaySelector('New Game Time:', View_Base::GAME_TIME, '', $gameTimeSelector, '', $collapsible, true, 150, 'left', 'Select New Game Time');
 
         print "
-                <tr>
-                    <td align='right' colspan='2' title='Move game to an open time slot'>
+                <tr class='$collapsible'>
+                    <td align='left' colspan='2' title='Move game to an open time slot'>
                         <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::MOVE . "'>
+                        <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
@@ -663,28 +841,34 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
     /**
      * Print form to swap two games
      *
+     * @param int   $scheduleId
      * @param array $gameIds
      * @param int   $sessionId
+     * @param int   $javaScriptClassIdentifier - Used for expand/collapse
      */
-    private function _printSwapGameForm($gameIds, $sessionId)
+    private function _printSwapGameForm($scheduleId, $gameIds, $sessionId, $javaScriptClassIdentifier = 2)
     {
+        $expandContract = "expandContract$javaScriptClassIdentifier";
+        $collapsible    = "collapsible$javaScriptClassIdentifier";
+
         // Print Move controls and button
         print "
             <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
             <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
-            <tr>
+            <tr class='$expandContract'>
                 <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium'><strong>Swap two games</strong></td>
             </tr>";
 
         asort($gameIds);
-        $this->displaySelector('Game Id1:', View_Base::GAME_ID1, '', $gameIds, '', NULL, true, 150, 'left', 'Primary Game Id');
-        $this->displaySelector('Game Id2:', View_Base::GAME_ID2, '', $gameIds, '', NULL, true, 150, 'left', 'Secondary Game Id');
+        $this->displaySelector('Game Id1:', View_Base::GAME_ID1, '', $gameIds, '', $collapsible, true, 150, 'left', 'Primary Game Id');
+        $this->displaySelector('Game Id2:', View_Base::GAME_ID2, '', $gameIds, '', $collapsible, true, 150, 'left', 'Secondary Game Id');
 
         print "
-                <tr>
-                    <td align='right' colspan='2' title='Swap two games'>
+                <tr class='$collapsible'>
+                    <td align='left' colspan='2' title='Swap two games'>
                         <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SWAP . "'>
+                        <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
@@ -697,27 +881,33 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
     /**
      * Print form to lock/unlock a game
      *
+     * @param int   $scheduleId
      * @param array $gameIds
      * @param int   $sessionId
+     * @param int   $javaScriptClassIdentifier - Used for expand/collapse
      */
-    private function _printLockGameForm($gameIds, $sessionId)
+    private function _printLockGameForm($scheduleId, $gameIds, $sessionId, $javaScriptClassIdentifier = 3)
     {
+        $expandContract = "expandContract$javaScriptClassIdentifier";
+        $collapsible    = "collapsible$javaScriptClassIdentifier";
+
         // Print Move controls and button
         print "
             <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
             <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
-            <tr>
+            <tr class='$expandContract'>
                 <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium' title='Locking a game prevents it from being moved or swapped with another game'><strong>Lock/Unlock Game</strong></td>
             </tr>";
 
         asort($gameIds);
-        $this->displaySelector('Game Id:', View_Base::GAME_ID, '', $gameIds, '', NULL, true, 150, 'left', 'Game Id');
+        $this->displaySelector('Game Id:', View_Base::GAME_ID, '', $gameIds, '', $collapsible, true, 150, 'left', 'Game Id');
 
         print "
-                <tr>
-                    <td align='right' colspan='2' title='Lock game if unlocked; otherwise unlock it'>
+                <tr class='$collapsible'>
+                    <td align='left' colspan='2' title='Lock game if unlocked; otherwise unlock it'>
                         <input style='background-color: orange' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::TOGGLE . "'>
+                        <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
@@ -730,37 +920,41 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
     /**
      * Print form to modify game times for a team
      *
+     * @param int   $scheduleId
      * @param array $teamSelector
      * @param array $fieldSelector
      * @param array $gameDateSelector - List of gameDateId => day
      * @param int   $sessionId
+     * @param int   $javaScriptClassIdentifier - Used for expand/collapse
      */
-    private function _printAlterTeamGames($teamSelector, $fieldSelector, $gameDateSelector, $sessionId)
+    private function _printAlterTeamGames($scheduleId, $teamSelector, $fieldSelector, $gameDateSelector, $sessionId, $javaScriptClassIdentifier = 4)
     {
+        $expandContract = "expandContract$javaScriptClassIdentifier";
+        $collapsible    = "collapsible$javaScriptClassIdentifier";
+
         // Print controls and button to support moving a teams games during a date range to between a selected time
         // range and field.
         print "
             <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
             <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
-            <tr>
+            <tr class='$expandContract'>
                 <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium' title='Alter games for a team based on date range, time range and field. Games will be locked.'><strong>Alter Team Game(s)</strong></td>
             </tr>";
 
         asort($teamSelector);
-        $this->displaySelector('Team:', View_Base::TEAM_ID, '', $teamSelector, '', NULL, true, 150, 'left', 'Select Team');
-        $this->displaySelector('From Date', View_Base::START_DATE, '', $gameDateSelector, '');
-        $this->displaySelector('To Date', View_Base::END_DATE, '', $gameDateSelector, end($gameDateSelector));
-        // $this->displayCalendarDateSelector(4, View_Base::START_DATE, 'From Date', $this->m_controller->m_season->startDate, null, 1, 135);
-        // $this->displayCalendarDateSelector(4, View_Base::END_DATE, 'To Date', $this->m_controller->m_season->endDate, null, 1, 135);
-        $this->printTimeSelector(View_Base::START_TIME, "From Time", "07:00:00");
-        $this->printTimeSelector(View_Base::END_TIME, "To Time", "19:00:00");
-        $this->displaySelector('Field:', View_Base::FIELD_ID, 0, $fieldSelector, '', NULL, true, 150, 'left');
+        $this->displaySelector('Team:', View_Base::TEAM_ID, '', $teamSelector, '', $collapsible, true, 150, 'left', 'Select Team');
+        $this->displaySelector('From Date', View_Base::START_DATE, '', $gameDateSelector, '', $collapsible);
+        $this->displaySelector('To Date', View_Base::END_DATE, '', $gameDateSelector, end($gameDateSelector), $collapsible);
+        $this->printTimeSelector(View_Base::START_TIME, "From Time", "07:00:00", 1, $collapsible);
+        $this->printTimeSelector(View_Base::END_TIME, "To Time", "19:00:00", 1, $collapsible);
+        $this->displaySelector('Field:', View_Base::FIELD_ID, 0, $fieldSelector, '', $collapsible, true, 150, 'left');
 
         print "
-                <tr>
-                    <td align='right' colspan='2' title='Alter games for a team based on date range, time range and field. Games will be locked.'>
+                <tr class='$collapsible'>
+                    <td align='left' colspan='2' title='Alter games for a team based on date range, time range and field. Games will be locked.'>
                         <input style='background-color: orange' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ALTER . "'>
+                        <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
@@ -797,7 +991,19 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 <thead>
                 <tr>
                     <th colspan='$colspan' align='center'>$headerRow</th>
+                </tr>";
+
+            // Finish dipsplay if no games scheduled for this pool's flight
+            if ($pool->flight->scheduleGames != 1) {
+                print "
+                <tr>
+                    <th style='color: red'>No games scheduled for this pool</th>
                 </tr>
+             </table>";
+                continue;
+            }
+
+            print "
                 <tr>
                     <th>Day</th>
                     <th>Field</th>";

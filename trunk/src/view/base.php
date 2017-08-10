@@ -79,6 +79,10 @@ abstract class View_Base {
     const SELECT                = 'Select';
     const DELETE                = 'Delete';
     const MOVE                  = 'Move';
+    const CREATE_FLIGHT         = 'Create Flight';
+    const DELETE_FLIGHT         = 'Delete Flight';
+    const CREATE_POOL           = 'Create Pool';
+    const DELETE_POOL           = 'Delete Pool';
     const SWAP                  = 'Swap';
     const TOGGLE                = 'Toggle';
     const ALTER                 = 'Alter';
@@ -101,6 +105,7 @@ abstract class View_Base {
 
     # Checkbox Names
     const SHOW_PLAYERS          = 'showPlayers';
+    const SHOW_PUBLISHED        = 'showPublished';
 
     # Post Attribute Names
     const SESSION_ID                = 'sessionId';
@@ -176,7 +181,11 @@ abstract class View_Base {
     const LOCATION_ID               = 'locationId';
     const LOCATION_IDS              = 'locationIds';
     const SCHEDULE_ID               = 'scheduleId';
-    const POOL_ID                   = 'poolIds';
+    const POOL_ID                   = 'poolId';
+    const POOL_NAME                 = 'poolName';
+    const FLIGHT_ID                 = 'flightId';
+    const FLIGHT_NAME               = 'flightName';
+    const FLIGHT_SCHEDULE_GAMES     = 'flightScheduleGames';
     const FAMILY_ID                 = 'familyId';
     const TEAM_ID                   = 'teamId';
     const HOME_TEAM_ID              = 'homeTeamId';
@@ -553,14 +562,17 @@ abstract class View_Base {
      * @param string    $label          Input label
      * @param string    $defaultTime    Default selected time
      * @param int       $colspan
+     * @param string    $collapsible    For row expand/collapse
      */
     public function printTimeSelector(
         $tag,
         $label,
         $defaultTime='07:00:00',
-        $colspan = 1)
+        $colspan = 1,
+        $collapsible = null)
     {
-        $timeSectionHTML = '';
+        $collapsibleClass   = isset($collapsible) ? "class='$collapsible'" : '';
+        $timeSectionHTML    = '';
 
         $minute = 0;
         for ($hour = 7; $hour <= 19; ++$hour) {
@@ -586,7 +598,7 @@ abstract class View_Base {
 
         if ($newRow) {
             print "
-                <tr>";
+                <tr $collapsibleClass>";
         }
 
         print "
@@ -911,17 +923,27 @@ abstract class View_Base {
      * @param string    $description  - Description of the checkbox
      * @param bool      $isChecked    - True if box should be checked
      * @param int       $colspan      - Default to 1
+     * @param bool      $newRow
      */
-    public function printCheckboxSelector($checkboxName, $description, $isChecked, $colspan = 1)
+    public function printCheckboxSelector($checkboxName, $description, $isChecked, $colspan = 1, $newRow = true)
     {
         $checked = $isChecked ? 'checked' : '';
 
+        if ($newRow) {
+            print "
+                <tr>";
+        }
+
         print "
-        <tr>
-            <td colspan='$colspan'>
-                <input type='checkbox' name='$checkboxName' value='checked' $checked> $description
-            </td>
-        </tr>";
+                    <td colspan='$colspan'>
+                        <input type='checkbox' name='$checkboxName' value='checked' $checked> $description
+                    </td>";
+
+        if ($newRow) {
+            print "
+                </tr>";
+
+        }
     }
 
     /**
