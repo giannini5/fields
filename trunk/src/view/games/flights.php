@@ -15,7 +15,7 @@ class View_Games_Flights extends View_Games_Base
     /**
      * @brief Construct he View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller)
     {
@@ -53,6 +53,11 @@ class View_Games_Flights extends View_Games_Base
             $flightColorIndex   = -1;
             $flights    = Flight::lookupBySchedule($schedule);
             foreach ($flights as $flight) {
+                // Skip flights where game scheduling is disabled
+                if ($flight->scheduleGames != 1) {
+                    continue;
+                }
+
                 $flightColorIndex = ($flightColorIndex + 1) % count($flightColors);
 
                 print "

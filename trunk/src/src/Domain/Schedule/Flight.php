@@ -15,6 +15,7 @@ use DAG\Framework\Exception\Precondition;
  * @property int        $include3rd4thGame
  * @property int        $includeSemiFinalGames
  * @property int        $includeChampionshipGame
+ * @property int        $scheduleGames
  */
 class Flight extends Domain
 {
@@ -41,6 +42,7 @@ class Flight extends Domain
      * @param int       $include3rd4thGame;
      * @param int       $includeSemiFinalGames;
      * @param int       $includeChampionshipGame;
+     * @param int       $scheduleGames
      *
      * @return Flight
      */
@@ -50,7 +52,8 @@ class Flight extends Domain
         $include5th6thGame,
         $include3rd4thGame,
         $includeSemiFinalGames,
-        $includeChampionshipGame)
+        $includeChampionshipGame,
+        $scheduleGames = 1)
     {
         $flightOrm = FlightOrm::create(
             $schedule->id,
@@ -58,7 +61,8 @@ class Flight extends Domain
             $include5th6thGame,
             $include3rd4thGame,
             $includeSemiFinalGames,
-            $includeChampionshipGame);
+            $includeChampionshipGame,
+            $scheduleGames);
         return new static($flightOrm, $schedule);
     }
 
@@ -116,6 +120,7 @@ class Flight extends Domain
             case "include3rd4thGame":
             case "includeSemiFinalGames":
             case "includeChampionshipGame":
+            case "scheduleGames":
                 return $this->flightOrm->{$propertyName};
 
             case "schedule":
@@ -138,6 +143,7 @@ class Flight extends Domain
             case "include3rd4thGame":
             case "includeSemiFinalGames":
             case "includeChampionshipGame":
+            case "scheduleGames":
                 $this->flightOrm->{$propertyName} = $value;
                 $this->flightOrm->save();
                 break;

@@ -15,7 +15,7 @@ class View_Games_Schedule extends View_Games_Base
     /**
      * @brief Construct he View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base   $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller)
     {
@@ -127,6 +127,11 @@ class View_Games_Schedule extends View_Games_Base
     {
         $flights = Flight::lookupBySchedule($schedule);
         foreach ($flights as $flight) {
+            // Skip flights where games are not being scheduled
+            if ($flight->scheduleGames != 1) {
+                continue;
+            }
+
             $games          = Game::lookupByFlight($flight);
             $gamesByPool    = [];
             $poolsById      = [];
