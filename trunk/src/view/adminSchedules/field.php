@@ -15,7 +15,7 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::SCHEDULE_FIELDS_PAGE, $controller);
@@ -69,7 +69,7 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
         foreach ($this->m_controller->m_divisionNames as $name) {
             $divisions = Division::lookupByName($this->m_controller->m_season, $name);
             foreach ($divisions as $division) {
-                $divisionFields = DivisionField::lookupByDivision($division);
+                $divisionFields = DivisionField::lookupByDivision($division, true);
                 foreach ($divisionFields as $divisionField) {
                     if ($this->m_controller->m_facilityId != 0) {
                         if ($this->m_controller->m_facilityId == $divisionField->field->facility->id) {

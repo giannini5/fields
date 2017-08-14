@@ -460,11 +460,16 @@ class Season extends Domain
             case '6U-2012':
             case '7U-2011':
             case '8U-2010':
+            case '5U':
+            case '6U':
+            case '7U':
+            case '8U':
                 return 60;
 
             case 'U9':
             case 'U10':
             case '10U-2009-8':
+            case '10U':
                 return 75;
 
             case 'U11':
@@ -480,6 +485,9 @@ class Season extends Domain
             case '12U-2007-6':
             case '14U-2005-4':
             case '18U-2003-0':
+            case '12U':
+            case '14U':
+            case '18U':
             default:
                 return 90;
         }

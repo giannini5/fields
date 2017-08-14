@@ -88,16 +88,20 @@ class DivisionField extends Domain
 
     /**
      * @param Division $division
+     * @param bool      $includeDisabledFields
      *
      * @return DivisionField[]
      */
-    public static function lookupByDivision($division)
+    public static function lookupByDivision($division, $includeDisabledFields = false)
     {
         $divisionFields = [];
 
         $divisionFieldOrms = DivisionFieldOrm::loadByDivisionId($division->id);
         foreach ($divisionFieldOrms as $divisionFieldOrm){
-            $divisionFields[] = new static($divisionFieldOrm, $division);
+            $divisionField = new static($divisionFieldOrm, $division);
+            if ($includeDisabledFields or $divisionField->field->enabled == 1) {
+                $divisionFields[] = new static($divisionFieldOrm, $division);
+            }
         }
 
         return $divisionFields;

@@ -892,8 +892,8 @@ class Schedule extends Domain
                         $poolSizes = array(8, 8);
                         break;
                     case 17:
-                        $poolSizes          = array(6, 5, 6); // Cross pool for pools 2 and 3
-                        $crossPoolSettings  = array(null, 2);
+                        $poolSizes          = array(5, 5, 7); // Cross pool for pools 1 and 2
+                        $crossPoolSettings  = array(1);
                         break;
                     case 18:
                         $poolSizes = array(6, 6, 6);
