@@ -9,7 +9,7 @@ class View_AdminSchedules_Season extends View_AdminSchedules_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base   $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::SCHEDULE_SEASON_PAGE, $controller);
@@ -80,8 +80,8 @@ class View_AdminSchedules_Season extends View_AdminSchedules_Base {
 
         $this->displayInput('Season Name:', 'text', View_Base::NAME, 'Season Name', $errorString);
         $this->displayCalendarDateSelector($maxColumns, View_Base::START_DATE, 'First Day of Season', '2017-09-09');
-        $this->displayCalendarDateSelector($maxColumns, View_Base::END_DATE, 'Last Day of Season', '2017-11-19');
-        $this->printGameTimeSelectors($maxColumns, '07:00:00', '19:00:00', null, 1, "First Game Of Day", "Last Game of Day");
+        $this->displayCalendarDateSelector($maxColumns, View_Base::END_DATE, 'Last Day of Season', '2017-11-12');
+        $this->printGameTimeSelectors($maxColumns, '08:00:00', '17:00:00', null, 1, "First Game Of Day", "Last Game of Day");
         $this->printDaySelector($maxColumns, NULL, '0000011', "Game Days");
         $this->displayRadioSelector('Enabled:', View_Base::ENABLED, array(0=>'No', 1=>'Yes'), 'Yes');
 
