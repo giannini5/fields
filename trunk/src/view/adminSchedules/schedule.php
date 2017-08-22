@@ -171,7 +171,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 </tr>
                 <tr>";
 
-        $selectorData = [ScheduleOrm::SCHEDULE_TYPE_LEAGUE => 'League', ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT => 'Tournament'];
+        $selectorData = ScheduleOrm::$scheduleTypes;
         $this->displayRadioSelector("Type of Schedule", View_Base::SCHEDULE_TYPE, $selectorData, 'League', NULL, 1, false);
 
         print "
@@ -487,7 +487,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 <tr>
                     <td colspan='3' nowrap align='right'><strong>Schedule Name:</strong></td>";
 
-        $this->displayInput('', 'text', View_Base::NAME, 'Schedule Name', $errorString, $schedule->name, null, 1, false, 75);
+        $this->displayInput('', 'text', View_Base::NAME, 'Schedule Name', $errorString, $schedule->name, null, 1, false, 120);
 
         print "
                 </tr>

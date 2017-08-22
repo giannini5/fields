@@ -501,13 +501,16 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
      */
     private function createScheduleForDivision($division)
     {
-        // Verify an unpublished schedule does not already exist
+        // Verify a unpublished schedule does not already exist
+        // TODO: Change to no overlapping schedule already exists
+        /*
         $schedules = Schedule::lookupByDivision($division);
         foreach ($schedules as $schedule) {
             if ($schedule->published == 0) {
                 throw new UnpublishedScheduleException("Cannot create new schedule for $division->name because there is already an unpublished schedule");
             }
         }
+        */
 
         // Verify there are enough open time slots for number of games
         $divisionFields = DivisionField::lookupByDivision($division);

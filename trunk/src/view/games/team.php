@@ -232,10 +232,10 @@ class View_Games_Team
                                 $dayCell
                                 <td>$game->id</td>
                                 <td $startTimeBgColor>$startTime</td>
-                                <td>$fieldName</td>
-                                <td $homeTeamStyle $homeTeamTitle>$homeTeamName</td>
-                                <td $visitingTeamStyle $visitingTeamTitle>$visitingTeamName</td>
-                                <td>$result</td>
+                                <td nowrap>$fieldName</td>
+                                <td nowrap $homeTeamStyle $homeTeamTitle>$homeTeamName</td>
+                                <td nowrap $visitingTeamStyle $visitingTeamTitle>$visitingTeamName</td>
+                                <td nowrap>$result</td>
                             </tr>";
                         } else {
                             print "
