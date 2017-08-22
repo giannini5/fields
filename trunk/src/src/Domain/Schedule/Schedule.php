@@ -861,8 +861,10 @@ class Schedule extends Domain
                     case 5:
                     case 6:
                     case 7:
-                    case 8:
                         $poolSizes[] = $numberOfTeams;
+                        break;
+                    case 8:
+                        $poolSizes          = array(4, 4);
                         break;
                     case 9:
                         $poolSizes          = array(5, 4);  // Cross pool play w/ second game???

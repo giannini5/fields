@@ -35,6 +35,13 @@ class ScheduleOrm extends PersistenceModel
 
     const SCHEDULE_TYPE_LEAGUE      = 'L';
     const SCHEDULE_TYPE_TOURNAMENT  = 'T';
+    const SCHEDULE_TYPE_BRACKET     = 'B';
+
+    public static $scheduleTypes = [
+        self::SCHEDULE_TYPE_LEAGUE      => 'League',
+        self::SCHEDULE_TYPE_TOURNAMENT  => 'Tournament',
+        self::SCHEDULE_TYPE_BRACKET     => 'Bracket',
+    ];
 
     protected static $fields = [
         self::FIELD_ID                      => [FV::INT,    [FV::NO_CONSTRAINTS], null],
