@@ -239,8 +239,8 @@ class Controller_AdminSchedules_Field extends Controller_AdminSchedules_Base {
 
             // Update remaining fields
             $field->enabled = $data[View_Base::ENABLED];
-            $this->updateDivisionFields($field, $data[View_Base::DIVISION_NAMES]);
-            $this->updateGameTimes($field);
+            // $this->updateDivisionFields($field, $data[View_Base::DIVISION_NAMES]);
+            // $this->updateGameTimes($field);
         }
 
         $this->m_messageString = "'$fieldName' successfully updated.";

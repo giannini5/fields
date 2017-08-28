@@ -134,11 +134,14 @@ abstract class View_Base {
     const SWAP_TEAM_ID2             = 'swapTeamId2';
     const FILTER_COACH_ID           = 'filterCoachId';
     const NAME                      = 'name';
+    const NAME_ID                   = 'nameId';
+    const REGION                    = 'region';
     const GENDER                    = 'gender';
     const ENABLED                   = 'enabled';
     const ADDRESS1                  = 'address1';
     const ADDRESS2                  = 'address2';
     const CITY                      = 'city';
+    const COACH_NAME                = 'coachName';
     const STATE                     = 'state';
     const POSTAL_CODE               = 'postalCode';
     const CONTACT_NAME              = 'contactName';
@@ -193,6 +196,8 @@ abstract class View_Base {
     const VOLUNTEER_POINTS_DATA     = 'volunteerPointsData';
 
     const EMAIL_ADDRESS             = 'emailAddress';
+    const PHONE1                    = 'phone1';
+    const PHONE2                    = 'phone2';
     const SUBJECT                   = 'subject';
     const HELP_REQUEST              = 'helpRequest';
 
@@ -262,8 +267,9 @@ abstract class View_Base {
      * @param bool      $showError       - Defaults to true
      * @param bool      $isRequired      - Defaults to false
      * @param string    $align           - Defaults to 'left'
+     * @param int       $rowspan         - Defaults to 1
      */
-    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = null, $collapsible = NULL, $colspan = 1, $newRow = true, $width = 135, $showError = true, $isRequired = false, $align='left') {
+    protected function displayInput($request, $type, $name, $placeHolder, $requiredString, $value = null, $collapsible = NULL, $colspan = 1, $newRow = true, $width = 135, $showError = true, $isRequired = false, $align='left', $rowspan = 1) {
         $requiredString     = empty($requiredString) ? '&nbsp' : $requiredString;
         $valueString        = isset($value) ? ", value='$value'" : "";
         $collapsibleClass   = isset($collapsible) ? "class='$collapsible'" : '';
@@ -277,17 +283,17 @@ abstract class View_Base {
 
         if (!empty($request)) {
             print "
-                    <td align='left' nowrap><font color='" . View_Base::AQUA . "'><b>$request</b></font></td>";
+                    <td rowspan='$rowspan' align='left' nowrap><font color='" . View_Base::AQUA . "'><b>$request</b></font></td>";
         }
 
         print "
-                    <td align='$align' colspan='$colspan'>
+                    <td rowspan='$rowspan'  align='$align' colspan='$colspan'>
                         <input style='width: $width' $required type='$type' name='$name' placeholder='$placeHolder'$valueString>
                     </td>";
 
         if ($showError) {
             print "
-                    <td>
+                    <td rowspan='$rowspan'>
                         <span class='error'>$requiredString</span>
                     </td>";
         }
