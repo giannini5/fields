@@ -4,7 +4,6 @@ use \DAG\Domain\Schedule\AssistantCoach;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\Team;
 use \DAG\Domain\Schedule\Division;
-use \DAG\Domain\Schedule\Player;
 
 /**
  * @brief Show the Team page and get the user to select a team to administer or create a new team.
@@ -28,6 +27,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
         $filterTeamId       = $this->m_controller->m_filterTeamId;
         $filterCoachId      = $this->m_controller->m_filterCoachId;
         $showPlayers        = $this->m_controller->m_showPlayers;
+        $sessionId          = $this->m_controller->getSessionId();
 
         $messageString  = $this->m_controller->m_messageString;
         if (!empty($messageString)) {
@@ -49,11 +49,12 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                         <th>City</th>
                         <th>Coach</th>
                         <th>Assistant Coach</th>";
-
+/*
         if ($showPlayers) {
             print "
                         <th>Players</th>";
         }
+*/
 
         print "
                     </tr>
@@ -76,36 +77,34 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                     continue;
                 }
 
-                $coachInfo  = '&nbsp';
                 $coach      = null;
-                if (Coach::findCoachForTeam($team, $coach)) {
-                    $coachInfo = "$coach->name<br>E: $coach->email<br>H: $coach->phone1<br>C: $coach->phone2";
-                }
-
+                Coach::findCoachForTeam($team, $coach);
                 if ($filterCoachId != 0 and (!isset($coach) or $coach->id != $filterCoachId)) {
                     continue;
                 }
 
                 $assistantCoaches       = AssistantCoach::lookupByTeam($team);
                 $assistantCoachCount    = count($assistantCoaches);
-                $rowspan                = 1; // $assistantCoachCount > 0 ? $assistantCoachCount : 1;
+                $rowspan                = 4; // $assistantCoachCount > 0 ? $assistantCoachCount : 1;
                 $divisionName           = $team->division->nameWithGender;
 
                 print "
+                    <form method='post' action='" . self::SCHEDULE_TEAMS_PAGE . $this->m_urlParams . "'>
                     <tr>
-                        <td rowspan='$rowspan'>$divisionName</td>
-                        <td rowspan='$rowspan'>$team->name</td>
-                        <td rowspan='$rowspan'>$team->nameId</td>
-                        <td rowspan='$rowspan'>$team->region</td>
-                        <td rowspan='$rowspan'>$team->city</td>
-                        <td rowspan='$rowspan'>$coachInfo</td>";
+                        <td rowspan='$rowspan'>$divisionName</td>";
+
+                $this->displayInput('', 'text', View_Base::NAME, 'Team Name', '', $team->name, null, 1, false, 70, false, false, 'left', $rowspan);
+                $this->displayInput('', 'text', View_Base::NAME_ID, 'Team Name Id', '', $team->nameId, null, 1, false, 70, false, false, 'left', $rowspan);
+                $this->displayInput('', 'text', View_Base::REGION, 'Region', '', $team->region, null, 1, false, 30, false, false, 'left', $rowspan);
+                $this->displayInput('', 'text', View_Base::CITY, 'City', '', $team->city, null, 1, false, 90, false, false, 'left', $rowspan);
+                $this->displayInput('', 'text', View_Base::COACH_NAME, 'Coach Name', '', $coach->name, null, 1, false, 90, false, false, 'left', 1);
 
                 if ($assistantCoachCount == 0) {
                     print "
-                        <td>&nbsp</td>";
+                        <td rowspan='$rowspan'>&nbsp</td>";
                 } else {
                     print "
-                        <td>";
+                        <td rowspan='$rowspan'>";
                     foreach ($assistantCoaches as $assistantCoach) {
                         $assistantCoachInfo = "$assistantCoach->name<br>E: $assistantCoach->email<br>H: $assistantCoach->phone1<br>C: $assistantCoach->phone2";
                         print "
@@ -115,6 +114,25 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                         </td>";
                 }
 
+                print "
+                        <td rowspan='$rowspan' align='left'>
+                            <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
+                            <input type='hidden' id='" . self::TEAM_ID . "' name='" . self::TEAM_ID . "' value='$team->id'>
+                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        </td>
+                    </tr>";
+
+                // Print remaining coach info
+                $email  = $coach->email;
+                $phone1 = $coach->phone1;
+                $phone2 = $coach->phone2;
+                $this->displayInput('', 'text', View_Base::EMAIL_ADDRESS, 'Coach Email', '', $email, null, 1, true, 90, false);
+                $this->displayInput('', 'text', View_Base::PHONE1, 'Home Phone', '', $phone1, null, 1, true, 90, false);
+                $this->displayInput('', 'text', View_Base::PHONE2, 'Cell Phone', '', $phone2, null, 1, true, 90, false);
+                print "
+                    </form>";
+
+/*
                 if ($showPlayers) {
                     $players = Player::lookupByTeam($team);
                     print "
@@ -126,9 +144,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                     print "
                         </td>";
                 }
-
-                print "
-                    </tr>";
+*/
             }
         }
 
@@ -194,7 +210,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
         $this->printDivisionSelector($filterDivisionId, true);
         $this->printTeamSelector($filterTeamId);
         $this->printCoachSelector($filterCoachId);
-        $this->printCheckboxSelector(View_Base::SHOW_PLAYERS, "Show Players", $showPlayers, 2);
+        // $this->printCheckboxSelector(View_Base::SHOW_PLAYERS, "Show Players", $showPlayers, 2);
 
         // Print Filter button and end form
         print "

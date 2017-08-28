@@ -16,6 +16,15 @@ class Controller_AdminSchedules_Team extends Controller_AdminSchedules_Base {
     public $m_showPlayers = false;
     public $m_swapTeamId1;
     public $m_swapTeamId2;
+    public $m_teamName;
+    public $m_teamNameId;
+    public $m_region;
+    public $m_city;
+    public $m_coachName;
+    public $m_coachEmail;
+    public $m_coachPhone1;
+    public $m_coachPhone2;
+    public $m_teamId;
 
     public function __construct() {
         parent::__construct();
@@ -32,6 +41,18 @@ class Controller_AdminSchedules_Team extends Controller_AdminSchedules_Base {
                 $this->m_swapTeamId1 = $this->getPostAttribute(View_Base::SWAP_TEAM_ID1, 0, TRUE, TRUE);
                 $this->m_swapTeamId2 = $this->getPostAttribute(View_Base::SWAP_TEAM_ID2, 0, TRUE, TRUE);
             }
+
+            if ($this->m_operation == View_Base::UPDATE) {
+                $this->m_teamName       = $this->getPostAttribute(View_Base::NAME, '', FALSE);
+                $this->m_teamNameId     = $this->getPostAttribute(View_Base::NAME_ID, '', FALSE);
+                $this->m_region         = $this->getPostAttribute(View_Base::REGION, '', FALSE);
+                $this->m_city           = $this->getPostAttribute(View_Base::CITY, '', FALSE);
+                $this->m_coachName      = $this->getPostAttribute(View_Base::COACH_NAME, '', FALSE);
+                $this->m_coachEmail     = $this->getPostAttribute(View_Base::EMAIL_ADDRESS, '', FALSE);
+                $this->m_coachPhone1    = $this->getPostAttribute(View_Base::PHONE1, '', FALSE);
+                $this->m_coachPhone2    = $this->getPostAttribute(View_Base::PHONE2, '', FALSE);
+                $this->m_teamId         = $this->getPostAttribute(View_Base::TEAM_ID, '', FALSE, true);
+            }
         }
     }
 
@@ -44,6 +65,10 @@ class Controller_AdminSchedules_Team extends Controller_AdminSchedules_Base {
             switch ($this->m_operation) {
                 case View_Base::SWAP:
                     $this->swapTeams();
+                    break;
+
+                case View_Base::UPDATE:
+                    $this->updateTeam();
                     break;
             }
         }
@@ -133,5 +158,29 @@ class Controller_AdminSchedules_Team extends Controller_AdminSchedules_Base {
         $team2->city    = $team1City;
 
         $this->m_messageString = $team2->nameId . " swapped with " . $team1->nameId;
+    }
+
+    /**
+     * @brief Update Team and Coach:
+     *        - Update team and coach meta data
+     */
+    private function updateTeam() {
+        // Verify team and coach exists
+        $team   = Team::lookupById((int)$this->m_teamId);
+        $coach  = Coach::lookupByTeam($team);
+
+        // Update Team meta data
+        $team->name     = $this->m_teamName;
+        $team->nameId   = $this->m_teamNameId;
+        $team->region   = $this->m_region;
+        $team->city     = $this->m_city;
+
+        // Update Coach meta data
+        $coach->name    = $this->m_coachName;
+        $coach->email   = $this->m_coachEmail;
+        $coach->phone1  = $this->m_coachPhone1;
+        $coach->phone2  = $this->m_coachPhone2;
+
+        $this->m_messageString = $team->nameId . " and coach " . $coach->name . " successfully updated.";
     }
 }

@@ -202,6 +202,15 @@ class Coach extends Domain
     public function __set($propertyName, $value)
     {
         switch ($propertyName) {
+            case "name":
+            case "email":
+            case "phone1":
+            case "phone2":
+                $this->coachOrm->{$propertyName} = $value;
+                $this->coachOrm->save();
+                break;
+
+
             case "team":
                 $this->coachOrm->teamId = $value->id;
                 $this->coachOrm->save();
@@ -247,6 +256,10 @@ class Coach extends Domain
     {
         switch ($propertyName) {
             case "family":
+            case "name":
+            case "email":
+            case "phone1":
+            case "phone2":
                 return isset($this->family);
 
             default:

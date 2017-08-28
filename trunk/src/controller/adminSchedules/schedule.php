@@ -40,6 +40,21 @@ class UnpublishedScheduleException extends DAG_Exception
     }
 }
 
+class ScheduleOverlapException extends DAG_Exception
+{
+    /**
+     * ScheduleOverlapException constructor
+     *
+     * @param string    $startDate
+     * @param string    $endDate
+     * @param Schedule  $existingSchedule
+     */
+    public function __construct($startDate, $endDate, $existingSchedule)
+    {
+        parent::__construct("Cannot create schedule due to dates overlapping with another schedule new($startDate, $endDate) existing($existingSchedule->startDate, $existingSchedule->endDate)");
+    }
+}
+
 /**
  * Class Controller_AdminSchedules_Schedule
  *
@@ -47,6 +62,7 @@ class UnpublishedScheduleException extends DAG_Exception
  */
 class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base {
 
+    /** @var string */
     public $m_name;
     public $m_divisionNames;
     public $m_scheduleId;
@@ -409,19 +425,22 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             $this->m_messageString .= " created.";
         } catch (DuplicateEntryException $e) {
             $this->m_messageString = '';
-            $this->m_errorString = "Schedule already exists for $divisionNameWithGender.  You need to Delete it first before creating a new one.  Or, scroll down and edit the exiting schedule: " . $e->getMessage();
+            $this->m_errorString = "ERROR: Schedule already exists for $divisionNameWithGender with name $this->m_name.  You need to Delete it first before creating a new one.  Or, scroll down and edit the exiting schedule: " . $e->getMessage();
         } catch (UnpublishedScheduleException $e) {
+            $this->m_messageString = '';
+            $this->m_errorString = "ERROR: Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->getMessage();
+        } catch (ScheduleOverlapException $e) {
             $this->m_messageString  = '';
-            $this->m_errorString    = "Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->getMessage();
+            $this->m_errorString    = "ERROR: Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->getMessage();
         } catch (NotEnoughGameTimesException $e) {
             $this->m_messageString  = '';
-            $this->m_errorString    = "Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->getMessage();
+            $this->m_errorString    = "ERROR: Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->getMessage();
         } catch (DAGException $e) {
             $this->m_messageString  = '';
-            $this->m_errorString    = "Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->asString();
+            $this->m_errorString    = "ERROR: Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->asString();
         } catch (DAG_Exception $e) {
             $this->m_messageString  = '';
-            $this->m_errorString    = "Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->asString();
+            $this->m_errorString    = "ERROR: Schedule creation failed for $divisionNameWithGender.  Reason: " . $e->asString();
         }
     }
 
@@ -501,16 +520,14 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
      */
     private function createScheduleForDivision($division)
     {
-        // Verify a unpublished schedule does not already exist
         // TODO: Change to no overlapping schedule already exists
-        /*
         $schedules = Schedule::lookupByDivision($division);
         foreach ($schedules as $schedule) {
-            if ($schedule->published == 0) {
-                throw new UnpublishedScheduleException("Cannot create new schedule for $division->name because there is already an unpublished schedule");
+            if (($this->m_startDate <= $schedule->startDate and $this->m_endDate > $schedule->startDate)
+                or ($this->m_startDate > $schedule->startDate and $this->m_startDate <= $schedule->endDate)) {
+                throw new ScheduleOverlapException($this->m_startDate, $this->m_endDate, $schedule);
             }
         }
-        */
 
         // Verify there are enough open time slots for number of games
         $divisionFields = DivisionField::lookupByDivision($division);
