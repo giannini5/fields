@@ -47,7 +47,7 @@ class ScheduleOrm extends PersistenceModel
         self::FIELD_ID                      => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_DIVISION_ID             => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_NAME                    => [FV::STRING, [FV::NO_CONSTRAINTS]],
-        self::FIELD_SCHEDULE_TYPE           => [FV::STRING, [FV::ENUM, [self::SCHEDULE_TYPE_LEAGUE, self::SCHEDULE_TYPE_TOURNAMENT]]],
+        self::FIELD_SCHEDULE_TYPE           => [FV::STRING, [FV::ENUM, [self::SCHEDULE_TYPE_LEAGUE, self::SCHEDULE_TYPE_TOURNAMENT, self::SCHEDULE_TYPE_BRACKET]]],
         self::FIELD_GAMES_PER_TEAM          => [FV::INT,    [FV::POSITIVE]],
         self::FIELD_START_DATE              => [FV::DATE,   [FV::NO_CONSTRAINTS], ''],
         self::FIELD_END_DATE                => [FV::DATE,   [FV::NO_CONSTRAINTS], ''],
