@@ -17,16 +17,18 @@ use DAG\Framework\Orm\NoResultsException;
  */
 class FieldOrm extends PersistenceModel
 {
-    const FIELD_ID          = 'id';
-    const FIELD_FACILITY_ID = 'facilityId';
-    const FIELD_NAME        = 'name';
-    const FIELD_ENABLED     = 'enabled';
+    const FIELD_ID                      = 'id';
+    const FIELD_FACILITY_ID             = 'facilityId';
+    const FIELD_NAME                    = 'name';
+    const FIELD_ENABLED                 = 'enabled';
+    const FIELD_THIRD_PARTY_FIELD_ID    = 'thirdPartyFieldId';
 
     protected static $fields = [
-        self::FIELD_ID          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_FACILITY_ID => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_NAME        => [FV::STRING, [FV::NO_CONSTRAINTS]],
-        self::FIELD_ENABLED     => [FV::INT,    [FV::NO_CONSTRAINTS], 1],
+        self::FIELD_ID                      => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_FACILITY_ID             => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_NAME                    => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_ENABLED                 => [FV::INT,    [FV::NO_CONSTRAINTS], 1],
+        self::FIELD_THIRD_PARTY_FIELD_ID    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
 
     protected static $config = [

@@ -520,7 +520,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
      */
     private function createScheduleForDivision($division)
     {
-        // TODO: Change to no overlapping schedule already exists
+        // Verify no overlapping schedule already exists
         $schedules = Schedule::lookupByDivision($division);
         foreach ($schedules as $schedule) {
             if (($this->m_startDate <= $schedule->startDate and $this->m_endDate > $schedule->startDate)
