@@ -131,8 +131,14 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
      */
     public function process()
     {
-        if ($this->m_missingAttributes == 0) {
+        if ($this->m_operation == View_Base::SIGN_OUT) {
+            $this->signOut();
+        } else if ($this->m_missingAttributes == 0) {
             switch ($this->m_scoringType) {
+                case View_Base::SIGN_OUT:
+                    $this->signOut();
+                    break;
+
                 case self::GAME_SCORING:
                     $this->processGameScoring();
                     break;
