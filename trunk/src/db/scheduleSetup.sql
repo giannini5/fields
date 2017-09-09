@@ -59,59 +59,59 @@ truncate table flight;
 insert into league (name) values ('AYSO Region 122');
 insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'dave@giannini5.com', 'David Giannini', '1234');
 insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'geoffayso122@gmail.com', 'Geoff Friedman', '1234');
--- insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'admin', 'Admin', 'admin');
+insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'admin', 'Admin', 'admin');
 
-select * from family where phone2 = '805-284-4970';
-select * from coach where name like '%Roden%';
-
-select * from familyGame where familyId = 35;
-select * from coach where familyId = 35;
-select * from game where id = 971;
-
-insert into family (seasonId, phone2) values (1, '805-284-4970');
-update coach set familyId = 35 where id in (22, 208);
-insert into familyGame (familyId, gameId)
-    select 35, id from game where homeTeamId in (22, 208) or visitingTeamId in (22, 208);
-
+-- Dump games for game scoring
+-- One row per team - use Excel pivot for formatting
 select
-    data.Date,
-    data.Start,
-    data.End,
-    data.thirdPartyFieldId,
-    concat('122-', data.division, "-", data.homeTeamNumber) as homeTeam,
-    concat('122-', data.division, "-", data.visitingTeamNumber) as visitingTeam
-from (
-    select
-        date_format(d.day, "%c/%e/%Y") as Date,
-        left(t.startTime, 5) as Start,
-        left(addtime(t.startTime,
-                case when gameDurationMinutes = 60 then "01:00:00"
-                     when gameDurationMinutes = 75 then "01:15:00"
-                     when gameDurationMinutes = 90 then "01:30:00"
-                     else "error" end),
-            5) as End,
-        f.thirdPartyFieldId,
-        case when right(h.nameId, 2) between "01" and "09" then right(h.nameId, 1) else right(h.nameId, 2) end as homeTeamNumber,
-        case when right(v.nameId, 2) between "01" and "09" then right(v.nameId, 1) else right(v.nameId, 2) end as visitingTeamNumber,
-        concat("U", left(i.name, length(i.name) - 1),
-            case when i.gender = 'Boys' then 'B' else 'G' end) as division
-    from
-        game as g
-        join gameTime as t on
-            t.id = g.gameTimeId
-        join gameDate as d on
-            d.id = t.gameDateId
-        join team as h on
-            h.id = g.homeTeamId
-        join team as v on
-            v.id = g.visitingTeamId
-        join division as i on
-            i.id = h.divisionId
-            and i.name = "10U"
-        join field as f on
-            f.id = t.fieldId
-    ) as data
-into outfile "/Users/dag/ayso/schedule_3.txt" LINES TERMINATED BY '\n';
+    d.day as gameDay,
+    g.id as gameId,
+    left(t.startTime, 5) as Start,
+    concat(i.name, " ", i.gender) as division,
+    c.name as facility,
+    f.name as field,
+    concat("H: ", h.nameId, " ", hc.name) as team
+from
+    game as g
+    join gameTime as t on
+        t.id = g.gameTimeId
+    join gameDate as d on
+        d.id = t.gameDateId
+    join team as h on
+        h.id = g.homeTeamId
+    join coach as hc on
+        hc.teamId = h.id
+    join division as i on
+        i.id = h.divisionId
+    join field as f on
+        f.id = t.fieldId
+    join facility as c on
+        c.id = f.facilityId
+union
+select
+    d.day as gameDay,
+    g.id as gameId,
+    left(t.startTime, 5) as Start,
+    concat(i.name, " ", i.gender) as division,
+    c.name as facility,
+    f.name as field,
+    concat("V: ", v.nameId, " ", vc.name) as team
+from
+    game as g
+    join gameTime as t on
+        t.id = g.gameTimeId
+    join gameDate as d on
+        d.id = t.gameDateId
+    join team as v on
+        v.id = g.visitingTeamId
+    join coach as vc on
+        vc.teamId = v.id
+    join division as i on
+        i.id = v.divisionId
+    join field as f on
+        f.id = t.fieldId
+    join facility as c on
+        c.id = f.facilityId;
 
 /*
 1001    RS U14 Standby
