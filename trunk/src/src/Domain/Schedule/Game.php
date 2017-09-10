@@ -209,7 +209,7 @@ class Game extends Domain
     /**
      * @param Team  $team
      *
-     * @return Game
+     * @return Game[]
      */
     public static function lookupByTeam($team)
     {
@@ -478,7 +478,7 @@ class Game extends Domain
     }
 
     /**
-     * Game points are computed as follows:
+     * Game points are computed as follows for tournament play:
      *      - 6 points for a win
      *      - 3 points for a tie
      *      - 1 point for a shutout
@@ -486,11 +486,16 @@ class Game extends Domain
      *      - -2 points for every red card
      *  10 points maximum.
      *
+     * Game points are computed as follows for league play
+     *      - 3 points for a win
+     *      - 1 point for a tie
+     *
      * @param bool  $computeForHomeTeam
+     * @param bool  $isLeaguePlay defaults to false
      *
      * @return int  $points for desired team
      */
-    public function computeGamePoints($computeForHomeTeam)
+    public function computeGamePoints($computeForHomeTeam, $isLeaguePlay = false)
     {
         $goals          = $computeForHomeTeam ? $this->homeTeamScore : $this->visitingTeamScore;
         $opposingGoals  = $computeForHomeTeam ? $this->visitingTeamScore : $this->homeTeamScore;
@@ -498,11 +503,16 @@ class Game extends Domain
         $win            = $computeForHomeTeam ? $this->homeTeamScore > $this->visitingTeamScore : $this->visitingTeamScore > $this->homeTeamScore;
         $tie            = $this->homeTeamScore == $this->visitingTeamScore;
 
-        $points = $win ? 6 : 0;
-        $points = $tie ? 3 : $points;
-        $points += $goals > 3 ? 3 : $goals;
-        $points += $opposingGoals == 0 ? 1 : 0;
-        $points += $reds * -2;
+        if ($isLeaguePlay) {
+            $points = $win ? 3 : 0;
+            $points = $tie ? 1 : $points;
+        } else {
+            $points = $win ? 6 : 0;
+            $points = $tie ? 3 : $points;
+            $points += $goals > 3 ? 3 : $goals;
+            $points += $opposingGoals == 0 ? 1 : 0;
+            $points += $reds * -2;
+        }
 
         return $points;
     }

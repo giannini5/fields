@@ -5,6 +5,8 @@ use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\AssistantCoach;
 use \DAG\Domain\Schedule\Player;
 use \DAG\Domain\Schedule\Schedule;
+use \DAG\Domain\Schedule\Division;
+use \DAG\Domain\Schedule\Family;
 
 /**
  * Class Controller_AdminSchedules_Team
@@ -42,16 +44,18 @@ class Controller_AdminSchedules_Team extends Controller_AdminSchedules_Base {
                 $this->m_swapTeamId2 = $this->getPostAttribute(View_Base::SWAP_TEAM_ID2, 0, TRUE, TRUE);
             }
 
-            if ($this->m_operation == View_Base::UPDATE) {
-                $this->m_teamName       = $this->getPostAttribute(View_Base::NAME, '', FALSE);
-                $this->m_teamNameId     = $this->getPostAttribute(View_Base::NAME_ID, '', FALSE);
-                $this->m_region         = $this->getPostAttribute(View_Base::REGION, '', FALSE);
-                $this->m_city           = $this->getPostAttribute(View_Base::CITY, '', FALSE);
-                $this->m_coachName      = $this->getPostAttribute(View_Base::COACH_NAME, '', FALSE);
-                $this->m_coachEmail     = $this->getPostAttribute(View_Base::EMAIL_ADDRESS, '', FALSE);
-                $this->m_coachPhone1    = $this->getPostAttribute(View_Base::PHONE1, '', FALSE);
-                $this->m_coachPhone2    = $this->getPostAttribute(View_Base::PHONE2, '', FALSE);
-                $this->m_teamId         = $this->getPostAttribute(View_Base::TEAM_ID, '', FALSE, true);
+            if ($this->m_operation == View_Base::CREATE or
+                $this->m_operation == View_Base::UPDATE) {
+                $this->m_filterDivisionId   = $this->getPostAttribute(View_Base::FILTER_DIVISION_ID, 0);
+                $this->m_teamName           = $this->getPostAttribute(View_Base::NAME, '', FALSE);
+                $this->m_teamId             = $this->getPostAttribute(View_Base::TEAM_ID, '', FALSE, true);
+                $this->m_teamNameId         = $this->getPostAttribute(View_Base::NAME_ID, '', FALSE);
+                $this->m_region             = $this->getPostAttribute(View_Base::REGION, '', FALSE);
+                $this->m_city               = $this->getPostAttribute(View_Base::CITY, '', FALSE);
+                $this->m_coachName          = $this->getPostAttribute(View_Base::COACH_NAME, '', FALSE);
+                $this->m_coachEmail         = $this->getPostAttribute(View_Base::EMAIL_ADDRESS, '', FALSE);
+                $this->m_coachPhone1        = $this->getPostAttribute(View_Base::PHONE1, '', FALSE);
+                $this->m_coachPhone2        = $this->getPostAttribute(View_Base::PHONE2, '', FALSE);
             }
         }
     }
@@ -65,6 +69,10 @@ class Controller_AdminSchedules_Team extends Controller_AdminSchedules_Base {
             switch ($this->m_operation) {
                 case View_Base::SWAP:
                     $this->swapTeams();
+                    break;
+
+                case View_Base::CREATE:
+                    $this->createTeam();
                     break;
 
                 case View_Base::UPDATE:
@@ -158,6 +166,25 @@ class Controller_AdminSchedules_Team extends Controller_AdminSchedules_Base {
         $team2->city    = $team1City;
 
         $this->m_messageString = $team2->nameId . " swapped with " . $team1->nameId;
+    }
+
+    /**
+     * @brief Create Team, Coach and Family as necessary:
+     */
+    private function createTeam() {
+        // Verify division exists
+        $division   = Division::lookupById((int)$this->m_filterDivisionId);
+
+        // Create team (ignore error if team already exists)
+        $team = Team::create($division, null, $this->m_teamName, $this->m_teamNameId, $this->m_region, $this->m_city, true);
+
+        // Create coach (ignore error if coach already exists)
+        $coach = Coach::create($team, null, $this->m_coachName, $this->m_coachEmail, $this->m_coachPhone1, $this->m_coachPhone2, true);
+
+        // Update Families
+        Family::createFromCoaches($this->m_season);
+
+        $this->m_messageString = $team->nameId . " and coach " . $coach->name . " successfully created.";
     }
 
     /**
