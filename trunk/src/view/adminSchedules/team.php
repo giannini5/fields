@@ -118,6 +118,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                         <td rowspan='$rowspan' align='left'>
                             <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
                             <input type='hidden' id='" . self::TEAM_ID . "' name='" . self::TEAM_ID . "' value='$team->id'>
+                            <input type='hidden' id='" . self::FILTER_DIVISION_ID . "' name='" . self::FILTER_DIVISION_ID . "' value='$filterDivisionId'>
                             <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                         </td>
                     </tr>";
@@ -164,11 +165,23 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
         $sessionId = $this->m_controller->getSessionId();
 
         print "
-            <table bgcolor='" . View_Base::VIEW_COLOR . "' valign='top' align='center' width='625' border='1' cellpadding='5' cellspacing='0'>
-                <tr><td>
+            <table valign='top' align='center' width='625' border='1' cellpadding='5' cellspacing='0'>
+                <tr><td bgcolor='" . View_Base::CREATE_COLOR . "'>
                     <table valign='top' align='center' width='300' border='0' cellpadding='5' cellspacing='0'>
                         <tr>
                             <td valign='top'>";
+
+        $this->printCreateTeam($sessionId, $filterDivisionId);
+
+        print "
+                            </td>
+                        </tr>
+                    </table>
+                    </td>
+                    <td bgcolor='" . View_Base::VIEW_COLOR . "' valign='top'>
+                    <table valign='top' align='center' width='200' border='0' cellpadding='5' cellspacing='0'>
+                        <tr>
+                            <td>";
 
         $this->printSelectTeam($sessionId, $filterDivisionId, $filterTeamId, $filterCoachId, $showPlayers);
 
@@ -177,7 +190,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                         </tr>
                     </table>
                     </td>
-                    <td valign='top'>
+                    <td bgcolor='" . View_Base::VIEW_COLOR . "' valign='top'>
                     <table valign='top' align='center' width='200' border='0' cellpadding='5' cellspacing='0'>
                         <tr>
                             <td>";
@@ -217,6 +230,39 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                 <tr>
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::FILTER . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>";
+    }
+
+    /**
+     * @param int   $sessionId
+     * @param int   $filterDivisionId
+     */
+    private function printCreateTeam($sessionId, $filterDivisionId)
+    {
+        print "
+            <form method='post' action='" . self::SCHEDULE_TEAMS_PAGE . $this->m_urlParams . "'>
+                <tr>
+                    <td colspan='2'><strong> Create Team</strong></td>
+                </tr>";
+
+        $this->printDivisionSelector($filterDivisionId, true);
+        $this->displayInput("Team Name:", 'text', View_Base::NAME, 'Team Name', '');
+        $this->displayInput("Team Name Id:", 'text', View_Base::NAME_ID, 'Team NameId', '');
+        $this->displayInput("Region:", 'text', View_Base::REGION, 'Region', '', '122');
+        $this->displayInput("City:", 'text', View_Base::CITY, 'City', '', 'Santa Barbara');
+        $this->displayInput("Coach Name:", 'text', View_Base::COACH_NAME, 'Name', '');
+        $this->displayInput("Coach Home Email:", 'text', View_Base::EMAIL_ADDRESS, 'Email', '');
+        $this->displayInput("Coach Home Phone:", 'text', View_Base::PHONE1, 'Home Phone', '');
+        $this->displayInput("Coach Cell Phone:", 'text', View_Base::PHONE2, 'Cell Phone', '');
+
+        // Print Create button and end form
+        print "
+                <tr>
+                    <td align='left'>
+                        <input style='background-color: yellow' name='" . View_Base::CREATE . "' type='submit' value='" . View_Base::CREATE . "'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>

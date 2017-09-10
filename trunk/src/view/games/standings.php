@@ -171,7 +171,7 @@ class View_Games_Standings extends View_Games_Base
                     $team                   = $game->homeTeam;
                     $teams[$team->id]       = $team;
                     $stats                  = isset($teamStats[$team->id]) ? $teamStats[$team->id] : [];
-                    $stats                  = $this->getGameStats($game, true, $stats);
+                    $stats                  = $this->getGameStats($game, true, $stats, true);
                     $teamStats[$team->id]   = $stats;
                     $teamPoints[$team->id]  = $stats[self::POINTS];
 
@@ -183,7 +183,7 @@ class View_Games_Standings extends View_Games_Base
                     $team                   = $game->visitingTeam;
                     $teams[$team->id]       = $team;
                     $stats                  = isset($teamStats[$team->id]) ? $teamStats[$team->id] : [];
-                    $stats                  = $this->getGameStats($game, false, $stats);
+                    $stats                  = $this->getGameStats($game, false, $stats, true);
                     $teamStats[$team->id]   = $stats;
                     $teamPoints[$team->id]  = $stats[self::POINTS];
 
@@ -600,9 +600,11 @@ class View_Games_Standings extends View_Games_Base
     /**
      * @param Game  $game
      * @param bool  $computeForHomeTeam
+     * @param bool  $isLeaguePlay defaults to false
+     *
      * @return array
      */
-    private function getGameStats($game, $computeForHomeTeam, $stats)
+    private function getGameStats($game, $computeForHomeTeam, $stats, $isLeaguePlay = false)
     {
         $team = $computeForHomeTeam ? $game->homeTeam : $game->visitingTeam;
 
@@ -624,7 +626,7 @@ class View_Games_Standings extends View_Games_Base
             $stats[self::LOSSES]        += $computeForHomeTeam ? ($game->homeTeamScore < $game->visitingTeamScore ? 1 : 0) : 0;
             $stats[self::LOSSES]        += !$computeForHomeTeam ? ($game->homeTeamScore > $game->visitingTeamScore ? 1 : 0) : 0;
             $stats[self::TIES]          += $game->homeTeamScore == $game->visitingTeamScore ? 1 : 0;
-            $stats[self::POINTS]        += $game->computeGamePoints($computeForHomeTeam);
+            $stats[self::POINTS]        += $game->computeGamePoints($computeForHomeTeam, $isLeaguePlay);
             $stats[self::GOALS_FOR]     += $computeForHomeTeam ? $game->homeTeamScore : $game->visitingTeamScore;
             $stats[self::GOALS_AGAINST] += $computeForHomeTeam ? $game->visitingTeamScore : $game->homeTeamScore;
             $stats[self::SHUTOUTS]      += $computeForHomeTeam ? ($game->visitingTeamScore == 0 ? 1 : 0) : ($game->homeTeamScore == 0 ? 1 : 0);
