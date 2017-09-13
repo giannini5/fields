@@ -262,7 +262,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
         print "
                 <tr>
                     <td align='left'>
-                        <input style='background-color: yellow' name='" . View_Base::CREATE . "' type='submit' value='" . View_Base::CREATE . "'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::CREATE . "'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>

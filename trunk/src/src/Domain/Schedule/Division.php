@@ -4,9 +4,9 @@ namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
 use DAG\Framework\Orm\DuplicateEntryException;
+use DAG\Framework\Orm\NoResultsException;
 use DAG\Orm\Schedule\DivisionOrm;
 use DAG\Framework\Exception\Precondition;
-use DAG\Services\MySql\DuplicateKeyException;
 
 
 /**
@@ -94,6 +94,30 @@ class Division extends Domain
 
         $divisionOrm = DivisionOrm::loadBySeasonIdAndNameAndGender($season->id, $name, $gender);
         return new static($divisionOrm, $season);
+    }
+
+    /**
+     * @param Season        $season
+     * @param string        $name
+     * @param string        $gender
+     * @param Division|null $division
+     *
+     * @return bool
+     */
+    public static function findByNameAndGender($season, $name, $gender, &$division)
+    {
+        Precondition::isNonEmpty($name, 'name should not be empty');
+        Precondition::isNonEmpty($gender, 'gender should not be empty');
+
+        $division = null;
+
+        try {
+            $divisionOrm = DivisionOrm::loadBySeasonIdAndNameAndGender($season->id, $name, $gender);
+            $division = new static($divisionOrm, $season);
+            return true;
+        } catch (NoResultsException $e) {
+            return false;
+        }
     }
 
     /**
