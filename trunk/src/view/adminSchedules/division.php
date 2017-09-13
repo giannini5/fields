@@ -29,6 +29,9 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
                 <p style='color: green' align='center'><strong>$messageString</strong></p><br>";
         }
 
+        $this->printDivisionSelectors();
+
+
         print "
             <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . self::SCHEDULE_DIVISIONS_PAGE . $this->m_urlParams . "'>
@@ -83,25 +86,58 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
     }
 
     /**
+     * Print selector to create a division
+     */
+    private function printDivisionSelectors()
+    {
+        $sessionId = $this->m_controller->getSessionId();
+
+        print "
+            <table valign='top' align='center' width='300' border='1' cellpadding='5' cellspacing='0'>
+                <tr><td bgcolor='" . View_Base::CREATE_COLOR . "'>
+                    <table valign='top' align='center' width='300' border='0' cellpadding='5' cellspacing='0'>
+                        <tr>
+                            <td valign='top'>";
+
+        $this->printCreateDivision($sessionId);
+
+        print "
+                            </td>
+                        </tr>
+                    </table>
+                </td></tr>
+            </table><br><br>";
+    }
+
+    /**
      * @brief Print the form to create a division.  Form includes the following
      *        - Division Name
      *        - Enabled radio button
      *
-     * @param $maxColumns - Number of columns the form is covering
+     * @param $sessionId - Session identifier
      */
-    private function _printCreateDivisionForm($maxColumns) {
-        // TODO
-    }
+    private function printCreateDivision($sessionId)
+    {
+        print "
+            <form method='post' action='" . self::SCHEDULE_DIVISIONS_PAGE . $this->m_urlParams . "'>
+                <tr>
+                    <td colspan='2'><strong> Create Division</strong></td>
+                </tr>";
 
-    /**
-     * @brief Print the form to update a season.  Form includes the following
-     *        - Division Name
-     *        - Enabled radio button
-     *
-     * @param $maxColumns - Number of columns the form is covering
-     * @param $season - Division to be edited
-     */
-    private function _printUpdateDivisionForm($maxColumns, $season) {
-        // TODO
+        $this->displayInput("Division Name:", 'text', View_Base::NAME, 'Division Name', '');
+        $this->displaySelector('Gender:', View_Base::GENDER, '', ['Boys' => 'Boys', 'Girls' => 'Girls'], '', null, true, 140, 'left', 'Select Gender');
+        $this->displayInput('Display Order:', 'string', View_Base::DISPLAY_ORDER, '', '', 200);
+        $this->displayInput('Game Duration Minutes', 'string', View_Base::GAME_DURATION_MINUTES, '', '', 90);
+
+        // Print Create button and end form
+        print "
+                <tr>
+                    <td align='left'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::CREATE . "'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>";
+
     }
 }

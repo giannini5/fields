@@ -16,10 +16,22 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
 
     private $m_divisionUpdates;
 
+    private $m_name;
+    private $m_gender;
+    private $m_displayOrder;
+    private $m_gameDurationMinutes;
+
     public function __construct() {
         parent::__construct();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
+            if ($this->m_operation == View_Base::CREATE) {
+                $this->m_name                   = $this->getPostAttribute(View_Base::NAME, '', TRUE);
+                $this->m_gender                 = $this->getPostAttribute(View_Base::GENDER, '', TRUE);
+                $this->m_displayOrder           = $this->getPostAttribute(View_Base::DISPLAY_ORDER, '', TRUE, TRUE);
+                $this->m_gameDurationMinutes    = $this->getPostAttribute(View_Base::GAME_DURATION_MINUTES, '', TRUE, TRUE);
+            }
+
             if ($this->m_operation == View_Base::UPDATE) {
                 $this->m_divisionUpdates = $this->getPostAttributeArray(View_Base::DIVISION_UPDATE_DATA);
             }
@@ -33,10 +45,16 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
     public function process() {
         if ($this->m_missingAttributes == 0) {
             switch ($this->m_operation) {
+                case View_Base::CREATE:
+                    $this->createDivision();
+                    break;
+
                 case View_Base::UPDATE:
                     $this->updateDivisions();
                     break;
             }
+        } else {
+            $this->m_errorString = "ERROR: Form missing data.  Make sure you fill in all fields";
         }
 
         if ($this->m_isAuthenticated) {
@@ -51,8 +69,17 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
     /**
      * @brief Create Division
      */
-    private function _createDivision() {
-        // TODO
+    private function createDivision() {
+        // Verify division does not already exist
+        $result = Division::findByNameAndGender($this->m_season, $this->m_name, $this->m_gender, $division);
+        if ($result) {
+            $this->m_errorString = "Division $this->m_name $this->m_gender already exists.  Use the update control to change information.";
+            return;
+        }
+
+        // Create the new division
+        $division = Division::create($this->m_season, $this->m_name, $this->m_gender, (int)$this->m_gameDurationMinutes, $this->m_displayOrder);
+        $this->m_messageString = "Division $division->nameWithGender successfully created";
     }
 
     /**

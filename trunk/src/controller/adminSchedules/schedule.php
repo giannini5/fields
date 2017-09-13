@@ -91,6 +91,9 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
     public $m_poolId;
     public $m_flightName;
     public $m_poolName;
+    public $m_homeTeamId;
+    public $m_visitingTeamId;
+    public $m_gameTimeId;
 
     public function __construct() {
         parent::__construct();
@@ -310,6 +313,33 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 );
             }
 
+            if ($this->m_operation == View_Base::ADD) {
+                $this->m_homeTeamId = $this->getPostAttribute(
+                    View_Base::HOME_TEAM_ID,
+                    null,
+                    true,
+                    true);
+
+                $this->m_visitingTeamId = $this->getPostAttribute(
+                    View_Base::VISITING_TEAM_ID,
+                    null,
+                    true,
+                    true);
+
+                $this->m_gameTimeId = $this->getPostAttribute(
+                    View_Base::GAME_TIME,
+                    null,
+                    true,
+                    true);
+
+                $this->m_scheduleId = $this->getPostAttribute(
+                    View_Base::SCHEDULE_ID,
+                    null,
+                    true,
+                    true);
+            }
+
+
             $this->m_showPublishedSchedules = $this->getPostCheckboxAttribute(View_Base::SHOW_PUBLISHED, false);
         }
     }
@@ -389,6 +419,10 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
 
                     case View_Base::ALTER:
                         $this->_alterTeamGames();
+                        break;
+
+                    case View_Base::ADD:
+                        $this->_addGame();
                         break;
                 }
             }
@@ -1069,6 +1103,54 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         $totalGames             = $gamesMoved + $gamesNotMoved;
         $this->m_errorString    = '';
         $this->m_messageString  = "Team ${teamName}: $gamesMoved of $totalGames have been altered.";
+    }
+
+    /**
+     * Add a game
+     */
+    private function _addGame()
+    {
+        $homeTeam                   = Team::lookupById((int)$this->m_homeTeamId);
+        $visitingTeam               = Team::lookupById((int)$this->m_visitingTeamId);
+        $schedule                   = $homeTeam->pool->schedule;
+        $gameTime                   = GameTime::lookupById((int)$this->m_gameTimeId);
+        $pool                       = $homeTeam->pool;
+        $flight                     = $pool->flight;
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+
+        // Verify the schedule is not already published
+        if ($schedule->published == 1) {
+            $this->m_errorString = "Error: Cannot add game because schedule has been published.";
+            return;
+        }
+
+        // Verify no game already scheduled at this time
+        if (isset($gameTime->game)) {
+            $this->m_errorString = "Error: Cannot add game to $gameTime->startTime because a game is already scheduled at this time.";
+            return;
+        }
+
+        // Verify both teams are in the same flight and pool
+        if ($homeTeam->pool->id != $visitingTeam->pool->id) {
+            $this->m_errorString = "Error: Support not implemented yet to allow cross-pool games.";
+            return;
+        }
+
+        // Create game
+        $game = Game::create(
+            $flight,
+            $pool,
+            $gameTime,
+            $homeTeam,
+            $visitingTeam);
+
+        $coach                  = Coach::lookupByTeam($homeTeam);
+        $homeTeamName           = $homeTeam->name . " - " . $coach->shortName;
+        $coach                  = Coach::lookupByTeam($visitingTeam);
+        $visitingTeamName       = $visitingTeam->name . " - " . $coach->shortName;
+        $this->m_errorString    = '';
+        $this->m_messageString  = "Game $game->id added between ${homeTeamName} and ${visitingTeamName}.";
     }
 
     /**

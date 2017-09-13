@@ -70,6 +70,29 @@ class DivisionTest extends ORM_TestHelper
         $this->validateDivision($division, $this->season, self::$expectedDefaults);
     }
 
+    public function test_findByNameAndGender()
+    {
+        $result = Division::findByNameAndGender(
+            $this->season,
+            self::$expectedDefaults['name'],
+            self::$expectedDefaults['gender'],
+            $division);
+
+        $this->assertTrue($result, "Division not found");
+        $this->validateDivision($division, $this->season, self::$expectedDefaults);
+    }
+
+    public function test_findByNameAndGenderNotFound()
+    {
+        $result = Division::findByNameAndGender(
+            $this->season,
+            '99U',
+            'OldPeople',
+            $division);
+
+        $this->assertFalse($result, "Division unexpectedly found");
+    }
+
     public function test_lookupByName()
     {
         $divisions = Division::lookupByName($this->season, self::$expectedDefaults['name']);

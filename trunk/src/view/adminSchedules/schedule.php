@@ -105,7 +105,8 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     or $this->m_controller->m_operation == View_Base::CREATE_FLIGHT
                     or $this->m_controller->m_operation == View_Base::DELETE_FLIGHT
                     or $this->m_controller->m_operation == View_Base::CREATE_POOL
-                    or $this->m_controller->m_operation == View_Base::DELETE_POOL)
+                    or $this->m_controller->m_operation == View_Base::DELETE_POOL
+                    or $this->m_controller->m_operation == View_Base::ADD)
                     and $this->m_controller->m_scheduleId == $schedule->id) {
 
                     $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
@@ -361,6 +362,14 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
         $this->_printAlterTeamGames($schedule->id, $teamSelector, $fieldSelector, $gameDateSelector, $sessionId);
 
+        print "
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp</td></tr>
+                            <tr>
+                                <td>";
+
+        $this->_printAddGame($schedule, $gameTimes, $sessionId);
 
         print "
                                 </td>
@@ -954,6 +963,69 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 <tr class='$collapsible'>
                     <td align='left' colspan='2' title='Alter games for a team based on date range, time range and field. Games will be locked.'>
                         <input style='background-color: orange' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ALTER . "'>
+                        <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>
+            </td></tr>
+            </table>";
+    }
+
+    /**
+     * Print form to add a game
+     *
+     * @param Schedule      $schedule
+     * @param GameTime[]    $gameTimes
+     * @param int           $sessionId
+     * @param int           $javaScriptClassIdentifier - Used for expand/collapse
+     */
+    private function _printAddGame($schedule, $gameTimes, $sessionId, $javaScriptClassIdentifier = 7)
+    {
+        $expandContract = "expandContract$javaScriptClassIdentifier";
+        $collapsible    = "collapsible$javaScriptClassIdentifier";
+        $scheduleId     = $schedule->id;
+
+        // Create team selector
+        $teams = Team::lookupByDivision($schedule->division);
+        $teamSelector = [];
+        foreach ($teams as $team) {
+            $coach                      = Coach::lookupByTeam($team);
+            $teamSelector[$team->id]    = $team->name . ": " . $coach->shortName;
+        }
+
+        // Create gameTime selector
+        $gameTimeSelector = [];
+        foreach ($gameTimes as $gameTime) {
+            if (!isset($gameTime->game)) {
+                $day        = $gameTime->gameDate->day;
+                $field      = $gameTime->field;
+                $facility   = $field->facility;
+                $gameTimeSelector[$gameTime->id] = $day . " " . $gameTime->startTime . " " . $facility->name . " " . $field->name;
+            }
+        }
+        asort($gameTimeSelector);
+
+        // Print controls and button to support moving a teams games during a date range to between a selected time
+        // range and field.
+        print "
+            <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
+            <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
+            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
+            <tr class='$expandContract'>
+                <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium' title='Add a game'><strong>Add Game</strong></td>
+            </tr>";
+
+        asort($teamSelector);
+        $this->displaySelector('Home Team:', View_Base::HOME_TEAM_ID, '', $teamSelector, '', $collapsible, true, 150, 'left', 'Home Team');
+        $this->displaySelector('Visiting Team:', View_Base::VISITING_TEAM_ID, '', $teamSelector, '', $collapsible, true, 150, 'left', 'Visiting Team');
+        $this->displaySelector('Date/Time:', View_Base::GAME_TIME, '', $gameTimeSelector, '', $collapsible);
+
+        print "
+                <tr class='$collapsible'>
+                    <td align='left' colspan='2' title='Add Game'>
+                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ADD . "'>
                         <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
