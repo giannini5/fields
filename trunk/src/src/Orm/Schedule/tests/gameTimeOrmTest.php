@@ -17,6 +17,7 @@ class GameTimeOrmTest extends ORM_TestHelper
         [
             self::START_TIME        => '03:30:00',
             self::GENDER_PREFERENCE => GameTimeOrm::BOYS,
+            self::ACTUAL_START_TIME => null,
         ];
 
     protected function setUp()
@@ -38,6 +39,21 @@ class GameTimeOrmTest extends ORM_TestHelper
             self::$expectedDefaults[self::GENDER_PREFERENCE]);
 
         $this->verifyExpectedAttributes($gameTimeOrm, self::$expectedDefaults);
+    }
+
+    public function test_createWithActualStartTime()
+    {
+        $actualStartTime = '04:00:00';
+
+        $gameTimeOrm = GameTimeOrm::create(
+            $this->defaultGameDateOrm->id,
+            $this->defaultFieldOrm->id,
+            self::$expectedDefaults[self::START_TIME],
+            self::$expectedDefaults[self::GENDER_PREFERENCE],
+            null,
+            $actualStartTime);
+
+        $this->verifyExpectedAttributes($gameTimeOrm, self::$expectedDefaults, $actualStartTime);
     }
 
     public function test_loadById()
@@ -89,12 +105,24 @@ class GameTimeOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($gameTimeOrms[0], self::$defaultGameTimeOrmAttributes);
     }
 
-    private function verifyExpectedAttributes($gameTimeOrm, $attributes)
+    public function test_getUniqueStartTimes()
+    {
+        $gameTimes = GameTimeOrm::getUniqueStartTimes($this->defaultFieldOrm->id);
+        $this->assertEquals(1, count($gameTimes));
+        $this->assertEquals('16:30:00', $gameTimes[0]['startTime']);
+    }
+
+    private function verifyExpectedAttributes($gameTimeOrm, $attributes, $actualStartTime = null)
     {
         $this->assertTrue($gameTimeOrm->id > 0);
         $this->assertEquals($this->defaultGameDateOrm->id,          $gameTimeOrm->gameDateId);
         $this->assertEquals($this->defaultFieldOrm->id,             $gameTimeOrm->fieldId);
         $this->assertEquals($attributes[self::START_TIME],          $gameTimeOrm->startTime);
         $this->assertEquals($attributes[self::GENDER_PREFERENCE],   $gameTimeOrm->genderPreference);
+        if (isset($actualStartTime)) {
+            $this->assertEquals($actualStartTime, $gameTimeOrm->actualStartTime);
+        } else {
+            $this->assertTrue(!isset($attributes[self::ACTUAL_START_TIME]), "Unexpected actual start time");
+        }
     }
 }

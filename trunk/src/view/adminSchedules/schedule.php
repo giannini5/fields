@@ -245,18 +245,18 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 \DAG\Framework\Utils\TimeUtils::time_elapsed("Game lookup");
 
         $divisionFields = DivisionField::lookupByDivision($schedule->division);
+        $startTime          = $this->m_controller->m_season->startTime;
+        $endTime            = $this->m_controller->m_season->endTime;
+        $interval           = new \DateInterval("PT" . $schedule->division->gameDurationMinutes . "M");
 \DAG\Framework\Utils\TimeUtils::time_elapsed("DivisionField lookup");
         $gameTimes      = [];
         $fieldIds       = [];
         foreach ($divisionFields as $divisionField) {
-            $fieldIds[$divisionField->field->id] = $divisionField->field->facility->name . ": " . $divisionField->field->name;
-            $gameTimes = array_merge($gameTimes, GameTime::lookupByField($divisionField->field));
+            $fieldIds[$divisionField->field->id]    = $divisionField->field->facility->name . ": " . $divisionField->field->name;
+            $gameTimes                              = array_merge($gameTimes, GameTime::lookupByField($divisionField->field));
         }
 \DAG\Framework\Utils\TimeUtils::time_elapsed("GameTime lookup");
 
-        $startTime          = $this->m_controller->m_season->startTime;
-        $endTime            = $this->m_controller->m_season->endTime;
-        $interval           = new \DateInterval("PT" . $schedule->division->gameDurationMinutes . "M");
         $gameTimesSelector  = [];
         $defaultGameTimes   = GameTime::getDefaultGameTimes($startTime, $endTime, $interval);
         foreach ($defaultGameTimes as $gameTime) {
@@ -1021,6 +1021,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
         $this->displaySelector('Home Team:', View_Base::HOME_TEAM_ID, '', $teamSelector, '', $collapsible, true, 150, 'left', 'Home Team');
         $this->displaySelector('Visiting Team:', View_Base::VISITING_TEAM_ID, '', $teamSelector, '', $collapsible, true, 150, 'left', 'Visiting Team');
         $this->displaySelector('Date/Time:', View_Base::GAME_TIME, '', $gameTimeSelector, '', $collapsible);
+        $this->displayInput('Actual Start Time', 'text', View_Base::ACTUAL_START_TIME, '', '', null, $collapsible);
 
         print "
                 <tr class='$collapsible'>

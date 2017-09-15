@@ -3,6 +3,7 @@ create table gameTime (
     gameDateId        bigint not NULL,
     fieldId           bigint not NULL,
     startTime         time not NULL,
+    actualStartTime   time default NULL,
     genderPreference  varchar(10) not NULL,
     gameId            bigint default NULL,
     PRIMARY KEY (id),

@@ -125,12 +125,25 @@ class GameTimeTest extends ORM_TestHelper
         $this->validateGameTime($gameTimes[0], $this->gameDate, $this->field, self::$expectedDefaults);
     }
 
+    public function test_setActualStartTime()
+    {
+        $gameTimes = GameTime::lookupByField($this->field);
+        $this->assertTrue(count($gameTimes) == 1);
+        $gameTime = $gameTimes[0];
+
+        $this->assertEquals(self::$expectedDefaults['startTime'], $gameTime->actualStartTime);
+        $gameTime->actualStartTime = '04:00:00';
+        $this->assertEquals('04:00:00', $gameTime->actualStartTime);
+    }
+
     public function validateGameTime($gameTime, $gameDate, $field, $expectedDefaults)
     {
         $this->assertTrue($gameTime->id > 0);
         $this->assertEquals($expectedDefaults['startTime'],         $gameTime->startTime);
+        $this->assertEquals($expectedDefaults['startTime'],         $gameTime->actualStartTime);
         $this->assertEquals($expectedDefaults['genderPreference'],  $gameTime->genderPreference);
         $this->assertEquals($gameDate,                              $gameTime->gameDate);
         $this->assertEquals($field,                                 $gameTime->field);
+        $this->assertFalse(isset($gameTime->actualStartTime), "actualStartTime should not be set");
     }
 }

@@ -22,7 +22,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::SCHEDULE_PREVIEW_PAGE, $controller);
@@ -324,7 +324,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                     <td>&nbsp</td>
                 </tr>";
 
-            $defaultGameTimes = GameTime::getDefaultGameTimes($startTime, $endTime, $interval);
+            $defaultGameTimes = GameTime::getDefaultGameTimes($startTime, $endTime, $interval, [$field]);
             print "
                 <tr>
                     <td colspan='3'>
@@ -355,7 +355,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                     $cellHTML   = '&nbsp';
                     $title      = '';
                     foreach ($gameTimes as $gameTime) {
-                        if ($gameTime->startTime == $defaultGameTime) {
+                        if ($gameTime->actualStartTime == $defaultGameTime) {
                             if (isset($gameTime->game)) {
                                 $game               = $gameTime->game;
                                 $gender             = $gameTime->game->flight->schedule->division->gender;
