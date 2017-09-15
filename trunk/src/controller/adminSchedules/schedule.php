@@ -94,6 +94,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
     public $m_homeTeamId;
     public $m_visitingTeamId;
     public $m_gameTimeId;
+    public $m_actualStartTime;
 
     public function __construct() {
         parent::__construct();
@@ -331,6 +332,12 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                     null,
                     true,
                     true);
+
+                $this->m_actualStartTime = $this->getPostAttribute(
+                    View_Base::ACTUAL_START_TIME,
+                    '',
+                    false,
+                    false);
 
                 $this->m_scheduleId = $this->getPostAttribute(
                     View_Base::SCHEDULE_ID,
@@ -1144,6 +1151,11 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             $gameTime,
             $homeTeam,
             $visitingTeam);
+        
+        // Update actual game time if requested
+        if (!empty($this->m_actualStartTime)) {
+            $gameTime->actualStartTime = $this->m_actualStartTime;
+        }
 
         $coach                  = Coach::lookupByTeam($homeTeam);
         $homeTeamName           = $homeTeam->name . " - " . $coach->shortName;

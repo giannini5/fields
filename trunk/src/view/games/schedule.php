@@ -1,6 +1,5 @@
 <?php
 
-use \DAG\Domain\Schedule\Season;
 use \DAG\Domain\Schedule\Division;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\Schedule;
@@ -159,7 +158,7 @@ class View_Games_Schedule extends View_Games_Base
                 $gamesByDateByTimeByField       = [];
                 foreach ($poolGames as $game) {
                     $day        = $game->gameTime->gameDate->day;
-                    $startTime  = $game->gameTime->startTime;
+                    $startTime  = $game->gameTime->actualStartTime;
                     $fieldName  = $game->gameTime->field->facility->name . ": " . $game->gameTime->field->name;
                     $gamesByDateByTimeByField[$day][$startTime][$fieldName] = $game;
                 }
@@ -174,7 +173,7 @@ class View_Games_Schedule extends View_Games_Base
                 $games = $gamesByPool[0];
                 foreach ($games as $game) {
                     $day        = $game->gameTime->gameDate->day;
-                    $startTime  = $game->gameTime->startTime;
+                    $startTime  = $game->gameTime->actualStartTime;
                     $fieldName  = $game->gameTime->field->facility->name . ": " . $game->gameTime->field->name;
                     $titleGamesByDateByTimeByField[$day][$startTime][$fieldName] = $game;
                 }

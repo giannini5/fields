@@ -18,6 +18,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const START_DATE                  = 'startDate';
     const END_DATE                    = 'endDate';
     const START_TIME                  = 'startTime';
+    const ACTUAL_START_TIME           = 'actualStartTime';
     const END_TIME                    = 'endTime';
     const DAYS_OF_WEEK                = 'daysOfWeek';
     const PUBLISHED                   = 'published';

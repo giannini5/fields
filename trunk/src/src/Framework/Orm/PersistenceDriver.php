@@ -310,6 +310,23 @@ class PersistenceDriver
     }
 
     /**
+     * Get results from a raw query run
+     *
+     * @param string    $query
+     *
+     * @return string[] $results
+     */
+    public function rawQuery($query)
+    {
+        Precondition::isTrue($this->persistenceConfig->getPersistenceDriver() == PC::DRIVER_MYSQL, 'needs MySQL driver');
+
+        $mysqlDb = Services::getMySqlService()->getDatabase($this->persistenceConfig->getPersistenceSchema());
+        $results = $mysqlDb->query($query);
+
+        return $results;
+    }
+
+    /**
      * When we load data from MySQL, all of the fields are strings.
      * But for columns we have designated as bool or int, we want the data type to be just that, rather than string.
      *

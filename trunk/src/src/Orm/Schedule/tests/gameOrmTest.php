@@ -78,6 +78,6 @@ class GameOrmTest extends ORM_TestHelper
         $this->assertEquals($this->defaultTeamOrm->id,          $gameOrm->homeTeamId);
         $this->assertEquals($this->defaultVisitingTeamOrm->id,  $gameOrm->visitingTeamId);
         $this->assertEquals($gameOrmAttributes[self::TITLE],    $gameOrm->title);
-        $this->assertEquals($gameOrmAttributes[self::LOCKED],    $gameOrm->locked);
+        $this->assertEquals($gameOrmAttributes[self::LOCKED],   $gameOrm->locked);
     }
 }

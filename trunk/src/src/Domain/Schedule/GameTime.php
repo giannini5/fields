@@ -14,6 +14,7 @@ use DAG\Framework\Exception\Precondition;
  * @property GameDate   $gameDate
  * @property Field      $field
  * @property string     $startTime
+ * @property string     $actualStartTime
  * @property string     $genderPreference
  * @property Game       $game
  */
@@ -110,11 +111,12 @@ class GameTime extends Domain
      *
      * @param string        $startTime
      * @param string        $endTime
-     * @param \DateInterval  $interval - time between games (30 minutes minimum)
+     * @param \DateInterval $interval - time between games (30 minutes minimum)
+     * @param Field[]       $fields
      *
      * @return string[]
      */
-    public static function getDefaultGameTimes($startTime, $endTime, $interval)
+    public static function getDefaultGameTimes($startTime, $endTime, $interval, $fields = null)
     {
         Precondition::isTrue($startTime < $endTime, "StartTime: $startTime is greater than or equal to EndTime: $endTime");
         Precondition::isTrue($interval->i >= 30, "Interval must be 30 minutes or greater: " . $interval->i);
@@ -125,6 +127,24 @@ class GameTime extends Domain
         while ($dateTime->format('H:i:s') <= $endTime) {
             $gameTimes[] = $dateTime->format('H:i:s');
             $dateTime = $dateTime->add($interval);
+        }
+
+        if (isset($fields)) {
+            $fieldIds = '';
+            $prefix   = '';
+            foreach ($fields as $field) {
+                $fieldIds .= $prefix . $field->id;
+                $prefix = ",";
+            }
+            $startTimes = GameTimeOrm::getUniqueStartTimes($fieldIds);
+            foreach ($startTimes as $startTime) {
+                $dateTime = \DateTime::createFromFormat('Y-m-d H:i:s', '2016-12-01 ' . $startTime[GameTimeOrm::FIELD_START_TIME]);
+                $gameTimes[] = $dateTime->format('H:i:s');
+            }
+
+            // Remove duplicates and sort
+            $gameTimes = array_unique($gameTimes);
+            asort($gameTimes);
         }
 
         return $gameTimes;
@@ -352,6 +372,10 @@ class GameTime extends Domain
             case "genderPreference":
                 return $this->gameTimeOrm->{$propertyName};
 
+            case "actualStartTime":
+                return isset($this->gameTimeOrm->actualStartTime) ? $this->gameTimeOrm->actualStartTime :
+                    $this->gameTimeOrm->startTime;
+
             case "gameDate":
             case "field":
             case "game":
@@ -371,6 +395,7 @@ class GameTime extends Domain
         switch ($propertyName) {
             case "id":
             case "startTime":
+            case "actualStartTime":
                 return isset($this->gameTimeOrm->{$propertyName});
 
             case "gameDate":
@@ -394,6 +419,11 @@ class GameTime extends Domain
                 $this->gameTimeOrm->gameId  = isset($value) ? $value->id : $value;
                 $this->gameTimeOrm->save();
                 $this->game                 = $value;
+                break;
+
+            case "actualStartTime":
+                $this->gameTimeOrm->actualStartTime = $value;
+                $this->gameTimeOrm->save();
                 break;
 
             default:

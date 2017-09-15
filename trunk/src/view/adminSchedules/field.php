@@ -206,6 +206,7 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
                 <tr>
                     <td>";
 
+
             $this->printUpdateFieldFormAndGames($sessionId, $facility, $field, $gameDates, $startTime, $endTime, $divisionsSelector);
 
             print "
@@ -233,15 +234,20 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
      */
     private function printUpdateFieldFormAndGames($sessionId, $facility, $field, $gameDates, $startTime, $endTime, $divisionsSelector)
     {
-        $interval           = $field->getGameDurationInMinutesInterval();
-        $defaultGameTimes   = GameTime::getDefaultGameTimes($startTime, $endTime, $interval);
+        $interval               = $field->getGameDurationInMinutesInterval();
+        $divisionFields         = DivisionField::lookupByField($field);
+        $selectedDivisions      = [];
+        foreach ($divisionFields as $divisionField) {
+            $selectedDivisions[] = $divisionField->division->name;
+        }
+        $defaultGameTimes = GameTime::getDefaultGameTimes($startTime, $endTime, $interval, [$field]);
 
         print "
             <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td>";
 
-        $this->printUpdateFieldForm($sessionId, $facility, $field, $divisionsSelector);
+        $this->printUpdateFieldForm($sessionId, $facility, $field, $divisionsSelector, $selectedDivisions);
         print "
                     </td>
                     <td>";
@@ -360,8 +366,9 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
      * @param Facility      $facility
      * @param Field         $field
      * @param Division[]    $divisionsSelector
+     * @param string[]      $selectedDivisions
      */
-    private function printUpdateFieldForm($sessionId, $facility, $field, $divisionsSelector)
+    private function printUpdateFieldForm($sessionId, $facility, $field, $divisionsSelector, $selectedDivisions)
     {
         print "
             <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
@@ -387,11 +394,6 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
                 </tr>
                 <tr>";
 
-        $divisionFields = DivisionField::lookupByField($field);
-        $selectedDivisions = [];
-        foreach ($divisionFields as $divisionField) {
-            $selectedDivisions[] = $divisionField->division->name;
-        }
         $name = View_Base::FIELD_UPDATE_DATA . "[$field->id][" . View_Base::DIVISION_NAMES . "]";
         $this->displayMultiSelector('Divisions', $name, $selectedDivisions, $divisionsSelector, count($divisionsSelector), NULL, 1, false);
 

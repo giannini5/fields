@@ -21,14 +21,15 @@ class View_Games_Division {
         $startTime          = $season->startTime;
         $endTime            = $season->endTime;
         $interval           = new \DateInterval("PT" . $schedule->division->gameDurationMinutes . "M");
-        $defaultGameTimes   = GameTime::getDefaultGameTimes($startTime, $endTime, $interval);
         $flights            = Flight::lookupBySchedule($schedule);
 
         foreach ($flights as $flight) {
             $games = Game::lookupByFlight($flight);
             $gamesByPool    = [];
             $poolsById      = [];
+            $fields         = [];
             foreach ($games as $game) {
+                $fields[] = $game->gameTime->field;
                 if (isset($game->pool)) {
                     $poolsById[$game->pool->id]     = $game->pool;
                     $gamesByPool[$game->pool->id][] = $game;
@@ -36,6 +37,7 @@ class View_Games_Division {
                     $gamesByPool[0][] = $game;
                 }
             }
+            $defaultGameTimes = GameTime::getDefaultGameTimes($startTime, $endTime, $interval, $fields);
 
             foreach ($gamesByPool as $poolId => $poolGames) {
                 // No games for pools with cross-pool play so suppress output
@@ -47,7 +49,7 @@ class View_Games_Division {
                 $gamesByDateByFieldByTime   = [];
                 foreach ($poolGames as $game) {
                     $day        = $game->gameTime->gameDate->day;
-                    $startTime  = $game->gameTime->startTime;
+                    $startTime  = $game->gameTime->actualStartTime;
                     $fieldName  = $game->gameTime->field->facility->name . ": " . $game->gameTime->field->name;
                     $gamesByDateByFieldByTime[$day][$fieldName][$startTime] = $game;
                 }
@@ -56,7 +58,7 @@ class View_Games_Division {
                     $games = $gamesByPool[0];
                     foreach ($games as $game) {
                         $day        = $game->gameTime->gameDate->day;
-                        $startTime  = $game->gameTime->startTime;
+                        $startTime  = $game->gameTime->actualStartTime;
                         $fieldName  = $game->gameTime->field->facility->name . ": " . $game->gameTime->field->name;
                         $gamesByDateByFieldByTime[$day][$fieldName][$startTime] = $game;
                     }

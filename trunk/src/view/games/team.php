@@ -183,7 +183,7 @@ class View_Games_Team
                     foreach ($games as $game) {
                         $field              = $game->gameTime->field;
                         $facility           = $field->facility;
-                        $startTime          = substr($game->gameTime->startTime, 0, 5);
+                        $startTime          = substr($game->gameTime->actualStartTime, 0, 5);
                         $dayCell            = $dayCellPrinted ? '' : "<td nowrap rowspan='$rowSpan'>$day</td>";
                         $dayCellPrinted     = true;
                         $fieldName          = $facility->name . ": " . $field->name;

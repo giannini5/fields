@@ -22,6 +22,7 @@ class GameTimeOrm extends PersistenceModel
     const FIELD_GAME_DATE_ID        = 'gameDateId';
     const FIELD_FIELD_ID            = 'fieldId';
     const FIELD_START_TIME          = 'startTime';
+    const FIELD_ACTUAL_START_TIME   = 'actualStartTime';
     const FIELD_GENDER_PREFERENCE   = 'genderPreference';
     const FIELD_GAME_ID             = 'gameId';
 
@@ -33,6 +34,7 @@ class GameTimeOrm extends PersistenceModel
         self::FIELD_GAME_DATE_ID        => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_FIELD_ID            => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_START_TIME          => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_ACTUAL_START_TIME   => [FV::STRING, [FV::NO_CONSTRAINTS], null],
         self::FIELD_GENDER_PREFERENCE   => [FV::STRING, [FV::NO_CONSTRAINTS]],
         self::FIELD_GAME_ID             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
     ];
@@ -53,6 +55,7 @@ class GameTimeOrm extends PersistenceModel
      * @param string    $startTime
      * @param string    $genderPreference
      * @param int       $gameId
+     * @param string    $actualStartTime
      *
      * @return GameTimeOrm
      * @throws DuplicateEntryException
@@ -62,7 +65,8 @@ class GameTimeOrm extends PersistenceModel
         $fieldId,
         $startTime,
         $genderPreference,
-        $gameId = null)
+        $gameId = null,
+        $actualStartTime = null)
     {
         $result = self::getPersistenceDriver()->create(
             [
@@ -71,6 +75,7 @@ class GameTimeOrm extends PersistenceModel
                 self::FIELD_START_TIME          => $startTime,
                 self::FIELD_GENDER_PREFERENCE   => $genderPreference,
                 self::FIELD_GAME_ID             => $gameId,
+                self::FIELD_ACTUAL_START_TIME   => $actualStartTime,
             ],
             function ($item) {
                 return $item !== null;
@@ -221,5 +226,29 @@ class GameTimeOrm extends PersistenceModel
         }
 
         return $gameTimeOrms;
+    }
+
+    /**
+     * Get unique set of startTimes for the field and set of divisions playing on the field
+     *
+     * @param string    $fieldIds - comma separated list of fieldIds
+     *
+     * @return string[] $startTimes
+     */
+    public static function getUniqueStartTimes($fieldIds)
+    {
+        $query = "
+            select
+                distinct ifnull(t.actualStartTime, t.startTime) as startTime
+            from
+                field as f
+                join gameTime as t on
+                    t.fieldId = f.id
+            where
+                f.id in ($fieldIds)";
+
+        $results = self::getPersistenceDriver()->rawQuery($query);
+
+        return $results;
     }
 }

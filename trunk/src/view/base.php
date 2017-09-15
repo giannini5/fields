@@ -155,6 +155,7 @@ abstract class View_Base {
     const GAME_ID1                  = 'gameId1';
     const GAME_ID2                  = 'gameId2';
     const GAME_TIME                 = 'gameTime';
+    const ACTUAL_START_TIME          = 'actualGameTime';
     const FLIGHT_UPDATE_DATA        = 'flightUpdateData';
     const DIVISION_UPDATE_DATA      = 'divisionUpdateData';
     const SCHEDULE_TYPE             = 'scheduleType';
@@ -815,7 +816,7 @@ abstract class View_Base {
 
         $width = $width . "px";
         print "
-                <td colpan='$colspan'>
+                <td colspan='$colspan'>
                     <input type='text' style='width: $width' id='$id' name='$id' value='$defaultDate'>
                 </td>";
 
