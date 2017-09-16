@@ -152,7 +152,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 </tr>
                 <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
 
-        $this->displayInput('Game Id:', 'int', View_Base::GAME_ID, '', '', "", null, 6, true, 50, false, true);
+        $this->displayInput('Game Id:', 'number', View_Base::GAME_ID, '', '', "", null, 6, true, 50, false, true);
 
         print "
                 <tr>
@@ -162,9 +162,9 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                     <td>&nbsp</td>";
 
         $numberWidth = 25;
-        $this->displayInput('Score:', 'int', View_Base::HOME_SCORE, '', '', '', null, 1, false, $numberWidth, false, true);
-        $this->displayInput('Yellow Cards:', 'int', View_Base::HOME_YELLOW_CARDS, '', '', 0, null, 1, false, $numberWidth, false, true);
-        $this->displayInput('Red Cards:', 'int', View_Base::HOME_RED_CARDS, '', '', 0, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Score:', 'number', View_Base::HOME_SCORE, '', '', '', null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Yellow Cards:', 'number', View_Base::HOME_YELLOW_CARDS, '', '', 0, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Red Cards:', 'number', View_Base::HOME_RED_CARDS, '', '', 0, null, 1, false, $numberWidth, false, true);
         print "
                 </tr>";
 
@@ -175,9 +175,9 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 <tr>
                     <td>&nbsp</td>";
 
-        $this->displayInput('Score:', 'int', View_Base::VISITING_SCORE, '', '', '', null, 1, false, $numberWidth, false, true);
-        $this->displayInput('Yellow Cards:', 'int', View_Base::VISITING_YELLOW_CARDS, '', '', 0, null, 1, false, $numberWidth, false, true);
-        $this->displayInput('Red Cards:', 'int', View_Base::VISITING_RED_CARDS, '', '', 0, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Score:', 'number', View_Base::VISITING_SCORE, '', '', '', null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Yellow Cards:', 'number', View_Base::VISITING_YELLOW_CARDS, '', '', 0, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Red Cards:', 'number', View_Base::VISITING_RED_CARDS, '', '', 0, null, 1, false, $numberWidth, false, true);
         print "
                 </tr>";
         $this->displayInput('Game Notes:', 'text', View_Base::GAME_NOTES, '', '', '', null, 6, true, 340, false);
