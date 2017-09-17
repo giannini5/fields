@@ -196,14 +196,14 @@ class View_Games_Standings extends View_Games_Base
                     $team                   = $game->homeTeam;
                     $teams[$team->id]       = $team;
                     $stats                  = isset($teamStats[$team->id]) ? $teamStats[$team->id] : [];
-                    $stats                  = $this->getGameStats($game, true, $stats);
+                    $stats                  = $this->getGameStats($game, true, $stats, true);
                     $teamStats[$team->id]   = $stats;
                     $teamPoints[$team->id]  = $stats[self::POINTS];
 
                     $team                   = $game->visitingTeam;
                     $teams[$team->id]       = $team;
                     $stats                  = isset($teamStats[$team->id]) ? $teamStats[$team->id] : [];
-                    $stats                  = $this->getGameStats($game, false, $stats);
+                    $stats                  = $this->getGameStats($game, false, $stats, true);
                     $teamStats[$team->id]   = $stats;
                     $teamPoints[$team->id]  = $stats[self::POINTS];
                 }
