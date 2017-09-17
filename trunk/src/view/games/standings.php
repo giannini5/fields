@@ -28,7 +28,7 @@ class View_Games_Standings extends View_Games_Base
     /**
      * @brief Construct he View
      *
-     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Games_Standings $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller)
     {
@@ -87,27 +87,6 @@ class View_Games_Standings extends View_Games_Base
 
     /**
      * @param Division $division
-    private function printStandingsForDivision($division)
-    {
-        $schedules          = Schedule::lookupByDivision($division);
-
-        foreach ($schedules as $schedule) {
-            switch ($schedule->scheduleType) {
-                case ScheduleOrm::SCHEDULE_TYPE_LEAGUE:
-                    $this->printStandingsForLeaguePlay($division, $schedule);
-                    break;
-
-                case ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT:
-                default:
-                    $this->printStandingsForTournamentPlay($division, $schedule);
-                    break;
-            }
-        }
-    }
-     */
-
-    /**
-     * @param Division $division
      */
     private function printStandingsForDivision($division)
     {
@@ -126,7 +105,7 @@ class View_Games_Standings extends View_Games_Base
 
                 case ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT:
                 default:
-                    $this->printStandingsForTournamentPlay($division, $schedule);
+                    $this->printStandingsForTournamentPlay($schedule);
                     break;
             }
         }
@@ -375,7 +354,13 @@ class View_Games_Standings extends View_Games_Base
                         </tr>";
 
                 foreach ($teamPoints as $teamId => $points) {
-                    if ($teams[$teamId]->pool->name == $poolName) {
+                    // Check for teams in flight/pool based on name instead of ID for cases where there are multipl
+                    // Schedules due to odd team counts (14UGirls w/ 8 Teams - for 10 games:
+                    //    Schedule 1: Pool play (3 games)
+                    //    Schedule 2: Cross pool play (4 games)
+                    //    Schedule 3: Pool play (3 games)
+                    if ($teams[$teamId]->pool->name == $poolName
+                        and $teams[$teamId]->pool->flight->name == $flightName) {
                         $stats              = $teamStats[$teamId];
                         $teamName           = $teams[$teamId]->name;
                         $wins               = $stats[self::WINS];
@@ -425,10 +410,9 @@ class View_Games_Standings extends View_Games_Base
     }
 
     /**
-     * @param Division  $division
      * @param Schedule  $schedule
      */
-    private function printStandingsForTournamentPlay($division, $schedule)
+    private function printStandingsForTournamentPlay($schedule)
     {
         $flights = Flight::lookupBySchedule($schedule);
 
@@ -606,8 +590,6 @@ class View_Games_Standings extends View_Games_Base
      */
     private function getGameStats($game, $computeForHomeTeam, $stats, $isLeaguePlay = false)
     {
-        $team = $computeForHomeTeam ? $game->homeTeam : $game->visitingTeam;
-
         // Initialize if not already initialized
         $stats[self::WINS]          = isset($stats[self::WINS]) ? $stats[self::WINS] : 0;
         $stats[self::LOSSES]        = isset($stats[self::LOSSES]) ? $stats[self::LOSSES] : 0;
