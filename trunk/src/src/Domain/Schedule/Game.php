@@ -529,8 +529,9 @@ class Game extends Domain
         }
 
         // Update gameTime to remove gameId
-        $gameTime       = GameTime::lookupById($this->gameTime->id);
-        $gameTime->game = null;
+        $gameTime                   = GameTime::lookupById($this->gameTime->id);
+        $gameTime->game             = null;
+        $gameTime->actualStartTime  = null;
 
         // Delete game
         $this->gameOrm->delete();
