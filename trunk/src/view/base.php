@@ -78,6 +78,7 @@ abstract class View_Base {
     const NO_BUTTON             = 'NoButton';
     const SELECT                = 'Select';
     const DELETE                = 'Delete';
+    const DELETE_GAME           = 'Delete Game';
     const MOVE                  = 'Move';
     const CREATE_FLIGHT         = 'Create Flight';
     const DELETE_FLIGHT         = 'Delete Flight';

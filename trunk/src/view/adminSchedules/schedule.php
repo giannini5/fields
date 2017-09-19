@@ -106,7 +106,8 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     or $this->m_controller->m_operation == View_Base::DELETE_FLIGHT
                     or $this->m_controller->m_operation == View_Base::CREATE_POOL
                     or $this->m_controller->m_operation == View_Base::DELETE_POOL
-                    or $this->m_controller->m_operation == View_Base::ADD)
+                    or $this->m_controller->m_operation == View_Base::ADD
+                    or $this->m_controller->m_operation == View_Base::DELETE_GAME)
                     and $this->m_controller->m_scheduleId == $schedule->id) {
 
                     $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
@@ -370,6 +371,15 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                                 <td>";
 
         $this->_printAddGame($schedule, $gameTimes, $sessionId);
+
+        print "
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp</td></tr>
+                            <tr>
+                                <td>";
+
+        $this->_printDeleteGameForm($schedule->id, $gameIds, $sessionId);
 
         print "
                                 </td>
@@ -1027,6 +1037,45 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 <tr class='$collapsible'>
                     <td align='left' colspan='2' title='Add Game'>
                         <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ADD . "'>
+                        <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
+                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    </td>
+                </tr>
+            </form>
+            </table>
+            </td></tr>
+            </table>";
+    }
+
+    /**
+     * Print form to delete a game
+     *
+     * @param int   $scheduleId
+     * @param array $gameIds
+     * @param int   $sessionId
+     * @param int   $javaScriptClassIdentifier - Used for expand/collapse
+     */
+    private function _printDeleteGameForm($scheduleId, $gameIds, $sessionId, $javaScriptClassIdentifier = 8)
+    {
+        $expandContract = "expandContract$javaScriptClassIdentifier";
+        $collapsible    = "collapsible$javaScriptClassIdentifier";
+
+        // Print Move controls and button
+        print "
+            <table valign='top' align='left' border='1' cellpadding='5' cellspacing='0'><tr><td>
+            <table valign='top' align='left' border='0' cellpadding='5' cellspacing='0'>
+            <form method='post' action='" . self::SCHEDULE_SCHEDULES_PAGE . $this->m_urlParams . "'>
+            <tr class='$expandContract'>
+                <td colspan='2' style='color: " . View_Base::AQUA . "; font-size: medium' title='Delete game'><strong>Delete Game</strong></td>
+            </tr>";
+
+        asort($gameIds);
+        $this->displaySelector('Game Id:', View_Base::GAME_ID, '', $gameIds, '', $collapsible, true, 150, 'left', 'Game Id');
+
+        print "
+                <tr class='$collapsible'>
+                    <td align='left' colspan='2' title='Delete game'>
+                        <input style='background-color: salmon' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::DELETE_GAME . "'>
                         <input type='hidden' id='" . View_Base::SCHEDULE_ID . "' name='" . View_Base::SCHEDULE_ID . "' value='$scheduleId'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>

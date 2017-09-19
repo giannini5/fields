@@ -84,6 +84,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
     public $m_primaryGameId;
     public $m_secondaryGameId;
     public $m_lockToggleGameId;
+    public $m_deleteGameId;
     public $m_teamId;
     public $m_fieldId;
     public $m_showPublishedSchedules;
@@ -207,6 +208,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 or $this->m_operation == View_Base::CREATE_POOL
                 or $this->m_operation == View_Base::DELETE_FLIGHT
                 or $this->m_operation == View_Base::DELETE_POOL
+                or $this->m_operation == View_Base::DELETE_GAME
             ) {
                 $this->m_scheduleId = $this->getPostAttribute(
                     View_Base::SCHEDULE_ID,
@@ -265,6 +267,14 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
 
             if ($this->m_operation == View_Base::TOGGLE) {
                 $this->m_lockToggleGameId = $this->getPostAttribute(
+                    View_Base::GAME_ID,
+                    null,
+                    true,
+                    true);
+            }
+
+            if ($this->m_operation == View_Base::DELETE_GAME) {
+                $this->m_deleteGameId = $this->getPostAttribute(
                     View_Base::GAME_ID,
                     null,
                     true,
@@ -430,6 +440,10 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
 
                     case View_Base::ADD:
                         $this->_addGame();
+                        break;
+
+                    case View_Base::DELETE_GAME:
+                        $this->_deleteGame();
                         break;
                 }
             }
@@ -1163,6 +1177,40 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         $visitingTeamName       = $visitingTeam->name . " - " . $coach->shortName;
         $this->m_errorString    = '';
         $this->m_messageString  = "Game $game->id added between ${homeTeamName} and ${visitingTeamName}.";
+    }
+
+    /**
+     * Delete specified game
+     */
+    private function _deleteGame()
+    {
+        $game                       = Game::lookupById((int)$this->m_deleteGameId);
+        $schedule                   = Schedule::lookupById((int)$this->m_scheduleId);
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+
+        // Do not allow if schedule has been published
+        if ($schedule->id != $game->pool->schedule->id) {
+            $this->m_errorString = "ERROR: Cannot delete game $this->m_deleteGameId because it is not in the $divisionNameWithGender division.";
+            return;
+        }
+
+        // Do not allow if schedule id's do not match
+        if ($schedule->published == 1) {
+            $this->m_errorString = "ERROR: Cannot delete game $this->m_deleteGameId because schedule is published.";
+            return;
+        }
+
+        // Do not allow if game is locked
+        if ($game->isLocked()) {
+            $this->m_errorString = "ERROR: Cannot delete game $this->m_deleteGameId because the game is locked.";
+            return;
+        }
+
+        // Delete the game
+        $game->delete();
+
+        $this->m_messageString  = "GameId: $this->m_deleteGameId deleted for $divisionNameWithGender";
     }
 
     /**
