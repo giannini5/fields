@@ -7,6 +7,7 @@ use \DAG\Orm\Schedule\ScheduleOrm;
 use \DAG\Domain\Schedule\Pool;
 use \DAG\Domain\Schedule\Team;
 use \DAG\Orm\Schedule\GameOrm;
+use \DAG\Domain\Schedule\Facility;
 use \DAG\Framework\Exception\Assertion;
 use \DAG\Framework\Exception\Precondition;
 
@@ -17,10 +18,11 @@ use \DAG\Framework\Exception\Precondition;
  */
 class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
 {
-    const GAME_SCORING      = 'game';
-    const TEAM_SCORING      = 'team';
-    const DIVISION_SCORING  = 'division';
-    const VOLUNTEER_POINTS  = 'volunteerPoints';
+    const GAME_SCORING              = 'game';
+    const TEAM_SCORING              = 'team';
+    const DIVISION_SCORING          = 'division';
+    const VOLUNTEER_POINTS          = 'volunteerPoints';
+    const GAME_DISPLAY_FOR_SCORING  = 'gameDisplay';
 
     public $m_scoringType;
     public $m_gameId;
@@ -32,6 +34,7 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
     public $m_gameDateId;
     public $m_homeTeamId;
     public $m_visitingTeamId;
+    public $m_facility;
 
     private $m_homeScore;
     private $m_homeRedCards;
@@ -84,6 +87,17 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
                     $this->populateGameAttributes(true, false);
                 } else {
                     $this->populateGameAttributes(false, true);
+                }
+            } else if ($this->m_scoringType == self::GAME_DISPLAY_FOR_SCORING) {
+                $this->m_filterFacilityId   = $this->getPostAttribute(View_Base::FILTER_FACILITY_ID, '', true, true);
+                $this->m_gameDateId         = $this->getPostAttribute(View_Base::GAME_DATE, null, true, false);
+
+                if (isset($this->m_gameDateId)) {
+                    $this->m_gameDate = GameDate::lookupById($this->m_gameDateId);
+                }
+
+                if (isset($this->m_filterFacilityId) and $this->m_filterFacilityId != 0) {
+                    $this->m_facility = Facility::lookupById((int)$this->m_filterFacilityId);
                 }
             } else if ($this->m_scoringType == self::VOLUNTEER_POINTS) {
                 $this->m_divisionName   = $this->getPostAttribute(View_Base::DIVISION_NAME, '', false, false);
@@ -153,6 +167,9 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
 
                 case self::VOLUNTEER_POINTS:
                     $this->processVolunteerPoints();
+                    break;
+
+                case self::GAME_DISPLAY_FOR_SCORING:
                     break;
 
                 default:

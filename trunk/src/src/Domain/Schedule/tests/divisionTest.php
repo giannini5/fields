@@ -20,6 +20,7 @@ class DivisionTest extends ORM_TestHelper
         'name'                  => 'TEST Domain division name',
         'gender'                => 'TEST gender',
         'gameDurationMinutes'   => 120,
+        'scoringTracked'        => 1,
         'displayOrder'          => 14,
     );
 
@@ -37,7 +38,8 @@ class DivisionTest extends ORM_TestHelper
             self::$expectedDefaults['name'],
             self::$expectedDefaults['gender'],
             self::$expectedDefaults['gameDurationMinutes'],
-            self::$expectedDefaults['displayOrder']);
+            self::$expectedDefaults['displayOrder'],
+            self::$expectedDefaults['scoringTracked']);
     }
 
     protected function tearDown()
@@ -106,6 +108,15 @@ class DivisionTest extends ORM_TestHelper
         $this->assertTrue(count($divisions) == 2);
     }
 
+    public function test_setScoringTracked()
+    {
+        $division = Division::lookupById($this->divisionsToCleanup[0]->id);
+        $this->assertTrue($division->isScoringTracked);
+
+        $division->scoringTracked = 0;
+        $this->assertFalse($division->isScoringTracked);
+    }
+
     public function validateDivision($division, $season, $expectedDefaults)
     {
         $this->assertTrue($division->id > 0);
@@ -114,5 +125,6 @@ class DivisionTest extends ORM_TestHelper
         $this->assertEquals($expectedDefaults['gameDurationMinutes'],   $division->gameDurationMinutes);
         $this->assertEquals($expectedDefaults['displayOrder'],          $division->displayOrder);
         $this->assertEquals($season,                                    $division->season);
+        $this->assertTrue($division->isScoringTracked);
     }
 }

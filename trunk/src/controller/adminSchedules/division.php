@@ -105,6 +105,7 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
                 $division                       = Division::lookupById($divisionId);
                 $division->name                 = $data[View_Base::NAME];
                 $division->displayOrder         = $data[View_Base::DISPLAY_ORDER];
+                $division->scoringTracked       = $data[View_Base::SCORING_TRACKED];
 
                 if (!$anyGamesSet) {
                     $division->gameDurationMinutes  = $data[View_Base::GAME_DURATION_MINUTES];

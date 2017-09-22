@@ -16,6 +16,8 @@ use DAG\Framework\Exception\Precondition;
  * @property string $nameWithGender
  * @property string $gender
  * @property int    $gameDurationMinutes
+ * @property int    $scoringTracked
+ * @property bool   $isScoringTracked
  * @property string $displayOrder
  */
 class Division extends Domain
@@ -184,8 +186,12 @@ class Division extends Domain
             case "name":
             case "gender":
             case "gameDurationMinutes":
+            case "scoringTracked":
             case "displayOrder":
                 return $this->divisionOrm->{$propertyName};
+
+            case "isScoringTracked":
+                return $this->divisionOrm->scoringTracked == 1;
 
             case "nameWithGender":
                 return $this->divisionOrm->name . " " . $this->divisionOrm->gender;
@@ -207,6 +213,7 @@ class Division extends Domain
         switch ($propertyName) {
             case "name":
             case "gameDurationMinutes":
+            case "scoringTracked":
             case "displayOrder":
                 $this->divisionOrm->{$propertyName} = $value;
                 $this->divisionOrm->save();
