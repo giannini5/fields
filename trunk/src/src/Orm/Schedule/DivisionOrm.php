@@ -13,6 +13,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property string $name
  * @property string $gender
  * @property int    $gameDurationMinutes
+ * @property int    $scoringTracked
  * @property int    $displayOrder
  */
 class DivisionOrm extends PersistenceModel
@@ -22,6 +23,7 @@ class DivisionOrm extends PersistenceModel
     const FIELD_NAME                    = 'name';
     const FIELD_GENDER                  = 'gender';
     const FIELD_GAME_DURATION_MINUTES   = 'gameDurationMinutes';
+    const FIELD_SCORING_TRACKED         = 'scoringTracked';
     const FIELD_DISPLAY_ORDER           = 'displayOrder';
 
     protected static $fields = [
@@ -30,6 +32,7 @@ class DivisionOrm extends PersistenceModel
         self::FIELD_NAME                    => [FV::STRING, [FV::NO_CONSTRAINTS]],
         self::FIELD_GENDER                  => [FV::STRING, [FV::NO_CONSTRAINTS]],
         self::FIELD_GAME_DURATION_MINUTES   => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_SCORING_TRACKED         => [FV::INT,    [FV::NO_CONSTRAINTS], 1],
         self::FIELD_DISPLAY_ORDER           => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
 
@@ -49,6 +52,7 @@ class DivisionOrm extends PersistenceModel
      * @param string    $gender
      * @param int       $gameDurationMinutes
      * @param int       $displayOrder
+     * @param int       $scoringTracked
      *
      * @return DivisionOrm
      * @throws DuplicateEntryException
@@ -58,7 +62,8 @@ class DivisionOrm extends PersistenceModel
         $name,
         $gender,
         $gameDurationMinutes,
-        $displayOrder)
+        $displayOrder,
+        $scoringTracked = 1)
     {
         $result = self::getPersistenceDriver()->create(
             [
@@ -67,6 +72,7 @@ class DivisionOrm extends PersistenceModel
                 self::FIELD_GENDER                  => $gender,
                 self::FIELD_GAME_DURATION_MINUTES   => $gameDurationMinutes,
                 self::FIELD_DISPLAY_ORDER           => $displayOrder,
+                self::FIELD_SCORING_TRACKED         => $scoringTracked,
             ],
             function ($item) {
                 return $item !== null;

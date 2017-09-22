@@ -41,6 +41,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const GENDER                      = 'gender';
     const DISPLAY_ORDER               = 'displayOrder';
     const GAME_DURATION_MINUTES       = 'gameDurationMinutes';
+    const SCORING_TRACKED             = 'scoringTracked';
     const GAMES_PER_TEAM              = 'gamesPerTeam';
     const GENDER_PREFERENCE           = 'genderPreference';
     const TITLE                       = 'title';
@@ -111,6 +112,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::GENDER                => 'Girls',
             self::DISPLAY_ORDER         => 1,
             self::GAME_DURATION_MINUTES => 60,
+            self::SCORING_TRACKED       => 1,
         ];
 
     protected static $defaultPoolOrmAttributes =
@@ -260,7 +262,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultDivisionOrmAttributes[self::NAME],
             self::$defaultDivisionOrmAttributes[self::GENDER],
             self::$defaultDivisionOrmAttributes[self::GAME_DURATION_MINUTES],
-            self::$defaultDivisionOrmAttributes[self::DISPLAY_ORDER]);
+            self::$defaultDivisionOrmAttributes[self::DISPLAY_ORDER],
+            self::$defaultDivisionOrmAttributes[self::SCORING_TRACKED]);
 
         $this->defaultFieldOrm = FieldOrm::create(
             $this->defaultFacilityOrm->id,

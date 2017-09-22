@@ -4,6 +4,7 @@ use \DAG\Domain\Schedule\Division;
 use \DAG\Domain\Schedule\Family;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\GameDate;
+use \DAG\Domain\Schedule\Facility;
 
 /**
  * @brief: Abstract base class for all views.
@@ -183,6 +184,7 @@ abstract class View_Base {
     const DIVISION_NAME             = 'divisionName';
     const DISPLAY_ORDER             = 'displayOrder';
     const GAME_DURATION_MINUTES     = 'gameDurationMinutes';
+    const SCORING_TRACKED           = 'scoringTracked';
     const LOCATION_ID               = 'locationId';
     const LOCATION_IDS              = 'locationIds';
     const SCHEDULE_ID               = 'scheduleId';
@@ -1119,6 +1121,26 @@ abstract class View_Base {
         }
 
         return $familySelector;
+    }
+
+    /**
+     * Get facility selector
+     *
+     * @return array - id => facilityName
+     */
+    public function getFacilitySelector()
+    {
+        $facilitySelectorData       = [];
+        $facilitySelectorData[0]    = 'All';
+
+        if (isset($this->m_controller->m_season)) {
+            $facilities = Facility::lookupBySeason($this->m_controller->m_season);
+            foreach ($facilities as $facility) {
+                $facilitySelectorData[$facility->id] = $facility->name;
+            }
+        }
+
+        return $facilitySelectorData;
     }
 
     /**

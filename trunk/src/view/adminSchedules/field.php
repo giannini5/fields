@@ -28,15 +28,8 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
     {
         $sessionId              = $this->m_controller->getSessionId();
         $messageString          = $this->m_controller->m_messageString;
-        $facilitySelectorData   = [];
+        $facilitySelectorData   = $this->getFacilitySelector();
         $divisionsSelector      = $this->getDivisionsSelector(true);
-
-        if (isset($this->m_controller->m_season)) {
-            $facilities = Facility::lookupBySeason($this->m_controller->m_season);
-            foreach ($facilities as $facility) {
-                $facilitySelectorData[$facility->id] = $facility->name;
-            }
-        }
 
         if (!empty($messageString)) {
             print "
