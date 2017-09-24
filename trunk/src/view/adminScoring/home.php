@@ -391,9 +391,9 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                     <td>&nbsp</td>";
 
         $numberWidth = 25;
-        $this->displayInput('Goals:', 'int', View_Base::HOME_SCORE, '', '', $game->homeTeamScore, null, 1, false, $numberWidth, false, true);
-        $this->displayInput('Yellow Cards:', 'int', View_Base::HOME_YELLOW_CARDS, '', '', $game->homeTeamYellowCards, null, 1, false, $numberWidth, false, true);
-        $this->displayInput('Red Cards:', 'int', View_Base::HOME_RED_CARDS, '', '', $game->homeTeamRedCards, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Goals:', 'number', View_Base::HOME_SCORE, '', '', $game->homeTeamScore, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Yellow Cards:', 'number', View_Base::HOME_YELLOW_CARDS, '', '', $game->homeTeamYellowCards, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Red Cards:', 'number', View_Base::HOME_RED_CARDS, '', '', $game->homeTeamRedCards, null, 1, false, $numberWidth, false, true);
         print "
                 </tr>";
 
@@ -407,9 +407,9 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 <tr>
                     <td>&nbsp</td>";
 
-        $this->displayInput('Goals:', 'int', View_Base::VISITING_SCORE, '', '', $game->visitingTeamScore, null, 1, false, $numberWidth, false, true);
-        $this->displayInput('Yellow Cards:', 'int', View_Base::VISITING_YELLOW_CARDS, '', '', $game->visitingTeamYellowCards, null, 1, false, $numberWidth, false, true);
-        $this->displayInput('Red Cards:', 'int', View_Base::VISITING_RED_CARDS, '', '', $game->visitingTeamRedCards, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Goals:', 'number', View_Base::VISITING_SCORE, '', '', $game->visitingTeamScore, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Yellow Cards:', 'number', View_Base::VISITING_YELLOW_CARDS, '', '', $game->visitingTeamYellowCards, null, 1, false, $numberWidth, false, true);
+        $this->displayInput('Red Cards:', 'number', View_Base::VISITING_RED_CARDS, '', '', $game->visitingTeamRedCards, null, 1, false, $numberWidth, false, true);
         print "
                 </tr>";
         $this->displayInput('Game Notes:', 'text', View_Base::GAME_NOTES, '', '', $game->notes, null, 6, true, 340, false);
@@ -544,9 +544,9 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                     <td>&nbsp</td>";
 
             $numberWidth = 25;
-            $this->displayInput('Goals:', 'int', View_Base::HOME_SCORE, '', '', $game->homeTeamScore, null, 1, false, $numberWidth, false, true);
-            $this->displayInput('Yellow Cards:', 'int', View_Base::HOME_YELLOW_CARDS, '', '', $game->homeTeamYellowCards, null, 1, false, $numberWidth, false, true);
-            $this->displayInput('Red Cards:', 'int', View_Base::HOME_RED_CARDS, '', '', $game->homeTeamRedCards, null, 1, false, $numberWidth, false, true);
+            $this->displayInput('Goals:', 'number', View_Base::HOME_SCORE, '', '', $game->homeTeamScore, null, 1, false, $numberWidth, false, true);
+            $this->displayInput('Yellow Cards:', 'number', View_Base::HOME_YELLOW_CARDS, '', '', $game->homeTeamYellowCards, null, 1, false, $numberWidth, false, true);
+            $this->displayInput('Red Cards:', 'number', View_Base::HOME_RED_CARDS, '', '', $game->homeTeamRedCards, null, 1, false, $numberWidth, false, true);
 
             print "
                 </tr>";
@@ -583,9 +583,9 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                     <td>&nbsp</td>";
 
             $numberWidth = 25;
-            $this->displayInput('Goals:', 'int', View_Base::VISITING_SCORE, '', '', $game->visitingTeamScore, null, 1, false, $numberWidth, false, true);
-            $this->displayInput('Yellow Cards:', 'int', View_Base::VISITING_YELLOW_CARDS, '', '', $game->visitingTeamYellowCards, null, 1, false, $numberWidth, false, true);
-            $this->displayInput('Red Cards:', 'int', View_Base::VISITING_RED_CARDS, '', '', $game->visitingTeamRedCards, null, 1, false, $numberWidth, false, true);
+            $this->displayInput('Goals:', 'number', View_Base::VISITING_SCORE, '', '', $game->visitingTeamScore, null, 1, false, $numberWidth, false, true);
+            $this->displayInput('Yellow Cards:', 'number', View_Base::VISITING_YELLOW_CARDS, '', '', $game->visitingTeamYellowCards, null, 1, false, $numberWidth, false, true);
+            $this->displayInput('Red Cards:', 'number', View_Base::VISITING_RED_CARDS, '', '', $game->visitingTeamRedCards, null, 1, false, $numberWidth, false, true);
             print "
                     </tr>";
             $this->displayInput('Game Notes:', 'text', View_Base::GAME_NOTES, '', '', $game->notes, null, 6, true, 340, false);
@@ -704,7 +704,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                     <td>$coach->shortName</td>";
 
             $name = View_Base::VOLUNTEER_POINTS_DATA . "[$team->id]";
-            $this->displayInput('', 'int', $name, '', '', $team->volunteerPoints, null, 1, false, 50, false, true, 'center');
+            $this->displayInput('', 'number', $name, '', '', $team->volunteerPoints, null, 1, false, 50, false, true, 'center');
 
             print "
                 </tr>";
@@ -812,18 +812,18 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                             $divisionPrinted    = true;
 
                             print "
-                                <tr>
+                                <tr style='font-size: medium'>
                                     <td rowspan='$timeRowSpan' $style>$actualStartTime</td>
                                     <td rowspan='$divisionRowSpan' $style>$divisionName</td>";
                         } else if (!$divisionPrinted) {
                             $divisionPrinted = true;
 
                             print "
-                                <tr>
+                                <tr style='font-size: medium'>
                                     <td rowspan='$divisionRowSpan' $style>$divisionName</td>";
                         } else {
                             print "
-                                <tr>";
+                                <tr style='font-size: medium'>";
                         }
 
                         print "
@@ -838,7 +838,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
 
                         // Print visiting team
                         print "
-                                <tr>
+                                <tr style='font-size: medium'>
                                     <td $gameStyle>$visitingTeamData</td>
                                     <td $gameStyle>&nbsp</td>
                                     <td $gameStyle>&nbsp</td>
@@ -851,7 +851,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                         $divisionRowSpan    -= 2;
 
                         // Only print 12 games per page
-                        if ($gameCount % 12 == 0) {
+                        if ($gameCount % 10 == 0) {
                             print "
                                 </table>";
 
@@ -892,7 +892,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
      */
     private function printGamesForFacilityForDayHeader($facility, $gameDate, $beginningLook = true)
     {
-        $beginningStyle = $beginningLook ? "; height: .5in; font-size: 24px" : "";
+        $beginningStyle = $beginningLook ? "; height: .5in; font-size: 24px" : "; font-size: medium";
 
         print "
             <p style='page-break-before: always;'>&nbsp;</p>
@@ -900,7 +900,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 <thead>
                     <tr style='background-color: lightskyblue; color: black; -webkit-print-color-adjust: exact${beginningStyle}'>
                         <th colspan='9'>$facility->name ($gameDate->day)</th>
-                    <tr style='background-color: lightskyblue; color: black; -webkit-print-color-adjust: exact; height: .5in'>
+                    <tr style='background-color: lightskyblue; color: black;  font-size: medium; -webkit-print-color-adjust: exact; height: .5in'>
                         <th>Start</th>
                         <th>Division</th>
                         <th>Field</th>
