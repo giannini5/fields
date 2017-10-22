@@ -15,6 +15,8 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property string $nameId
  * @property string $region
  * @property string $city
+ * @property int    $volunteerPoints
+ * @property int    $seed
  */
 class TeamOrm extends PersistenceModel
 {
@@ -26,6 +28,7 @@ class TeamOrm extends PersistenceModel
     const FIELD_REGION              = 'region';
     const FIELD_CITY                = 'city';
     const FIELD_VOLUNTEER_POINTS    = 'volunteerPoints';
+    const FIELD_SEED                = 'seed';
 
     protected static $fields = [
         self::FIELD_ID                  => [FV::INT,    [FV::NO_CONSTRAINTS], null],
@@ -35,7 +38,8 @@ class TeamOrm extends PersistenceModel
         self::FIELD_NAME_ID             => [FV::STRING, [FV::NO_CONSTRAINTS]],
         self::FIELD_REGION              => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_CITY                => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
-        self::FIELD_VOLUNTEER_POINTS    => [FV::INT, [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_VOLUNTEER_POINTS    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_SEED                => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
 
     protected static $config = [
@@ -56,6 +60,7 @@ class TeamOrm extends PersistenceModel
      * @param string    $region     - Example: 122
      * @param string    $city
      * @param int       $volunteerPoints - defaults to 0
+     * @param int       $seed - defaults to 0
      *
      * @return TeamOrm
      * @throws DuplicateEntryException
@@ -67,7 +72,8 @@ class TeamOrm extends PersistenceModel
         $nameId,
         $region,
         $city,
-        $volunteerPoints = 0
+        $volunteerPoints = 0,
+        $seed = 0
     ) {
         $result = self::getPersistenceDriver()->create(
             [
@@ -78,6 +84,7 @@ class TeamOrm extends PersistenceModel
                 self::FIELD_REGION              => $region,
                 self::FIELD_CITY                => $city,
                 self::FIELD_VOLUNTEER_POINTS    => $volunteerPoints,
+                self::FIELD_SEED                => $seed,
             ],
             function ($item) {
                 return $item !== null;

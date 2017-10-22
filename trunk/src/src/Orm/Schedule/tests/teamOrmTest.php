@@ -20,6 +20,7 @@ class TeamOrmTest extends ORM_TestHelper
             self::REGION            => '122',
             self::CITY              => 'Santa Barbara',
             self::VOLUNTEER_POINTS  => 2,
+            self::SEED              => 1,
         ];
 
     protected function setUp()
@@ -41,7 +42,8 @@ class TeamOrmTest extends ORM_TestHelper
             self::$expectedDefaults[self::NAME_ID],
             self::$expectedDefaults[self::REGION],
             self::$expectedDefaults[self::CITY],
-            self::$expectedDefaults[self::VOLUNTEER_POINTS]);
+            self::$expectedDefaults[self::VOLUNTEER_POINTS],
+            self::$expectedDefaults[self::SEED]);
 
         $this->verifyExpectedAttributes($teamOrm, self::$expectedDefaults);
     }
@@ -68,5 +70,6 @@ class TeamOrmTest extends ORM_TestHelper
         $this->assertEquals($attributes[self::REGION],              $teamOrm->region);
         $this->assertEquals($attributes[self::CITY],                $teamOrm->city);
         $this->assertEquals($attributes[self::VOLUNTEER_POINTS],    $teamOrm->volunteerPoints);
+        $this->assertEquals($attributes[self::SEED],                $teamOrm->seed);
     }
 }

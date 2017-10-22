@@ -124,6 +124,14 @@ class View_Games_Schedule extends View_Games_Base
      */
     private function printSchedule($schedule)
     {
+        print "
+            <table bgcolor='yellow' valign='top' align='center' width='400' border='0' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <th><h1>$schedule->name</h1></th>
+                 </tr>
+                 <tr>
+                    <td valign='top'>";
+
         $flights = Flight::lookupBySchedule($schedule);
         foreach ($flights as $flight) {
             // Skip flights where games are not being scheduled
@@ -180,7 +188,7 @@ class View_Games_Schedule extends View_Games_Base
 
                 ksort($titleGamesByDateByTimeByField);
 
-                $this->printGames($schedule, $flight,null, $titleGamesByDateByTimeByField, true);
+                $this->printGames($schedule, $flight,null, $titleGamesByDateByTimeByField);
             }
 
             print "
@@ -188,6 +196,12 @@ class View_Games_Schedule extends View_Games_Base
                 </tr>
             </table><br><br>";
         }
+
+
+        print "
+                    </td>
+                 </tr>
+             </table><br><br>";
     }
 
     /**
@@ -195,9 +209,8 @@ class View_Games_Schedule extends View_Games_Base
      * @param Flight    $flight
      * @param Pool|null $pool
      * @param array     $gamesByDateByTimeByField
-     * @param bool      $includeGameTitle
      */
-    private function printGames($schedule, $flight, $pool, $gamesByDateByTimeByField, $includeGameTitle = false)
+    private function printGames($schedule, $flight, $pool, $gamesByDateByTimeByField)
     {
         $poolName = isset($pool) ? $pool->name : 'Medal Round';
 
@@ -205,15 +218,14 @@ class View_Games_Schedule extends View_Games_Base
         print "
             <table bgcolor='white' valign='top' align='center' border='1' cellpadding='5' cellspacing='0' width='750'>";
 
-        $headerRow  = $schedule->division->name . ' ' . $schedule->division->gender . ' ' . $flight->name . ": " . $poolName;
+        $headerRow  = $schedule->name . ": " . $schedule->division->name . ' ' . $schedule->division->gender . ' Flight ' . $flight->name . ": " . $poolName;
         if (isset($pool) and $pool->gamesAgainstPool->id != $pool->id) {
             $name = $pool->gamesAgainstPool->name;
             $headerRow .= "<font color='red'> (Cross-pool play with $name)</font>";
         }
 
         // Printer Header row
-        $gameTitleHeader    = $includeGameTitle ? "<th rowspan='2'>Title</th>" : "";
-        $colspan            = $includeGameTitle ? 9 : 8;
+        $colspan            = 8;
         print "
                 <thead>
                     <tr bgcolor='lightskyblue'>
@@ -221,7 +233,6 @@ class View_Games_Schedule extends View_Games_Base
                     </tr>
                     <tr bgcolor='lightskyblue'>
                         <th rowspan='2'>Day</th>
-                        $gameTitleHeader
                         <th rowspan='2'>Field</th>
                         <th rowspan='2'>Time</th>
                         <th rowspan='2'>Game Id</th>
@@ -258,7 +269,7 @@ class View_Games_Schedule extends View_Games_Base
                     $homeTeamTitle      = '';
                     $visitingTeamTitle  = '';
                     $title              = $game->title;
-                    if (isset($game->homeTeam)) {
+                    if (isset($game->homeTeam) and isset($game->visitingTeam)) {
                         $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
                         $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
                         $homeTeamName       = $game->homeTeam->nameId . ": " . $homeTeamCoach->lastName;
@@ -272,12 +283,11 @@ class View_Games_Schedule extends View_Games_Base
                     $dayRow         = $dayRowPrinted ? "" : "<td nowrap rowspan='$dayRowSpan'>$day</td>";
                     $dayRowPrinted  = true;
 
-                    $titleRow = $includeGameTitle ? "<td nowrap>$title</td>" : "";
+                    $titleLine = empty($title) ? "" : "<br><strong style='color:green'>$title</strong>";
                     print "
                         <tr>
                             $dayRow
-                            $titleRow
-                            <td nowrap>$fieldName</td>
+                            <td nowrap>$fieldName$titleLine</td>
                             <td nowrap>$gameTime</td>
                             <td nowrap align='center'>$game->id</td>
                             <td nowrap $homeTeamTitle>$homeTeamName</td>

@@ -102,10 +102,11 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
             }
 
             foreach ($this->m_divisionUpdates as $divisionId => $data) {
-                $division                       = Division::lookupById($divisionId);
-                $division->name                 = $data[View_Base::NAME];
-                $division->displayOrder         = $data[View_Base::DISPLAY_ORDER];
-                $division->scoringTracked       = $data[View_Base::SCORING_TRACKED];
+                $division                           = Division::lookupById($divisionId);
+                $division->name                     = $data[View_Base::NAME];
+                $division->displayOrder             = $data[View_Base::DISPLAY_ORDER];
+                $division->scoringTracked           = $data[View_Base::SCORING_TRACKED];
+                $division->combineLeagueSchedules   = $data[View_Base::COMBINE_LEAGUE_SCHEDULES];
 
                 if (!$anyGamesSet) {
                     $division->gameDurationMinutes  = $data[View_Base::GAME_DURATION_MINUTES];

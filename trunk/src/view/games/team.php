@@ -118,6 +118,7 @@ class View_Games_Team
         $schedules      = Schedule::lookupByDivision($division, $publishedOnly);
         $teamName       = $division->name . ": " . $team->nameId . " (" . $coach->lastName . ")";
         $teamNameTitle  = "title='" . $team->name . " " . $team->region . " (" . $team->city . ")'";
+        $playInGameIds  = [];
 
         if (!isset($gamesByDay)) {
             // Get games across all schedules for division
@@ -129,12 +130,10 @@ class View_Games_Team
                 }
             }
 
-            // Track games by day, filter by team if displaying for one team
+            // Track games by day
             $gamesByDay = [];
             foreach ($games as $game) {
-                if ($game->isForTeam($team)) {
-                    $gamesByDay[$game->gameTime->gameDate->day][] = $game;
-                }
+                $gamesByDay[$game->gameTime->gameDate->day][] = $game;
             }
             ksort($gamesByDay);
         }
@@ -166,15 +165,23 @@ class View_Games_Team
             $visitingTeamCount  = 0;
             $dayCount           = 0;
             foreach ($gamesByDay as $day => $allGames) {
+                $gamesByTimeForAllTeams = [];
+                foreach ($allGames as $game) {
+                    $gamesByTimeForAllTeams[$game->gameTime->startTime][] = $game;
+                }
+                ksort($gamesByTimeForAllTeams);
+
                 $gamesByTime    = [];
                 $rowSpan        = 0;
-                foreach ($allGames as $game) {
-                    if ($game->isForTeam($team)) {
-                        $gamesByTime[$game->gameTime->startTime][] = $game;
-                        $rowSpan += 1;
+                foreach ($gamesByTimeForAllTeams as $startTime => $games) {
+                    foreach ($games as $game) {
+                        if ($game->isForTeam($team, $playInGameIds)) {
+                            $gamesByTime[$game->gameTime->startTime][] = $game;
+                            $rowSpan += 1;
+                            $playInGameIds[] = $game->id;
+                        }
                     }
                 }
-                ksort($gamesByTime);
 
                 $dayCount       += 1;
                 $dayCellPrinted = false;
@@ -187,24 +194,25 @@ class View_Games_Team
                         $dayCell            = $dayCellPrinted ? '' : "<td nowrap rowspan='$rowSpan'>$day</td>";
                         $dayCellPrinted     = true;
                         $fieldName          = $facility->name . ": " . $field->name;
-                        $homeTeamName       = '';
-                        $visitingTeamName   = '';
+                        $homeTeamName       = 'TBD';
+                        $visitingTeamName   = 'TBD';
                         $homeTeamStyle      = '';
                         $visitingTeamStyle  = '';
                         $result             = '';
                         $homeTeamTitle      = '';
                         $visitingTeamTitle  = '';
                         $startTimeBgColor   = '';
+                        $gameTitle          = empty($game->title) ? "" : "<br><strong style='color:green'>$game->title</strong>";
                         if ($lastStartTime != '' and !$publishedOnly) {
                             $diffInHours        = self::diffInHours($lastStartTime, $startTime);
-                            $startTimeBgColor   = ($diffInHours < 2) ? "bgcolor='red'" : "";
-                            $startTimeBgColor   = ($diffInHours > 4) ? "bgcolor='orange'" : $startTimeBgColor;
+                            $startTimeBgColor   = ($diffInHours < 2 and $homeTeamName != 'TBD') ? "bgcolor='red'" : "";
+                            $startTimeBgColor   = ($diffInHours > 4 and $homeTeamName != 'TBD') ? "bgcolor='orange'" : $startTimeBgColor;
                         }
                         $lastStartTime      = $startTime;
 
                         if (isset($game->homeTeam)) {
                             $homeCoach      = Coach::lookupByTeam($game->homeTeam);
-                            $homeTeamName   = $game->homeTeam->nameId . ": " . $homeCoach->lastName;
+                            $homeTeamName   = $game->homeTeam->nameIdWithSeed . ": " . $homeCoach->lastName;
                             $homeTeamTitle  = "title='" . $game->homeTeam->name . ": " . $game->homeTeam->region . " (" . $game->homeTeam->city . ")'";
 
                             if ($team->id == $game->homeTeam->id) {
@@ -220,34 +228,22 @@ class View_Games_Team
 
                         if (isset($game->visitingTeam)) {
                             $visitingCoach = Coach::lookupByTeam($game->visitingTeam);
-                            $visitingTeamName   = $game->visitingTeam->nameId . ": " . $visitingCoach->lastName;
+                            $visitingTeamName   = $game->visitingTeam->nameIdWithSeed . ": " . $visitingCoach->lastName;
                             $visitingTeamTitle  = "title='" . $game->visitingTeam->name . ": " . $game->visitingTeam->region . " (" . $game->visitingTeam->city . ")'";
                         }
 
                         $bgcolor = ($dayCount % 2 == 0) ? "" : "bgcolor='lightgray'";
 
-                        if ($homeTeamName != '') {
-                            print "
+                        print "
                             <tr $bgcolor>
                                 $dayCell
                                 <td>$game->id</td>
                                 <td $startTimeBgColor>$startTime</td>
-                                <td nowrap>$fieldName</td>
+                                <td nowrap>$fieldName$gameTitle</td>
                                 <td nowrap $homeTeamStyle $homeTeamTitle>$homeTeamName</td>
                                 <td nowrap $visitingTeamStyle $visitingTeamTitle>$visitingTeamName</td>
                                 <td nowrap>$result</td>
                             </tr>";
-                        } else {
-                            print "
-                            <tr $bgcolor>
-                                $dayCell
-                                <td>$game->id</td>
-                                <td>$startTime</td>
-                                <td>$fieldName</td>
-                                <td colspan='2'>$game->title</td>
-                                <td>$result</td>
-                            </tr>";
-                        }
 
                         $gameCount += 1;
                     }

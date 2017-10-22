@@ -478,7 +478,8 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $time           = $game->gameTime->startTime;
         $fieldName      = $game->gameTime->field->fullName;
         $flightName     = $game->flight->name;
-        $poolName       = isset($game->pool) ? $game->pool->name : $game->title;
+        $poolName       = isset($game->pool) ? $game->pool->name : "";
+        $poolName       .= isset($game->title) ? ": " . $game->title : "";
         $division       = $game->flight->schedule->division;
         $divisionName   = $division->nameWithGender;
 
@@ -489,7 +490,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
             $teams = Team::lookupByPool($pool);
             foreach ($teams as $team) {
                 $coach  = Coach::lookupByTeam($team);
-                $name   = $team->nameId . ' ' . $coach->lastName . ' ' . $team->region . ' (' . $team->city . ')';
+                $name   = $team->nameIdWithSeed . ' ' . $coach->lastName . ' ' . $team->region . ' (' . $team->city . ')';
 
                 $teamSelector[$team->id] = $name;
             }
@@ -516,7 +517,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $defaultTeamSelection = '';
         if (isset($game->homeTeam)) {
             $coach                  = Coach::lookupByTeam($game->homeTeam);
-            $defaultTeamSelection   = $game->homeTeam->nameId . ' ' . $coach->lastName . ' ' . $game->homeTeam->region . ' (' . $game->homeTeam->city . ')';
+            $defaultTeamSelection   = $game->homeTeam->nameIdWithSeed . ' ' . $coach->lastName . ' ' . $game->homeTeam->region . ' (' . $game->homeTeam->city . ')';
         }
 
         print "
@@ -529,7 +530,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
             $defaultTeamSelection,
             null,
             false,
-            140,
+            300,
             'left',
             'Select a Team',
             '',
@@ -555,7 +556,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $defaultTeamSelection = '';
         if (isset($game->visitingTeam)) {
             $coach                  = Coach::lookupByTeam($game->visitingTeam);
-            $defaultTeamSelection   = $game->visitingTeam->nameId . ' ' . $coach->lastName . ' ' . $game->visitingTeam->region . ' (' . $game->visitingTeam->city . ')';
+            $defaultTeamSelection   = $game->visitingTeam->nameIdWithSeed . ' ' . $coach->lastName . ' ' . $game->visitingTeam->region . ' (' . $game->visitingTeam->city . ')';
         }
 
         print "
@@ -568,7 +569,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
             $defaultTeamSelection,
             null,
             false,
-            140,
+            300,
             'left',
             'Select a Team',
             '',
@@ -749,16 +750,18 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
             if (isset($gameTime->game)) {
                 $field              = $gameTime->field;
                 $game               = $gameTime->game;
-                $homeTeam           = $game->homeTeam;
-                $visitingTeam       = $game->visitingTeam;
-                $division           = $homeTeam->division;
-                $homeCoach          = Coach::lookupByTeam($homeTeam);
-                $visitingCoach      = Coach::lookupByTeam($visitingTeam);
-                $teams['home']      = 'H: ' . $homeTeam->nameId . " " . $homeCoach->name;
-                $teams['visiting']  = 'V: ' . $visitingTeam->nameId . " " . $visitingCoach->name;
+
+                $homeTeamName       = isset($game->homeTeam) ? $game->homeTeam->nameIdWithSeed : "TBD";
+                $visitingTeamName   = isset($game->visitingTeam) ? $game->visitingTeam->nameIdWithSeed : "TBD";
+                $division           = $game->flight->schedule->division;
+                $homeCoachName      = isset($game->homeTeam) ? Coach::lookupByTeam($game->homeTeam)->name : "TBD";
+                $visitingCoachName  = isset($game->visitingTeam) ? Coach::lookupByTeam($game->visitingTeam)->name : "TBD";
+                $teams['home']      = 'H: ' . $homeTeamName . " " . $homeCoachName;
+                $teams['visiting']  = 'V: ' . $visitingTeamName . " " . $visitingCoachName;
 
                 if ($division->isScoringTracked) {
-                    $gameData[$gameTime->actualStartTime][$division->nameWithGender][$field->name][$game->id] = $teams;
+                    $gameTag = isset($game->title) ? $game->id . "<br>" . $game->title : $game->id;
+                    $gameData[$gameTime->actualStartTime][$division->nameWithGender][$field->name][$gameTag] = $teams;
                 }
             }
         }
@@ -795,7 +798,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 $divisionRowSpan    = count($fieldData) * 2;
 
                 foreach ($fieldData as $fieldName => $gameData) {
-                    foreach ($gameData as $gameId => $teams) {
+                    foreach ($gameData as $gameTag => $teams) {
                         $startNewTable      = $this->startNewTableIfNecessary($startNewTable, $facility, $gameDate);
                         $homeTeamData       = $teams['home'];
                         $visitingTeamData   = $teams['visiting'];
@@ -828,7 +831,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
 
                         print "
                                     <td rowspan='2' $gameStyle>$fieldName</td>
-                                    <td rowspan='2' align='center' $gameStyle>$gameId</td>
+                                    <td rowspan='2' align='center' $gameStyle>$gameTag</td>
                                     <td $gameStyle>$homeTeamData</td>
                                     <td $gameStyle>&nbsp</td>
                                     <td $gameStyle>&nbsp</td>

@@ -90,17 +90,28 @@ class View_Games_Standings extends View_Games_Base
      */
     private function printStandingsForDivision($division)
     {
+        $schedules      = Schedule::lookupByDivision($division);
         $teams          = [];
         $teamStats      = [];
         $teamPoints     = [];
         $flightsData    = [];
-        $teamCount      = count(Team::lookupByDivision($division));
-        $schedules      = Schedule::lookupByDivision($division);
+        $flightTeams    = [];
+        $poolTeams      = [];
+        $scheduleTitle  = "";
 
         foreach ($schedules as $schedule) {
             switch ($schedule->scheduleType) {
                 case ScheduleOrm::SCHEDULE_TYPE_LEAGUE:
-                    $this->compileStandingsForLeaguePlay($schedule, $teams, $teamStats, $teamPoints, $flightsData);
+                    if ($division->combineLeagueSchedules) {
+                        $this->compileStandingsForLeaguePlay($schedule, $teams, $teamStats, $teamPoints, $flightsData, $flightTeams, $poolTeams);
+                        $scheduleTitle .= $schedule->name . "<br>";
+                    } else {
+                        $this->printStandingsForLeaguePlayBySchedule($division, $schedule);
+                    }
+                    break;
+
+                case ScheduleOrm::SCHEDULE_TYPE_BRACKET:
+                    print "<p>Bracket not supported</p>";
                     break;
 
                 case ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT:
@@ -110,24 +121,8 @@ class View_Games_Standings extends View_Games_Base
             }
         }
 
-        // If any League Schedules found then print league standings
-        $countOfTeams = 0;
-        if (count($teamStats) > 0) {
-            foreach ($flightsData as $flightName => $poolData) {
-                foreach ($poolData as $poolName => $teamData) {
-                    $countOfTeams += count($teamData);
-                }
-            }
-        }
-
-        if ($countOfTeams == $teamCount) {
-            $this->printStandingsForLeaguePlay($division, $teams, $teamStats, $teamPoints, $flightsData);
-        } else {
-            foreach ($schedules as $schedule) {
-                if ($schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_LEAGUE) {
-                    $this->printStandingsForLeaguePlayBySchedule($division, $schedule);
-                }
-            }
+        if ($division->combineLeagueSchedules) {
+            $this->printStandingsForLeaguePlay($scheduleTitle, $division, $teams, $teamStats, $teamPoints, $flightsData, $flightTeams, $poolTeams);
         }
     }
 
@@ -137,8 +132,10 @@ class View_Games_Standings extends View_Games_Base
      * @param array     $teamStats
      * @param array     $teamPoints
      * @param array     $flightsData
+     * @param array     $flightTeams
+     * @param array     $poolTeams
      */
-    private function compileStandingsForLeaguePlay($schedule, &$teams, &$teamStats, &$teamPoints, &$flightsData)
+    private function compileStandingsForLeaguePlay($schedule, &$teams, &$teamStats, &$teamPoints, &$flightsData, &$flightTeams, &$poolTeams)
     {
         $flights = Flight::lookupBySchedule($schedule);
 
@@ -169,7 +166,12 @@ class View_Games_Standings extends View_Games_Base
                     // Do not track flightsData for game if cross-pool play since only one pool is recorded when cross-pool is used
                     if ($game->pool->gamesAgainstPool->id == $game->pool->id) {
                         $flightsData[$flight->name][$game->pool->name][$team->id] = $team;
+                        $poolTeams[isset($game->pool) ? $game->pool->name : ''][] = $game->homeTeam->id;
+                        $poolTeams[isset($game->pool) ? $game->pool->name : ''][] = $game->visitingTeam->id;
                     }
+
+                    $flightTeams[$flight->name][] = $game->homeTeam->id;
+                    $flightTeams[$flight->name][] = $game->visitingTeam->id;
                 }
             }
         }
@@ -181,24 +183,41 @@ class View_Games_Standings extends View_Games_Base
      */
     private function printStandingsForLeaguePlayBySchedule($division, $schedule)
     {
+        // TODO cross pool support
         $standingsPrinted   = false;
 
         $flights    = Flight::lookupBySchedule($schedule);
         $teams      = [];
         $teamStats  = [];
         $teamPoints = [];
+        $poolTeams  = [];
+
+        print "
+                <table valign='top' align='center' bgcolor='yellow' width='800' border='0' cellpadding='5' cellspacing='0'>
+                    <tr>
+                        <th><h1>$schedule->name</h1></th>
+                    </tr>
+                    <tr>
+                    <tr>
+                        <td valign='top'>";
 
         foreach ($flights as $flight) {
             $games = Game::lookupByFlight($flight);
 
             foreach ($games as $game) {
                 if (isset($game->homeTeam) and empty($game->title)) {
-                    $team                   = $game->homeTeam;
-                    $teams[$team->id]       = $team;
-                    $stats                  = isset($teamStats[$team->id]) ? $teamStats[$team->id] : [];
-                    $stats                  = $this->getGameStats($game, true, $stats, true);
-                    $teamStats[$team->id]   = $stats;
-                    $teamPoints[$team->id]  = $stats[self::POINTS];
+                    $poolTeams[isset($game->pool) ? $game->pool->id : 0][] = $game->homeTeam->id;
+
+                    $team = $game->homeTeam;
+                    $teams[$team->id] = $team;
+                    $stats = isset($teamStats[$team->id]) ? $teamStats[$team->id] : [];
+                    $stats = $this->getGameStats($game, true, $stats, true);
+                    $teamStats[$team->id] = $stats;
+                    $teamPoints[$team->id] = $stats[self::POINTS];
+                }
+
+                if (isset($game->visitingTeam) and empty($game->title)) {
+                    $poolTeams[isset($game->pool) ? $game->pool->id : 0][] = $game->visitingTeam->id;
 
                     $team                   = $game->visitingTeam;
                     $teams[$team->id]       = $team;
@@ -228,16 +247,16 @@ class View_Games_Standings extends View_Games_Base
             $standingsPrinted   = true;
 
             print "
-                <table valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
+                <table valign='top' align='center' bgcolor='lightgray' width='800' border='0' cellpadding='5' cellspacing='0'>
                     <tr>
                         <td valign='top'>";
 
             $pools = Pool::lookupByFlight($flight);
             foreach ($pools as $pool) {
                 print "
-                    <table valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
+                    <table valign='top' align='center' bgcolor='white' width='800' border='1' cellpadding='5' cellspacing='0'>
                         <tr bgcolor='lightskyblue'>
-                            <th colspan='12'>$flight->name: $pool->name</th>
+                            <th colspan='12'>$schedule->name - Flight $flight->name: $pool->name</th>
                         </tr>
                         <tr bgcolor='lightskyblue'>
                             <th>Team</th>
@@ -255,7 +274,7 @@ class View_Games_Standings extends View_Games_Base
                         </tr>";
 
                 foreach ($teamPoints as $teamId => $points) {
-                    if ($teams[$teamId]->pool->id == $pool->id) {
+                    if (isset($poolTeams[$pool->id]) and in_array($teamId, $poolTeams[$pool->id])) {
                         $stats              = $teamStats[$teamId];
                         $teamName           = $teams[$teamId]->name;
                         $wins               = $stats[self::WINS];
@@ -302,16 +321,24 @@ class View_Games_Standings extends View_Games_Base
         if (!$standingsPrinted) {
             print "<p style='color: red; font-size: medium' align='center'>Standings are not yet available for Division: $division->name $division->gender.</p>";
         }
+
+        print "
+                        </td>
+                    </tr>
+                </table><br><br>";
     }
 
     /**
+     * @param string    $scheduleTitle
      * @param Division  $division
      * @param array     $teams
      * @param array     $teamStats
      * @param array     $teamPoints
      * @param array     $flightsData
+     * @param array     $flightTeams
+     * @param array     $poolTeams
      */
-    private function printStandingsForLeaguePlay($division, $teams, $teamStats, $teamPoints, $flightsData)
+    private function printStandingsForLeaguePlay($scheduleTitle, $division, $teams, $teamStats, $teamPoints, $flightsData, $flightTeams, $poolTeams)
     {
         $standingsPrinted   = false;
 
@@ -324,19 +351,27 @@ class View_Games_Standings extends View_Games_Base
         // Sort by points, highest to lowest
         arsort($teamPoints);
 
+        print "
+                <table bgcolor='yellow' valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
+                    <tr>
+                        <th><h1>$scheduleTitle</h1></th>
+                    </tr>
+                    <tr>
+                        <td valign='top'>";
+
         foreach ($flightsData as $flightName => $poolsData) {
             $standingsPrinted   = true;
 
             print "
-                <table valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
+                <table bgcolor='lightgray' valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
                     <tr>
                         <td valign='top'>";
 
             foreach ($poolsData as $poolName => $teamData) {
                 print "
-                    <table valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
+                    <table bgcolor='white' valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
                         <tr bgcolor='lightskyblue'>
-                            <th colspan='12'>$flightName: $poolName</th>
+                            <th colspan='12'>Flight $flightName: $poolName</th>
                         </tr>
                         <tr bgcolor='lightskyblue'>
                             <th>Team</th>
@@ -354,13 +389,13 @@ class View_Games_Standings extends View_Games_Base
                         </tr>";
 
                 foreach ($teamPoints as $teamId => $points) {
-                    // Check for teams in flight/pool based on name instead of ID for cases where there are multipl
+                    // Check for teams in flight/pool based on name instead of ID for cases where there are multiple
                     // Schedules due to odd team counts (14UGirls w/ 8 Teams - for 10 games:
                     //    Schedule 1: Pool play (3 games)
                     //    Schedule 2: Cross pool play (4 games)
                     //    Schedule 3: Pool play (3 games)
-                    if ($teams[$teamId]->pool->name == $poolName
-                        and $teams[$teamId]->pool->flight->name == $flightName) {
+                    if (isset($poolTeams[$poolName]) and in_array($teamId, $poolTeams[$poolName])
+                        and isset($flightTeams[$flightName]) and in_array($teamId, $flightTeams[$flightName])) {
                         $stats              = $teamStats[$teamId];
                         $teamName           = $teams[$teamId]->name;
                         $wins               = $stats[self::WINS];
@@ -407,6 +442,11 @@ class View_Games_Standings extends View_Games_Base
         if (!$standingsPrinted) {
             print "<p style='color: red; font-size: medium' align='center'>Standings are not yet available for Division: $division->name $division->gender.</p>";
         }
+
+        print "
+                        </td>
+                    </tr>
+                </table>";
     }
 
     /**

@@ -42,6 +42,7 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
                         <th>DisplayOrder</th>
                         <th>Field Use Minutes</th>
                         <th>Scoring Tracked</th>
+                        <th title='For odd scheduling situations where teams play within pool then cross-pool you can set this value to 1 to give a singe view in standings'>Combine League Schedules</th>
                         <th>Teams</th>
                     </tr>
                 </thead>";
@@ -70,6 +71,9 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
 
             $name = View_Base::DIVISION_UPDATE_DATA . "[$division->id][" . View_Base::SCORING_TRACKED . "]";
             $this->displayInput('', 'string', $name, '', '', $division->scoringTracked, null, 1, false, 25, false, true, 'right');
+
+            $name = View_Base::DIVISION_UPDATE_DATA . "[$division->id][" . View_Base::COMBINE_LEAGUE_SCHEDULES . "]";
+            $this->displayInput('', 'string', $name, '', '', $division->combineLeagueSchedules, null, 1, false, 25, false, true, 'right');
 
             print "
                         <td align='right'>" . count($teams) . "</td>

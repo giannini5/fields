@@ -85,6 +85,83 @@ class GameTest extends ORM_TestHelper
         $this->assertFalse($result, "Game with id 987654321 unexpectendly found");
     }
 
+    public function test_findByPlayInGameIdWin()
+    {
+        // Setup
+        $playInByWin    = 1;
+
+        $this->gamesToCleanup[0]->playInByWin = $playInByWin;
+        $this->gamesToCleanup[0]->setPlayInHomeGame($this->gamesToCleanup[0]);
+
+        // Run Tests
+        $game   = null;
+        $result = Game::findByPlayInGame($this->gamesToCleanup[0], $playInByWin, $game);
+
+        // Check Results
+        $this->assertTrue($result, "Game with id " . $this->gamesToCleanup[0]->id . " not found");
+        $this->assertTrue(isset($game));
+    }
+
+    public function test_findByPlayInGameIdNotWin()
+    {
+        // Setup
+        $playInByWin    = 0;
+
+        $this->gamesToCleanup[0]->playInByWin = $playInByWin;
+        $this->gamesToCleanup[0]->setPlayInHomeGame($this->gamesToCleanup[0]);
+
+        // Run Tests
+        $game   = null;
+        $result = Game::findByPlayInGame($this->gamesToCleanup[0], $playInByWin, $game);
+
+        // Check results
+        $this->assertTrue($result, "Game with id " . $this->gamesToCleanup[0]->id . " not found");
+        $this->assertTrue(isset($game));
+    }
+
+    public function test_findByPlayInVisitingGameIdWin()
+    {
+        // Setup
+        $playInByWin    = 1;
+
+        $this->gamesToCleanup[0]->playInByWin = $playInByWin;
+        $this->gamesToCleanup[0]->setPlayInVisitingGame($this->gamesToCleanup[0]);
+
+        // Run Tests
+        $game   = null;
+        $result = Game::findByPlayInGame($this->gamesToCleanup[0], $playInByWin, $game);
+
+        // Check Results
+        $this->assertTrue($result, "Game with id " . $this->gamesToCleanup[0]->id . " not found");
+        $this->assertTrue(isset($game));
+    }
+
+    public function test_findByPlayInVisitingGameIdNotWin()
+    {
+        // Setup
+        $playInByWin    = 0;
+
+        $this->gamesToCleanup[0]->playInByWin = $playInByWin;
+        $this->gamesToCleanup[0]->setPlayInVisitingGame($this->gamesToCleanup[0]);
+
+        // Run Tests
+        $game   = null;
+        $result = Game::findByPlayInGame($this->gamesToCleanup[0], $playInByWin, $game);
+
+        // Check results
+        $this->assertTrue($result, "Game with id " . $this->gamesToCleanup[0]->id . " not found");
+        $this->assertTrue(isset($game));
+    }
+
+    public function test_notFindByPlayInGameId()
+    {
+        $result = Game::findByPlayInGame($this->gamesToCleanup[0], 0, $game);
+        $this->assertFalse($result, "Game with id " . $this->gamesToCleanup[0]->id . " found");
+
+        $result = Game::findByPlayInGame($this->gamesToCleanup[0], 1, $game);
+        $this->assertFalse($result, "Game with id " . $this->gamesToCleanup[0]->id . " found");
+    }
+
     public function test_lookupByFlight()
     {
         $games = Game::lookupByFlight($this->flight);
@@ -183,6 +260,9 @@ class GameTest extends ORM_TestHelper
         $this->assertTrue(isset($game->homeTeamRedCards), "homeTeamRedCards not set");
         $this->assertTrue(isset($game->visitingTeamRedCards), "visitingTeamRedCards not set");
         $this->assertTrue(isset($game->notes));
+        $this->assertFalse(isset($game->playInHomeGameId), "playInHomeGameId is set");
+        $this->assertFalse(isset($game->playInVisitingGameId), "playInVisitingGameId is set");
+        $this->assertTrue(isset($game->playInByWin), "playInByWin is not set");
     }
 
     public function test_isForHomeTeam()
@@ -211,6 +291,9 @@ class GameTest extends ORM_TestHelper
         $this->assertEquals($homeReds,              $game->homeTeamRedCards);
         $this->assertEquals($visitingReds,          $game->visitingTeamRedCards);
         $this->assertEquals($notes,                 $game->notes);
+        $this->assertEquals(0,                      $game->playInHomeGameId);
+        $this->assertEquals(0,                      $game->playInVisitingGameId);
+        $this->assertEquals(0,                      $game->playInByWin);
 
         if (!isset($homeScore)) {
             $this->assertTrue(!isset($game->homeTeamScore));

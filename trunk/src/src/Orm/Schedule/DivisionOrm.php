@@ -15,25 +15,28 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $gameDurationMinutes
  * @property int    $scoringTracked
  * @property int    $displayOrder
+ * @property int    $combineLeagueSchedules
  */
 class DivisionOrm extends PersistenceModel
 {
-    const FIELD_ID                      = 'id';
-    const FIELD_SEASON_ID               = 'seasonId';
-    const FIELD_NAME                    = 'name';
-    const FIELD_GENDER                  = 'gender';
-    const FIELD_GAME_DURATION_MINUTES   = 'gameDurationMinutes';
-    const FIELD_SCORING_TRACKED         = 'scoringTracked';
-    const FIELD_DISPLAY_ORDER           = 'displayOrder';
+    const FIELD_ID                          = 'id';
+    const FIELD_SEASON_ID                   = 'seasonId';
+    const FIELD_NAME                        = 'name';
+    const FIELD_GENDER                      = 'gender';
+    const FIELD_GAME_DURATION_MINUTES       = 'gameDurationMinutes';
+    const FIELD_SCORING_TRACKED             = 'scoringTracked';
+    const FIELD_DISPLAY_ORDER               = 'displayOrder';
+    const FIELD_COMBINE_LEAGUE_SCHEDULES    = 'combineLeagueSchedules';
 
     protected static $fields = [
-        self::FIELD_ID                      => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_SEASON_ID               => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_NAME                    => [FV::STRING, [FV::NO_CONSTRAINTS]],
-        self::FIELD_GENDER                  => [FV::STRING, [FV::NO_CONSTRAINTS]],
-        self::FIELD_GAME_DURATION_MINUTES   => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_SCORING_TRACKED         => [FV::INT,    [FV::NO_CONSTRAINTS], 1],
-        self::FIELD_DISPLAY_ORDER           => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_ID                          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_SEASON_ID                   => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_NAME                        => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_GENDER                      => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_GAME_DURATION_MINUTES       => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_SCORING_TRACKED             => [FV::INT,    [FV::NO_CONSTRAINTS], 1],
+        self::FIELD_DISPLAY_ORDER               => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_COMBINE_LEAGUE_SCHEDULES    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
 
     protected static $config = [
@@ -53,6 +56,7 @@ class DivisionOrm extends PersistenceModel
      * @param int       $gameDurationMinutes
      * @param int       $displayOrder
      * @param int       $scoringTracked
+     * @param int       $combineLeagueSchedules
      *
      * @return DivisionOrm
      * @throws DuplicateEntryException
@@ -63,16 +67,18 @@ class DivisionOrm extends PersistenceModel
         $gender,
         $gameDurationMinutes,
         $displayOrder,
-        $scoringTracked = 1)
+        $scoringTracked = 1,
+        $combineLeagueSchedules = 0)
     {
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_SEASON_ID               => $seasonId,
-                self::FIELD_NAME                    => $name,
-                self::FIELD_GENDER                  => $gender,
-                self::FIELD_GAME_DURATION_MINUTES   => $gameDurationMinutes,
-                self::FIELD_DISPLAY_ORDER           => $displayOrder,
-                self::FIELD_SCORING_TRACKED         => $scoringTracked,
+                self::FIELD_SEASON_ID                   => $seasonId,
+                self::FIELD_NAME                        => $name,
+                self::FIELD_GENDER                      => $gender,
+                self::FIELD_GAME_DURATION_MINUTES       => $gameDurationMinutes,
+                self::FIELD_DISPLAY_ORDER               => $displayOrder,
+                self::FIELD_SCORING_TRACKED             => $scoringTracked,
+                self::FIELD_COMBINE_LEAGUE_SCHEDULES    => $combineLeagueSchedules,
             ],
             function ($item) {
                 return $item !== null;

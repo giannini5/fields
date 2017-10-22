@@ -842,33 +842,11 @@ class Schedule extends Domain
     {
         Precondition::isTrue($this->scheduleType == ScheduleOrm::SCHEDULE_TYPE_BRACKET, "Invalid scheduleType: $this->scheduleType");
 
-        // Get all fields
-        // Get all gameDates
-        // Get all available gameTimes by gameDate
-        // For each flight
-        // For each pool
-        // Number of games = number of teams in pool - 1
-        // Schedule each round of games at same time
-        // Try for 3 hours between games and then make second pass with 1.5 hour between games if no slots found
+        // Each flight contains pools of size 4 to 9.  Bracket play crowns a champion in each pool.  No cross-pool play
+        // Create games for entire bracket and populate teams in PLAYOFF game (if necessary) and QUARTER_FINAL games
+        // SEMI_FINAL and CHAMPIONSHIP games are populated with teams as scores are entered for earlier games
 
-        $season                 = $this->division->season;
-        $flights                = Flight::lookupBySchedule($this);
-        $divisionFields         = DivisionField::lookupByDivision($this->division);
-        $fields                 = [];
-        $gameDates              = GameDate::lookupBySeason($this->division->season, GameDate::ALL_DAYS, $this);
-        $gender                 = $this->division->gender;
-        $gameTimesByDayAndTime  = [];
-        $timeBetweenGames       = 60 * 60 * 3; // three hours in seconds
-        foreach ($divisionFields as $divisionField) {
-            $fields[] = $divisionField->field;
-        }
-        foreach ($gameDates as $gameDate) {
-            $gameTimes = GameTime::lookupByGameDateAndFields($gameDate, $fields);
-            foreach($gameTimes as $gameTime) {
-                $gameTimesByDayAndTime[$gameDate->day][$gameTime->startTime][] = $gameTime;
-            }
-        }
-
+        $flights = Flight::lookupBySchedule($this);
         foreach ($flights as $flight) {
             if ($flight->scheduleGames != 1) {
                 // Skip game scheduling for this flight
@@ -879,29 +857,26 @@ class Schedule extends Domain
             foreach ($pools as $pool) {
                 Assertion::isTrue($pool->gamesAgainstPool->id == $pool->id, "Cross pool play not supported for tournament play");
 
-                $gameDateIndex          = 0;
-                $teams                  = Team::lookupByPool($pool);
-                $numberOfTeams          = count($teams);
-                $gamesPerDay            = 2;
-                $currentGamesPerDay     = 0;
-                $firstGameTime          = null;
-                $triedOppositeGender    = false;
-                $gameCount              = 0;
+                $teams          = Team::lookupByPool($pool);
+                $numberOfTeams  = count($teams);
 
-                // Schedule Saturday games
+                // Schedule Saturday games (reduce 4 teams for Sunday)
                 //     - Pre-game to reduce pool count
-                //          6 teams then 2 games (top 2 teams get a bye)
-                //          7 teams then 3 games (top 1 team gets a bye)
-                //          8 teams then 4 games
-                //          9 teams then 1 game (top 7 teams get a bye), then 4 games
-                Assertion::isTrue($numberOfTeams == 6 or $numberOfTeams == 7 or $numberOfTeams == 8 or $numberOfTeams == 9,
-                    "Invalid pool size, only 6, 7, 8 and 9 teams supported at this time.");
+                //          6  teams then 2 games (top 2 teams get a bye)
+                //          7  teams then 3 games (top 1 team gets a bye)
+                //          8  teams then 4 games
+                //          9  teams then 1 game  (top 7 teams get a bye), then 4 games
+                //          10 teams then 2 games (top 6 teams get a bye), then 4 games
+                Assertion::isTrue($numberOfTeams >= 6 and $numberOfTeams <= 10,
+                    "Invalid pool size, only 6 to 10 teams supported at this time.  $numberOfTeams entered.");
 
                 // Schedule pre-tournament game (if any)
-                $game1Teams = [];
-                $game2Teams = [];
-                $game3Teams = [];
-                $game4Teams = [];
+                $playoff1Teams  = [];
+                $playoff2Teams  = [];
+                $game1Teams     = [];
+                $game2Teams     = [];
+                $game3Teams     = [];
+                $game4Teams     = [];
                 switch ($numberOfTeams) {
                     case 6:
                         $game1Teams[] = $teams[2]; // Seat 3 plays 6
@@ -937,174 +912,140 @@ class Schedule extends Domain
                         break;
 
                     case 9:
-                        $game1Teams[] = $teams[7]; // Seat 8 plays 9
-                        $game1Teams[] = $teams[8];
+                        $playoff1Teams[] = $teams[7]; // Seat 8 plays 9
+                        $playoff1Teams[] = $teams[8];
+
+                        $game1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams
+
+                        $game2Teams[] = $teams[1]; // Seat 2 plays 7
+                        $game2Teams[] = $teams[6];
+
+                        $game3Teams[] = $teams[2]; // Seat 3 plays 6
+                        $game3Teams[] = $teams[5];
+
+                        $game4Teams[] = $teams[3]; // Seat 4 plays 5
+                        $game4Teams[] = $teams[4];
+                        break;
+
+                    case 10:
+                        $playoff1Teams[] = $teams[6]; // Seat 7 plays 10
+                        $playoff1Teams[] = $teams[9];
+                        $playoff2Teams[] = $teams[7]; // Seat 8 plays 9
+                        $playoff2Teams[] = $teams[8];
+
+                        $game1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams game 1
+                        $game2Teams[] = $teams[1]; // Seat 2 plays winner of $playoffTeams game 2
+
+                        $game3Teams[] = $teams[2]; // Seat 3 plays 6
+                        $game3Teams[] = $teams[5];
+
+                        $game4Teams[] = $teams[3]; // Seat 4 plays 5
+                        $game4Teams[] = $teams[4];
                         break;
 
                     default:
                         Assertion::isTrue(false, "Invalid poolSize: $numberOfTeams");
                 }
 
-                // TODO: Schedule games1, 2, 3, and 4
-                return;
+                // Only two games dates allowed at this time for bracket play
+                $gameDates = GameDate::lookupBySeason($this->division->season, GameDate::ALL_DAYS, $this);
+                Assertion::isTrue(count($gameDates) == 2, "Only 2 gamesDates allowed at this time");
 
-                // At most two games on Saturday
-                // Remaining games on Sunday
-                // Medal round on Sunday
-                $minStartTime = '05:00:00';
+                // Get the fields allowed for the division
+                $divisionFields = DivisionField::lookupByDivision($this->division);
+                $fields         = [];
+                foreach ($divisionFields as $divisionField) {
+                    $fields[] = $divisionField->field;
+                }
 
-                for ($gameNumber = 1; $gameNumber < $maxIterations; $gameNumber++) {
-                    Assertion::isTrue($gameDateIndex < count($gameDates), "Ran out of games dates - need to add more dates or write code to allow more than two games per day");
-
-                    $currentGamesPerDay += 1;
-                    $teamPairings       = $teamPolygon->getTeamPairings();
-
-                    if ($gameNumber == 1 or $poolType != TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT) {
-                        $gameDate           = $gameDates[$gameDateIndex];
-                        $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
-                        ksort($gameTimesByTime);
-                        $lastGameTime       = null;
-                        $teamIdsWithGame    = [];
-                    }
-
-                    foreach ($teamPairings as $team1Index => $team2Index) {
-                        // HACK to deal with ODD POOL Sizes of 3 or 5
-                        if ($poolType == TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT and $gameCount == count($teams)) {
-                            // Switch to next day for next set of games
-                            $gameDateIndex          += 1;
-                            $currentGamesPerDay     = 0;
-                            $minStartTime           = '05:00:00';
-                            $firstGameTime          = null;
-
-                            $gameDate           = $gameDates[$gameDateIndex];
-                            $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
-                            ksort($gameTimesByTime);
-                            $lastGameTime       = null;
-                            $teamIdsWithGame    = [];
-                        }
-
-                        // Advance startTime if one of the teams has played already (odd pool problem where bye teams play late)
-                        if (in_array($teams[$team1Index]->id, $teamIdsWithGame)
-                            or in_array($teams[$team2Index]->id, $teamIdsWithGame)) {
-                            $minStartTime = date("H:i:s", strtotime($lastGameTime->startTime) + $timeBetweenGames);
-                        }
-
-                        // Find next available gameTime
-                        $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
-
-                        // If no gameTime found then try again with a start Time that is 1.5 hours after the first game of the day
-                        if (!isset($gameTime) and isset($firstGameTime)) {
-                            $minStartTime = date("H:i:s", strtotime($firstGameTime->startTime) + 60*60*1.5);
-                            $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
-                        }
-
-                        // If still no gameTime found then try with different gender
-                        if (!isset($gameTime) and !$triedOppositeGender) {
-                            $triedOppositeGender    = true;
-                            $oppositeGender         = $gender == GameTimeOrm::BOYS ? GameTimeOrm::GIRLS : GameTimeOrm::BOYS;
-                            $minStartTime           = '05:00:00';
-                            $gameTime               = $this->findGameTime($gameTimesByTime, $minStartTime, $oppositeGender);
-                        }
-
-                        Assertion::isTrue(isset($gameTime), "No available gameTime found for $gender: " . $pool->fullName);
-
-                        $lastGameTime   = $gameTime;
-                        $firstGameTime  = isset($firstGameTime) ? $firstGameTime : $gameTime;
-
-
-                        // Set the home team and visiting team based on the pool type
-                        $homeTeam       = null;
-                        $visitingTeam   = null;
-                        if ((rand() % 2) == 0) {
-                            $homeTeam       = $teams[$team1Index];
-                            $visitingTeam   = $teams[$team2Index];
-                        } else {
-                            $homeTeam       = $teams[$team2Index];
-                            $visitingTeam   = $teams[$team1Index];
-                        }
-                        Assertion::isTrue(isset($homeTeam), "Major bug, homeTeam did not get set - See Dave, $team1Index, $team2Index");
-                        Assertion::isTrue(isset($visitingTeam), "Major bug, visitingTeam did not get set - See Dave, $team1Index, $team2Index");
-
-                        // Create the game
-                        $game = Game::create($flight, $pool, $gameTime, $homeTeam, $visitingTeam);
-                        $teamIdsWithGame[$homeTeam->id]     = $homeTeam->id;
-                        $teamIdsWithGame[$visitingTeam->id] = $visitingTeam->id;
-                        $gameCount                          += 1;
-
-                        // Create the familyGame to help find game overlaps for a family
-                        $coach = Coach::lookupByTeam($homeTeam);
-                        $family = null;
-                        if (Family::findByPhone($season, $coach->phone1, $family)) {
-                            FamilyGame::create($family, $game, true);
-                        }
-
-                        $family = null;
-                        $coach = Coach::lookupByTeam($visitingTeam);
-                        if (Family::findByPhone($season, $coach->phone1, $family)) {
-                            FamilyGame::create($family, $game, true);
-                        }
-                    }
-
-                    // Set start time for next game to be 3 hours from last game
-                    $minStartTime = date("H:i:s", strtotime($lastGameTime->startTime) + $timeBetweenGames);
-
-                    $teamPolygon->shift();
-                    $shiftCount += 1;
-                    if ($currentGamesPerDay >= $gamesPerDay and $poolType != TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT) {
-                        $gameDateIndex          += 1;
-                        $currentGamesPerDay     = 0;
-                        $minStartTime           = '05:00:00';
-                        $firstGameTime          = null;
-                        $triedOppositeGender    = false;
+                // Get the game Times for each gameDate
+                $gameTimesByDayAndTime = [];
+                foreach ($gameDates as $gameDate) {
+                    $gameTimes = GameTime::lookupByGameDateAndFields($gameDate, $fields);
+                    foreach($gameTimes as $gameTime) {
+                        $gameTimesByDayAndTime[$gameDate->day][$gameTime->startTime][] = $gameTime;
                     }
                 }
-            }
 
-            // Prepare for medal round game assignments
-            //   - Set gameDay to last day of play
-            //   - Set minStartTime to beginning of day if no games have been assigned; otherwise
-            //     set to last game that was assigned
-            if (isset($gameDate) and $gameDate->day == $gameDates[count($gameDates) - 1]->day) {
-                $minStartTime       = date("H:i:s", strtotime($lastGameTime->startTime) + 60*60*3);
-            } else {
+                // Create Play-in games
+                $gameTimesByTime = $gameTimesByDayAndTime[$gameDates[0]->day];
+                ksort($gameTimesByTime);
+
                 $minStartTime       = '05:00:00';
-                $gameDate           = $gameDates[count($gameDates) - 1];  // Final day
-            }
-            $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
-            ksort($gameTimesByTime);
+                $timeBetweenGames   = 60 * 60 * 3; // three hours in seconds
 
-            // 5th/6th game if any
-            if ($flight->include5th6thGame) {
-                // Reset minStartTime to beginning of day
-                $gameTime           = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
-                Assertion::isTrue(isset($gameTime), 'Unable to find game time for 5th/6th place game');
-                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_5TH_6TH);
-            }
+                $game1 = $this->createBracketGame($pool, $gameTimesByTime, $playoff1Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
+                $game2 = $this->createBracketGame($pool, $gameTimesByTime, $playoff2Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
 
-            // Semi-final game if any
-            if ($flight->includeSemiFinalGames) {
-                for ($i = 1; $i <= 2; $i++) {
-                    $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
-                    Assertion::isTrue(isset($gameTime), 'Unable to find game time for Semi-Final Game $i');
-                    Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_SEMI_FINAL);
+                // Create Quarter Final Games
+                if (count($teams) == 9) {
+                    Assertion::isTrue(isset($game1), "Playoff game not found for pool of size 9");
+                    $minStartTime = date("H:i:s", strtotime($game1->gameTime->startTime) + $timeBetweenGames);
+                } else if (count($teams) == 10) {
+                    Assertion::isTrue(isset($game2), "Playoff game not found for pool of size 10");
+                    $minStartTime = date("H:i:s", strtotime($game2->gameTime->startTime) + $timeBetweenGames);
                 }
-                $minStartTime = date("H:i:s", strtotime($gameTime->startTime) + 60*60*3);
-            }
 
-            // 3rd/4th game if any
-            if ($flight->include3rd4thGame) {
-                $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
-                Assertion::isTrue(isset($gameTime), 'Unable to find game time for 3rd/4th Game');
-                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_3RD_4TH);
-            }
+                $q1Game = $this->createBracketGame($pool, $gameTimesByTime, $game1Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $game1);
+                $q2Game = $this->createBracketGame($pool, $gameTimesByTime, $game2Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $game2);
+                $q3Game = $this->createBracketGame($pool, $gameTimesByTime, $game3Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
+                $q4Game = $this->createBracketGame($pool, $gameTimesByTime, $game4Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
 
-            // Championship game if any
-            if ($flight->includeChampionshipGame) {
-                $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
-                Assertion::isTrue(isset($gameTime), 'Unable to find game time for Championship Game');
-                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_CHAMPIONSHIP);
+                // Create Semi-Final Games
+                $minStartTime       = '05:00:00';
+                $gameTimesByTime    = $gameTimesByDayAndTime[$gameDates[1]->day];
+                ksort($gameTimesByTime);
+
+                $s1Game = $this->createBracketGame($pool, $gameTimesByTime, [], GameOrm::TITLE_SEMI_FINAL, $minStartTime, $q1Game, $q4Game);
+                $s2Game = $this->createBracketGame($pool, $gameTimesByTime, [], GameOrm::TITLE_SEMI_FINAL, $minStartTime, $q2Game, $q3Game);
+
+                // Create 3rd/4th and Championship Game
+                $minStartTime = date("H:i:s", strtotime($s2Game->gameTime->startTime) + $timeBetweenGames);
+                $this->createBracketGame($pool, $gameTimesByTime, [], GameOrm::TITLE_3RD_4TH, $minStartTime, $s1Game, $s2Game, 0);
+                $this->createBracketGame($pool, $gameTimesByTime, [], GameOrm::TITLE_CHAMPIONSHIP, $minStartTime, $s1Game, $s2Game);
             }
         }
+    }
+
+    /**
+     * Create a bracket game
+     *
+     * @param Pool          $pool
+     * @param array         $gameTimesByTime
+     * @param Team[]        $teams
+     * @param string        $gameTitle
+     * @param string        $minStartTime
+     * @param Game | null   $homePlayInGame
+     * @param Game | null   $visitingPlayInGame
+     * @param int           $playInByWin
+     *
+     * @return Game | null
+     *
+     * @throws \AssertionException
+     */
+    private function createBracketGame($pool, $gameTimesByTime, $teams, $gameTitle, $minStartTime, $homePlayInGame = null, $visitingPlayInGame = null, $playInByWin = 1)
+    {
+        Precondition::isTrue($this->scheduleType == ScheduleOrm::SCHEDULE_TYPE_BRACKET, "Invalid scheduleType: $this->scheduleType");
+
+        // Skip creation for playoff game with no teams
+        if (($gameTitle == GameOrm::TITLE_PLAYOFF)
+            and count($teams) == 0) {
+            return null;
+        }
+
+        // Find first available gameTime that is greater than minStartTime
+        $gender     = $this->division->gender;
+        $gameTime   = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
+        Assertion::isTrue(isset($gameTime), "No available gameTime found for $gender: " . $pool->fullName);
+
+        // Create the game
+        $playInHomeGameId       = isset($homePlayInGame) ? $homePlayInGame->id : 0;
+        $playInVisitingGameId   = isset($visitingPlayInGame) ? $visitingPlayInGame->id : 0;
+        $homeTeam               = isset($teams[0]) ? $teams[0] : null;
+        $visitingTeam           = isset($teams[1]) ? $teams[1] : null;
+        $game                   = Game::create($pool->flight, $pool, $gameTime, $homeTeam, $visitingTeam, $gameTitle, 0, $playInHomeGameId, $playInVisitingGameId, $playInByWin);
+
+        return $game;
     }
 
     /**
@@ -1426,13 +1367,13 @@ class Schedule extends Domain
                 $flightData = [1 => [7]];  // top team gets a bye, Pre-round before simi-final, etc.
                 break;
             case 8:
-                $flightData = [1 => [4], 2 => [4]];  // Simi-final, etc.
+                $flightData = [1 => [8]];  // Simi-final, etc.
                 break;
             case 9:
                 $flightData = [1 => [9]];  // top three teams get a bye, Pre-round before simi-final, etc.
                 break;
             case 10:
-                $flightData = [1 => [6], 2=> [4]];
+                $flightData = [1 => [10]];
                 break;
             case 11:
                 $flightData = [1 => [7], 2 => [4]];
@@ -1444,10 +1385,10 @@ class Schedule extends Domain
                 $flightData = [1 => [7], 2 => [6]];
                 break;
             case 14:
-                $flightData = [1 => [6], 2 => [4], 3 => [4]];
+                $flightData = [1 => [8], 2 => [6]];
                 break;
             case 15:
-                $flightData = [1 => [7], 2 => [4], 3 => [4]];
+                $flightData = [1 => [8], 2 => [7]];
                 break;
             case 16:
                 $flightData = [1 => [8], 2 => [8]];  // Pre-round
@@ -1459,13 +1400,13 @@ class Schedule extends Domain
                 $flightData = [1 => [9], 2 => [9]];
                 break;
             case 19:
-                $flightData = [1 => [8], 2 => [7], 3 => [4]];
+                $flightData = [1 => [10], 2 => [9]];
                 break;
             case 20:
-                $flightData = [1 => [8], 2 => [8], 3 => [4]];
+                $flightData = [1 => [10], 2 => [10]];
                 break;
             case 21:
-                $flightData = [1 => [9], 2 => [8], 3 => [4]];
+                $flightData = [1 => [8], 2 => [7], 3 => [6]];
                 break;
             case 22:
                 $flightData = [1 => [8], 2 => [8], 3 => [6]];
@@ -1486,22 +1427,22 @@ class Schedule extends Domain
                 $flightData = [1 => [9], 2 => [9], 3 => [9]];
                 break;
             case 28:
-                $flightData = [1 => [8], 2 => [8], 3 => [8], 4 => [4]];
+                $flightData = [1 => [10], 2 => [10], 3 => [8]];
                 break;
             case 29:
-                $flightData = [1 => [9], 2 => [8], 3 => [8], 4 => [4]];
+                $flightData = [1 => [10], 2 => [10], 3 => [9]];
                 break;
             case 30:
-                $flightData = [1 => [8], 2 => [8], 3 => [8], 4 => [6]];
+                $flightData = [1 => [10], 2 => [10], 3 => [10]];
                 break;
             case 31:
-                $flightData = [1 => [9], 2 => [8], 3 => [8], 4 => [6]];
+                $flightData = [1 => [8], 2 => [8], 3 => [8], 4 => [7]];
                 break;
             case 32:
                 $flightData = [1 => [8], 2 => [8], 3 => [8], 4 => [8]];
                 break;
             case 42:
-                $flightData = [1 => [9], 2 => [9], 3 => [9], 4 => [9], 5 => [8]];
+                $flightData = [1 => [9], 2 => [9], 3 => [8], 4 => [8], 5 => [8]];
                 break;
 
             default:
