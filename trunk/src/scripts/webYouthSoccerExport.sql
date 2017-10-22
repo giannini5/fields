@@ -1,6 +1,10 @@
+use schedule;
+select * from facility;
+select * from field where facilityId = 1;
 --
 -- Dump schedules for import into Web Youth Soccer
 --    TODO: Add support for Standby game slot creation
+--    TODO: Add support for End-Of-Day game slot creation so nets are not taken down
 --
 select
     data.Date,
@@ -30,14 +34,15 @@ from (
             t.id = g.gameTimeId
         join gameDate as d on
             d.id = t.gameDateId
+            and d.day > '2017-10-13'
         join team as h on
             h.id = g.homeTeamId
         join team as v on
             v.id = g.visitingTeamId
         join division as i on
             i.id = h.divisionId
-            and i.name = "10U"
+            and i.name in ("10U", "12U")
         join field as f on
             f.id = t.fieldId
     ) as data
-into outfile "/Users/dag/ayso/schedule_3.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/ayso/schedule_2nd.txt" LINES TERMINATED BY '\n';

@@ -124,17 +124,26 @@ class View_Games_Division {
                                 if ($gameTime == $defaultGameTime) {
                                     if (isset($game->homeTeam)) {
                                         $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
-                                        $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
                                         $gameData           = "Game Id: $game->id<br>";
-                                        $gameData           .= "H: " . $game->homeTeam->nameId . ": " . $homeTeamCoach->lastName . "<br>";
-                                        $gameData           .= "V: " . $game->visitingTeam->nameId . ": " . $visitingTeamCoach->lastName;
-                                        $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+                                        $gameData           .= "H: " . $game->homeTeam->nameIdWithSeed . ": " . $homeTeamCoach->lastName . "<br>";
+
+                                        if (isset($game->visitingTeam)) {
+                                            $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
+                                            $gameData           .= "V: " . $game->visitingTeam->nameIdWithSeed . ": " . $visitingTeamCoach->lastName;
+                                            $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+                                        } else {
+                                            $gameData .= "V: TBD";
+                                            $title    = "title='" . $homeTeamCoach->name . " vs TBD'";
+                                        }
+                                        if (isset($game->title))  {
+                                            $gameData .= "<br>" . $game->title;
+                                        }
                                     } else {
                                         $gameData           = "Game Id: $game->id<br>$game->title";
                                         $title              = "title='$game->title'";
                                     }
-                                    $gender             = $game->flight->schedule->division->gender;
-                                    $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
+                                    $gender = $game->flight->schedule->division->gender;
+                                    $bgHTML = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
 
                                     print "
                                     <td nowrap $bgHTML $title>$gameData</td>";

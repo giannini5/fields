@@ -13,6 +13,9 @@ create table game (
     visitingTeamRedCards    int default 0,
     notes                   varchar(1024) default '',
     title                   varchar(60) not NULL default '',
+    playInHomeGameId        int not NULL default 0,
+    playInVisitingGameId    int not NULL default 0,
+    playInByWin             tinyint not NULL default 0,
     locked                  tinyint not NULL default 0,
 
     PRIMARY KEY (id),
@@ -21,5 +24,7 @@ create table game (
     key ix_gameTime(gameTimeId),
     key ix_homeTeam(homeTeamId),
     key ix_visitingTeam(visitingTeamId),
+    key ix_playInHomeByWin(playInByWin, playInHomeGameId),
+    key ix_playInVisitingByWin(playInByWin, playInVisitingGameId),
     key ix_title(title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

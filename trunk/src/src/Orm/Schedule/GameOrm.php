@@ -24,10 +24,16 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $visitingTeamRedCards
  * @property int    $notes
  * @property string $title
+ * @property int    $playInHomeGameId
+ * @property int    $playInVisitingGameId
+ * @property int    $playInByWin
  * @property int    locked
  */
 class GameOrm extends PersistenceModel
 {
+    const TITLE_NONE                        = '';
+    const TITLE_PLAYOFF                     = 'Playoff';
+    const TITLE_QUARTER_FINAL               = 'Quarter-Final';
     const TITLE_5TH_6TH                     = '5th/6th';
     const TITLE_3RD_4TH                     = '3rd/4th';
     const TITLE_SEMI_FINAL                  = 'Semi-Final';
@@ -47,6 +53,9 @@ class GameOrm extends PersistenceModel
     const FIELD_VISITING_TEAM_RED_CARDS     = 'visitingTeamRedCards';
     const FIELD_NOTES                       = 'notes';
     const FIELD_TITLE                       = 'title';
+    const FIELD_PLAY_IN_HOME_GAME_ID        = 'playInHomeGameId';
+    const FIELD_PLAY_IN_VISITING_GAME_ID    = 'playInVisitingGameId';
+    const FIELD_PLAY_IN_BY_WIN              = 'playInByWin';
     const FIELD_LOCKED                      = 'locked';
 
     public static $titles = [
@@ -71,6 +80,9 @@ class GameOrm extends PersistenceModel
         self::FIELD_VISITING_TEAM_RED_CARDS     => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_NOTES                       => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_TITLE                       => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_PLAY_IN_HOME_GAME_ID        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_PLAY_IN_VISITING_GAME_ID    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_PLAY_IN_BY_WIN              => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_LOCKED                      => [FV::INT,    [FV::NO_CONSTRAINTS]],
     ];
 
@@ -92,6 +104,9 @@ class GameOrm extends PersistenceModel
      * @param int       $visitingTeamId
      * @param string    $title
      * @param int       $locked
+     * @param int       $playInHomeGameId
+     * @param int       $playInVisitingGameId
+     * @param int       $playInByWin
      *
      * @return GameOrm
      * @throws DuplicateEntryException
@@ -103,8 +118,11 @@ class GameOrm extends PersistenceModel
         $homeTeamId,
         $visitingTeamId,
         $title = '',
-        $locked = 0)
-    {
+        $locked = 0,
+        $playInHomeGameId = 0,
+        $playInVisitingGameId = 0,
+        $playInByWin = 0
+    ) {
         // Verify GameTimeOrm exists and a game has not been assigned
         $gameTimeOrm = GameTimeOrm::loadById($gameTimeId);
         Assertion::isTrue(!isset($gameTimeOrm->gameId), "GameTime already has a game assignment.  Cannot double book.");
@@ -112,13 +130,16 @@ class GameOrm extends PersistenceModel
         // Create the GameOrm
         $result = self::getPersistenceDriver()->create(
             [
-                self::FIELD_FLIGHT_ID           => $flightId,
-                self::FIELD_POOL_ID             => $poolId,
-                self::FIELD_GAME_TIME_ID        => $gameTimeId,
-                self::FIELD_HOME_TEAM_ID        => $homeTeamId,
-                self::FIELD_VISITING_TEAM_ID    => $visitingTeamId,
-                self::FIELD_TITLE               => $title,
-                self::FIELD_LOCKED              => $locked,
+                self::FIELD_FLIGHT_ID                   => $flightId,
+                self::FIELD_POOL_ID                     => $poolId,
+                self::FIELD_GAME_TIME_ID                => $gameTimeId,
+                self::FIELD_HOME_TEAM_ID                => $homeTeamId,
+                self::FIELD_VISITING_TEAM_ID            => $visitingTeamId,
+                self::FIELD_TITLE                       => $title,
+                self::FIELD_PLAY_IN_HOME_GAME_ID        => $playInHomeGameId,
+                self::FIELD_PLAY_IN_VISITING_GAME_ID    => $playInVisitingGameId,
+                self::FIELD_PLAY_IN_BY_WIN              => $playInByWin,
+                self::FIELD_LOCKED                      => $locked,
             ],
             function ($item) {
                 return $item !== null;
@@ -249,5 +270,40 @@ class GameOrm extends PersistenceModel
         }
 
         return $gameOrms;
+    }
+
+    /**
+     * Load a GameOrm by playInGameId and playInByWin
+     *
+     * @param int       $gameId         - Playoff game id in bracket play used to find next game teams play
+     * @param int       $playInByWin    - 1 if looking for next game based on winning prior game; 0 otherwise
+     * @param GameOrm   $gameOrm        - Output parameter
+     *
+     * @return bool
+     */
+    public static function findByPlayInGameId($gameId, $playInByWin, &$gameOrm)
+    {
+        $results = self::getPersistenceDriver()->getMany(
+            [
+                self::FIELD_PLAY_IN_BY_WIN          => $playInByWin,
+                self::FIELD_PLAY_IN_HOME_GAME_ID    => $gameId
+            ]);
+
+        if (count($results) == 0) {
+            $results = self::getPersistenceDriver()->getMany(
+                [
+                    self::FIELD_PLAY_IN_BY_WIN              => $playInByWin,
+                    self::FIELD_PLAY_IN_VISITING_GAME_ID    => $gameId
+                ]);
+        }
+
+        if (count($results) == 0) {
+            return false;
+        }
+
+        Assertion::isTrue(count($results) == 1, "Invalid count of games found in findByPlayInGameId for $gameId, $playInByWin");
+
+        $gameOrm = new static($results[0]);
+        return true;
     }
 }

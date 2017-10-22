@@ -58,12 +58,27 @@ class View_Games_Flights extends View_Games_Base
                     continue;
                 }
 
+                // Skip if no teams in flight
+                $teams = [];
+                $pools = Pool::lookupByFlight($flight);
+                foreach ($pools as $pool) {
+                    $teams = Team::lookupByPool($pool);
+                    if (count($teams) > 0) {
+                        break;
+                    }
+                }
+
+                if (count($teams) == 0) {
+                    // No teams found for flight
+                    continue;
+                }
+
                 $flightColorIndex = ($flightColorIndex + 1) % count($flightColors);
 
                 print "
                 <table bgcolor='lightgray' valign='top' align='center' width='700' border='0' cellpadding='5' cellspacing='0'>
                     <tr>
-                        <th bgcolor='lightgray' align='center' style='font-size:16px'>$flight->name</th>
+                        <th bgcolor='lightgray' align='center' style='font-size:16px'>Flight $flight->name</th>
                      </tr>
                      <tr>
                         <td>";

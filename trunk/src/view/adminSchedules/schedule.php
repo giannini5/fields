@@ -4,10 +4,12 @@ use \DAG\Domain\Schedule\Schedule;
 use \DAG\Domain\Schedule\Pool;
 use \DAG\Domain\Schedule\Team;
 use \DAG\Domain\Schedule\GameTime;
+use \DAG\Domain\Schedule\Game;
 use \DAG\Domain\Schedule\DivisionField;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Orm\Schedule\ScheduleOrm;
 use \DAG\Domain\Schedule\Flight;
+use \DAG\Orm\Schedule\GameOrm;
 
 /**
  * @brief Show the Schedule page and get the user to select a schedule to administer or create a new schedule.
@@ -283,15 +285,15 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     $gameIds[$gameTime->game->id]               = $gameTime->game->id;
                     $gamesByPoolId[$gameTime->game->pool->id]   += 1;
 
-                    $homeTeamCoachName      = '';
-                    $visitingTeamCoachName  = '';
                     if (isset($gameTime->game->homeTeam)) {
-                        $homeTeamCoachName      = ': ' . Coach::lookupByTeam($gameTime->game->homeTeam)->shortName;
-                        $visitingTeamCoachName  = ': ' . Coach::lookupByTeam($gameTime->game->visitingTeam)->shortName;
+                        $homeTeamCoachName = ': ' . Coach::lookupByTeam($gameTime->game->homeTeam)->shortName;
+                        $teamSelector[$gameTime->game->homeTeam->id] = $gameTime->game->homeTeam->nameId . $homeTeamCoachName;
                     }
 
-                    $teamSelector[$gameTime->game->homeTeam->id]        = $gameTime->game->homeTeam->nameId . $homeTeamCoachName;
-                    $teamSelector[$gameTime->game->visitingTeam->id]    = $gameTime->game->visitingTeam->nameId . $visitingTeamCoachName;
+                    if (isset($gameTime->game->visitingTeam)) {
+                        $visitingTeamCoachName                              = ': ' . Coach::lookupByTeam($gameTime->game->visitingTeam)->shortName;
+                        $teamSelector[$gameTime->game->visitingTeam->id]    = $gameTime->game->visitingTeam->nameId . $visitingTeamCoachName;
+                    }
                 }
             }
         }
@@ -370,7 +372,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             <tr>
                                 <td>";
 
-        $this->_printAddGame($schedule, $gameTimes, $sessionId);
+        $this->_printAddGame($schedule, $flights, $gameTimes, $sessionId);
 
         print "
                                 </td>
@@ -626,9 +628,17 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
             $this->displaySelector('', $name, '', $poolSelector, $selectedPoolName, null, false, 120, 'right', '', $selectorColor);
 
             print "
+                    <td style='color: " . self::AQUA . "'><strong>Seed</strong></td>
                 </tr>";
 
             $teams = Team::lookupByPool($pool);
+            $seedSelector = [];
+            $i = 1;
+            $seedSelector[0] = 0;
+            foreach ($teams as $team) {
+                $seedSelector[$i] = $i;
+                $i += 1;
+            }
             foreach ($teams as $team) {
                 $coach = Coach::lookupByTeam($team);
                 $title = "title='$coach->name'";
@@ -639,6 +649,9 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
                 $name = View_Base::TEAM_POOL_UPDATE_DATA . "[$team->id][" . View_Base::POOL_ID . "]";
                 $this->displaySelector('Pool:', $name, '', $poolSelector, $team->pool->fullName, null, false, 120, 'right');
+
+                $name = View_Base::TEAM_POOL_UPDATE_DATA . "[$team->id][" . View_Base::SEED . "]";
+                $this->displaySelector('', $name, '', $seedSelector, $team->seed, null, false, 35, 'right');
 
                 print "
                 </tr>";
@@ -987,19 +1000,26 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      * Print form to add a game
      *
      * @param Schedule      $schedule
+     * @param Flight[]      $flights
      * @param GameTime[]    $gameTimes
      * @param int           $sessionId
      * @param int           $javaScriptClassIdentifier - Used for expand/collapse
      */
-    private function _printAddGame($schedule, $gameTimes, $sessionId, $javaScriptClassIdentifier = 7)
+    private function _printAddGame($schedule, $flights, $gameTimes, $sessionId, $javaScriptClassIdentifier = 7)
     {
         $expandContract = "expandContract$javaScriptClassIdentifier";
         $collapsible    = "collapsible$javaScriptClassIdentifier";
         $scheduleId     = $schedule->id;
+        $flightSelector = [];
+
+        foreach ($flights as $flight) {
+            $flightSelector[$flight->id] = $flight->name;
+        }
 
         // Create team selector
         $teams = Team::lookupByDivision($schedule->division);
-        $teamSelector = [];
+        $teamSelector       = [];
+        $teamSelector[0]    = 'Set Later';
         foreach ($teams as $team) {
             $coach                      = Coach::lookupByTeam($team);
             $teamSelector[$team->id]    = $team->name . ": " . $coach->shortName;
@@ -1028,10 +1048,20 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
             </tr>";
 
         asort($teamSelector);
+        $this->displaySelector('Flight:', View_Base::FLIGHT_ID, '', $flightSelector, '', $collapsible, true, 150, 'left', 'Flight');
         $this->displaySelector('Home Team:', View_Base::HOME_TEAM_ID, '', $teamSelector, '', $collapsible, true, 150, 'left', 'Home Team');
         $this->displaySelector('Visiting Team:', View_Base::VISITING_TEAM_ID, '', $teamSelector, '', $collapsible, true, 150, 'left', 'Visiting Team');
         $this->displaySelector('Date/Time:', View_Base::GAME_TIME, '', $gameTimeSelector, '', $collapsible);
         $this->displayInput('Actual Start Time', 'text', View_Base::ACTUAL_START_TIME, '', '', null, $collapsible);
+
+        $gameTitlesSelector[GameOrm::TITLE_NONE]            = GameOrm::TITLE_NONE;
+        $gameTitlesSelector[GameOrm::TITLE_PLAYOFF]         = GameOrm::TITLE_PLAYOFF;
+        $gameTitlesSelector[GameOrm::TITLE_QUARTER_FINAL]   = GameOrm::TITLE_QUARTER_FINAL;
+        $gameTitlesSelector[GameOrm::TITLE_5TH_6TH]         = GameOrm::TITLE_5TH_6TH;
+        $gameTitlesSelector[GameOrm::TITLE_3RD_4TH]         = GameOrm::TITLE_3RD_4TH;
+        $gameTitlesSelector[GameOrm::TITLE_SEMI_FINAL]      = GameOrm::TITLE_SEMI_FINAL;
+        $gameTitlesSelector[GameOrm::TITLE_CHAMPIONSHIP]    = GameOrm::TITLE_CHAMPIONSHIP;
+        $this->displaySelector('Game Title:', View_Base::GAME_TITLE, '', $gameTitlesSelector, GameOrm::TITLE_NONE, $collapsible, true, 150, 'left');
 
         print "
                 <tr class='$collapsible'>
@@ -1171,40 +1201,15 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                         if (isset($gameTimeData[$defaultGameTime])) {
                             $game = $gameTimeData[$defaultGameTime];
 
-                            if (isset($game) and $game->pool->id == $pool->id) {
-                                $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
-                                $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
-                                $gender             = $game->homeTeam->division->gender;
+                            if (isset($game)) {
+                                list($homeCoachName, $homeTeamId)
+                                    = View_AdminSchedules_Schedule::getDisplayLabels($game, true);
+                                list($visitingCoachName, $visitingTeamId)
+                                    = View_AdminSchedules_Schedule::getDisplayLabels($game, false);
+
+                                $gender             = isset($game->homeTeam) ? $game->homeTeam->division->gender : $pool->schedule->division->gender;
                                 $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
                                 $gameData           = "Game Id: " . $game->id . "<br>";
-                                $gameData           .= $game->homeTeam->nameId . " vs " . $game->visitingTeam->nameId;
-                                $locked             = $game->isLocked() ? "\nLOCKED" : "";
-                                $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "$locked'";
-
-                                // Change background color to red if game was just moved.
-                                if ((isset($this->m_controller->m_moveGameId) and $game->id == $this->m_controller->m_moveGameId)
-                                    or (isset($this->m_controller->m_primaryGameId) and $game->id == $this->m_controller->m_primaryGameId)
-                                    or (isset($this->m_controller->m_secondaryGameId) and $game->id == $this->m_controller->m_secondaryGameId)) {
-                                    $bgHTML = "bgcolor='red'";
-                                }
-
-                                // Change background color to orange if game is locked
-                                if ($game->isLocked()) {
-                                    $bgHTML = "bgcolor='orange'";
-                                }
-
-                                print "
-                                <td nowrap $bgHTML $title>$gameData</td>";
-                                $entryFound = true;
-                            } else if (isset($game) and $game->title != '' and $game->flight->id == $pool->flight->id) {
-                                $homeTeamCoach      = isset($game->homeTeam) ? Coach::lookupByTeam($game->homeTeam) : null;
-                                $visitingTeamCoach  = isset($game->visitingTeam) ? Coach::lookupByTeam($game->visitingTeam) : null;
-                                $homeCoachName      = isset($homeTeamCoach) ? $homeTeamCoach->name : 'TBD';
-                                $visitingCoachName  = isset($visitingTeamCoach) ? $visitingTeamCoach->name : 'TBD';
-                                $gender             = $pool->schedule->division->gender;
-                                $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
-                                $gameData           = "Game Id: " . $game->id . "<br>";
-                                $gameData           .= $game->title;
                                 $locked             = $game->isLocked() ? "\nLOCKED" : "";
                                 $title              = "title='" . $homeCoachName . " vs " . $visitingCoachName . "$locked'";
 
@@ -1219,6 +1224,19 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                                 if ($game->isLocked()) {
                                     $bgHTML = "bgcolor='orange'";
                                 }
+                            }
+
+                            if (isset($game) and $game->pool->id == $pool->id) {
+                                $gameData   .= $homeTeamId . " vs " . $visitingTeamId;
+                                if ($game->title != '') {
+                                    $gameData .= "<br>$game->title";
+                                }
+
+                                print "
+                                <td nowrap $bgHTML $title>$gameData</td>";
+                                $entryFound = true;
+                            } else if (isset($game) and $game->title != '' and $game->flight->id == $pool->flight->id) {
+                                $gameData   .= $game->title;
 
                                 print "
                                 <td nowrap $bgHTML $title>$gameData</td>";
@@ -1257,5 +1275,25 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
             print "
             </table><br>";
         }
+    }
+
+    /**
+     * @param Game  $game
+     * @param bool  $forHomeTeam
+     * @return array [$coachName, $teamId]
+     */
+    public static function getDisplayLabels($game, $forHomeTeam = true)
+    {
+        $team               = $forHomeTeam ? $game->homeTeam : $game->visitingTeam;
+        $coach              = isset($team) ? Coach::lookupByTeam($team) : null;
+        $playInGameId       = $forHomeTeam ? $game->playInHomeGameId : $game->playInVisitingGameId;
+        $playInGameLabel    = $game->playInByWin == 1 ? "Winner of" : "Loser of";
+
+        $coachName          = isset($coach) ? $coach->name : 'TBD';
+        $coachName          = ($playInGameId != 0 and $coachName == 'TBD') ? "$playInGameLabel $playInGameId" : $coachName;
+        $teamId             = isset($team) ? $team->nameIdWithSeed : 'TBD';
+        $teamId             = ($playInGameId != 0 and $teamId == 'TBD') ? "$playInGameLabel $playInGameId" : $teamId;
+
+        return [$coachName, $teamId];
     }
 }

@@ -69,15 +69,95 @@ class GameOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($gameOrms[0], self::$defaultGameOrmAttributes);
     }
 
+    public function test_findByPlayInGameIdFalse()
+    {
+        $gameOrm    = null;
+        $result     = GameOrm::findByPlayInGameId(1, 0, $gameOrm);
+
+        $this->assertFalse($result);
+        $this->assertTrue(!isset($gameOrm));
+    }
+
+    public function test_findByPlayInGameIdWinTrue()
+    {
+        // Create game with playByWin = 1 and find game
+        $homeGameId     = 2;
+        $visitingGameId = 3;
+        $playInByWin    = 1;
+
+        $this->defaultGameTimeOrm->gameId = null;
+        $this->defaultGameTimeOrm->save();
+        $this->defaultGameOrm->delete();
+
+        $gameOrm = GameOrm::create(
+            $this->defaultFlightOrm->id,
+            $this->defaultPoolOrm->id,
+            $this->defaultGameTimeOrm->id,
+            $this->defaultTeamOrm->id,
+            $this->defaultVisitingTeamOrm->id,
+            self::$defaultGameOrmAttributes[self::TITLE],
+            self::$defaultGameOrmAttributes[self::LOCKED],
+            $homeGameId,
+            $visitingGameId,
+            $playInByWin
+            );
+
+        $foundGameOrm   = null;
+        $result         = GameOrm::findByPlayInGameId($homeGameId, $playInByWin, $foundGameOrm);
+
+        $this->assertTrue($result);
+        $this->assertTrue(isset($foundGameOrm));
+        $this->assertTrue($foundGameOrm->id == $gameOrm->id, "Invalid gameId found");
+        $this->assertTrue($foundGameOrm->playInHomeGameId == $homeGameId, "Invalid home gameId");
+        $this->assertTrue($foundGameOrm->playInVisitingGameId == $visitingGameId, "Invalid visiting gameId");
+    }
+
+    public function test_findByPlayInGameIdWinFalse()
+    {
+        // Create game with playByWin = 1 and find game
+        $homeGameId     = 2;
+        $visitingGameId = 3;
+        $playInByWin    = 0;
+
+        $this->defaultGameTimeOrm->gameId = null;
+        $this->defaultGameTimeOrm->save();
+        $this->defaultGameOrm->delete();
+
+        $gameOrm = GameOrm::create(
+            $this->defaultFlightOrm->id,
+            $this->defaultPoolOrm->id,
+            $this->defaultGameTimeOrm->id,
+            $this->defaultTeamOrm->id,
+            $this->defaultVisitingTeamOrm->id,
+            self::$defaultGameOrmAttributes[self::TITLE],
+            self::$defaultGameOrmAttributes[self::LOCKED],
+            $homeGameId,
+            $visitingGameId,
+            $playInByWin
+        );
+
+        $foundGameOrm   = null;
+        $result         = GameOrm::findByPlayInGameId($homeGameId, $playInByWin, $foundGameOrm);
+
+        $this->assertTrue($result);
+        $this->assertTrue(isset($foundGameOrm));
+        $this->assertTrue($foundGameOrm->id == $gameOrm->id, "Invalid gameId found");
+        $this->assertTrue($foundGameOrm->playInHomeGameId == $homeGameId, "Invalid home gameId");
+        $this->assertTrue($foundGameOrm->playInVisitingGameId == $visitingGameId, "Invalid visiting gameId");
+    }
+
     private function verifyExpectedAttributes($gameOrm, $gameOrmAttributes)
     {
         $this->assertTrue($gameOrm->id > 0);
-        $this->assertEquals($this->defaultFlightOrm->id,        $gameOrm->flightId);
-        $this->assertEquals($this->defaultPoolOrm->id,          $gameOrm->poolId);
-        $this->assertEquals($this->defaultGameTimeOrm->id,      $gameOrm->gameTimeId);
-        $this->assertEquals($this->defaultTeamOrm->id,          $gameOrm->homeTeamId);
-        $this->assertEquals($this->defaultVisitingTeamOrm->id,  $gameOrm->visitingTeamId);
-        $this->assertEquals($gameOrmAttributes[self::TITLE],    $gameOrm->title);
-        $this->assertEquals($gameOrmAttributes[self::LOCKED],   $gameOrm->locked);
+        $this->assertEquals($this->defaultFlightOrm->id,                        $gameOrm->flightId);
+        $this->assertEquals($this->defaultPoolOrm->id,                          $gameOrm->poolId);
+        $this->assertEquals($this->defaultGameTimeOrm->id,                      $gameOrm->gameTimeId);
+        $this->assertEquals($this->defaultTeamOrm->id,                          $gameOrm->homeTeamId);
+        $this->assertEquals($this->defaultVisitingTeamOrm->id,                  $gameOrm->visitingTeamId);
+        $this->assertEquals($gameOrmAttributes[self::TITLE],                    $gameOrm->title);
+        $this->assertEquals($gameOrmAttributes[self::PLAY_IN_HOME_GAME_ID],     $gameOrm->playInHomeGameId);
+        $this->assertEquals($gameOrmAttributes[self::PLAY_IN_VISITING_GAME_ID], $gameOrm->playInHomeGameId);
+        $this->assertEquals($gameOrmAttributes[self::PLAY_IN_BY_WIN],           $gameOrm->playInByWin);
+        $this->assertEquals($gameOrmAttributes[self::LOCKED],                   $gameOrm->locked);
     }
 }

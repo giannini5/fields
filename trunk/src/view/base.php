@@ -157,7 +157,8 @@ abstract class View_Base {
     const GAME_ID1                  = 'gameId1';
     const GAME_ID2                  = 'gameId2';
     const GAME_TIME                 = 'gameTime';
-    const ACTUAL_START_TIME          = 'actualGameTime';
+    const ACTUAL_START_TIME         = 'actualGameTime';
+    const GAME_TITLE                = 'gameTitle';
     const FLIGHT_UPDATE_DATA        = 'flightUpdateData';
     const DIVISION_UPDATE_DATA      = 'divisionUpdateData';
     const SCHEDULE_TYPE             = 'scheduleType';
@@ -185,6 +186,7 @@ abstract class View_Base {
     const DISPLAY_ORDER             = 'displayOrder';
     const GAME_DURATION_MINUTES     = 'gameDurationMinutes';
     const SCORING_TRACKED           = 'scoringTracked';
+    const COMBINE_LEAGUE_SCHEDULES  = 'combineLeagueSchedules';
     const LOCATION_ID               = 'locationId';
     const LOCATION_IDS              = 'locationIds';
     const SCHEDULE_ID               = 'scheduleId';
@@ -198,6 +200,7 @@ abstract class View_Base {
     const HOME_TEAM_ID              = 'homeTeamId';
     const VISITING_TEAM_ID          = 'visitingTeamId';
     const VOLUNTEER_POINTS_DATA     = 'volunteerPointsData';
+    const SEED                      = 'seed';
 
     const EMAIL_ADDRESS             = 'emailAddress';
     const PHONE1                    = 'phone1';

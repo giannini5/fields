@@ -17,11 +17,12 @@ class DivisionTest extends ORM_TestHelper
      * Expected values on create and load
      */
     protected static $expectedDefaults = array(
-        'name'                  => 'TEST Domain division name',
-        'gender'                => 'TEST gender',
-        'gameDurationMinutes'   => 120,
-        'scoringTracked'        => 1,
-        'displayOrder'          => 14,
+        'name'                      => 'TEST Domain division name',
+        'gender'                    => 'TEST gender',
+        'gameDurationMinutes'       => 120,
+        'scoringTracked'            => 1,
+        'displayOrder'              => 14,
+        'combineLeagueSchedules'    => 0,
     );
 
     protected $divisionsToCleanup = array();
@@ -117,14 +118,24 @@ class DivisionTest extends ORM_TestHelper
         $this->assertFalse($division->isScoringTracked);
     }
 
+    public function test_setCombineLeagueSchedules()
+    {
+        $division = Division::lookupById($this->divisionsToCleanup[0]->id);
+        $this->assertEquals(0, $division->combineLeagueSchedules);
+
+        $division->combineLeagueSchedules = 1;
+        $this->assertEquals(1, $division->combineLeagueSchedules);
+    }
+
     public function validateDivision($division, $season, $expectedDefaults)
     {
         $this->assertTrue($division->id > 0);
-        $this->assertEquals($expectedDefaults['name'],                  $division->name);
-        $this->assertEquals($expectedDefaults['gender'],                $division->gender);
-        $this->assertEquals($expectedDefaults['gameDurationMinutes'],   $division->gameDurationMinutes);
-        $this->assertEquals($expectedDefaults['displayOrder'],          $division->displayOrder);
-        $this->assertEquals($season,                                    $division->season);
+        $this->assertEquals($expectedDefaults['name'],                      $division->name);
+        $this->assertEquals($expectedDefaults['gender'],                    $division->gender);
+        $this->assertEquals($expectedDefaults['gameDurationMinutes'],       $division->gameDurationMinutes);
+        $this->assertEquals($expectedDefaults['displayOrder'],              $division->displayOrder);
+        $this->assertEquals($expectedDefaults['combineLeagueSchedules'],    $division->combineLeagueSchedules);
+        $this->assertEquals($season,                                        $division->season);
         $this->assertTrue($division->isScoringTracked);
     }
 }

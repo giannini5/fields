@@ -17,6 +17,8 @@ use DAG\Framework\Exception\Precondition;
  * @property string     $region
  * @property string     $city
  * @property int        $volunteerPoints
+ * @property int        $seed
+ * @property string     $nameIdWithSeed
  */
 class Team extends Domain
 {
@@ -50,6 +52,7 @@ class Team extends Domain
      * @param string    $city
      * @param bool      $ignore - defaults to false and duplicates raise an exception
      * @param int       $volunteerPoints - defaults to 0
+     * @param int       $seed - defaults to 0
      *
      * @return Team
      *
@@ -64,12 +67,13 @@ class Team extends Domain
         $region,
         $city,
         $ignore = false,
-        $volunteerPoints = 0)
+        $volunteerPoints = 0,
+        $seed = 0)
     {
         $poolId = isset($pool) ? $pool->id : null;
 
         try {
-            $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints);
+            $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints, $seed);
             return new static($teamOrm, $division, $pool);
         } catch (DuplicateEntryException $e) {
             if ($ignore) {
@@ -143,10 +147,17 @@ class Team extends Domain
     /**
      * @param Division $a
      * @param Division $b
+     *
      * @return int - -1, 0, 1 based on how $a name compares with $b
      */
     public static function compare($a, $b)
     {
+        if ($a->seed < $b->seed) {
+            return -1;
+        } elseif ($b->seed < $a->seed) {
+            return 1;
+        }
+
         return strcmp($a->nameId, $b->nameId);
     }
 
@@ -163,7 +174,14 @@ class Team extends Domain
             case "region":
             case "city":
             case "volunteerPoints":
+            case "seed":
                 return $this->teamOrm->{$propertyName};
+
+            case "nameIdWithSeed":
+                if ($this->teamOrm->seed != 0) {
+                    return $this->teamOrm->nameId . " (" . $this->teamOrm->seed . ")";
+                }
+                return $this->teamOrm->nameId;
 
             case "division":
             case "pool":
@@ -186,6 +204,7 @@ class Team extends Domain
             case "region":
             case "city":
             case "volunteerPoints":
+            case "seed":
                 $this->teamOrm->{$propertyName} = $value;
                 $this->teamOrm->save();
                 break;
@@ -221,6 +240,7 @@ class Team extends Domain
             case "city":
             case "division":
             case "volunteerPoints":
+            case "seed":
                 return true;
 
             case "pool":

@@ -96,6 +96,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
     public $m_visitingTeamId;
     public $m_gameTimeId;
     public $m_actualStartTime;
+    public $m_gameTitle;
 
     public function __construct() {
         parent::__construct();
@@ -325,6 +326,11 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             }
 
             if ($this->m_operation == View_Base::ADD) {
+                $this->m_flightId = $this->getPostAttribute(
+                    View_Base::FLIGHT_ID,
+                    '', true, true, 'Error: Flight Id is a Required Field'
+                );
+
                 $this->m_homeTeamId = $this->getPostAttribute(
                     View_Base::HOME_TEAM_ID,
                     null,
@@ -354,6 +360,12 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                     null,
                     true,
                     true);
+
+                $this->m_gameTitle = $this->getPostAttribute(
+                    View_Base::GAME_TITLE,
+                    null,
+                    true,
+                    false);
             }
 
 
@@ -564,14 +576,12 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
     }
 
     /**
-     * Create schedule and pools for specified division.
-     *
      * @param Division $division
      *
      * @return Schedule
      *
      * @throws NotEnoughGameTimesException
-     * @throws UnpublishedScheduleException
+     * @throws ScheduleOverlapException
      */
     private function createScheduleForDivision($division)
     {
@@ -662,6 +672,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             $team = Team::lookupById($teamId);
             $pool = Pool::lookupById($data[View_Base::POOL_ID]);
             $team->pool = $pool;
+            $team->seed = $data[View_Base::SEED];
         }
 
         foreach ($this->m_flightUpdates as $flightId => $data) {
@@ -1131,12 +1142,12 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
      */
     private function _addGame()
     {
-        $homeTeam                   = Team::lookupById((int)$this->m_homeTeamId);
-        $visitingTeam               = Team::lookupById((int)$this->m_visitingTeamId);
-        $schedule                   = $homeTeam->pool->schedule;
+        $homeTeam                   = $this->m_homeTeamId == 0 ? null : Team::lookupById((int)$this->m_homeTeamId);
+        $visitingTeam               = $this->m_visitingTeamId == 0 ? null : Team::lookupById((int)$this->m_visitingTeamId);
+        $schedule                   = Schedule::lookupById((int)$this->m_scheduleId);
         $gameTime                   = GameTime::lookupById((int)$this->m_gameTimeId);
-        $pool                       = $homeTeam->pool;
-        $flight                     = $pool->flight;
+        $pool                       = isset($homeTeam) ? $homeTeam->pool : null;
+        $flight                     = isset($pool) ? $pool->flight : Flight::lookupById((int)$this->m_flightId);
         $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
         $this->m_divisionNames[]    = $divisionNameWithGender;
 
@@ -1153,7 +1164,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         }
 
         // Verify both teams are in the same flight and pool
-        if ($homeTeam->pool->id != $visitingTeam->pool->id) {
+        if (isset($homeTeam) and isset($visitingTeam) and $homeTeam->pool->id != $visitingTeam->pool->id) {
             $this->m_errorString = "Error: Support not implemented yet to allow cross-pool games.";
             return;
         }
@@ -1164,19 +1175,23 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             $pool,
             $gameTime,
             $homeTeam,
-            $visitingTeam);
+            $visitingTeam,
+            $this->m_gameTitle);
         
         // Update actual game time if requested
         if (!empty($this->m_actualStartTime)) {
             $gameTime->actualStartTime = $this->m_actualStartTime;
         }
 
-        $coach                  = Coach::lookupByTeam($homeTeam);
-        $homeTeamName           = $homeTeam->name . " - " . $coach->shortName;
-        $coach                  = Coach::lookupByTeam($visitingTeam);
-        $visitingTeamName       = $visitingTeam->name . " - " . $coach->shortName;
         $this->m_errorString    = '';
-        $this->m_messageString  = "Game $game->id added between ${homeTeamName} and ${visitingTeamName}.";
+        $this->m_messageString  = "Game $game->id added.";
+        if (isset($homeTeam)) {
+            $coach                  = Coach::lookupByTeam($homeTeam);
+            $homeTeamName           = $homeTeam->name . " - " . $coach->shortName;
+            $coach                  = Coach::lookupByTeam($visitingTeam);
+            $visitingTeamName       = $visitingTeam->name . " - " . $coach->shortName;
+            $this->m_messageString  = "Game $game->id added between ${homeTeamName} and ${visitingTeamName}.";
+        }
     }
 
     /**

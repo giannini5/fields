@@ -45,6 +45,9 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const GAMES_PER_TEAM              = 'gamesPerTeam';
     const GENDER_PREFERENCE           = 'genderPreference';
     const TITLE                       = 'title';
+    const PLAY_IN_HOME_GAME_ID        = 'playInHomeGameId';
+    const PLAY_IN_VISITING_GAME_ID    = 'playInVisitingGameId';
+    const PLAY_IN_BY_WIN              = 'playInByWin';
     const LOCKED                      = 'locked';
     const SCHEDULE_TYPE               = 'scheduleType';
     const INCLUDE_5TH_6TH_GAME        = 'include5th6thGame';
@@ -53,6 +56,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const INCLUDE_CHAMPIONSHIP_GAME   = 'includeChampionshipGame';
     const SCHEDULE_GAMES              = 'scheduleGames';
     const VOLUNTEER_POINTS            = 'volunteerPoints';
+    const SEED                        = 'seed';
+    const COMBINE_LEAGUE_SCHEDULES    = 'combineLeagueSchedules';
 
 
     protected static $defaultSeasonOrmAttributes =
@@ -108,11 +113,12 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     protected static $defaultDivisionOrmAttributes =
         [
-            self::NAME                  => 'UTestG',
-            self::GENDER                => 'Girls',
-            self::DISPLAY_ORDER         => 1,
-            self::GAME_DURATION_MINUTES => 60,
-            self::SCORING_TRACKED       => 1,
+            self::NAME                      => 'UTestG',
+            self::GENDER                    => 'Girls',
+            self::DISPLAY_ORDER             => 1,
+            self::GAME_DURATION_MINUTES     => 60,
+            self::SCORING_TRACKED           => 1,
+            self::COMBINE_LEAGUE_SCHEDULES  => 0,
         ];
 
     protected static $defaultPoolOrmAttributes =
@@ -150,6 +156,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::REGION            => '686',
             self::CITY              => 'Who Knows',
             self::VOLUNTEER_POINTS  => 0,
+            self::SEED              => 0,
         ];
 
     protected static $defaultVisitingTeamOrmAttributes =
@@ -159,6 +166,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::REGION            => '688',
             self::CITY              => 'Uhhh',
             self::VOLUNTEER_POINTS  => 0,
+            self::SEED              => 0,
         ];
 
     protected static $defaultCoachOrmAttributes =
@@ -192,8 +200,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     protected static $defaultGameOrmAttributes =
         [
-            self::TITLE     => 'Finals',
-            self::LOCKED    => 0,
+            self::TITLE                     => 'Finals',
+            self::PLAY_IN_HOME_GAME_ID      => 0,
+            self::PLAY_IN_VISITING_GAME_ID  => 0,
+            self::PLAY_IN_BY_WIN            => 0,
+            self::LOCKED                    => 0,
         ];
 
     public $defaultLeagueOrm;
@@ -263,7 +274,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultDivisionOrmAttributes[self::GENDER],
             self::$defaultDivisionOrmAttributes[self::GAME_DURATION_MINUTES],
             self::$defaultDivisionOrmAttributes[self::DISPLAY_ORDER],
-            self::$defaultDivisionOrmAttributes[self::SCORING_TRACKED]);
+            self::$defaultDivisionOrmAttributes[self::SCORING_TRACKED],
+            self::$defaultDivisionOrmAttributes[self::COMBINE_LEAGUE_SCHEDULES]);
 
         $this->defaultFieldOrm = FieldOrm::create(
             $this->defaultFacilityOrm->id,
@@ -314,7 +326,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultTeamOrmAttributes[self::NAME_ID],
             self::$defaultTeamOrmAttributes[self::REGION],
             self::$defaultTeamOrmAttributes[self::CITY],
-            self::$defaultTeamOrmAttributes[self::VOLUNTEER_POINTS]);
+            self::$defaultTeamOrmAttributes[self::VOLUNTEER_POINTS],
+            self::$defaultTeamOrmAttributes[self::SEED]);
 
         $this->defaultVisitingTeamOrm = TeamOrm::create(
             $this->defaultDivisionOrm->id,
@@ -323,7 +336,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultVisitingTeamOrmAttributes[self::NAME_ID],
             self::$defaultVisitingTeamOrmAttributes[self::REGION],
             self::$defaultVisitingTeamOrmAttributes[self::CITY],
-            self::$defaultVisitingTeamOrmAttributes[self::VOLUNTEER_POINTS]);
+            self::$defaultVisitingTeamOrmAttributes[self::VOLUNTEER_POINTS],
+            self::$defaultVisitingTeamOrmAttributes[self::SEED]);
 
         $this->defaultCoachOrm = CoachOrm::create(
             $this->defaultTeamOrm->id,

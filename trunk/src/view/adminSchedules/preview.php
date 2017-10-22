@@ -362,15 +362,25 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                                 $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
 
                                 if (isset($game->homeTeam)) {
-                                    $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
-                                    $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
-                                    $homeTeam           = $game->homeTeam;
-                                    $visitingTeam       = $game->visitingTeam;
-                                    $cellHTML           = "H: " . $homeTeam->nameId . "<br>" . "V: " . $visitingTeam->nameId;
-                                    $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+                                    $homeTeamCoach = Coach::lookupByTeam($game->homeTeam);
+                                    $homeTeam      = $game->homeTeam;
+
+                                    if (isset($game->visitingTeam)) {
+                                        $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
+                                        $visitingTeam       = $game->visitingTeam;
+                                        $cellHTML           = "H: " . $homeTeam->nameIdWithSeed . "<br>" . "V: " . $visitingTeam->nameIdWithSeed;
+                                        $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+                                    } else {
+                                        $cellHTML = "H: " . $homeTeam->nameIdWithSeed . "<br>" . "V: TBD";
+                                        $title    = "title='" . $homeTeamCoach->name . " vs TBD'";
+                                    }
+
+                                    if (isset($game->title)) {
+                                        $cellHTML .= "<br>" . $game->title;
+                                    }
                                 } else {
-                                    $cellHTML           = $game->title;
-                                    $title              = "title='" . $game->title . "'";
+                                    $cellHTML = $game->title;
+                                    $title    = "title='" . $game->title . "'";
                                 }
                             } else {
                                 $bgHTML = $gameTime->genderPreference == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";

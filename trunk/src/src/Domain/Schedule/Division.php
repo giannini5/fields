@@ -19,6 +19,7 @@ use DAG\Framework\Exception\Precondition;
  * @property int    $scoringTracked
  * @property bool   $isScoringTracked
  * @property string $displayOrder
+ * @property int    $combineLeagueSchedules
  */
 class Division extends Domain
 {
@@ -188,6 +189,7 @@ class Division extends Domain
             case "gameDurationMinutes":
             case "scoringTracked":
             case "displayOrder":
+            case "combineLeagueSchedules":
                 return $this->divisionOrm->{$propertyName};
 
             case "isScoringTracked":
@@ -215,6 +217,7 @@ class Division extends Domain
             case "gameDurationMinutes":
             case "scoringTracked":
             case "displayOrder":
+            case "combineLeagueSchedules":
                 $this->divisionOrm->{$propertyName} = $value;
                 $this->divisionOrm->save();
                 break;
