@@ -527,7 +527,8 @@ class Game extends Domain
             return true;
         }
 
-        if (in_array($this->playInHomeGameId, $playInGameIds) or in_array($this->playInVisitingGameId, $playInGameIds)) {
+        if ((!isset($this->homeTeam) or !isset($this->visitingTeam))
+            and (in_array($this->playInHomeGameId, $playInGameIds) or in_array($this->playInVisitingGameId, $playInGameIds))) {
             return true;
         }
 

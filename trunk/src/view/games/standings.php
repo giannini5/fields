@@ -9,6 +9,8 @@ use \DAG\Domain\Schedule\Coach;
 use \DAG\Orm\Schedule\ScheduleOrm;
 use \DAG\Domain\Schedule\Team;
 use \DAG\Orm\Schedule\GameOrm;
+use \DAG\Framework\Exception\Assertion;
+use \DAG\Framework\Exception\Precondition;
 
 /**
  * @brief Show the Standings Viewing page
@@ -47,7 +49,6 @@ class View_Games_Standings extends View_Games_Base
         if (isset($this->m_controller->m_division)) {
             $this->printStandingsForDivision($this->m_controller->m_division);
         }
-
     }
 
     /**
@@ -100,6 +101,10 @@ class View_Games_Standings extends View_Games_Base
         $scheduleTitle  = "";
 
         foreach ($schedules as $schedule) {
+            if ($schedule->published != 1) {
+                continue;
+            }
+
             switch ($schedule->scheduleType) {
                 case ScheduleOrm::SCHEDULE_TYPE_LEAGUE:
                     if ($division->combineLeagueSchedules) {
@@ -111,7 +116,7 @@ class View_Games_Standings extends View_Games_Base
                     break;
 
                 case ScheduleOrm::SCHEDULE_TYPE_BRACKET:
-                    print "<p>Bracket not supported</p>";
+                    $this->printStandingsForBracketPlay($schedule);
                     break;
 
                 case ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT:
@@ -352,7 +357,7 @@ class View_Games_Standings extends View_Games_Base
         arsort($teamPoints);
 
         print "
-                <table bgcolor='yellow' valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
+                <table bgcolor='yellow' valign='top' align='center' width='850' border='0' cellpadding='5' cellspacing='0'>
                     <tr>
                         <th><h1>$scheduleTitle</h1></th>
                     </tr>
@@ -363,13 +368,13 @@ class View_Games_Standings extends View_Games_Base
             $standingsPrinted   = true;
 
             print "
-                <table bgcolor='lightgray' valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
+                <table bgcolor='lightgray' valign='top' align='center' width='850' border='0' cellpadding='5' cellspacing='0'>
                     <tr>
                         <td valign='top'>";
 
             foreach ($poolsData as $poolName => $teamData) {
                 print "
-                    <table bgcolor='white' valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
+                    <table bgcolor='white' valign='top' align='center' width='850' border='1' cellpadding='5' cellspacing='0'>
                         <tr bgcolor='lightskyblue'>
                             <th colspan='12'>Flight $flightName: $poolName</th>
                         </tr>
@@ -465,13 +470,13 @@ class View_Games_Standings extends View_Games_Base
             $pools = Pool::lookupByFlight($flight);
 
             print "
-            <table bgcolor='lightgray' valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
+            <table bgcolor='lightgray' valign='top' align='center' width='850' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td>";
 
             foreach ($pools as $pool) {
                 print "
-                    <table bgcolor='white' valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
+                    <table bgcolor='white' valign='top' align='center' width='850' border='1' cellpadding='5' cellspacing='0'>
                         <tr bgcolor='lightskyblue'>
                             <th colspan='11'>$flight->name: $pool->name</th>
                         </tr>
@@ -501,8 +506,8 @@ class View_Games_Standings extends View_Games_Base
                             <td>$coach->shortName</td>";
 
                     foreach ($games as $game) {
-                        // Skip Title Games
-                        if ($game->title != '') {
+                        // Skip Title Games and games not in same pool
+                        if ($game->title != '' or $game->pool->id != $team->pool->id) {
                             continue;
                         }
 
@@ -540,6 +545,199 @@ class View_Games_Standings extends View_Games_Base
         }
     }
 
+    /**
+     * @param Schedule  $schedule
+     */
+    private function printStandingsForBracketPlay($schedule)
+    {
+        if ($schedule->published != 1) {
+            return;
+        }
+
+        print "
+                <table bgcolor='yellow' valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
+                    <tr>
+                        <th><h1>" . $schedule->name . "<br>" . "</h1></th>
+                    </tr>
+                    <tr>
+                        <td valign='top'>";
+
+        $flights = Flight::lookupBySchedule($schedule);
+        foreach ($flights as $flight) {
+            // Skip flights where no games are scheduled
+            if ($flight->scheduleGames != 1) {
+                continue;
+            }
+
+            print "
+                <table bgcolor='lightgray' valign='top' align='center' width='850' border='0' cellpadding='5' cellspacing='0'>
+                    <tr>
+                        <th><strong style='font-size: medium'>" . $flight->name . "</strong></th>
+                    </tr>
+                    <tr>
+                        <td valign='top'>";
+
+            // Print title game info (if any)
+            $this->printTitleGames($flight);
+
+            print "                    
+                        </td>
+                    </tr>
+                </table><br><br>";
+        }
+
+        print "                    
+                        </td>
+                    </tr>
+                </table><br><br>";
+    }
+
+    /**
+     * @param Schedule  $schedule
+     */
+    private function printStandingsForBracketPlayWorkInProgress($schedule)
+    {
+        // TODO:
+        // Add gameOrdering
+        // Display by gameOrdering
+        // Figure out how to display gameId, coachName, game result
+        //
+        Precondition::isTrue($schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_BRACKET, "Invalid scheduleType: " . $schedule->scheduleType);
+
+        $flights = Flight::lookupBySchedule($schedule);
+
+        foreach ($flights as $flight) {
+            // Skip flights where no games are scheduled
+            if ($flight->scheduleGames != 1) {
+                continue;
+            }
+
+            $pools  = Pool::lookupByFlight($flight);
+            Assertion::isTrue(count($pools) == 1, "Too many pools, only one supporte: " . count($pools));
+
+            $pool   = $pools[0];
+            $teams  = Team::lookupByPool($pool);
+            $rounds = count($teams) == 10 ? 4 : 0;
+            Assertion::isTrue($rounds == 4, "Unsupported number of rounds: $rounds.  Only 4 supported at this time");
+
+            print "
+            <table bgcolor='lightgray' valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <td>
+                    <table bgcolor='white' valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
+                        <tr bgcolor='lightskyblue'>
+                            <th colspan='11'>$flight->name</th>
+                        </tr>
+                        <tr bgcolor='lightskyblue'>";
+
+            for ($i=1; $i<=$rounds; ++$i) {
+                $label = "Playoff";
+                switch ($rounds - $i) {
+                    case 2:
+                        $label = "Quarter-Finals";
+                        break;
+                    case 1:
+                        $label = "Semi-Finals";
+                        break;
+                    case 0:
+                        $label = "Finals";
+                        break;
+                }
+
+                print "
+                            <th>$label</th>";
+            }
+
+            print "
+                        </tr>";
+
+            $games          = Game::lookupByPool($pool);
+            $gamesByRound   = [];
+            foreach ($games as $game) {
+                Assertion::isTrue(!empty($game->title), "Invalid game title for gameId " . $game->id);
+                $gamesByRound[$game->title][] = $game;
+            }
+
+            $rows = $rounds == 4 ? 16 : 0;
+            Assertion::isTrue($rows == 16, "Unsupported number of rows: $rows.  Only 16 supported at this time");
+
+            for ($row = 1; $row <= $rows; ++$row) {
+                print "
+                        <tr>";
+
+                for ($i=1; $i<=$rounds; ++$i) {
+                    $game           = null;
+                    $team           = null;
+                    $homeAwayLabel  = null;
+                    $playInLabel    = "Winner of ";
+
+                    switch ($rounds - $i) {
+                        case 3:
+                            $gameIndex = ceil($row / 2);
+                            $game = count($gamesByRound[GameOrm::TITLE_PLAYOFF]) < $gameIndex ? null : $gamesByRound[GameOrm::TITLE_PLAYOFF][$gameIndex - 1];
+                            if (isset($game)) {
+                                $team = $row % 2 == 0 ? $game->visitingTeam : $game->homeTeam;
+                            }
+                            $homeAwayLabel = $row % 2 == 0 ? "V:" : "H:";
+                            break;
+                        case 2:
+                            if ($row == 2 or $row == 3 or $row == 6 or $row == 7 or $row == 10 or $row == 11 or $row == 14 or $row == 15) {
+                                $gameIndex = ceil($row / 4);
+                                $game = count($gamesByRound[GameOrm::TITLE_QUARTER_FINAL]) < $gameIndex ? null : $gamesByRound[GameOrm::TITLE_QUARTER_FINAL][$gameIndex - 1];
+                                if (isset($game)) {
+                                    $team = $row % 2 == 0 ? $game->homeTeam : $game->visitingTeam;
+                                }
+                                $homeAwayLabel = $row % 2 == 0 ? "H:" : "V:";
+                            }
+                            break;
+                        case 1:
+                            if ($row == 4 or $row == 5 or $row == 12 or $row == 13) {
+                                $gameIndex = ceil($row / 8);
+                                $game = count($gamesByRound[GameOrm::TITLE_SEMI_FINAL]) < $gameIndex ? null : $gamesByRound[GameOrm::TITLE_SEMI_FINAL][$gameIndex - 1];
+                                if (isset($game)) {
+                                    $team = $row % 2 == 0 ? $game->homeTeam : $game->visitingTeam;
+                                }
+                                $homeAwayLabel = $row % 2 == 0 ? "H:" : "V:";
+                            }
+                            break;
+                        case 0:
+                            if ($row == 8 or $row == 9) {
+                                Assertion::isTrue(count($gamesByRound[GameOrm::TITLE_CHAMPIONSHIP]) == 1, "Invalid number of championship games");
+                                $game = $gamesByRound[GameOrm::TITLE_CHAMPIONSHIP][0];
+                                $team = $row % 2 == 0 ? $game->homeTeam : $game->visitingTeam;
+                                $homeAwayLabel = $row % 2 == 0 ? "H:" : "V:";
+                            } else if ($row == 15 or $row == 16) {
+                                Assertion::isTrue(count($gamesByRound[GameOrm::TITLE_3RD_4TH]) == 1, "Invalid number of 3rd/4th games");
+                                $game = $gamesByRound[GameOrm::TITLE_3RD_4TH][0];
+                                $team = $row % 2 == 0 ? $game->homeTeam : $game->visitingTeam;
+                                $homeAwayLabel  = $row % 2 == 0 ? "H:" : "V:";
+                                $playInLabel    = "Loser of ";
+                            }
+                            break;
+                    }
+
+                    if (isset($game)) {
+                        $teamLabel = isset($team) ? $homeAwayLabel . " " . $team->nameIdWithSeed : $playInLabel . $game->id;
+                        print "
+                            <th>$teamLabel</th>";
+                    } else {
+                        print "
+                            <th>&nbsp</th>";
+                    }
+                }
+
+                print "
+                        </tr>";
+            }
+
+            print "
+                    </table><br>
+                        </td>
+                    </tr>
+                </table><br><br>";
+        }
+    }
+
     private function printTitleGames($flight)
     {
         $games = Game::lookupByFlight($flight);
@@ -559,59 +757,53 @@ class View_Games_Standings extends View_Games_Base
                 $games = $titleGames[$title];
 
                 print "
-                    <table bgcolor='white' valign='top' align='center' width='800' border='1' cellpadding='5' cellspacing='0'>
+                    <table bgcolor='white' valign='top' align='center' width='850' border='1' cellpadding='5' cellspacing='0'>
                         <tr bgcolor='lightskyblue'>
-                            <th colspan='7'>$flight->name: $title</th>
+                            <th colspan='8'>$flight->name: $title</th>
                         </tr>
                         <tr bgcolor='lightskyblue'>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Field</th>
-                            <th>Home Team</th>
-                            <th>Visiting Team</th>
-                            <th>Score</th>
-                            <th>Winning Team</th>
+                            <th nowrap>Date</th>
+                            <th nowrap>Time</th>
+                            <th nowrap>Field</th>
+                            <th nowrap>Game Id</th>
+                            <th nowrap>Home Team</th>
+                            <th nowrap>Visiting Team</th>
+                            <th nowrap>Score</th>
+                            <th nowrap>Winning Team</th>
                         </tr>";
 
                 foreach ($games as $game) {
-                    $date               = $game->gameTime->gameDate->day;
-                    $time               = substr($game->gameTime->startTime, 0, 5);
-                    $field              = $game->gameTime->field->fullName;
-                    $homeTeamName       = "&nbsp";
-                    $visitingTeamName   = "&nbsp";
-                    $homeTeamTitle      = '';
-                    $visitingTeamTitle  = '';
+                    $date   = $game->gameTime->gameDate->day;
+                    $time   = substr($game->gameTime->startTime, 0, 5);
+                    $field  = $game->gameTime->field->fullName;
+
+                    $homeLabels     = View_AdminSchedules_Base::getDisplayLabels($game, true);
+                    $homeTeamName   = $homeLabels[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                    $homeTeamTitle  = "title='" . $homeLabels[View_Base::HOVER_TEXT] . "'";
+
+                    $visitingLabels     = View_AdminSchedules_Base::getDisplayLabels($game, false);
+                    $visitingTeamName   = $visitingLabels[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                    $visitingTeamTitle  = "title='" . $visitingLabels[View_Base::HOVER_TEXT] . "'";
+
                     $score              = "&nbsp";
                     $winningTeam        = "&nbsp";
                     $winningTeamTitle   = '';
-                    if (isset($game->homeTeam)) {
-                        $team           = $game->homeTeam;
-                        $coach          = Coach::lookupByTeam($team);
-                        $homeTeamName   = $team->nameId . ": " . $coach->shortName;
-                        $homeTeamTitle  = "title='" . $team->name . " " . $team->region . " (" . $team->city . ")'";
-
-                        $team               = $game->visitingTeam;
-                        $coach              = Coach::lookupByTeam($team);
-                        $visitingTeamName   = $team->nameId . ": " . $coach->shortName;
-                        $visitingTeamTitle  = "title='" . $team->name . " " . $team->region . " (" . $team->city . ")'";
-
-                        $score          = '';
-                        $winningTeam    = '';
-                        if (isset($game->homeTeamScore)) {
-                            $score              = $game->homeTeamScore . " - " . $game->visitingTeamScore;
-                            $winningTeam        = $game->homeTeamScore > $game->visitingTeamScore ? $homeTeamName : $visitingTeamName;
-                            $winningTeamTitle   = "title='" . $team->name . " " . $team->region . " (" . $team->city . ")'";
-                        }
+                    if (isset($game->homeTeamScore)) {
+                        $score              = $game->homeTeamScore . " - " . $game->visitingTeamScore;
+                        $winningTeam        = $game->homeTeamScore > $game->visitingTeamScore ? $homeTeamName : $visitingTeamName;
+                        $winningTeamTitle   = $game->homeTeamScore > $game->visitingTeamScore ? $homeTeamTitle : $visitingTeamTitle;
                     }
+
                     print "
                         <tr>
-                            <td>$date</td>
-                            <td>$time</td>
-                            <td>$field</td>
-                            <td $homeTeamTitle>$homeTeamName</td>
-                            <td $visitingTeamTitle>$visitingTeamName</td>
-                            <td align='center'>$score</td>
-                            <td $winningTeamTitle bgcolor='lightgreen'>$winningTeam</td>
+                            <td nowrap>$date</td>
+                            <td nowrap>$time</td>
+                            <td nowrap>$field</td>
+                            <td nowrap>$game->id</td>
+                            <td nowrap $homeTeamTitle>$homeTeamName</td>
+                            <td nowrap $visitingTeamTitle>$visitingTeamName</td>
+                            <td nowrap align='center'>$score</td>
+                            <td nowrap $winningTeamTitle bgcolor='lightgreen'>$winningTeam</td>
                         </tr>";
                 }
 

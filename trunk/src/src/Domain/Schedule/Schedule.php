@@ -977,7 +977,7 @@ class Schedule extends Domain
                 $game1 = $this->createBracketGame($pool, $gameTimesByTime, $playoff1Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
                 $game2 = $this->createBracketGame($pool, $gameTimesByTime, $playoff2Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
 
-                // Create Quarter Final Games
+                // Create Quarter Final Games (in reverse order to give more time from playoff games
                 if (count($teams) == 9) {
                     Assertion::isTrue(isset($game1), "Playoff game not found for pool of size 9");
                     $minStartTime = date("H:i:s", strtotime($game1->gameTime->startTime) + $timeBetweenGames);
@@ -986,10 +986,10 @@ class Schedule extends Domain
                     $minStartTime = date("H:i:s", strtotime($game2->gameTime->startTime) + $timeBetweenGames);
                 }
 
-                $q1Game = $this->createBracketGame($pool, $gameTimesByTime, $game1Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $game1);
-                $q2Game = $this->createBracketGame($pool, $gameTimesByTime, $game2Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $game2);
-                $q3Game = $this->createBracketGame($pool, $gameTimesByTime, $game3Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
                 $q4Game = $this->createBracketGame($pool, $gameTimesByTime, $game4Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
+                $q3Game = $this->createBracketGame($pool, $gameTimesByTime, $game3Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
+                $q2Game = $this->createBracketGame($pool, $gameTimesByTime, $game2Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $game2);
+                $q1Game = $this->createBracketGame($pool, $gameTimesByTime, $game1Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $game1);
 
                 // Create Semi-Final Games
                 $minStartTime       = '05:00:00';

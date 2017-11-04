@@ -1,6 +1,7 @@
 <?php
 
 use \DAG\Domain\Schedule\Coach;
+use \DAG\Domain\Schedule\Game;
 
 /**
  * @brief: Abstract base class for all adminSchedule views.
@@ -87,5 +88,39 @@ abstract class View_AdminSchedules_Base extends View_Base {
                     <td><font color='#069'><b>Coach:&nbsp</b></font></td>
                     <td><select name='" . View_Base::FILTER_COACH_ID . "'>" . $selectorHTML . "</select></td>
                 </tr>";
+    }
+
+    /**
+     * @param Game  $game
+     * @param bool  $forHomeTeam
+     * @return array [COACH_NAME=>value, TEAM_ID=>value, TAEAM_ID_COACH_SHORT_NAME=>value, HOVER_TEXT=>value]
+     */
+    public static function getDisplayLabels($game, $forHomeTeam = true)
+    {
+        $team               = $forHomeTeam ? $game->homeTeam : $game->visitingTeam;
+        $coach              = isset($team) ? Coach::lookupByTeam($team) : null;
+        $playInGameId       = $forHomeTeam ? $game->playInHomeGameId : $game->playInVisitingGameId;
+        $playInGameLabel    = $game->playInByWin == 1 ? "Winner of" : "Loser of";
+
+        $coachName          = isset($coach) ? $coach->name : 'TBD';
+        $coachName          = ($playInGameId != 0 and $coachName == 'TBD') ? "$playInGameLabel $playInGameId" : $coachName;
+        $teamId             = isset($team) ? $team->nameIdWithSeed : 'TBD';
+        $teamId             = ($playInGameId != 0 and $teamId == 'TBD') ? "$playInGameLabel $playInGameId" : $teamId;
+
+        $teamIdWithCoachShortName   = isset($team) ? $teamId . ": " . $coach->shortName : "<span style='color: orange'>" . $teamId . "</span>";
+        $hoverText                  = isset($team) ? $teamId . " " . $team->region . " (" . $team->city . ")" : $teamId;
+
+        $values[View_Base::COACH_NAME]                  = $coachName;
+        $values[View_Base::TEAM_ID]                     = $teamId;
+        $values[View_Base::TAEAM_ID_COACH_SHORT_NAME]   = $teamIdWithCoachShortName;
+        $values[View_Base::HOVER_TEXT]                  = $hoverText;
+
+        if ($forHomeTeam) {
+            $values[View_Base::SCORE]   = isset($game->homeTeamScore) ? $game->homeTeamScore : "&nbsp";
+        } else {
+            $values[View_Base::SCORE]   = isset($game->visitingTeamScore) ? $game->visitingTeamScore : "&nbsp";
+        }
+
+        return $values;
     }
 }
