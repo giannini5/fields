@@ -201,6 +201,9 @@ abstract class View_Base {
     const VISITING_TEAM_ID          = 'visitingTeamId';
     const VOLUNTEER_POINTS_DATA     = 'volunteerPointsData';
     const SEED                      = 'seed';
+    const TAEAM_ID_COACH_SHORT_NAME = 'teamIdWithCoachShortName';
+    const HOVER_TEXT                = 'hoverText';
+    const SCORE                     = 'score';
 
     const EMAIL_ADDRESS             = 'emailAddress';
     const PHONE1                    = 'phone1';

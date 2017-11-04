@@ -194,27 +194,19 @@ class View_Games_Team
                         $dayCell            = $dayCellPrinted ? '' : "<td nowrap rowspan='$rowSpan'>$day</td>";
                         $dayCellPrinted     = true;
                         $fieldName          = $facility->name . ": " . $field->name;
-                        $homeTeamName       = 'TBD';
-                        $visitingTeamName   = 'TBD';
                         $homeTeamStyle      = '';
                         $visitingTeamStyle  = '';
                         $result             = '';
-                        $homeTeamTitle      = '';
-                        $visitingTeamTitle  = '';
                         $startTimeBgColor   = '';
                         $gameTitle          = empty($game->title) ? "" : "<br><strong style='color:green'>$game->title</strong>";
                         if ($lastStartTime != '' and !$publishedOnly) {
                             $diffInHours        = self::diffInHours($lastStartTime, $startTime);
-                            $startTimeBgColor   = ($diffInHours < 2 and $homeTeamName != 'TBD') ? "bgcolor='red'" : "";
-                            $startTimeBgColor   = ($diffInHours > 4 and $homeTeamName != 'TBD') ? "bgcolor='orange'" : $startTimeBgColor;
+                            $startTimeBgColor   = ($diffInHours < 2) ? "bgcolor='red'" : "";
+                            $startTimeBgColor   = ($diffInHours > 4) ? "bgcolor='orange'" : $startTimeBgColor;
                         }
                         $lastStartTime      = $startTime;
 
                         if (isset($game->homeTeam)) {
-                            $homeCoach      = Coach::lookupByTeam($game->homeTeam);
-                            $homeTeamName   = $game->homeTeam->nameIdWithSeed . ": " . $homeCoach->lastName;
-                            $homeTeamTitle  = "title='" . $game->homeTeam->name . ": " . $game->homeTeam->region . " (" . $game->homeTeam->city . ")'";
-
                             if ($team->id == $game->homeTeam->id) {
                                 $homeTeamCount  += 1;
                                 $homeTeamStyle  = "style='color: red'";
@@ -226,11 +218,13 @@ class View_Games_Team
                             }
                         }
 
-                        if (isset($game->visitingTeam)) {
-                            $visitingCoach = Coach::lookupByTeam($game->visitingTeam);
-                            $visitingTeamName   = $game->visitingTeam->nameIdWithSeed . ": " . $visitingCoach->lastName;
-                            $visitingTeamTitle  = "title='" . $game->visitingTeam->name . ": " . $game->visitingTeam->region . " (" . $game->visitingTeam->city . ")'";
-                        }
+                        $values         = View_AdminSchedules_Base::getDisplayLabels($game, true);
+                        $homeTeamName   = $values[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                        $homeTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
+
+                        $values             = View_AdminSchedules_Base::getDisplayLabels($game, false);
+                        $visitingTeamName   = $values[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                        $visitingTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
 
                         $bgcolor = ($dayCount % 2 == 0) ? "" : "bgcolor='lightgray'";
 

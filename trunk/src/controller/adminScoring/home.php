@@ -296,15 +296,22 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
     /**
      * @param Game  $game   - Game that was just scored
      *
-     * @return int   0 if title games not ready to populate
+     * @return int  0 if title games not ready to populate
      *              1 if title games populated
      *              2 if title games ready to populate, but there is a tie in points
      */
     private function populateTitleGames($game)
     {
-        // Skip if schedule does not support tournament play
-        if ($game->flight->schedule->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT) {
+        // Skip if schedule does not support tournament/bracket play
+        if ($game->flight->schedule->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT
+            and $game->flight->schedule->scheduleType != ScheduleOrm::SCHEDULE_TYPE_BRACKET) {
             return 0;
+        }
+
+        // If bracket tournament then use bracket rules to populate title game(s)
+        // TODO add support for tournament game population here
+        if ($game->flight->schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_BRACKET) {
+            return $this->populateBracketGames($game);
         }
 
         // Skip if this is a title game that does not require follow-on scheduling
@@ -441,6 +448,55 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
         }
 
         return 1;
+    }
+
+    /**
+     * @param Game  $game   - Game that was just scored
+     *
+     * @return int  0 if no games to populate
+     *              1 if title games populated
+     *              2 if title games ready to populate, but there is a tie
+     */
+    private function populateBracketGames($game)
+    {
+        $returnValue = 0;
+
+        // Skip if schedule does not support tournament/bracket play
+        Assertion::isTrue($game->flight->schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_BRACKET,
+            "Unexpected schedule type: " . $game->flight->schedule->scheduleType);
+
+        // Return if game is a tie
+        if ($game->homeTeamScore == $game->visitingTeamScore) {
+            return 2;
+        }
+
+        // Get winning and losing teams
+        $winningTeam    = $game->homeTeamScore > $game->visitingTeamScore ? $game->homeTeam : $game->visitingTeam;
+        $losingTeam     = $game->homeTeamScore > $game->visitingTeamScore ? $game->visitingTeam : $game->homeTeam;
+
+        // Find and populate game for winning team
+        $titleGame = null;
+        if (Game::findByPlayInGame($game, 1, $titleGame)) {
+            if ($titleGame->playInHomeGameId == $game->id) {
+                $titleGame->homeTeam = $winningTeam;
+            } else {
+                $titleGame->visitingTeam = $winningTeam;
+            }
+            $returnValue = 1;
+        }
+
+        // Find and populate game for losing team
+        $titleGame = null;
+        if (Game::findByPlayInGame($game, 0, $titleGame)) {
+            if ($titleGame->playInHomeGameId == $game->id) {
+                $titleGame->homeTeam = $losingTeam;
+            } else {
+                $titleGame->visitingTeam = $losingTeam;
+            }
+            $returnValue = 1;
+        }
+
+        return $returnValue;
     }
 
     /**

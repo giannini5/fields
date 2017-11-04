@@ -4,7 +4,6 @@ use \DAG\Domain\Schedule\Schedule;
 use \DAG\Domain\Schedule\Pool;
 use \DAG\Domain\Schedule\Team;
 use \DAG\Domain\Schedule\GameTime;
-use \DAG\Domain\Schedule\Game;
 use \DAG\Domain\Schedule\DivisionField;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Orm\Schedule\ScheduleOrm;
@@ -1202,10 +1201,13 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             $game = $gameTimeData[$defaultGameTime];
 
                             if (isset($game)) {
-                                list($homeCoachName, $homeTeamId)
-                                    = View_AdminSchedules_Schedule::getDisplayLabels($game, true);
-                                list($visitingCoachName, $visitingTeamId)
-                                    = View_AdminSchedules_Schedule::getDisplayLabels($game, false);
+                                $values         = View_AdminSchedules_Base::getDisplayLabels($game, true);
+                                $homeCoachName  = $values[View_Base::COACH_NAME];
+                                $homeTeamId     = $values[View_Base::TEAM_ID];
+
+                                $values             = View_AdminSchedules_Base::getDisplayLabels($game, false);
+                                $visitingCoachName  = $values[View_Base::COACH_NAME];
+                                $visitingTeamId     = $values[View_Base::TEAM_ID];
 
                                 $gender             = isset($game->homeTeam) ? $game->homeTeam->division->gender : $pool->schedule->division->gender;
                                 $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
@@ -1275,25 +1277,5 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
             print "
             </table><br>";
         }
-    }
-
-    /**
-     * @param Game  $game
-     * @param bool  $forHomeTeam
-     * @return array [$coachName, $teamId]
-     */
-    public static function getDisplayLabels($game, $forHomeTeam = true)
-    {
-        $team               = $forHomeTeam ? $game->homeTeam : $game->visitingTeam;
-        $coach              = isset($team) ? Coach::lookupByTeam($team) : null;
-        $playInGameId       = $forHomeTeam ? $game->playInHomeGameId : $game->playInVisitingGameId;
-        $playInGameLabel    = $game->playInByWin == 1 ? "Winner of" : "Loser of";
-
-        $coachName          = isset($coach) ? $coach->name : 'TBD';
-        $coachName          = ($playInGameId != 0 and $coachName == 'TBD') ? "$playInGameLabel $playInGameId" : $coachName;
-        $teamId             = isset($team) ? $team->nameIdWithSeed : 'TBD';
-        $teamId             = ($playInGameId != 0 and $teamId == 'TBD') ? "$playInGameLabel $playInGameId" : $teamId;
-
-        return [$coachName, $teamId];
     }
 }

@@ -262,23 +262,17 @@ class View_Games_Schedule extends View_Games_Base
                 $gameTime = substr($gameTime, 0, 5);
 
                 foreach ($gameFieldData as $fieldName => $game) {
-                    $homeTeamName       = "&nbsp";
-                    $visitingTeamName   = "&nbsp";
-                    $homeTeamScore      = "&nbsp";
-                    $visitingTeamScore  = "&nbsp";
-                    $homeTeamTitle      = '';
-                    $visitingTeamTitle  = '';
-                    $title              = $game->title;
-                    if (isset($game->homeTeam) and isset($game->visitingTeam)) {
-                        $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
-                        $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
-                        $homeTeamName       = $game->homeTeam->nameId . ": " . $homeTeamCoach->lastName;
-                        $visitingTeamName   = $game->visitingTeam->nameId . ": " . $visitingTeamCoach->lastName;
-                        $homeTeamScore      = isset($game->homeTeamScore) ? $game->homeTeamScore : "&nbsp";
-                        $visitingTeamScore  = isset($game->visitingTeamScore) ? $game->visitingTeamScore : "&nbsp";
-                        $homeTeamTitle      = "title='" . $game->homeTeam->name . " " . $game->homeTeam->region . " (" . $game->homeTeam->city . ")'";
-                        $visitingTeamTitle  = "title='" . $game->visitingTeam->name . " " . $game->visitingTeam->region . " (" . $game->visitingTeam->city . ")'";
-                    }
+                    $title = $game->title;
+
+                    $values         = View_AdminSchedules_Base::getDisplayLabels($game, true);
+                    $homeTeamName   = $values[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                    $homeTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
+                    $homeTeamScore  = $values[View_Base::SCORE];
+
+                    $values             = View_AdminSchedules_Base::getDisplayLabels($game, false);
+                    $visitingTeamName   = $values[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                    $visitingTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
+                    $visitingTeamScore  = $values[View_Base::SCORE];
 
                     $dayRow         = $dayRowPrinted ? "" : "<td nowrap rowspan='$dayRowSpan'>$day</td>";
                     $dayRowPrinted  = true;
