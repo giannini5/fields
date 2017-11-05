@@ -13,6 +13,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property string $name
  * @property string $gender
  * @property int    $gameDurationMinutes
+ * @property int    $minutesBetweenGames
  * @property int    $scoringTracked
  * @property int    $displayOrder
  * @property int    $combineLeagueSchedules
@@ -24,6 +25,7 @@ class DivisionOrm extends PersistenceModel
     const FIELD_NAME                        = 'name';
     const FIELD_GENDER                      = 'gender';
     const FIELD_GAME_DURATION_MINUTES       = 'gameDurationMinutes';
+    const FIELD_MINUTES_BETWEEN_GAMES          = 'minutesBetweenGames';
     const FIELD_SCORING_TRACKED             = 'scoringTracked';
     const FIELD_DISPLAY_ORDER               = 'displayOrder';
     const FIELD_COMBINE_LEAGUE_SCHEDULES    = 'combineLeagueSchedules';
@@ -34,6 +36,7 @@ class DivisionOrm extends PersistenceModel
         self::FIELD_NAME                        => [FV::STRING, [FV::NO_CONSTRAINTS]],
         self::FIELD_GENDER                      => [FV::STRING, [FV::NO_CONSTRAINTS]],
         self::FIELD_GAME_DURATION_MINUTES       => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_MINUTES_BETWEEN_GAMES       => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_SCORING_TRACKED             => [FV::INT,    [FV::NO_CONSTRAINTS], 1],
         self::FIELD_DISPLAY_ORDER               => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_COMBINE_LEAGUE_SCHEDULES    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
@@ -54,6 +57,7 @@ class DivisionOrm extends PersistenceModel
      * @param string    $name
      * @param string    $gender
      * @param int       $gameDurationMinutes
+     * @param int       $minutesBetweenGames
      * @param int       $displayOrder
      * @param int       $scoringTracked
      * @param int       $combineLeagueSchedules
@@ -66,6 +70,7 @@ class DivisionOrm extends PersistenceModel
         $name,
         $gender,
         $gameDurationMinutes,
+        $minutesBetweenGames,
         $displayOrder,
         $scoringTracked = 1,
         $combineLeagueSchedules = 0)
@@ -76,6 +81,7 @@ class DivisionOrm extends PersistenceModel
                 self::FIELD_NAME                        => $name,
                 self::FIELD_GENDER                      => $gender,
                 self::FIELD_GAME_DURATION_MINUTES       => $gameDurationMinutes,
+                self::FIELD_MINUTES_BETWEEN_GAMES       => $minutesBetweenGames,
                 self::FIELD_DISPLAY_ORDER               => $displayOrder,
                 self::FIELD_SCORING_TRACKED             => $scoringTracked,
                 self::FIELD_COMBINE_LEAGUE_SCHEDULES    => $combineLeagueSchedules,

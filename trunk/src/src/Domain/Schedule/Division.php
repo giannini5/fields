@@ -16,6 +16,7 @@ use DAG\Framework\Exception\Precondition;
  * @property string $nameWithGender
  * @property string $gender
  * @property int    $gameDurationMinutes
+ * @property int    $minutesBetweenGames
  * @property int    $scoringTracked
  * @property bool   $isScoringTracked
  * @property string $displayOrder
@@ -61,7 +62,8 @@ class Division extends Domain
         $ignore = false)
     {
         try {
-            $divisionOrm = DivisionOrm::create($season->id, $name, $gender, $gameDurationMinutes, $displayOrder);
+            $minutesBetweenGames = 180;
+            $divisionOrm = DivisionOrm::create($season->id, $name, $gender, $gameDurationMinutes, $minutesBetweenGames, $displayOrder);
             return new static($divisionOrm, $season);
         } catch (DuplicateEntryException $e) {
             if ($ignore) {
@@ -187,6 +189,7 @@ class Division extends Domain
             case "name":
             case "gender":
             case "gameDurationMinutes":
+            case "minutesBetweenGames":
             case "scoringTracked":
             case "displayOrder":
             case "combineLeagueSchedules":
@@ -215,6 +218,7 @@ class Division extends Domain
         switch ($propertyName) {
             case "name":
             case "gameDurationMinutes":
+            case "minutesBetweenGames":
             case "scoringTracked":
             case "displayOrder":
             case "combineLeagueSchedules":

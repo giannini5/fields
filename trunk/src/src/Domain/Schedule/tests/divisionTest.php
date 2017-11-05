@@ -20,6 +20,7 @@ class DivisionTest extends ORM_TestHelper
         'name'                      => 'TEST Domain division name',
         'gender'                    => 'TEST gender',
         'gameDurationMinutes'       => 120,
+        'minutesBetweenGames'       => 180,
         'scoringTracked'            => 1,
         'displayOrder'              => 14,
         'combineLeagueSchedules'    => 0,
@@ -133,6 +134,7 @@ class DivisionTest extends ORM_TestHelper
         $this->assertEquals($expectedDefaults['name'],                      $division->name);
         $this->assertEquals($expectedDefaults['gender'],                    $division->gender);
         $this->assertEquals($expectedDefaults['gameDurationMinutes'],       $division->gameDurationMinutes);
+        $this->assertEquals($expectedDefaults['minutesBetweenGames'],       $division->minutesBetweenGames);
         $this->assertEquals($expectedDefaults['displayOrder'],              $division->displayOrder);
         $this->assertEquals($expectedDefaults['combineLeagueSchedules'],    $division->combineLeagueSchedules);
         $this->assertEquals($season,                                        $division->season);

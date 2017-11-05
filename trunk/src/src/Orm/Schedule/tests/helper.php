@@ -41,6 +41,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const GENDER                      = 'gender';
     const DISPLAY_ORDER               = 'displayOrder';
     const GAME_DURATION_MINUTES       = 'gameDurationMinutes';
+    const MINUTES_BETWEEN_GAMES       = 'minutesBetweenGames';
     const SCORING_TRACKED             = 'scoringTracked';
     const GAMES_PER_TEAM              = 'gamesPerTeam';
     const GENDER_PREFERENCE           = 'genderPreference';
@@ -117,6 +118,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::GENDER                    => 'Girls',
             self::DISPLAY_ORDER             => 1,
             self::GAME_DURATION_MINUTES     => 60,
+            self::MINUTES_BETWEEN_GAMES        => 180,
             self::SCORING_TRACKED           => 1,
             self::COMBINE_LEAGUE_SCHEDULES  => 0,
         ];
@@ -273,6 +275,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultDivisionOrmAttributes[self::NAME],
             self::$defaultDivisionOrmAttributes[self::GENDER],
             self::$defaultDivisionOrmAttributes[self::GAME_DURATION_MINUTES],
+            self::$defaultDivisionOrmAttributes[self::MINUTES_BETWEEN_GAMES],
             self::$defaultDivisionOrmAttributes[self::DISPLAY_ORDER],
             self::$defaultDivisionOrmAttributes[self::SCORING_TRACKED],
             self::$defaultDivisionOrmAttributes[self::COMBINE_LEAGUE_SCHEDULES]);

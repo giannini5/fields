@@ -298,13 +298,20 @@ class View_AdminSchedules_Field extends View_AdminSchedules_Base {
                             $titleGameDivisionFlight = $game->flight->schedule->division->name . $game->flight->schedule->division->gender;
 
                             if (isset($game->homeTeam)) {
-                                $homeTeamCoach      = Coach::lookupByTeam($game->homeTeam);
-                                $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
-                                $homeTeam           = $game->homeTeam;
-                                $visitingTeam       = $game->visitingTeam;
-                                $cellHTML           .= $homeTeam->nameId . "<br>" . $visitingTeam->nameId;
-                                $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
-                            } else {
+                                $homeTeamCoach = Coach::lookupByTeam($game->homeTeam);
+                                $homeTeam = $game->homeTeam;
+
+                                if (isset($game->visitingTeam)) {
+                                    $visitingTeamCoach  = Coach::lookupByTeam($game->visitingTeam);
+                                    $visitingTeam       = $game->visitingTeam;
+                                    $cellHTML           .= $homeTeam->nameId . "<br>" . $visitingTeam->nameId;
+                                    $title              = "title='" . $homeTeamCoach->name . " vs " . $visitingTeamCoach->name . "'";
+                                } else {
+                                    $cellHTML .= $homeTeam->nameId . "<br>TBD";
+                                    $title = "title='" . $homeTeamCoach->name . " vs TBD'";
+                                }
+                            }
+                            else {
                                 $cellHTML           .= $game->title;
                                 $title              = "title='" . $titleGameDivisionFlight . " " . $game->flight->name . "'";
                             }

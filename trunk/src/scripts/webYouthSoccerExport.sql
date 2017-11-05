@@ -9,7 +9,7 @@ select * from field where facilityId = 1;
 select
     data.Date,
     data.Start,
-    data.End,
+    data.EndpracticeFieldCoordinatorpracticeFieldCoordinator,
     data.thirdPartyFieldId,
     concat('122-', data.division, "-", data.homeTeamNumber) as homeTeam,
     concat('122-', data.division, "-", data.visitingTeamNumber) as visitingTeam
