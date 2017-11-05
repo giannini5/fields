@@ -971,8 +971,8 @@ class Schedule extends Domain
                 $gameTimesByTime = $gameTimesByDayAndTime[$gameDates[0]->day];
                 ksort($gameTimesByTime);
 
-                $minStartTime       = '05:00:00';
-                $timeBetweenGames   = 60 * 60 * 3; // three hours in seconds
+                $minStartTime           = '05:00:00';
+                $minutesBetweenGames    = $this->division->minutesBetweenGames;
 
                 $game1 = $this->createBracketGame($pool, $gameTimesByTime, $playoff1Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
                 $game2 = $this->createBracketGame($pool, $gameTimesByTime, $playoff2Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
@@ -980,10 +980,10 @@ class Schedule extends Domain
                 // Create Quarter Final Games (in reverse order to give more time from playoff games
                 if (count($teams) == 9) {
                     Assertion::isTrue(isset($game1), "Playoff game not found for pool of size 9");
-                    $minStartTime = date("H:i:s", strtotime($game1->gameTime->startTime) + $timeBetweenGames);
+                    $minStartTime = date("H:i:s", strtotime($game1->gameTime->startTime) + $minutesBetweenGames);
                 } else if (count($teams) == 10) {
                     Assertion::isTrue(isset($game2), "Playoff game not found for pool of size 10");
-                    $minStartTime = date("H:i:s", strtotime($game2->gameTime->startTime) + $timeBetweenGames);
+                    $minStartTime = date("H:i:s", strtotime($game2->gameTime->startTime) + $minutesBetweenGames);
                 }
 
                 $q4Game = $this->createBracketGame($pool, $gameTimesByTime, $game4Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
@@ -1000,7 +1000,7 @@ class Schedule extends Domain
                 $s2Game = $this->createBracketGame($pool, $gameTimesByTime, [], GameOrm::TITLE_SEMI_FINAL, $minStartTime, $q2Game, $q3Game);
 
                 // Create 3rd/4th and Championship Game
-                $minStartTime = date("H:i:s", strtotime($s2Game->gameTime->startTime) + $timeBetweenGames);
+                $minStartTime = date("H:i:s", strtotime($s2Game->gameTime->startTime) + $minutesBetweenGames);
                 $this->createBracketGame($pool, $gameTimesByTime, [], GameOrm::TITLE_3RD_4TH, $minStartTime, $s1Game, $s2Game, 0);
                 $this->createBracketGame($pool, $gameTimesByTime, [], GameOrm::TITLE_CHAMPIONSHIP, $minStartTime, $s1Game, $s2Game);
             }

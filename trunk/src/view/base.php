@@ -185,6 +185,7 @@ abstract class View_Base {
     const DIVISION_NAME             = 'divisionName';
     const DISPLAY_ORDER             = 'displayOrder';
     const GAME_DURATION_MINUTES     = 'gameDurationMinutes';
+    const MINUTES_BETWEEN_GAMES     = 'minutesBetweenGames';
     const SCORING_TRACKED           = 'scoringTracked';
     const COMBINE_LEAGUE_SCHEDULES  = 'combineLeagueSchedules';
     const LOCATION_ID               = 'locationId';

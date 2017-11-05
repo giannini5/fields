@@ -19,6 +19,7 @@ class DivisionOrmTest extends ORM_TestHelper
             self::GENDER                    => 'TEST Boy',
             self::DISPLAY_ORDER             => '5',
             self::GAME_DURATION_MINUTES     => '25',
+            self::MINUTES_BETWEEN_GAMES        => '60',
             self::SCORING_TRACKED           => '0',
             self::COMBINE_LEAGUE_SCHEDULES  => '1',
         ];
@@ -40,6 +41,7 @@ class DivisionOrmTest extends ORM_TestHelper
             self::$expectedDefaults[self::NAME],
             self::$expectedDefaults[self::GENDER],
             self::$expectedDefaults[self::GAME_DURATION_MINUTES],
+            self::$expectedDefaults[self::MINUTES_BETWEEN_GAMES],
             self::$expectedDefaults[self::DISPLAY_ORDER],
             self::$expectedDefaults[self::SCORING_TRACKED],
             self::$expectedDefaults[self::COMBINE_LEAGUE_SCHEDULES]);
@@ -76,6 +78,7 @@ class DivisionOrmTest extends ORM_TestHelper
         $this->assertEquals($attributes[self::NAME],                        $divisionOrm->name);
         $this->assertEquals($attributes[self::GENDER],                      $divisionOrm->gender);
         $this->assertEquals($attributes[self::GAME_DURATION_MINUTES],       $divisionOrm->gameDurationMinutes);
+        $this->assertEquals($attributes[self::MINUTES_BETWEEN_GAMES],       $divisionOrm->minutesBetweenGames);
         $this->assertEquals($attributes[self::DISPLAY_ORDER],               $divisionOrm->displayOrder);
         $this->assertEquals($attributes[self::SCORING_TRACKED],             $divisionOrm->scoringTracked);
         $this->assertEquals($attributes[self::COMBINE_LEAGUE_SCHEDULES],    $divisionOrm->combineLeagueSchedules);

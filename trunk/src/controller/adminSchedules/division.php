@@ -107,6 +107,7 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
                 $division->displayOrder             = $data[View_Base::DISPLAY_ORDER];
                 $division->scoringTracked           = $data[View_Base::SCORING_TRACKED];
                 $division->combineLeagueSchedules   = $data[View_Base::COMBINE_LEAGUE_SCHEDULES];
+                $division->minutesBetweenGames      = $data[View_Base::MINUTES_BETWEEN_GAMES];
 
                 if (!$anyGamesSet) {
                     $division->gameDurationMinutes  = $data[View_Base::GAME_DURATION_MINUTES];

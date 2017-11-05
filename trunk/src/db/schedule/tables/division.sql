@@ -4,6 +4,7 @@ create table division (
     name                    varchar(60) not NULL,
     gender                  varchar(20) not NULL,
     gameDurationMinutes     int not NULL,
+    minutesBetweenGames     int not NULL default 180,
     scoringTracked          int not NULL default 1,
     displayOrder            int not NULL default 0,
     combineLeagueSchedules  tinyint not NULL default 0,
