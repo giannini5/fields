@@ -129,7 +129,7 @@ class GameTime extends Domain
             $dateTime = $dateTime->add($interval);
         }
 
-        if (isset($fields)) {
+        if (isset($fields) and count($fields) > 0) {
             $fieldIds = '';
             $prefix   = '';
             foreach ($fields as $field) {
