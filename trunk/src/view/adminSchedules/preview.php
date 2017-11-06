@@ -524,20 +524,30 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                     $gameId             = $game->id;
                     $facility           = $field->facility;
                     $fieldName          = $facility->name . ": " . $field->name;
-                    $homeCoach          = Coach::lookupByTeam($game->homeTeam);
-                    $visitingCoach      = Coach::lookupByTeam($game->visitingTeam);
-                    $homeTeamName       = $game->homeTeam->name . ": " . $homeCoach->lastName;
-                    $visitingTeamName   = $game->visitingTeam->name . ": " . $visitingCoach->lastName;
+                    $homeCoach          = isset($game->homeTeam) ? Coach::lookupByTeam($game->homeTeam) : null;
+                    $visitingCoach      = isset($game->visitingTeam) ? Coach::lookupByTeam($game->visitingTeam) : null;
+
+                    if (isset($game->homeTeam)) {
+                        $homeTeamName   = $game->homeTeam->name . ": " . $homeCoach->lastName;
+                    } else {
+                        $homeTeamName   = 'TBD';
+                    }
+                    if (isset($game->visitingTeam)) {
+                        $visitingTeamName   = $game->visitingTeam->name . ": " . $visitingCoach->lastName;
+                    } else {
+                        $visitingTeamName   = 'TBD';
+                    }
+
                     $startTime          = $game->gameTime->startTime;
                     $overlapBgColor     = $game->anyOverlap($games) ? "bgcolor='red'" : "";
 
                     $homeTeamStyle      = '';
                     $visitingTeamStyle  = '';
-                    if ($homeCoach->family->id == $family->id) {
+                    if (isset($homeCoach) and $homeCoach->family->id == $family->id) {
                         $homeTeamStyle = "style='color: red'";
                     }
 
-                    if ($visitingCoach->family->id == $family->id) {
+                    if (isset($visitingCoach) and $visitingCoach->family->id == $family->id) {
                         $visitingTeamStyle = "style='color: red'";
                     }
 
