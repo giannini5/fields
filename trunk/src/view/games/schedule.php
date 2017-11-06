@@ -104,7 +104,7 @@ class View_Games_Schedule extends View_Games_Base
         $schedulePrinted = false;
         foreach ($schedules as $schedule) {
             if ($schedule->published == 1) {
-                $this->printSchedule($schedule);
+                View_Games_Schedule::printSchedule($schedule);
                 $schedulePrinted = true;
             }
         }
@@ -122,7 +122,7 @@ class View_Games_Schedule extends View_Games_Base
     /**
      * @param Schedule  $schedule
      */
-    private function printSchedule($schedule)
+    static public function printSchedule($schedule)
     {
         print "
             <table bgcolor='yellow' valign='top' align='center' width='400' border='0' cellpadding='5' cellspacing='0'>
@@ -173,7 +173,7 @@ class View_Games_Schedule extends View_Games_Base
 
                 ksort($gamesByDateByTimeByField);
 
-                $this->printGames($schedule, $flight, $pool, $gamesByDateByTimeByField);
+                View_Games_Schedule::printGames($schedule, $flight, $pool, $gamesByDateByTimeByField);
             }
 
             $titleGamesByDateByTimeByField  = [];
@@ -188,7 +188,7 @@ class View_Games_Schedule extends View_Games_Base
 
                 ksort($titleGamesByDateByTimeByField);
 
-                $this->printGames($schedule, $flight,null, $titleGamesByDateByTimeByField);
+                View_Games_Schedule::printGames($schedule, $flight,null, $titleGamesByDateByTimeByField);
             }
 
             print "
@@ -210,7 +210,7 @@ class View_Games_Schedule extends View_Games_Base
      * @param Pool|null $pool
      * @param array     $gamesByDateByTimeByField
      */
-    private function printGames($schedule, $flight, $pool, $gamesByDateByTimeByField)
+    static public function printGames($schedule, $flight, $pool, $gamesByDateByTimeByField)
     {
         $poolName = isset($pool) ? $pool->name : 'Medal Round';
 

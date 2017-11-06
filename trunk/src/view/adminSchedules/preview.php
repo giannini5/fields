@@ -425,7 +425,10 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                     <td valign='top'>";
 
         foreach ($schedules as $schedule) {
-            View_Games_Division::printSchedule($this->m_controller->m_season, $schedule);
+            if ($schedule->published == 0) {
+                View_Games_Schedule::printSchedule($schedule);
+            }
+            // View_Games_Division::printSchedule($this->m_controller->m_season, $schedule);
         }
 
         print "
