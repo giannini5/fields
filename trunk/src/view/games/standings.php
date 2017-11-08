@@ -740,11 +740,13 @@ class View_Games_Standings extends View_Games_Base
 
     private function printTitleGames($flight)
     {
-        $games = Game::lookupByFlight($flight);
+        $games      = Game::lookupByFlight($flight);
         $titleGames = [];
         foreach ($games as $game) {
             if ($game->title != '') {
-                $titleGames[$game->title][] = $game;
+                $day                                            = $game->gameTime->gameDate->day;
+                $startTime                                      = $game->gameTime->actualStartTime;
+                $titleGames[$game->title][$day][$startTime][]   = $game;
             }
         }
 
@@ -754,7 +756,6 @@ class View_Games_Standings extends View_Games_Base
                 {
                     continue;
                 }
-                $games = $titleGames[$title];
 
                 print "
                     <table bgcolor='white' valign='top' align='center' width='850' border='1' cellpadding='5' cellspacing='0'>
@@ -772,39 +773,48 @@ class View_Games_Standings extends View_Games_Base
                             <th nowrap>Winning Team</th>
                         </tr>";
 
-                foreach ($games as $game) {
-                    $date   = $game->gameTime->gameDate->day;
-                    $time   = substr($game->gameTime->startTime, 0, 5);
-                    $field  = $game->gameTime->field->fullName;
+                $gamesByDay = $titleGames[$title];
+                ksort($gamesByDay);
 
-                    $homeLabels     = View_AdminSchedules_Base::getDisplayLabels($game, true);
-                    $homeTeamName   = $homeLabels[View_Base::TAEAM_ID_COACH_SHORT_NAME];
-                    $homeTeamTitle  = "title='" . $homeLabels[View_Base::HOVER_TEXT] . "'";
+                foreach ($gamesByDay as $day => $gamesByTime) {
+                    ksort($gamesByTime);
 
-                    $visitingLabels     = View_AdminSchedules_Base::getDisplayLabels($game, false);
-                    $visitingTeamName   = $visitingLabels[View_Base::TAEAM_ID_COACH_SHORT_NAME];
-                    $visitingTeamTitle  = "title='" . $visitingLabels[View_Base::HOVER_TEXT] . "'";
+                    foreach ($gamesByTime as $startTime => $games) {
+                        foreach ($games as $game) {
+                            $date   = $game->gameTime->gameDate->day;
+                            $time   = substr($game->gameTime->actualStartTime, 0, 5);
+                            $field  = $game->gameTime->field->fullName;
 
-                    $score              = "&nbsp";
-                    $winningTeam        = "&nbsp";
-                    $winningTeamTitle   = '';
-                    if (isset($game->homeTeamScore)) {
-                        $score              = $game->homeTeamScore . " - " . $game->visitingTeamScore;
-                        $winningTeam        = $game->homeTeamScore > $game->visitingTeamScore ? $homeTeamName : $visitingTeamName;
-                        $winningTeamTitle   = $game->homeTeamScore > $game->visitingTeamScore ? $homeTeamTitle : $visitingTeamTitle;
+                            $homeLabels     = View_AdminSchedules_Base::getDisplayLabels($game, true);
+                            $homeTeamName   = $homeLabels[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                            $homeTeamTitle  = "title='" . $homeLabels[View_Base::HOVER_TEXT] . "'";
+
+                            $visitingLabels     = View_AdminSchedules_Base::getDisplayLabels($game, false);
+                            $visitingTeamName   = $visitingLabels[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                            $visitingTeamTitle  = "title='" . $visitingLabels[View_Base::HOVER_TEXT] . "'";
+
+                            $score              = "&nbsp";
+                            $winningTeam        = "&nbsp";
+                            $winningTeamTitle   = '';
+                            if (isset($game->homeTeamScore)) {
+                                $score              = $game->homeTeamScore . " - " . $game->visitingTeamScore;
+                                $winningTeam        = $game->homeTeamScore > $game->visitingTeamScore ? $homeTeamName : $visitingTeamName;
+                                $winningTeamTitle   = $game->homeTeamScore > $game->visitingTeamScore ? $homeTeamTitle : $visitingTeamTitle;
+                            }
+
+                            print "
+                    <tr>
+                        <td nowrap>$date</td>
+                        <td nowrap>$time</td>
+                        <td nowrap>$field</td>
+                        <td nowrap>$game->id</td>
+                        <td nowrap $homeTeamTitle>$homeTeamName</td>
+                        <td nowrap $visitingTeamTitle>$visitingTeamName</td>
+                        <td nowrap align='center'>$score</td>
+                        <td nowrap $winningTeamTitle bgcolor='lightgreen'>$winningTeam</td>
+                    </tr>";
+                        }
                     }
-
-                    print "
-                        <tr>
-                            <td nowrap>$date</td>
-                            <td nowrap>$time</td>
-                            <td nowrap>$field</td>
-                            <td nowrap>$game->id</td>
-                            <td nowrap $homeTeamTitle>$homeTeamName</td>
-                            <td nowrap $visitingTeamTitle>$visitingTeamName</td>
-                            <td nowrap align='center'>$score</td>
-                            <td nowrap $winningTeamTitle bgcolor='lightgreen'>$winningTeam</td>
-                        </tr>";
                 }
 
                 print "
