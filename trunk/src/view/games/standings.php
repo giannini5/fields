@@ -600,6 +600,9 @@ class View_Games_Standings extends View_Games_Base
                         </td>
                     </tr>
                 </table><br><br>";
+
+            print "
+                <p style='page-break-before: always;'>&nbsp;</p>";
         }
 
         print "                    
