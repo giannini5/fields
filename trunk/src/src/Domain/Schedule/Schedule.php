@@ -866,81 +866,93 @@ class Schedule extends Domain
                 //          7  teams then 3 games (top 1 team gets a bye)
                 //          8  teams then 4 games
                 //          9  teams then 1 game  (top 7 teams get a bye), then 4 games
-                //          10 teams then 2 games (top 6 teams get a bye), then 4 games
+                //         10  teams then 2 games (top 6 teams get a bye), then 4 games
                 Assertion::isTrue($numberOfTeams >= 6 and $numberOfTeams <= 10,
                     "Invalid pool size, only 6 to 10 teams supported at this time.  $numberOfTeams entered.");
 
                 // Schedule pre-tournament game (if any)
                 $playoff1Teams  = [];
                 $playoff2Teams  = [];
-                $game1Teams     = [];
-                $game2Teams     = [];
-                $game3Teams     = [];
-                $game4Teams     = [];
+                $q1Teams        = [];
+                $q2Teams        = [];
+                $q3Teams        = [];
+                $q4Teams        = [];
+                $s1Teams        = [];
+                $s2Teams        = [];
                 switch ($numberOfTeams) {
                     case 6:
-                        $game1Teams[] = $teams[2]; // Seat 3 plays 6
-                        $game1Teams[] = $teams[5];
+                        // Not Q1 or Q3 - Top two seeds get a buy to the semis
 
-                        $game2Teams[] = $teams[3]; // Seat 4 plays 5
-                        $game2Teams[] = $teams[4];
+                        $q2Teams[]  = $teams[3]; // Seat 4 plays 5
+                        $q2Teams[]  = $teams[4];
+
+                        $q4Teams[]  = $teams[2]; // Seat 3 plays 6
+                        $q4Teams[]  = $teams[5];
+
+                        $s1Teams[]  = $teams[0];
+                        $s2Teams[]  = $teams[1];
                         break;
 
                     case 7:
-                        $game1Teams[] = $teams[1]; // Seat 2 plays 7
-                        $game1Teams[] = $teams[6];
+                        // Not Q1 - Top seed gets a buy to the semis
 
-                        $game2Teams[] = $teams[2]; // Seat 3 plays 6
-                        $game2Teams[] = $teams[5];
+                        $q2Teams[] = $teams[3]; // Seat 4 plays 5
+                        $q2Teams[] = $teams[4];
 
-                        $game3Teams[] = $teams[3]; // Seat 4 plays 5
-                        $game3Teams[] = $teams[4];
+                        $q3Teams[] = $teams[1]; // Seat 2 plays 7
+                        $q3Teams[] = $teams[6];
+
+                        $q4Teams[] = $teams[2]; // Seat 3 plays 6
+                        $q4Teams[] = $teams[5];
+
+                        $s1Teams[]  = $teams[0];
                         break;
 
                     case 8:
-                        $game1Teams[] = $teams[0]; // Seat 1 plays 8
-                        $game1Teams[] = $teams[7];
+                        $q1Teams[] = $teams[0]; // Seat 1 plays 8
+                        $q1Teams[] = $teams[7];
 
-                        $game2Teams[] = $teams[1]; // Seat 2 plays 7
-                        $game2Teams[] = $teams[6];
+                        $q2Teams[] = $teams[3]; // Seat 4 plays 5
+                        $q2Teams[] = $teams[4];
 
-                        $game3Teams[] = $teams[2]; // Seat 3 plays 6
-                        $game3Teams[] = $teams[5];
+                        $q3Teams[] = $teams[1]; // Seat 2 plays 7
+                        $q3Teams[] = $teams[6];
 
-                        $game4Teams[] = $teams[3]; // Seat 4 plays 5
-                        $game4Teams[] = $teams[4];
+                        $q4Teams[] = $teams[2]; // Seat 3 plays 6
+                        $q4Teams[] = $teams[5];
                         break;
 
                     case 9:
                         $playoff1Teams[] = $teams[7]; // Seat 8 plays 9
                         $playoff1Teams[] = $teams[8];
 
-                        $game1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams
+                        $q1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams
 
-                        $game2Teams[] = $teams[1]; // Seat 2 plays 7
-                        $game2Teams[] = $teams[6];
+                        $q2Teams[] = $teams[3]; // Seat 4 plays 5
+                        $q2Teams[] = $teams[4];
 
-                        $game3Teams[] = $teams[2]; // Seat 3 plays 6
-                        $game3Teams[] = $teams[5];
+                        $q3Teams[] = $teams[1]; // Seat 2 plays 7
+                        $q3Teams[] = $teams[6];
 
-                        $game4Teams[] = $teams[3]; // Seat 4 plays 5
-                        $game4Teams[] = $teams[4];
+                        $q4Teams[] = $teams[2]; // Seat 3 plays 6
+                        $q4Teams[] = $teams[5];
                         break;
 
                     case 10:
-                        $playoff1Teams[] = $teams[6]; // Seat 7 plays 10
-                        $playoff1Teams[] = $teams[9];
-                        $playoff2Teams[] = $teams[7]; // Seat 8 plays 9
-                        $playoff2Teams[] = $teams[8];
+                        $playoff1Teams[] = $teams[7]; // Seat 8 plays 9
+                        $playoff1Teams[] = $teams[8];
+                        $playoff2Teams[] = $teams[6]; // Seat 7 plays 10
+                        $playoff2Teams[] = $teams[9];
 
-                        $game1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams game 1
-                        $game2Teams[] = $teams[1]; // Seat 2 plays winner of $playoffTeams game 2
+                        $q1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams game 1
 
-                        $game3Teams[] = $teams[2]; // Seat 3 plays 6
-                        $game3Teams[] = $teams[5];
+                        $q2Teams[] = $teams[3]; // Seat 4 plays 5
+                        $q2Teams[] = $teams[4];
 
-                        $game4Teams[] = $teams[3]; // Seat 4 plays 5
-                        $game4Teams[] = $teams[4];
+                        $q3Teams[] = $teams[1]; // Seat 2 plays winner of $playoffTeams game 2
+
+                        $q4Teams[] = $teams[2]; // Seat 3 plays 6
+                        $q4Teams[] = $teams[5];
                         break;
 
                     default:
@@ -974,30 +986,37 @@ class Schedule extends Domain
                 $minStartTime           = '05:00:00';
                 $minutesBetweenGames    = $this->division->minutesBetweenGames;
 
-                $game1 = $this->createBracketGame($pool, $gameTimesByTime, $playoff1Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
-                $game2 = $this->createBracketGame($pool, $gameTimesByTime, $playoff2Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
+                $p1Game = $this->createBracketGame($pool, $gameTimesByTime, $playoff1Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
+                $p2Game = $this->createBracketGame($pool, $gameTimesByTime, $playoff2Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
 
                 // Create Quarter Final Games (in reverse order to give more time from playoff games
                 if (count($teams) == 9) {
-                    Assertion::isTrue(isset($game1), "Playoff game not found for pool of size 9");
-                    $minStartTime = date("H:i:s", strtotime($game1->gameTime->startTime) + $minutesBetweenGames);
+                    Assertion::isTrue(isset($p1Game), "Playoff game not found for pool of size 9");
+                    $minStartTime = date("H:i:s", strtotime($p1Game->gameTime->startTime) + $minutesBetweenGames);
                 } else if (count($teams) == 10) {
-                    Assertion::isTrue(isset($game2), "Playoff game not found for pool of size 10");
-                    $minStartTime = date("H:i:s", strtotime($game2->gameTime->startTime) + $minutesBetweenGames);
+                    Assertion::isTrue(isset($p2Game), "Playoff game not found for pool of size 10");
+                    $minStartTime = date("H:i:s", strtotime($p2Game->gameTime->startTime) + $minutesBetweenGames);
                 }
 
-                $q4Game = $this->createBracketGame($pool, $gameTimesByTime, $game4Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
-                $q3Game = $this->createBracketGame($pool, $gameTimesByTime, $game3Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
-                $q2Game = $this->createBracketGame($pool, $gameTimesByTime, $game2Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $game2);
-                $q1Game = $this->createBracketGame($pool, $gameTimesByTime, $game1Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $game1);
+                $q1Game = null;
+                if ($numberOfTeams >= 8) {
+                    $q1Game = $this->createBracketGame($pool, $gameTimesByTime, $q1Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $p1Game);
+                }
+                $q2Game = $this->createBracketGame($pool, $gameTimesByTime, $q2Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
+
+                $q3Game = null;
+                if ($numberOfTeams >= 7) {
+                    $q3Game = $this->createBracketGame($pool, $gameTimesByTime, $q1Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $p1Game);
+                }
+                $q4Game = $this->createBracketGame($pool, $gameTimesByTime, $q4Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
 
                 // Create Semi-Final Games
                 $minStartTime       = '05:00:00';
                 $gameTimesByTime    = $gameTimesByDayAndTime[$gameDates[1]->day];
                 ksort($gameTimesByTime);
 
-                $s1Game = $this->createBracketGame($pool, $gameTimesByTime, [], GameOrm::TITLE_SEMI_FINAL, $minStartTime, $q1Game, $q4Game);
-                $s2Game = $this->createBracketGame($pool, $gameTimesByTime, [], GameOrm::TITLE_SEMI_FINAL, $minStartTime, $q2Game, $q3Game);
+                $s1Game = $this->createBracketGame($pool, $gameTimesByTime, $s1Teams, GameOrm::TITLE_SEMI_FINAL, $minStartTime, $q1Game, $q2Game);
+                $s2Game = $this->createBracketGame($pool, $gameTimesByTime, $s2Teams, GameOrm::TITLE_SEMI_FINAL, $minStartTime, $q3Game, $q4Game);
 
                 // Create 3rd/4th and Championship Game
                 $minStartTime = date("H:i:s", strtotime($s2Game->gameTime->startTime) + $minutesBetweenGames);

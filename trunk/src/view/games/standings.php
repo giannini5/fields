@@ -555,10 +555,26 @@ class View_Games_Standings extends View_Games_Base
         }
 
         print "
-                <table bgcolor='yellow' valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
+                <p style='page-break-before: always;'>&nbsp;</p>";
+
+        print "
+                <table bgcolor='lightgreen' valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
                     <tr>
                         <th><h1>" . $schedule->name . "<br>" . "</h1></th>
                     </tr>
+                    <tr>
+                        <td valign='top'>";
+
+        print "                    
+                        </td>
+                    </tr>
+                </table>";
+
+        print "
+                <p style='page-break-before: always;'>&nbsp;</p>";
+
+        print "
+                <table bgcolor='lightgreen' valign='top' align='center' width='800' border='0' cellpadding='5' cellspacing='0'>
                     <tr>
                         <td valign='top'>";
 
@@ -570,7 +586,7 @@ class View_Games_Standings extends View_Games_Base
             }
 
             print "
-                <table bgcolor='lightgray' valign='top' align='center' width='850' border='0' cellpadding='5' cellspacing='0'>
+                <table style='-webkit-print-color-adjust: exact;' bgcolor='lightgray' valign='top' align='center' width='850' border='0' cellpadding='5' cellspacing='0'>
                     <tr>
                         <th><strong style='font-size: medium'>" . $flight->name . "</strong></th>
                     </tr>

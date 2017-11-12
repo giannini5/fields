@@ -437,7 +437,7 @@ class GameTime extends Domain
      */
     public function getEndTime($gameDurationMinutes)
     {
-        $dateTime = \DateTime::createFromFormat("H:i:s", $this->startTime);
+        $dateTime = \DateTime::createFromFormat("H:i:s", $this->actualStartTime);
         $interval = new \DateInterval("PT" . $gameDurationMinutes . "M");
         $dateTime->add($interval);
         return $dateTime->format("H:i:s");

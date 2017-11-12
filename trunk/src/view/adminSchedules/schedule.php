@@ -1211,7 +1211,8 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
                                 $gender             = isset($game->homeTeam) ? $game->homeTeam->division->gender : $pool->schedule->division->gender;
                                 $bgHTML             = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
-                                $gameData           = "Game Id: " . $game->id . "<br>";
+                                $gameData           = "<span style='color: yellow'>" . $game->gameTime->actualStartTime . "</span><br>";
+                                $gameData           .= "Game Id: " . $game->id . "<br>";
                                 $locked             = $game->isLocked() ? "\nLOCKED" : "";
                                 $title              = "title='" . $homeCoachName . " vs " . $visitingCoachName . "$locked'";
 
@@ -1251,7 +1252,8 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                                 print "
                                     <td nowrap>&nbsp</td>";
                             } else {
-                                $gameData   = "Game Id: $game->id";
+                                $gameData   = "<span style='color: yellow'>" . $game->gameTime->actualStartTime . "</span><br>";
+                                $gameData   .= "Game Id: $game->id";
                                 if ($game->title != '') {
                                     $gameData .= "<br>$game->title";
                                 }
