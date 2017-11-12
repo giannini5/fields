@@ -449,7 +449,7 @@ class Game extends Domain
         $overlappingGame = null;
 
         // Get this games start time with $preGameBufferMinute minute pre-game buffer
-        $dateTime = \DateTime::createFromFormat("H:i:s", $this->gameTime->startTime);
+        $dateTime = \DateTime::createFromFormat("H:i:s", $this->gameTime->actualStartTime);
         $interval = new \DateInterval("PT" . $preGameBufferMinute . "M");
         $dateTime->sub($interval);
         $thisStartTime  = $dateTime->format("H:i:s");
@@ -469,7 +469,7 @@ class Game extends Domain
             }
 
             $gameTime   = $game->gameTime;
-            $startTime  = $gameTime->startTime;
+            $startTime  = $gameTime->actualStartTime;
             $endTime    = $gameTime->getEndTime($game->pool->schedule->division->gameDurationMinutes);
 
             if ($thisStartTime <= $endTime and $thisEndTime >= $startTime) {

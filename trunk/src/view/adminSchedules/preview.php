@@ -541,7 +541,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                         $visitingTeamName   = 'TBD';
                     }
 
-                    $startTime          = $game->gameTime->startTime;
+                    $startTime          = $game->gameTime->actualStartTime;
                     $overlapBgColor     = $game->anyOverlap($games) ? "bgcolor='red'" : "";
 
                     $homeTeamStyle      = '';
