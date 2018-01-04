@@ -20,7 +20,6 @@ class View_Styles {
         // <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
         // <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
-
         print '
             <META charset="utf-8">
             <META HTTP-EQUIV="EXPIRES" CONTENT="Thu, 12 Apr 2007 08:21:57 GMT">
@@ -662,11 +661,11 @@ class View_Styles {
 
     private function _accordion() {
         // <link rel='stylesheet' type='text/css' href='/apps/test_harness/css/style.css'>
+        //         <script type='text/javascript' src='http://cdn.jquerytools.org/1.2.5/full/jquery.tools.min.js'></script>
+
 
         print "
         <script type='text/javascript' src='http://code.jquery.com/jquery-1.6.2.js'></script>
-
-        <script type='text/javascript' src='http://cdn.jquerytools.org/1.2.5/full/jquery.tools.min.js'></script>
         <link rel='stylesheet' type='text/css' href='http://static.flowplayer.org/tools/css/standalone.css'>
         <style type='text/css'>
             /* root element for accordion. decorated with rounded borders and gradient background image */
@@ -718,13 +717,6 @@ class View_Styles {
         <script type='text/javascript'>//<![CDATA[
 
             $(document).ready(function() {
-              //Initialising Accordion
-              $('.accordion').tabs('.pane', {
-                tabs: '> h2',
-                effect: 'slide',
-                initialIndex: null
-              });
-
               //The click to hide function
               $('.accordion > h2').click(function() {
                 if ($(this).hasClass('current') && $(this).next().queue().length === 0) {
