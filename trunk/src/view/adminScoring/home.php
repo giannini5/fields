@@ -355,7 +355,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $addClearButton = isset($game->homeTeamScore);
         $command        = isset($game->homeTeamScore) ? View_Base::UPDATE : View_Base::ENTER;
         $day            = $game->gameTime->gameDate->day;
-        $time           = $game->gameTime->startTime;
+        $time           = $game->gameTime->actualStartTime;
         $fieldName      = $game->gameTime->field->fullName;
         $flightName     = $game->flight->name;
         $poolName       = isset($game->pool) ? $game->pool->name : $game->title;
@@ -475,7 +475,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $addClearButton = isset($game->homeTeamScore);
         $command        = isset($game->homeTeamScore) ? View_Base::UPDATE : View_Base::ENTER;
         $day            = $game->gameTime->gameDate->day;
-        $time           = $game->gameTime->startTime;
+        $time           = $game->gameTime->actualStartTime;
         $fieldName      = $game->gameTime->field->fullName;
         $flightName     = $game->flight->name;
         $poolName       = isset($game->pool) ? $game->pool->name : "";

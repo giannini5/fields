@@ -20,10 +20,12 @@ class View_Styles {
         // <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
         // <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
+        // Searching for fix to lock problem
+        //             <link rel="stylesheet" src="css/jquery-ui-1.10.3.custom.min.css" rel="stylesheet"/>
+
         print '
             <META charset="utf-8">
             <META HTTP-EQUIV="EXPIRES" CONTENT="Thu, 12 Apr 2007 08:21:57 GMT">
-            <link rel="stylesheet" src="css/jquery-ui-1.10.3.custom.min.css" rel="stylesheet"/>
 
             <script language="javascript" type="text/javascript" src="js/jquery-1.9.1.js"></script>
             <script language="javascript" type="text/javascript" src="js/jquery-ui-1.10.3.custom.js"></script>
@@ -32,7 +34,8 @@ class View_Styles {
             <style>
                 body{
                     font: 75% "Trebuchet MS", sans-serif;
-                }
+                }';
+        /*
                 .demoHeaders {
                     margin-top: 2em;
                 }
@@ -74,19 +77,14 @@ class View_Styles {
                 }
                 .ui-menu { width: 150px; }
                 .right-list-top {
-                    /*background-color: red;
-                    background-color: rgb(180,180,255);*/
                     min-height: 30px;
                     overflow: hidden;
                     width: 29%;
                     text-align: center;
                     vertical-align: middle;
-                    /*line-height: 10em;*/
 
                 }
                 .left-list-top {
-                    /*background-color: yellow;
-                    background-color: rgb(180,180,255);*/
                     float: left;
                     min-height: 30px;
                     overflow: hidden;
@@ -96,8 +94,6 @@ class View_Styles {
                     border-right: thin solid rgb(127,127,255);
                 }
                 .rsmSelect-messageContent-top {
-                    /*background-color: yellow;*/
-                    /*background-color: rgb(180,180,255);*/
                     float: left;
                     min-height: 30px;
                     overflow: hidden;
@@ -107,8 +103,6 @@ class View_Styles {
                     border-right: thin solid rgb(127,127,255);
                 }
                 .rsmSelect-previewImage-top {
-                    /*background-color: green;*/
-                    /*background-color: rgb(180,180,255);*/
                     float: left;
                     min-height: 30px;
                     overflow: hidden;
@@ -118,8 +112,6 @@ class View_Styles {
                     border-right: thin solid rgb(127,127,255);
                 }
                 .rsmSelect-isActive-top {
-                    /*background-color: #a52a2a;*/
-                    /*background-color: rgb(180,180,255);*/
                     float: left;
                     min-height: 30px;
                     overflow: hidden;
@@ -128,35 +120,27 @@ class View_Styles {
                     vertical-align: middle;
                 }
                 #right-controller {
-                    /*background-color: red;*/
                     min-height: 700px;
                     overflow: hidden;
                     width: 15%;
                     height: 25em;
                     position: relative;
-                    /*line-height: 10em;*/
-
                 }
                 #left-controller {
-                    /*background-color: yellow;*/
                     float: left;
-                    /*min-height: 700px;*/
                     height: 750px;
                     overflow: auto;
                     width: 85%;
                     position: relative;
                 }
                 #rsmSelect-controller {
-                    /*background-color: yellow;*/
                     float: left;
-                    /*min-height: 700px;*/
                     height: 750px;
                     overflow: hidden;
                     width: 100%;
                 }
                 .center{margin:auto; width: 100%; height: 100%;}
                 .userAction-import {
-                    /*background-color: green;*/
                     min-height: 100px;
                     min-width: 10%;
                     overflow: hidden;
@@ -167,7 +151,6 @@ class View_Styles {
                     padding: 10px;
                 }
                 .rsmInfo {
-                    /*background-color: red;*/
                     min-height: 100px;
                     overflow: auto;
                     width: 100%;
@@ -176,7 +159,6 @@ class View_Styles {
                     line-height: 2em;
                 }
                 .rsmAttributes-import {
-                    /*background-color: red;*/
                     min-height: 100px;
                     overflow: auto;
                     width: 58%;
@@ -185,27 +167,21 @@ class View_Styles {
                     line-height: 2em;
                 }
                 .rsmPreview-import {
-                    /*background-color: yellow;*/
                     min-height: 100px;
                     overflow: auto;
                     width: 30%;
                     float: right;
                     height: 9em;
-                    /*line-height: 8em;*/
                 }
                 .userAction-select {
-                    /*background-color: green;*/
                     min-height: 100px;
                     min-width: 10%;
                     overflow: hidden;
                     width: 10%;
-                    /*height: 8em;*/
                     float: left;
-                    /*line-height: 8em;*/
                     padding: 5px;
                 }
                 .rsmAttributes-select {
-                    /*background-color: red;*/
                     min-height: 100px;
                     overflow: auto;
                     width: 53%;
@@ -214,16 +190,13 @@ class View_Styles {
                     line-height: 2em;
                 }
                 .rsmPreview-select {
-                    /*background-color: yellow;*/
                     min-height: 100px;
                     overflow: auto;
                     width: 27%;
                     float: left;
                     height: 9em;
-                    /*line-height: 8em;*/
                 }
                 .isActive-select {
-                    /*background-color: blue;*/
                     min-height: 100px;
                     overflow: auto;
                     width: 9%;
@@ -243,7 +216,6 @@ class View_Styles {
                     bottom: 0;
                     margin-left: -1px;
                     padding: 0;
-                    /* support: IE7 */
                     *height: 1.7em;
                     *top: 0.1em;
                 }
@@ -252,24 +224,18 @@ class View_Styles {
                     padding: 0.3em;
                 }
                 .button {
-                    min-width: 100px;
+                    min-width: 10px;
                 }
                 .topDiv {
                     width:100%;
-                    /*background-color: rgb(240,240,255);*/
                     background-color: rgb(180,180,255);
-                    /*border: thin solid rgb(127,127,255);*/
                     height: 30px;
-                    /* CSS3 */
                     border-top-left-radius: 10px;
                     border-top-right-radius: 10px;
-                    /* Webkit */
                     -webkit-border-top-left-radius: 10px;
                     -webkit-border-top-right-radius: 10px;
-                    /* Firefox */
                     -moz-border-radius-topleft: 10px;
                     -moz-border-radius-topright: 10px;
-                    /* KHTML (Konqueror) */
                     -khtml-border-top-left-radius: 10px;
                     -khtml-border-top-right-radius: 10px;
                 }
@@ -324,7 +290,6 @@ class View_Styles {
                 }
                 #fieldSet {
                     overflow:auto;
-                    /*overflow-y: scroll;*/
                     scrollbar-3dlight-color:#FFFFFF;
                     scrollbar-arrow-color:#000000;
                     scrollbar-base-color:#FF9999;
@@ -334,13 +299,6 @@ class View_Styles {
                     scrollbar-shadow-color:#0033CC;
                     height:650px;
                 }
-                /*
-                  Hide radio button (the round disc)
-                  we will use just the label to create pushbutton effect
-                input[type=radio] {
-                    display:none;
-                }
-                */
 
                 input[type=file] {
                     text-shadow: 0 1px 1px rgba(255,255,255,0.75);
@@ -364,10 +322,6 @@ class View_Styles {
                     box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
                 }
 
-                /*
-                  Change the look-n-feel of labels (which are adjacent to radiobuttons).
-                  Add some margin, padding to label
-                */
                 input[type=radio] + label {
                     display:inline-block;
                     margin:-2px;
@@ -398,10 +352,6 @@ class View_Styles {
                     box-shadow: inset 0 1px 0 rgba(255,255,255,0.2),0 1px 2px rgba(0,0,0,0.05);
                 }
 
-                /*
-                 Change background color for label next to checked radio button
-                 to make it look like highlighted button
-                */
                 input[type=radio]:checked + label {
                     background-image: none;
                     outline: 0;
@@ -410,8 +360,8 @@ class View_Styles {
                     box-shadow: inset 0 2px 4px rgba(0,0,0,0.15),0 1px 2px rgba(0,0,0,0.05);
                     background-color:#669fff;
                 }
-
-                /* Begin Navigation Bar Styling */
+        */
+        print '
                 #nav {
                     width: 100%;
                     float: left;
@@ -443,10 +393,9 @@ class View_Styles {
                     font-weight: bold;
                     color: #c00;
                     background-color: #fff;
-                    border-right: 1px solid #ccc; }
-                    /* End navigation bar styling. */
+                    border-right: 1px solid #ccc; }';
+        /*
 
-                    /* This is just styling for this specific page. */
                 body {
                     background-color: lightskyblue;
                     font: small/1.3 Arial, Helvetica, sans-serif; }
@@ -454,7 +403,6 @@ class View_Styles {
                     font-size: 1.2em;
                     padding: 1em 10px;
                     color: #069;
-                    /*padding-left: 85px;*/
                 }
                 #content {
                     padding: 0 20px 20px; }
@@ -465,8 +413,6 @@ class View_Styles {
                     height: 100%
                 }
                 #rightHeader {
-                    /* float: right;
-                   width: 100%;*/
                     height: 75px;
                     background-color: #fff;
                     vertical-align: middle;
@@ -476,38 +422,29 @@ class View_Styles {
                 #rsmEdit-top-left {
                     width:52%;
                     background-color: rgb(240,240,255);
-                    /*background-color: rgb(180,180,255);*/
                     border: thin solid rgb(127,127,255);
                     height: 65px;
                     text-align: center;
                     float: left;
                     padding-top: 20px;
-                    /*margin-left: 20px;*/
                 }
                 #rsmEdit-top-right {
                     width:50%;
                     background-color: rgb(240,240,255);
-                    /*background-color: rgb(180,180,255);
-                    /*border: thin solid rgb(127,127,255);*/
                     height: 80px;
                     text-align: center;
                     float: right;
                     padding-top: 5px;
-                    /*margin-right: 20px;*/
                 }
                 #rsmEdit-bottom {
                     width:100%;
                     background-color: rgb(240,240,255);
-                    /*background-color: rgb(180,180,255);
-                    /*border: thin solid rgb(127,127,255);*/
                     height: 80px;
                     text-align: center;
                     float: right;
                     padding-top: 5px;
-                    /*margin-right: 20px;*/
                 }
                 #rsmEdit-left {
-                    /*background-color: yellow;*/
                     width: 55%;
                     min-width: 55%;
                     float: left;
@@ -516,13 +453,11 @@ class View_Styles {
                     overflow: auto;
                 }
                 #rsmEdit-right {
-                    /*background-color: red;*/
                     width: 45%;
                     min-width: 45%;
                     float: right;
                     min-height: 750px;
                     overflow: auto;
-                    /*position: relative;*/
                 }
                 #rsmEditAction {
                     overflow: hidden;
@@ -533,15 +468,12 @@ class View_Styles {
                     margin: 10px;
                 }
                 #rsmTest-left {
-                    /*background-color: yellow;*/
                     width: 55%;
                     float: left;
                     min-height: 550px;
                 }
                 #rsmTest-right {
-                    /*background-color: red;*/
                     width: 45%;
-                    /*float: right;*/
                     min-height: 550px;
                     overflow: hidden;
                 }
@@ -585,9 +517,12 @@ class View_Styles {
                     background-color: #f2dede;
                     border-color: #eed3d7;
                 }
+        */
 
-            </style>
+        print '
+            </style>';
 
+        /*
             <style>
                 table.sortable th {
                     color:#0000FF;
@@ -601,9 +536,10 @@ class View_Styles {
                   background: #ffffff;
                 }
             </style>';
+        */
 
-        $this->_collapsibleCSS($facilityCount);
-        $this->_collapsibleJS($facilityCount);
+        // $this->_collapsibleCSS($facilityCount);
+        // $this->_collapsibleJS($facilityCount);
         $this->_accordion();
     }
 
@@ -662,11 +598,12 @@ class View_Styles {
     private function _accordion() {
         // <link rel='stylesheet' type='text/css' href='/apps/test_harness/css/style.css'>
         //         <script type='text/javascript' src='http://cdn.jquerytools.org/1.2.5/full/jquery.tools.min.js'></script>
+        //         <link rel='stylesheet' type='text/css' href='http://static.flowplayer.org/tools/css/standalone.css'>
+
 
 
         print "
         <script type='text/javascript' src='http://code.jquery.com/jquery-1.6.2.js'></script>
-        <link rel='stylesheet' type='text/css' href='http://static.flowplayer.org/tools/css/standalone.css'>
         <style type='text/css'>
             /* root element for accordion. decorated with rounded borders and gradient background image */
             .accordion {
@@ -675,7 +612,7 @@ class View_Styles {
                 position: relative;
                 width: 635px;
                 border:1px solid #333;
-                -background:#666;
+                /* -background:#666; */
             }
 
             /* accordion header */

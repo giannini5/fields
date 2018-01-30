@@ -173,6 +173,14 @@ class Web_Index
                 $this->m_controller = new Controller_Games_Standings();
                 break;
 
+            case View_Base::API_SWAP:
+                $this->m_controller = new Controller_Api_Swap();
+                break;
+
+            case View_Base::API_TOGGLE:
+                $this->m_controller = new Controller_Api_Toggle();
+                break;
+
             default:
                 $this->m_controller = new Controller_Fields_Welcome();
                 break;

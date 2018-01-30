@@ -1,0 +1,115 @@
+body{
+	font-family: arial;
+	margin: 0px; /* for IE6 / IE7 */
+}
+
+
+/* drag container */
+#main_container {
+	margin: auto;
+	width: 730px;
+}
+
+	/* container for the left table */
+	#main_container #left {
+		width: 130px;
+		height: 320px;
+		float: left;
+		margin-right: 20px;
+	}
+
+	/* container for the main table and message line below */
+	#main_container #right {
+		width: 675px;
+		padding-left: auto;
+		padding-right: 0px;
+		/* align div to the right */
+		margin-left: auto;
+	}
+
+.boxed {
+	margin-right: 		25px;
+	margin-left:  		25px;
+	border-style: 		solid;
+	border-width:		6px;
+	border-color: 		darkblue;
+	background-color: 	lightblue;
+	min-width: 			1500px;
+}
+
+/* drag objects (DIV inside table cells) */
+.redips-drag {
+	cursor: move;
+	margin: auto;
+	z-index: 10;
+	color: #0f11af;
+	text-align: center;
+	/* background-color: lightgreen; */
+	font-size: 10pt; /* needed for cloned object */
+	/* opacity: 0.7; */
+	filter: alpha(opacity=70);
+	/* without width, IE6/7 will not apply filter/opacity to the element ?! */
+	/* IE needs element layout */
+	width: 150px;
+	height: 60px;
+	line-height: 20px;
+	/* border */
+	border: 4px solid #555;
+	/* round corners */
+	border-radius: 8px;
+	-moz-border-radius: 8px; /* FF */
+}
+
+	/* tables */
+	div#redips-drag table {
+		border-collapse: separate;
+		background-color: white;
+	}
+
+	/* table cells */
+	div#redips-drag td {
+		border-style: solid;
+		border-width: 1px;
+		border-color: black;
+		height:       32px;
+		font-size:    10pt;
+		padding: 	  2px;
+	}
+
+		/* overwrite for collapsible tables */
+		div#redips-drag #viewTable table {
+			background-color: 	lightblue;
+			vertical-align: 	top;
+		}
+		/* set all borders to 0px */
+		div#redips-drag #viewTable td {
+			border-style: 		none;
+			text-align:   		left;
+			background-color: 	lightblue;
+			vertical-align:		top;
+		}
+
+		/* overwrite for button tables */
+		div#redips-drag #buttonTable table {
+			background-color: lightblue;
+		}
+		/* set all borders to 0px */
+		div#redips-drag #buttonTable td {
+			border-style: 		none;
+			text-align:   		center;
+			background-color: 	lightblue;
+		}
+
+/* message line */
+#message {
+	color: white;
+	background-color: darkblue;
+	text-align: center;
+	margin-top: 0px;
+}
+
+
+/* dark cells (first column and table header) */
+.dark{
+	color: #444;
+}

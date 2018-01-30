@@ -209,6 +209,14 @@ class Schedule extends Domain
     }
 
     /**
+     * @return bool - true if schedule is published, false otherwise
+     */
+    public function isPublished()
+    {
+        return $this->published == 1;
+    }
+
+    /**
      * @param $value
      * @param $season
      * @param $label
@@ -466,6 +474,7 @@ class Schedule extends Domain
         $processedPoolIds       = [];
         $season                 = $this->division->season;
         $flights                = Flight::lookupBySchedule($this);
+        $homeGameTrackerByPool  = [];
 
         foreach ($flights as $flight) {
             if ($flight->scheduleGames != 1) {
@@ -481,24 +490,27 @@ class Schedule extends Domain
                 }
                 $processedPoolIds[] = $pool->id;
 
-                $gameDates      = GameDate::lookupBySeason($this->division->season, GameDate::SATURDAYS_ONLY, $this);
-                $triedSundays   = false;
-                $gameDateIndex  = 0;
-                $teams          = Team::lookupByPool($pool);
-                $poolType       = TeamPolygon::ROUND_ROBIN_EVEN;
-                $crossPoolTeams = null;
-                $shiftCount     = 0;
+                $gameDates                          = GameDate::lookupBySeason($this->division->season,
+                    GameDate::SATURDAYS_ONLY, $this);
+                $triedSundays                       = false;
+                $gameDateIndex                      = 0;
+                $teams                              = Team::lookupByPool($pool);
+                $homeGameTracker                    = new HomeGameTracker($teams);
+                $homeGameTrackerByPool[$pool->id]   = $homeGameTracker;
+                $poolType                           = TeamPolygon::ROUND_ROBIN_EVEN;
+                $crossPoolTeams                     = null;
+                $shiftCount                         = 0;
 
                 if ($pool->gamesAgainstPool->id != $pool->id) {
                     $poolType           = TeamPolygon::CROSS_POOL_EVEN;
-                    $crossPoolTeams     = Team::lookupByPool($pool->gamesAgainstPool);;
+                    $crossPoolTeams     = Team::lookupByPool($pool->gamesAgainstPool);
                     $processedPoolIds[] = $pool->gamesAgainstPool->id;
+                    $homeGameTracker->addTeams($crossPoolTeams);
                 } elseif (count($teams) % 2 != 0) {
                     $poolType           = TeamPolygon::ROUND_ROBIN_ODD;
                 }
 
                 $teamPolygon    = new TeamPolygon($teams, $poolType, $crossPoolTeams);
-
 
                 // Right now everyone plays on saturdays and overflow games to adhere to game count happen on Sundays
                 // Might need to change this to everyone plays on the same weekend if a division does not have enough
@@ -547,33 +559,7 @@ class Schedule extends Domain
                         $gameTime = $selectedGameTimes[0];
 
                         // Set the home team and visiting team based on the pool type
-                        $homeTeam       = null;
-                        $visitingTeam   = null;
-                        switch ($poolType) {
-                            case TeamPolygon::ROUND_ROBIN_EVEN:
-                            case TeamPolygon::ROUND_ROBIN_ODD:
-                                if ((rand() % 2) == 0) {
-                                    $homeTeam       = $teams[$team1Index];
-                                    $visitingTeam   = $teams[$team2Index];
-                                } else {
-                                    $homeTeam       = $teams[$team2Index];
-                                    $visitingTeam   = $teams[$team1Index];
-                                }
-                                break;
-
-                            case TeamPolygon::CROSS_POOL_EVEN:
-                                if ($shiftCount % 2 == 0) {
-                                    $homeTeam       = $teams[$team1Index];
-                                    $visitingTeam   = $crossPoolTeams[$team2Index];
-                                } else {
-                                    $homeTeam       = $crossPoolTeams[$team2Index];
-                                    $visitingTeam   = $teams[$team1Index];
-                                }
-                                break;
-
-                            default:
-                                Precondition::isTrue(false, "$poolType is not yet supported");
-                        }
+                        list($homeTeam, $visitingTeam) = $homeGameTracker->getHomeVisitorTeams($teams[$team1Index], $teams[$team2Index]);
                         Assertion::isTrue(isset($homeTeam), "Major bug, homeTeam did not get set - See Dave");
                         Assertion::isTrue(isset($visitingTeam), "Major bug, visitingTeam did not get set - See Dave");
 
@@ -616,6 +602,11 @@ class Schedule extends Domain
                     $gameDateIndex  += 1;
                 }
             }
+        }
+
+        // Attempt to even out home and visiting games
+        foreach ($homeGameTrackerByPool as $poolId => $homeGameTracker) {
+            $homeGameTracker->evenOutHomeGames();
         }
     }
 
@@ -667,6 +658,7 @@ class Schedule extends Domain
 
                 $gameDateIndex          = 0;
                 $teams                  = Team::lookupByPool($pool);
+                $homeGameTracker        = new HomeGameTracker($teams);
                 $poolType               = count($teams) % 2 != 0 ? TeamPolygon::ROUND_ROBIN_ODD_TOURNAMENT : TeamPolygon::ROUND_ROBIN_EVEN;
                 $teamPolygon            = new TeamPolygon($teams, $poolType);
                 $shiftCount             = 0;
@@ -740,16 +732,8 @@ class Schedule extends Domain
                         $firstGameTime  = isset($firstGameTime) ? $firstGameTime : $gameTime;
 
 
-                        // Set the home team and visiting team based on the pool type
-                        $homeTeam       = null;
-                        $visitingTeam   = null;
-                        if ((rand() % 2) == 0) {
-                            $homeTeam       = $teams[$team1Index];
-                            $visitingTeam   = $teams[$team2Index];
-                        } else {
-                            $homeTeam       = $teams[$team2Index];
-                            $visitingTeam   = $teams[$team1Index];
-                        }
+                        // Set the home team and visiting team
+                        list($homeTeam, $visitingTeam) = $homeGameTracker->getHomeVisitorTeams($teams[$team1Index], $teams[$team2Index]);
                         Assertion::isTrue(isset($homeTeam), "Major bug, homeTeam did not get set - See Dave, $team1Index, $team2Index");
                         Assertion::isTrue(isset($visitingTeam), "Major bug, visitingTeam did not get set - See Dave, $team1Index, $team2Index");
 
@@ -810,27 +794,34 @@ class Schedule extends Domain
             }
 
             // Semi-final game if any
+            $semiFinalGames = [];
             if ($flight->includeSemiFinalGames) {
                 for ($i = 1; $i <= 2; $i++) {
                     $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
                     Assertion::isTrue(isset($gameTime), 'Unable to find game time for Semi-Final Game $i');
-                    Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_SEMI_FINAL);
+                    $semiFinalGames[] = Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_SEMI_FINAL);
                 }
                 $minStartTime = date("H:i:s", strtotime($gameTime->startTime) + 60*60*3);
             }
+
+            // Get Semi-final Game Ids
+            $semiFinal1GameId = count($semiFinalGames) == 2 ? $semiFinalGames[0]->id : 0;
+            $semiFinal2GameId = count($semiFinalGames) == 2 ? $semiFinalGames[1]->id : 0;
 
             // 3rd/4th game if any
             if ($flight->include3rd4thGame) {
                 $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
                 Assertion::isTrue(isset($gameTime), 'Unable to find game time for 3rd/4th Game');
-                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_3RD_4TH);
+                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_3RD_4TH, 0,
+                    $semiFinal1GameId, $semiFinal2GameId, 0);
             }
 
             // Championship game if any
             if ($flight->includeChampionshipGame) {
                 $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
                 Assertion::isTrue(isset($gameTime), 'Unable to find game time for Championship Game');
-                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_CHAMPIONSHIP);
+                Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_CHAMPIONSHIP, 0,
+                    $semiFinal1GameId, $semiFinal2GameId, 1);
             }
         }
     }
@@ -894,7 +885,7 @@ class Schedule extends Domain
                         break;
 
                     case 7:
-                        // Not Q1 - Top seed gets a buy to the semis
+                        // No Q1 - Top seed gets a buy to the semis
 
                         $q2Teams[] = $teams[3]; // Seat 4 plays 5
                         $q2Teams[] = $teams[4];
@@ -1006,7 +997,7 @@ class Schedule extends Domain
 
                 $q3Game = null;
                 if ($numberOfTeams >= 7) {
-                    $q3Game = $this->createBracketGame($pool, $gameTimesByTime, $q1Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $p1Game);
+                    $q3Game = $this->createBracketGame($pool, $gameTimesByTime, $q3Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $p2Game);
                 }
                 $q4Game = $this->createBracketGame($pool, $gameTimesByTime, $q4Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
 

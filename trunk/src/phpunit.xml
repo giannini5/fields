@@ -1,0 +1,18 @@
+<phpunit bootstrap="lib/autoload.php" 
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    stopOnFailure="true">
+    <testsuites>
+        <testsuite name="Model Test Suite">
+            <directory>lib/model/fields/test</directory>
+        </testsuite>
+        <testsuite name="ORM Test Suite">
+            <directory>src/Orm/Schedule/tests</directory>
+        </testsuite>
+        <testsuite name="Domain Test Suite">
+            <directory>src/Domain/Schedule/tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

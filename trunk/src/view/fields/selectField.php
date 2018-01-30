@@ -73,10 +73,7 @@ class View_Fields_SelectField extends View_Fields_Base {
         $this->_printFacilitySelectors($facilities, $filterFacilityId, $filterDivisionId, $filterLocationId, $filterTeamId);
         print "<br>";
 
-        $javaScriptClassIdentifier = 0;
         foreach ($facilities as $facility) {
-            $javaScriptClassIdentifier += 1;
-
             // skip this facility if it is not enabled
             if ($facility->enabled == 0) {
                 continue;
@@ -105,30 +102,15 @@ class View_Fields_SelectField extends View_Fields_Base {
             }
 
             print "<div class='accordion'>";
-/*
-            print "
-            <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <td>";
-*/
 
             $this->_printSelectFieldForm(
                 4,
                 $facility,
                 $filterDivisionId,
-                "expandContract$javaScriptClassIdentifier",
-                "collapsible$javaScriptClassIdentifier",
                 $filterFacilityId,
                 $filterLocationId,
                 $filterTeamId);
 
-/*
-            print "
-                    </td>
-                </tr>
-            </table>
-            <br>";
-*/
             print "</div>";
         }
     }
@@ -198,8 +180,6 @@ class View_Fields_SelectField extends View_Fields_Base {
      * @param int                   $maxColumns         - Number of columns the form is covering
      * @param Model_Fields_Facility $facility           - Facility that contains the fields
      * @param int                   $filterDivisionId   - Filter out fields that are not allowed for the specified division
-     * @param bool                  $expandContract     - Expand contract java script class
-     * @param bool                  $collapsible        - Collapsible java script class
      * @param int                   $filterFacilityId   - Filter selected for facility
      * @param int                   $filterLocationId   - Filter selected for location
      * @param int                   $filterTeamId       - Filter selected for team
@@ -208,8 +188,6 @@ class View_Fields_SelectField extends View_Fields_Base {
         $maxColumns,
         $facility,
         $filterDivisionId,
-        $expandContract,
-        $collapsible,
         $filterFacilityId,
         $filterLocationId,
         $filterTeamId) {
@@ -222,7 +200,7 @@ class View_Fields_SelectField extends View_Fields_Base {
             <table id='viewTable' class='table' valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
             <form method='post' action='" . $this->m_pageName . $this->m_urlParams . "'>";
 
-        $this->_printFacilityInfo($maxColumns, $facility, $expandContract, $collapsible);
+        $this->_printFacilityInfo($maxColumns, $facility);
 
         if ($filterDivisionId == 0) {
             $fields = $this->m_controller->getFields($facility, TRUE);
@@ -230,10 +208,10 @@ class View_Fields_SelectField extends View_Fields_Base {
             $fields = $facility->getFieldsInDivision($filterDivisionId, TRUE);
         }
 
-        // print "<tr class='$collapsible'><td>&nbsp</td></tr>";
-        $this->_printFieldSelector($maxColumns, $fields, NULL);
-        $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00', NULL);
-        $this->printDaySelector($maxColumns, NULL, '', 'Days', false);
+        print "<tr><td>&nbsp</td></tr>";
+        $this->_printFieldSelector($maxColumns, $fields);
+        $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00');
+        $this->printDaySelector($maxColumns, null, '', 'Days', false);
 
         // Print Submit button and end form
         print "
@@ -252,7 +230,7 @@ class View_Fields_SelectField extends View_Fields_Base {
                 </tr>
             </form>";
 
-        $this->_printFieldsAssigned($maxColumns, $fields, $collapsible);
+        $this->_printFieldsAssigned($maxColumns, $fields);
 
         print "
             </table>";
@@ -266,10 +244,8 @@ class View_Fields_SelectField extends View_Fields_Base {
      *
      * @param $maxColumns - For colspan of field assignments table
      * @param $facility   - Facility that contains the fields
-     * @param $expandContract - Expand contract java script class
-     * @param $collapsible - Collapsible java script class
      */
-    private function _printFacilityInfo($maxColumns, $facility, $expandContract, $collapsible) {
+    private function _printFacilityInfo($maxColumns, $facility) {
         $result = strpos($facility->image, 'http://');
         $image = is_bool($result) ? 'images/' . $facility->image : $facility->image;
 
@@ -308,9 +284,9 @@ class View_Fields_SelectField extends View_Fields_Base {
      *
      * @param $maxColumns - For colspan of field assignments table
      * @param $fields - List of fields
-     * @param $collapsible - Collapsible CSS
      */
-    private function _printFieldsAssigned($maxColumns, $fields, $collapsible) {
+    private function _printFieldsAssigned($maxColumns, $fields)
+    {
         print "
             <tr>
                 <td colspan='$maxColumns'>
@@ -441,9 +417,9 @@ class View_Fields_SelectField extends View_Fields_Base {
      *
      * @param $maxColumns - For colspan of field assignments table
      * @param $fields - List of fields
-     * @param $collapsible - Collapsible CSS
      */
-    private function _printFieldSelector($maxColumns, $fields, $collapsible) {
+    private function _printFieldSelector($maxColumns, $fields)
+    {
         $fieldSectionHTML = '';
         foreach ($fields as $field) {
             // Populate the fields drop down

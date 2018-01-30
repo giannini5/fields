@@ -28,6 +28,7 @@ class GameExistsForGameTime extends \DAG_Exception
  * @property int        $id
  * @property Facility   $facility
  * @property string     $name
+ * @property string     $fullName
  * @property int        $enabled
  */
 class Field extends Domain
