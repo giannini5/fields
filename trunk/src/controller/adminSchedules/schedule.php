@@ -189,13 +189,14 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 }
             }
 
-            if ($this->m_operation == View_Base::UPDATE) {
+            if ($this->m_operation == View_Base::UPDATE_POOL) {
                 $this->m_crossPoolUpdates   = $this->getPostAttributeArray(View_Base::CROSS_POOL_UPDATE_DATA);
                 $this->m_teamPoolUpdates    = $this->getPostAttributeArray(View_Base::TEAM_POOL_UPDATE_DATA);
                 $this->m_flightUpdates      = $this->getPostAttributeArray(View_Base::FLIGHT_UPDATE_DATA);
             }
 
             if ($this->m_operation == View_Base::UPDATE
+                or $this->m_operation == View_Base::UPDATE_POOL
                 or $this->m_operation == View_Base::POPULATE
                 or $this->m_operation == View_Base::PUBLISH
                 or $this->m_operation == View_Base::UN_PUBLISH
@@ -393,6 +394,10 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
 
                     case View_Base::UPDATE:
                         $this->_updateSchedule();
+                        break;
+
+                    case View_Base::UPDATE_POOL:
+                        $this->_updatePool();
                         break;
 
                     case View_Base::CLEAR:
@@ -657,6 +662,27 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         $schedule->endTime      = $this->m_endTime;
         $schedule->daysOfWeek   = $this->m_daysSelectedString;
 
+        $this->m_messageString  = "Schedule '$divisionNameWithGender: $schedule->name' updated.";
+    }
+
+    /**
+     * @brief Update Schedule
+     */
+    private function _updatePool() {
+        // Get Data
+        $schedule                   = Schedule::lookupById($this->m_scheduleId);
+        $divisionNameWithGender     = $schedule->division->name . " " . $schedule->division->gender;
+        $this->m_divisionNames[]    = $divisionNameWithGender;
+
+        // Update only allowed if games have not yet been populated
+        if ($this->gamesExistForSchedule($schedule)) {
+            $this->m_messageString  = '';
+            $this->m_errorString    = "Schedule update failed for $divisionNameWithGender.  Reason: games already exist.  You must clear out existing games before updating schedule data.";
+            return;
+        }
+
+
+        // Perform updates
         foreach ($this->m_crossPoolUpdates as $poolId => $crossPoolId) {
             $pool       = Pool::lookupById($poolId);
             $crossPool  = Pool::lookupById($crossPoolId);
@@ -685,7 +711,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             $flight->scheduleGames              = isset($data[View_Base::FLIGHT_SCHEDULE_GAMES]) ? 1 : 0;
         }
 
-        $this->m_messageString  = "Schedule '$divisionNameWithGender: $schedule->name' updated.";
+        $this->m_messageString  = "Flight/Pool for Schedule '$divisionNameWithGender: $schedule->name' updated.";
     }
 
     /**

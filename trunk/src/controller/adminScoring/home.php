@@ -309,7 +309,6 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
         }
 
         // If bracket tournament then use bracket rules to populate title game(s)
-        // TODO add support for tournament game population here
         if ($game->flight->schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_BRACKET) {
             return $this->populateBracketGames($game);
         }
@@ -324,17 +323,17 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
         $titleGames     = [];
         $semiFinalGames = [];
         $games          = Game::lookupByFlight($game->flight);
-        foreach ($games as $game) {
-            if ($game->title != '') {
-                if ($game->title == GameOrm::TITLE_SEMI_FINAL) {
-                    $semiFinalGames[] = $game;
+        foreach ($games as $tGame) {
+            if ($tGame->title != '') {
+                if ($tGame->title == GameOrm::TITLE_SEMI_FINAL) {
+                    $semiFinalGames[] = $tGame;
                 } else {
-                    $titleGames[$game->title] = $game;
+                    $titleGames[$tGame->title] = $tGame;
                 }
                 continue;
             }
 
-            if (!isset($game->homeTeamScore)) {
+            if (!isset($tGame->homeTeamScore)) {
                 return 0;
             }
         }
@@ -360,11 +359,6 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
                     // Bail for now.
                     return 2;
                 }
-                /*
-                while (isset($standingsByPoints["$points"])) {
-                    $points = $points + .01;
-                }
-                */
                 $standingsByPoints["$points"] = $team->id;
             }
 
@@ -383,6 +377,7 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
         }
 
         // Get Semi-Final games
+        $returnValue = 0;
         if (count($semiFinalGames) > 0) {
             Assertion::isTrue(count($semiFinalGames) == 2, "Incorrect number of semi-final games found: " . count($semiFinalGames));
 
@@ -400,9 +395,11 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
             // Populate with first from pool2 vs second from pool1
             $semiFinalGames[1]->homeTeam        = $semiFinalTeams[2];
             $semiFinalGames[1]->visitingTeam    = $semiFinalTeams[1];
+
+            $returnValue = 1;
         }
 
-        // Populate title games
+        // Populate 5th/6th title game if any
         foreach ($titleGames as $titleGame) {
             switch ($titleGame->title) {
                 case GameOrm::TITLE_5TH_6TH:
@@ -410,36 +407,11 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
                     $thirdPlaceTeams            = $this->getTeamsForTitleGame($teamsByPool, $titleGame->title, 2);
                     $titleGame->homeTeam        = $thirdPlaceTeams[0];
                     $titleGame->visitingTeam    = $thirdPlaceTeams[1];
+                    $returnValue = 1;
                     break;
 
                 case GameOrm::TITLE_3RD_4TH:
-                    // Use semi-final games if any; otherwise use pool teams
-                    if (count($semiFinalGames) > 0) {
-                        if ($this->areSemiFinalGamesScored($semiFinalGames)) {
-                            $semiFinalLosers            = $this->getSemiFinalGameLosers($semiFinalGames);
-                            $titleGame->homeTeam        = $semiFinalLosers[0];
-                            $titleGame->visitingTeam    = $semiFinalLosers[1];
-                        }
-                    } else {
-                        $secondPlaceTeams           = $this->getTeamsForTitleGame($teamsByPool, $titleGame->title, 1);
-                        $titleGame->homeTeam        = $secondPlaceTeams[0];
-                        $titleGame->visitingTeam    = $secondPlaceTeams[1];
-                    }
-                    break;
-
                 case GameOrm::TITLE_CHAMPIONSHIP:
-                    // Use semi-final games if any; otherwise use pool teams
-                    if (count($semiFinalGames) > 0) {
-                        if ($this->areSemiFinalGamesScored($semiFinalGames)) {
-                            $semiFinalWinners           = $this->getSemiFinalGameWinners($semiFinalGames);
-                            $titleGame->homeTeam        = $semiFinalWinners[0];
-                            $titleGame->visitingTeam    = $semiFinalWinners[1];
-                        }
-                    } else {
-                        $thirdPlaceTeams            = $this->getTeamsForTitleGame($teamsByPool, $titleGame->title, 0);
-                        $titleGame->homeTeam        = $thirdPlaceTeams[0];
-                        $titleGame->visitingTeam    = $thirdPlaceTeams[1];
-                    }
                     break;
 
                 default:
@@ -447,13 +419,14 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
             }
         }
 
-        return 1;
+        $bracketReturnValue = $this->populateBracketGames($game);
+        return $bracketReturnValue > $returnValue ? $bracketReturnValue : $returnValue;
     }
 
     /**
      * @param Game  $game   - Game that was just scored
      *
-     * @return int  0 if no games to populate
+     * @return int
      *              1 if title games populated
      *              2 if title games ready to populate, but there is a tie
      */
@@ -461,13 +434,9 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
     {
         $returnValue = 0;
 
-        // Skip if schedule does not support tournament/bracket play
-        Assertion::isTrue($game->flight->schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_BRACKET,
-            "Unexpected schedule type: " . $game->flight->schedule->scheduleType);
-
         // Return if game is a tie
         if ($game->homeTeamScore == $game->visitingTeamScore) {
-            return 2;
+            return 0;
         }
 
         // Get winning and losing teams

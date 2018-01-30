@@ -4,6 +4,7 @@ namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
 use DAG\Framework\Orm\DuplicateEntryException;
+use DAG\Framework\Orm\NoResultsException;
 use DAG\Orm\Schedule\DivisionFieldOrm;
 use DAG\Framework\Exception\Precondition;
 
@@ -84,6 +85,24 @@ class DivisionField extends Domain
     {
         $divisionFieldOrm = DivisionFieldOrm::loadByDivisionIdAndField($division->id, $field->id);
         return new static($divisionFieldOrm, $division, $field);
+    }
+
+    /**
+     * @param Division      $division
+     * @param Field         $field
+     * @param DivisionField $divisionField
+     *
+     * @return bool
+     */
+    public static function findByDivisionAndField($division, $field, &$divisionField)
+    {
+        try {
+            $divisionFieldOrm = DivisionFieldOrm::loadByDivisionIdAndField($division->id, $field->id);
+            $divisionField = new static($divisionFieldOrm, $division, $field);
+            return true;
+        } catch (NoResultsException $e) {
+            return false;
+        }
     }
 
     /**

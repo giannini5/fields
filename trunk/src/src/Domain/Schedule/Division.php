@@ -24,6 +24,9 @@ use DAG\Framework\Exception\Precondition;
  */
 class Division extends Domain
 {
+    static $BOYS    = 'Boys';
+    static $GIRLS   = 'Girls';
+
     /** @var DivisionOrm */
     private $divisionOrm;
 

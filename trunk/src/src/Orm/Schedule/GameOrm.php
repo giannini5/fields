@@ -67,6 +67,15 @@ class GameOrm extends PersistenceModel
         self::TITLE_CHAMPIONSHIP,
     ];
 
+    public static $abbreviatedTitles = [
+        self::TITLE_PLAYOFF         => "PO",
+        self::TITLE_QUARTER_FINAL   => "QF",
+        self::TITLE_5TH_6TH         => "5/6",
+        self::TITLE_SEMI_FINAL      => "SF",
+        self::TITLE_3RD_4TH         => "3/4",
+        self::TITLE_CHAMPIONSHIP    => "C",
+    ];
+
     protected static $fields = [
         self::FIELD_ID                          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_FLIGHT_ID                   => [FV::INT,    [FV::NO_CONSTRAINTS]],
@@ -265,6 +274,27 @@ class GameOrm extends PersistenceModel
         $results = self::getPersistenceDriver()->getManyFromCustomMySqlQuery(
             [],
             "where " . self::FIELD_HOME_TEAM_ID . " = $teamId or " . self::FIELD_VISITING_TEAM_ID . " = $teamId");
+
+        $gameOrms = [];
+        foreach ($results as $result) {
+            $gameOrms[] = new static($result);
+        }
+
+        return $gameOrms;
+    }
+
+    /**
+     * Load a GameOrms by teamId
+     *
+     * @param int $teamId
+     *
+     * @return array []   GameOrms
+     */
+    public static function loadByHomeTeamId($teamId)
+    {
+        $results = self::getPersistenceDriver()->getManyFromCustomMySqlQuery(
+            [],
+            "where " . self::FIELD_HOME_TEAM_ID . " = $teamId");
 
         $gameOrms = [];
         foreach ($results as $result) {

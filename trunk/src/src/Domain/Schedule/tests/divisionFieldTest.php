@@ -55,6 +55,14 @@ class DivisionFieldTest extends ORM_TestHelper
         $this->validateDivisionField($divisionField, $this->division, $this->field);
     }
 
+    public function test_findByDivisionAndField()
+    {
+        $divisionField = null;
+        $result = DivisionField::findByDivisionAndField($this->division, $this->field, $divisionField);
+        $this->assertTrue($result, "findByDivisionAndField returned false");
+        $this->validateDivisionField($divisionField, $this->division, $this->field);
+    }
+
     public function validateDivisionField($divisionField, $division, $field)
     {
         $this->assertTrue($divisionField->id > 0);

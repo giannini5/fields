@@ -253,6 +253,23 @@ class Game extends Domain
     }
 
     /**
+     * @param Team  $team
+     *
+     * @return Game[]
+     */
+    public static function lookupByHomeTeam($team)
+    {
+        $games = [];
+
+        $gameOrms = GameOrm::loadByHomeTeamId($team->id);
+        foreach ($gameOrms as $gameOrm) {
+            $games[] = new static($gameOrm);
+        }
+
+        return $games;
+    }
+
+    /**
      * Get all games being played by specified division on specified day.
      *
      * @param Division  $division
@@ -291,6 +308,25 @@ class Game extends Domain
         }
 
         return $gamesOnDay;
+    }
+
+    /**
+     * Swap the home and visiting teams
+     */
+    public function swapTeams()
+    {
+        Precondition::isTrue(isset($this->homeTeam), "Home Team is not set");
+        Precondition::isTrue(isset($this->visitingTeam), "Visiting Team is not set");
+
+        $team1  = $this->homeTeam;
+        $team2  = $this->visitingTeam;
+
+        $this->gameOrm->homeTeamId      = $team2->id;
+        $this->gameOrm->visitingTeamId  = $team1->id;
+        $this->gameOrm->save();
+
+        $this->homeTeam     = $team2;
+        $this->visitingTeam = $team1;
     }
 
     /**

@@ -65,6 +65,10 @@ abstract class View_Base {
     const GAMES_SCHEDULE_PAGE       = '/games/schedule';
     const GAMES_STANDINGS_PAGE      = '/games/standings';
 
+    # API
+    const API_SWAP                  = '/api/swap';
+    const API_TOGGLE                = '/api/toggle';
+
     # Operations
     const SUBMIT           = 'submit';
 
@@ -74,6 +78,7 @@ abstract class View_Base {
     const ENTER                 = 'Enter';
     const VIEW                  = 'View';
     const UPDATE                = 'Update';
+    const UPDATE_POOL           = 'Update Pool';
     const SIGN_IN               = 'Sign In';
     const SIGN_OUT              = 'Sign Out';
     const NO_BUTTON             = 'NoButton';
@@ -87,6 +92,8 @@ abstract class View_Base {
     const DELETE_POOL           = 'Delete Pool';
     const SWAP                  = 'Swap';
     const TOGGLE                = 'Toggle';
+    const LOCK                  = 'L';
+    const UNLOCK                = 'U';
     const ALTER                 = 'Alter';
     const REMOVE                = 'Remove';
     const ADD                   = 'Add';
@@ -157,6 +164,8 @@ abstract class View_Base {
     const GAME_ID1                  = 'gameId1';
     const GAME_ID2                  = 'gameId2';
     const GAME_TIME                 = 'gameTime';
+    const GAME_TIME_ID1             = 'gameTimeId1';
+    const GAME_TIME_ID2             = 'gameTimeId2';
     const ACTUAL_START_TIME         = 'actualGameTime';
     const GAME_TITLE                = 'gameTitle';
     const FLIGHT_UPDATE_DATA        = 'flightUpdateData';
@@ -376,6 +385,52 @@ abstract class View_Base {
             print "
             </tr>";
         }
+    }
+
+    /**
+     * @brief: Display a selector drop down (not in a table).
+     *
+     * @param string        $selectorTitle          - Describes the data being selected
+     * @param string        $selectorName           - Name for selector (used when processing POST)
+     * @param string        $defaultSelection       - Default selection to show
+     * @param array         $selectorData           - Array of data identifier=>string where the identifier is the value selected
+     * @param string        $currentSelection       - Current selection (if any) defaults to empty string
+     * @param int           $width                  - defaults to 140 (px)
+     * @param string        $disabledTag            - defaults to ''; used to prompt for a selection
+     * @param string        $selectBackgroundColor  - defaults to ''
+     */
+    public function displaySelectorNoTable($selectorTitle, $selectorName, $defaultSelection, $selectorData, $currentSelection = '', $width = 140, $disabledTag='', $selectBackgroundColor='')
+    {
+        $width              = $width . "px";
+        $selectBgColorHTML  = empty($selectBackgroundColor) ? '' : "background-color: $selectBackgroundColor";
+
+        if (!empty($selectorTitle)) {
+            print "
+                <strong style='color:" . View_Base::AQUA . "'>$selectorTitle</strong>";
+        }
+
+        print "
+                <select style='width: $width; $selectBgColorHTML' name='$selectorName' required>";
+
+        if (!empty($defaultSelection)) {
+            print "
+                        <option value=''>$defaultSelection</option>";
+        }
+
+        if (!empty($disabledTag)) {
+            $selected = empty($currentSelection) ? ' selected ' : '';
+            print "
+                        <option disabled value='' $selected>$disabledTag</option>";
+        }
+
+        foreach ($selectorData as $identifier=>$data) {
+            $selected = $currentSelection == $data ? ' selected ' : '';
+            print "
+                        <option value='$identifier' $selected>$data</option>";
+        }
+
+        print "
+                </select>";
     }
 
     /**
@@ -665,6 +720,8 @@ abstract class View_Base {
             'Sunday'    => (isset($daysOfWeek[6]) and $daysOfWeek[6] == 1) ? 'checked' : '',
         );
 
+        $closeRow = false;
+
         if ($newRow) {
             print "
                 <tr class='$collapsible'>";
@@ -689,7 +746,8 @@ abstract class View_Base {
                 print "
                     </td>
                 </tr>
-                <tr>";
+                <tr class='$collapsible'>";
+                $closeRow = true;
 
                 for ($i = 0; $i < $emptyCells; $i++) {
                     print "
@@ -708,7 +766,8 @@ abstract class View_Base {
                     print "
                     </td>
                 </tr>
-                <tr>";
+                <tr class='$collapsible'>";
+                    $closeRow = true;
 
                     for ($i = 0; $i < $emptyCells; $i++) {
                         print "
@@ -726,52 +785,10 @@ abstract class View_Base {
             }
         }
 
-
-        /*
-        print "
-                        <nobr><input type=checkbox name='Tuesday'   id='Tuesday'   value='Tuesday'   $tueChecked>Tuesday</nobr>";
-
-        $currentDaysPrinted += 1;
-        if ($currentDaysPrinted == $daysPerRow) {
-            print "
-                    </td>
-                <tr>
-                    <td colspan='$colspanPerRow' align='right'>";
-            $currentDaysPrinted = 0;
-        }
-
-        print "
-                        <nobr><input type=checkbox name='Wednesday' id='Wednesday' value='Wednesday' $wedChecked>Wednesday</nobr>";
-
-        $currentDaysPrinted += 1;
-        if ($currentDaysPrinted == $daysPerRow) {
-            print "
-                    </td>
-                <tr>
-                    <td colspan='$colspanPerRow' align='right'>";
-            $currentDaysPrinted = 0;
-        }
-
-        print "
-                        <nobr><input type=checkbox name='Thursday'  id='Thursday'  value='Thursday'  $thuChecked>Thursday</nobr>";
-
-        $currentDaysPrinted += 1;
-        if ($currentDaysPrinted == $daysPerRow) {
-            print "
-                    </td>
-                <tr>
-                    <td colspan='$colspanPerRow' align='right'>";
-            $currentDaysPrinted = 0;
-        }
-
-        print "
-                        <nobr><input type=checkbox name='Friday'    id='Friday'    value='Friday'    $friChecked>Friday</nobr>";
-
-*/
         print "
                     </td>";
 
-        if ($newRow) {
+        if ($newRow or $closeRow) {
             print"
                 </tr>";
         }
@@ -1161,6 +1178,8 @@ abstract class View_Base {
 <html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en'>";
 
         $this->navigation->displayHeader($this->m_styles, $this->pageTitle, $this->collapsibleCount);
+
+        // <body bgcolor='#FFFFFF' onload="REDIPS.drag.init()">
 
         print "
     <body bgcolor='#FFFFFF'>
