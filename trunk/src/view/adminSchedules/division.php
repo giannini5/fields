@@ -39,6 +39,7 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
                     <tr bgcolor='lightskyblue'>
                         <th>Division</th>
                         <th>Gender</th>
+                        <th>MaxPlayersPerTeam</th>
                         <th>DisplayOrder</th>
                         <th>Field Use Minutes</th>
                         <th title='Minutes from start of first game to start of second game for '>MinutesBetweenGames</th>
@@ -63,6 +64,9 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
 
             print "
                     <td>$division->gender</td>";
+
+            $name = View_Base::DIVISION_UPDATE_DATA . "[$division->id][" . View_Base::MAX_PLAYERS_PER_TEAM . "]";
+            $this->displayInput('', 'string', $name, '', '', $division->maxPlayersPerTeam, null, 1, false, 25, false, true, 'right');
 
             $name = View_Base::DIVISION_UPDATE_DATA . "[$division->id][" . View_Base::DISPLAY_ORDER . "]";
             $this->displayInput('', 'string', $name, '', '', $division->displayOrder, null, 1, false, 25, false, true, 'right');
@@ -138,6 +142,7 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
 
         $this->displayInput("Division Name:", 'text', View_Base::NAME, 'Division Name', '');
         $this->displaySelector('Gender:', View_Base::GENDER, '', ['Boys' => 'Boys', 'Girls' => 'Girls'], '', null, true, 140, 'left', 'Select Gender');
+        $this->displayInput('Max Players Per Team:', 'string', View_Base::MAX_PLAYERS_PER_TEAM, '', '', 22);
         $this->displayInput('Display Order:', 'string', View_Base::DISPLAY_ORDER, '', '', 200);
         $this->displayInput('Game Duration Minutes', 'string', View_Base::GAME_DURATION_MINUTES, '', '', 90);
 

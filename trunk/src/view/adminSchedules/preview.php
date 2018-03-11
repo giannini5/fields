@@ -88,6 +88,120 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
         }
     }
 
+    private function printGameCards()
+    {
+        print "
+            <div style ='margin: auto; width: 1000px;'>";
+
+        $this->printGameCard('left', true);
+        $this->printGameCard('right', false);
+
+        print "
+            </div>";
+    }
+
+    private function printGameCard($position, $isHomeTeam)
+    {
+        $homeOrVisitor = $isHomeTeam ? "Home" : "Visitor";
+
+        print "
+                <div style='float: $position; width=500px; height=700px; margin-left: 5px; margin-right 5px; border: none'>
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr>
+                            <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
+                            <td align='center' nowrap><strong style='font-size: larger'>UNOFFICIAL LINEUP CARD</strong></td>
+                            <td align='right'><strong>$homeOrVisitor</strong></td>
+                        </tr>
+                    </table>
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr style='height: 22px'>
+                            <td nowrap width='35px' align='left'><strong>DATE:</strong></td>
+                            <td nowrap width='100px' style='font-size: smaller'>2018-04-14 09:00</td>
+                            <td nowrap width='35px' align='right'><strong>FIELD:</strong></td>
+                            <td nowrap align='left' style='font-size: smaller'>Girsh Park Field 10</td>
+                            <td nowrap width='50px' align='right'><strong>GAME ID:</strong></td>
+                            <td nowrap width='20px' align='center' style='font-size: smaller'>15443</td>
+                        </tr>
+                    </table>
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr style='height: 22px'>
+                            <td nowrap align='left' width='35px'><strong>TEAM:</strong></td>
+                            <td nowrap align='left' style='overflow: hidden; font-size: smaller'>10UG-05: Blue Tornadoes</td>
+                            <td nowrap align='right'><strong>OPPOSING TEAM:</strong></td>
+                            <td nowrap align='left' style='overflow: hidden; font-size: smaller'>10UG-07: Green Butterflies</td>
+                        </tr>
+                    </table>
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr style='height: 22px'>
+                            <td nowrap align='left' width='45px'><strong>COACH:</strong></td>
+                            <td nowrap align='left' style='overflow: hidden; font-size: smaller'>John Maloney</td>
+                            <td nowrap align='right'><strong>ASSISTANT COACH:</strong></td>
+                            <td nowrap align='left' style='overflow: hidden; font-size: smaller'>Eric Sanborn</td>
+                        </tr>
+                    </table>
+                    <table border='2' style='table-layout: fixed; width: 4.5in' cellpadding='5' cellspacing='0'>
+                        <thead>
+                            <tr>
+                                <th rowspan='2' width='5px' style='border: 1px solid'>No.</th>
+                                <th rowspan='2' width='65px' style='border: 1px solid'>Player's Name</th>
+                                <th rowspan='2' width='30px' colspan='2' style='border: 1px solid; border-right: double'>Goals Scored</th>
+                                <th width='60px' colspan='4' style='border: 1px solid; border-left: double'>\"Qtrs.\" Not Played</th>
+                            </tr>
+                            <tr>
+                                <th align='center' style='border: 1px solid; font-size: 10px; border-left: double'>1</th>
+                                <th align='center' style='border: 1px solid; font-size: 10px'>2</th>
+                                <th align='center' style='border: 1px solid; font-size: 10px'>3</th>
+                                <th align='center' style='border: 1px solid; font-size: 10px'>4</th>
+                            </tr>
+                        </thead>";
+
+        for ($i=1; $i<=18; $i++) {
+            print "
+                        <tr style='overflow: hidden'>
+                            <td width='5px'>$i</td> 
+                            <td width='75px' style='overflow: hidden; white-space: nowrap'>Giannini, David, Giannini David, Giannini, David</td>
+                            <td width='15px'>&nbsp</td>
+                            <td width='15px' style='border-right: double'>&nbsp</td>
+                            <td width='15px' style='border-left: double'>&nbsp</td>
+                            <td width='15px'>&nbsp</td>
+                            <td width='15px'>&nbsp</td>
+                            <td width='15px'>&nbsp</td>
+                        </tr>";
+        }
+
+        print "
+                    </table>
+                    
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Halftime score:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
+                            <td align='right' nowrap>In Favor Of:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Final Score:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
+                            <td align='right' nowrap>Winning Team Id:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Center Referee:</td>
+                            <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Assistant Referee:</td>
+                            <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Assistant Referee:</td>
+                            <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                    </table>
+
+                </div>";
+    }
+
     /**
      * @brief Print schedules by field(s)
      *        - Facility (or all)

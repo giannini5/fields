@@ -19,7 +19,7 @@ use \DAG\Framework\Exception\Precondition;
 class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
 {
     const GAME_SCORING              = 'game';
-    const TEAM_SCORING              = 'team';
+    const UPDATE_GAME_SCORING       = 'updateGame';
     const DIVISION_SCORING          = 'division';
     const VOLUNTEER_POINTS          = 'volunteerPoints';
     const GAME_DISPLAY_FOR_SCORING  = 'gameDisplay';
@@ -36,12 +36,7 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
     public $m_visitingTeamId;
     public $m_facility;
 
-    private $m_homeScore;
-    private $m_homeRedCards;
-    private $m_homeYellowCards;
-    private $m_visitScore;
-    private $m_visitRedCards;
-    private $m_visitYellowCards;
+    private $m_gameCardData = [];
     private $m_gameNotes;
     private $m_isTitleGame;
     private $m_volunteerPointsData = [];
@@ -55,19 +50,17 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
             $isTitleGameString      = $this->getPostAttribute(View_Base::IS_TITLE_GAME, 'no', false, false);
             $this->m_isTitleGame    = $isTitleGameString == 'no' ? false : true;
 
-            if ($this->m_scoringType == self::TEAM_SCORING) {
-                $this->m_coachId = $this->getPostAttribute(View_Base::FILTER_COACH_ID, null, false, true);
-
+            if ($this->m_scoringType == self::GAME_SCORING) {
+                $this->m_gameId = $this->getPostAttribute(View_Base::GAME_ID, null, true, true);
+            } else if ($this->m_scoringType == self::UPDATE_GAME_SCORING) {
                 $this->populateGameAttributes(false);
-            } else if ($this->m_scoringType == self::GAME_SCORING) {
-                $this->populateGameAttributes(true);
             } else if ($this->m_scoringType == self::DIVISION_SCORING) {
                 $this->m_divisionName   = $this->getPostAttribute(View_Base::DIVISION_NAME, '', false, false);
                 $this->m_divisionId     = $this->getPostAttribute(View_Base::FILTER_DIVISION_ID, null, false, true);
                 $this->m_gameDateId     = $this->getPostAttribute(View_Base::GAME_DATE, null, true, false);
 
                 if (isset($this->m_divisionId)) {
-                    $this->m_division       = Division::lookupById($this->m_divisionId);
+                    $this->m_division       = Division::lookupById((int)$this->m_divisionId);
                     $this->m_divisionName   = $this->m_division->nameWithGender;
                 } else {
                     $divisionNameAttributes = explode(' ', $this->m_divisionName);
@@ -77,7 +70,7 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
                 }
 
                 if (isset($this->m_gameDateId)) {
-                    $this->m_gameDate = GameDate::lookupById($this->m_gameDateId);
+                    $this->m_gameDate = GameDate::lookupById((int)$this->m_gameDateId);
                 }
 
                 if ($this->m_isTitleGame) {
@@ -93,7 +86,7 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
                 $this->m_gameDateId         = $this->getPostAttribute(View_Base::GAME_DATE, null, true, false);
 
                 if (isset($this->m_gameDateId)) {
-                    $this->m_gameDate = GameDate::lookupById($this->m_gameDateId);
+                    $this->m_gameDate = GameDate::lookupById((int)$this->m_gameDateId);
                 }
 
                 if (isset($this->m_filterFacilityId) and $this->m_filterFacilityId != 0) {
@@ -129,13 +122,8 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
     {
         $this->m_gameId = $this->getPostAttribute(View_Base::GAME_ID, null, $rememberIfGameIdMissing, true);
         if (isset($this->m_gameId)) {
-            $this->m_homeScore = $this->getPostAttribute(View_Base::HOME_SCORE, '', $rememberIfGameDataIsMissing, true);
-            $this->m_homeRedCards = $this->getPostAttribute(View_Base::HOME_RED_CARDS, '', $rememberIfGameDataIsMissing, true);
-            $this->m_homeYellowCards = $this->getPostAttribute(View_Base::HOME_YELLOW_CARDS, '', $rememberIfGameDataIsMissing, true);
-            $this->m_visitScore = $this->getPostAttribute(View_Base::VISITING_SCORE, '', $rememberIfGameDataIsMissing, true);
-            $this->m_visitRedCards = $this->getPostAttribute(View_Base::VISITING_RED_CARDS, '', $rememberIfGameDataIsMissing, true);
-            $this->m_visitYellowCards = $this->getPostAttribute(View_Base::VISITING_YELLOW_CARDS, '', $rememberIfGameDataIsMissing, true);
-            $this->m_gameNotes = $this->getPostAttribute(View_Base::GAME_NOTES, '', false, false);
+            $this->m_gameCardData   = $this->getPostAttributeArray(View_Base::GAME_CARD_DATA);
+            $this->m_gameNotes      = $this->getPostAttribute(View_Base::GAME_NOTES, '', false, false);
         }
     }
 
@@ -154,15 +142,16 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
                     break;
 
                 case self::GAME_SCORING:
-                    $this->processGameScoring();
-                    break;
-
-                case self::TEAM_SCORING:
-                    $this->processTeamScoring();
+                case self::UPDATE_GAME_SCORING:
+                    if (isset($this->m_gameId)) {
+                        $this->processGameScoring();
+                    }
                     break;
 
                 case self::DIVISION_SCORING:
-                    $this->processDivisionScoring();
+                    if (isset($this->m_gameId)) {
+                        $this->processDivisionScoring();
+                    }
                     break;
 
                 case self::VOLUNTEER_POINTS:
@@ -185,66 +174,37 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
 
     /**
      * Enter score for a game
-     *
-     * @param bool  $allowUpdate - if true then updates to game score allowed
      */
-    private function processGameScoring($allowUpdate = false)
+    private function processGameScoring()
     {
-        if (!Game::findById($this->m_gameId, $game)) {
+        /** var Game */
+        $game = null;
+
+        if (!Game::findById((int)$this->m_gameId, $game)) {
             $this->m_errorString = "Game with id $this->m_gameId not found";
             return;
         }
 
-        if (isset($game->homeTeamScore) and !$allowUpdate) {
-            $this->m_errorString = "Results already entered for game with id $this->m_gameId.  Do you want to update?";
-            return;
-        }
+        $operation          = isset($game->homeTeamScore) ? "updated" : "entered";
+        $titleGameMessage   = "";
 
-        $operation = isset($game->homeTeamScore) ? "updated" : "entered";
+        if ($this->m_operation == View_Base::CLEAR) {
+            $game->clearStats();
+            $operation = 'cleared';
+        } else {
+            $game->setStats($this->m_gameCardData);
 
-        $game->homeTeamScore            = $this->m_homeScore;
-        $game->homeTeamYellowCards      = $this->m_homeYellowCards;
-        $game->homeTeamRedCards         = $this->m_homeRedCards;
-        $game->visitingTeamScore        = $this->m_visitScore;
-        $game->visitingTeamYellowCards  = $this->m_visitYellowCards;
-        $game->visitingTeamRedCards     = $this->m_visitRedCards;
-        $game->notes                    = $this->m_gameNotes;
-
-        // Populate title games if any and all flight games are complete
-        $result = $this->populateTitleGames($game);
-        $titleGameMessage = '';
-        if ($result == 1) {
-            $titleGameMessage = "<br>Medal Round Games Populated with Teams";
-        } else if ($result == 2) {
-            $titleGameMessage = "<br>Medal Round Games Ready for Population, but tie-breaker rules need to be consulted.  Manual population required.";
+            // Populate title games if any and all flight games are complete
+            $result = $this->populateTitleGames($game);
+            $titleGameMessage = '';
+            if ($result == 1) {
+                $titleGameMessage = "<br>Medal Round Games Populated with Teams";
+            } else if ($result == 2) {
+                $titleGameMessage = "<br>Medal Round Games Ready for Population, but tie-breaker rules need to be consulted.  Manual population required.";
+            }
         }
 
         $this->m_messageString = "Score $operation for game $this->m_gameId" . $titleGameMessage;
-    }
-
-    /**
-     * Enter or Update score for a game
-     */
-    private function processTeamScoring()
-    {
-        if (isset($this->m_gameId)) {
-            if ($this->m_operation == View_Base::CLEAR) {
-                if (!Game::findById($this->m_gameId, $game)) {
-                    $this->m_errorString = "Game with id $this->m_gameId not found";
-                    return;
-                }
-
-                $game->homeTeamScore            = null;
-                $game->homeTeamYellowCards      = 0;
-                $game->homeTeamRedCards         = 0;
-                $game->visitingTeamScore        = null;
-                $game->visitingTeamYellowCards  = 0;
-                $game->visitingTeamRedCards     = 0;
-                $game->notes                    = '';
-            } else {
-                $this->processGameScoring($this->m_operation == View_Base::UPDATE);
-            }
-        }
     }
 
     /**
@@ -252,31 +212,29 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
      */
     private function processTitleGameScoring()
     {
-        if (isset($this->m_gameId)) {
-            if (!Game::findById((int)$this->m_gameId, $game)) {
-                $this->m_errorString = "Game with id $this->m_gameId not found";
-                return;
-            }
+        if (!Game::findById((int)$this->m_gameId, $game)) {
+            $this->m_errorString = "Game with id $this->m_gameId not found";
+            return;
+        }
 
-            if ($this->m_operation == View_Base::CLEAR) {
-                $game->homeTeamScore            = null;
-                $game->homeTeamYellowCards      = 0;
-                $game->homeTeamRedCards         = 0;
-                $game->visitingTeamScore        = null;
-                $game->visitingTeamYellowCards  = 0;
-                $game->visitingTeamRedCards     = 0;
-                $game->notes                    = '';
-            } else {
-                // Set the teams
-                $homeTeam           = Team::lookupById((int)$this->m_homeTeamId);
-                $visitingTeam       = Team::lookupById((int)$this->m_visitingTeamId);
-                $game->homeTeam     = $homeTeam;
-                $game->visitingTeam = $visitingTeam;
+        if ($this->m_operation == View_Base::CLEAR) {
+            $game->homeTeamScore            = null;
+            $game->homeTeamYellowCards      = 0;
+            $game->homeTeamRedCards         = 0;
+            $game->visitingTeamScore        = null;
+            $game->visitingTeamYellowCards  = 0;
+            $game->visitingTeamRedCards     = 0;
+            $game->notes                    = '';
+        } else {
+            // Set the teams
+            $homeTeam           = Team::lookupById((int)$this->m_homeTeamId);
+            $visitingTeam       = Team::lookupById((int)$this->m_visitingTeamId);
+            $game->homeTeam     = $homeTeam;
+            $game->visitingTeam = $visitingTeam;
 
-                // Enter/Update games scores if passed along in request
-                if ($this->m_homeScore != '') {
-                    $this->processGameScoring($this->m_operation == View_Base::UPDATE);
-                }
+            // Enter/Update games scores if passed along in request
+            if ($this->m_homeScore != '') {
+                $this->processGameScoring();
             }
         }
     }
@@ -289,7 +247,7 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
         if ($this->m_isTitleGame) {
             $this->processTitleGameScoring();
         } else {
-            $this->processTeamScoring();
+            $this->processGameScoring();
         }
     }
 

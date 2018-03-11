@@ -12,6 +12,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $seasonId
  * @property string $name
  * @property string $gender
+ * @property int    $maxPlayersPerTeam
  * @property int    $gameDurationMinutes
  * @property int    $minutesBetweenGames
  * @property int    $scoringTracked
@@ -24,8 +25,9 @@ class DivisionOrm extends PersistenceModel
     const FIELD_SEASON_ID                   = 'seasonId';
     const FIELD_NAME                        = 'name';
     const FIELD_GENDER                      = 'gender';
+    const FIELD_MAX_PLAYERS_PER_TEAM        = 'maxPlayersPerTeam';
     const FIELD_GAME_DURATION_MINUTES       = 'gameDurationMinutes';
-    const FIELD_MINUTES_BETWEEN_GAMES          = 'minutesBetweenGames';
+    const FIELD_MINUTES_BETWEEN_GAMES       = 'minutesBetweenGames';
     const FIELD_SCORING_TRACKED             = 'scoringTracked';
     const FIELD_DISPLAY_ORDER               = 'displayOrder';
     const FIELD_COMBINE_LEAGUE_SCHEDULES    = 'combineLeagueSchedules';
@@ -35,6 +37,7 @@ class DivisionOrm extends PersistenceModel
         self::FIELD_SEASON_ID                   => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_NAME                        => [FV::STRING, [FV::NO_CONSTRAINTS]],
         self::FIELD_GENDER                      => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_MAX_PLAYERS_PER_TEAM        => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_GAME_DURATION_MINUTES       => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_MINUTES_BETWEEN_GAMES       => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_SCORING_TRACKED             => [FV::INT,    [FV::NO_CONSTRAINTS], 1],
@@ -56,6 +59,7 @@ class DivisionOrm extends PersistenceModel
      * @param int       $seasonId
      * @param string    $name
      * @param string    $gender
+     * @param int       $maxPlayersPerTeam
      * @param int       $gameDurationMinutes
      * @param int       $minutesBetweenGames
      * @param int       $displayOrder
@@ -69,6 +73,7 @@ class DivisionOrm extends PersistenceModel
         $seasonId,
         $name,
         $gender,
+        $maxPlayersPerTeam,
         $gameDurationMinutes,
         $minutesBetweenGames,
         $displayOrder,
@@ -76,19 +81,22 @@ class DivisionOrm extends PersistenceModel
         $combineLeagueSchedules = 0)
     {
         $result = self::getPersistenceDriver()->create(
-            [
-                self::FIELD_SEASON_ID                   => $seasonId,
-                self::FIELD_NAME                        => $name,
-                self::FIELD_GENDER                      => $gender,
-                self::FIELD_GAME_DURATION_MINUTES       => $gameDurationMinutes,
-                self::FIELD_MINUTES_BETWEEN_GAMES       => $minutesBetweenGames,
-                self::FIELD_DISPLAY_ORDER               => $displayOrder,
-                self::FIELD_SCORING_TRACKED             => $scoringTracked,
-                self::FIELD_COMBINE_LEAGUE_SCHEDULES    => $combineLeagueSchedules,
-            ],
-            function ($item) {
-                return $item !== null;
-            }
+            array_filter(
+                [
+                    self::FIELD_SEASON_ID                   => $seasonId,
+                    self::FIELD_NAME                        => $name,
+                    self::FIELD_GENDER                      => $gender,
+                    self::FIELD_MAX_PLAYERS_PER_TEAM        => $maxPlayersPerTeam,
+                    self::FIELD_GAME_DURATION_MINUTES       => $gameDurationMinutes,
+                    self::FIELD_MINUTES_BETWEEN_GAMES       => $minutesBetweenGames,
+                    self::FIELD_DISPLAY_ORDER               => $displayOrder,
+                    self::FIELD_SCORING_TRACKED             => $scoringTracked,
+                    self::FIELD_COMBINE_LEAGUE_SCHEDULES    => $combineLeagueSchedules,
+                ],
+                function ($item) {
+                    return $item !== null;
+                }
+            )
         );
 
         return new static($result);

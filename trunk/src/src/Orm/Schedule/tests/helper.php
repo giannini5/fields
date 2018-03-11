@@ -35,10 +35,12 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const IMAGE                       = 'image';
     const DAY                         = 'day';
     const PHONE                       = 'phone';
+    const NUMBER                      = 'number';
     const EMAIL                       = 'email';
     const PHONE1                      = 'phone1';
     const PHONE2                      = 'phone2';
     const GENDER                      = 'gender';
+    const MAX_PLAYERS_PER_TEAM        = 'maxPlayersPerTeam';
     const DISPLAY_ORDER               = 'displayOrder';
     const GAME_DURATION_MINUTES       = 'gameDurationMinutes';
     const MINUTES_BETWEEN_GAMES       = 'minutesBetweenGames';
@@ -116,6 +118,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         [
             self::NAME                      => 'UTestG',
             self::GENDER                    => 'Girls',
+            self::MAX_PLAYERS_PER_TEAM      => 20,
             self::DISPLAY_ORDER             => 1,
             self::GAME_DURATION_MINUTES     => 60,
             self::MINUTES_BETWEEN_GAMES        => 180,
@@ -192,6 +195,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::NAME      => 'default player name',
             self::EMAIL     => 'default player email',
             self::PHONE     => 'default player phone1',
+            self::NUMBER    => null,
         ];
 
     protected static $defaultGameTimeOrmAttributes =
@@ -274,6 +278,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             $this->defaultSeasonOrm->id,
             self::$defaultDivisionOrmAttributes[self::NAME],
             self::$defaultDivisionOrmAttributes[self::GENDER],
+            self::$defaultDivisionOrmAttributes[self::MAX_PLAYERS_PER_TEAM],
             self::$defaultDivisionOrmAttributes[self::GAME_DURATION_MINUTES],
             self::$defaultDivisionOrmAttributes[self::MINUTES_BETWEEN_GAMES],
             self::$defaultDivisionOrmAttributes[self::DISPLAY_ORDER],
@@ -363,7 +368,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             $this->defaultFamilyOrm->id,
             self::$defaultPlayerOrmAttributes[self::NAME],
             self::$defaultPlayerOrmAttributes[self::EMAIL],
-            self::$defaultPlayerOrmAttributes[self::PHONE]);
+            self::$defaultPlayerOrmAttributes[self::PHONE],
+            self::$defaultPlayerOrmAttributes[self::NUMBER]);
 
         $this->defaultGameTimeOrm = GameTimeOrm::create(
             $this->defaultGameDateOrm->id,

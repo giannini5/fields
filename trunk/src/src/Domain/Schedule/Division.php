@@ -15,6 +15,7 @@ use DAG\Framework\Exception\Precondition;
  * @property string $name
  * @property string $nameWithGender
  * @property string $gender
+ * @property int    $maxPlayersPerTeam
  * @property int    $gameDurationMinutes
  * @property int    $minutesBetweenGames
  * @property int    $scoringTracked
@@ -47,6 +48,7 @@ class Division extends Domain
      * @param Season    $season
      * @param string    $name
      * @param string    $gender
+     * @param int       $maxPlayersPerTeam
      * @param int       $gameDurationMinutes
      * @param string    $displayOrder
      * @param bool      $ignore - defaults to false and duplicates raise an exception
@@ -60,13 +62,21 @@ class Division extends Domain
         $season,
         $name,
         $gender,
+        $maxPlayersPerTeam,
         $gameDurationMinutes,
         $displayOrder,
         $ignore = false)
     {
         try {
             $minutesBetweenGames = 180;
-            $divisionOrm = DivisionOrm::create($season->id, $name, $gender, $gameDurationMinutes, $minutesBetweenGames, $displayOrder);
+            $divisionOrm = DivisionOrm::create(
+                $season->id,
+                $name,
+                $gender,
+                $maxPlayersPerTeam,
+                $gameDurationMinutes,
+                $minutesBetweenGames,
+                $displayOrder);
             return new static($divisionOrm, $season);
         } catch (DuplicateEntryException $e) {
             if ($ignore) {
@@ -191,6 +201,7 @@ class Division extends Domain
             case "id":
             case "name":
             case "gender":
+            case "maxPlayersPerTeam":
             case "gameDurationMinutes":
             case "minutesBetweenGames":
             case "scoringTracked":
@@ -220,6 +231,7 @@ class Division extends Domain
     {
         switch ($propertyName) {
             case "name":
+            case "maxPlayersPerTeam":
             case "gameDurationMinutes":
             case "minutesBetweenGames":
             case "scoringTracked":

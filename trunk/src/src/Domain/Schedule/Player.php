@@ -15,6 +15,7 @@ use DAG\Framework\Exception\Precondition;
  * @property string     $name
  * @property string     $email
  * @property string     $phone
+ * @property mixed      $number
  */
 class Player extends Domain
 {
@@ -99,14 +100,15 @@ class Player extends Domain
 
     /**
      * @param Team      $team
+     * @param string    $orderBy (PlayerOrm::ORDER_BY_NAME or PlayerOrm::ORDER_BY_NUMBER)
      *
-     * @return Player
+     * @return Player[]
      */
-    public static function lookupByTeam($team)
+    public static function lookupByTeam($team, $orderBy = PlayerOrm::ORDER_BY_NAME)
     {
         $players = [];
 
-        $playerOrms = PlayerOrm::loadByTeamId($team->id);
+        $playerOrms = PlayerOrm::loadByTeamId($team->id, $orderBy);
         foreach ($playerOrms as $playerOrm) {
             $players[] = new static($playerOrm, $team);
         }
@@ -117,7 +119,7 @@ class Player extends Domain
     /**
      * @param Family      $family
      *
-     * @return Player
+     * @return Player[]
      */
     public static function lookupByFamily($family)
     {
@@ -144,6 +146,9 @@ class Player extends Domain
             case "phone":
                 return $this->playerOrm->{$propertyName};
 
+            case "number":
+                return isset($this->playerOrm->number) ? $this->playerOrm->number : '';
+
             case "team":
             case "family":
                 return $this->{$propertyName};
@@ -164,6 +169,11 @@ class Player extends Domain
                 $this->playerOrm->teamId    = $value->id;
                 $this->playerOrm->save();
                 $this->team                 = $value;
+                break;
+
+            case "number":
+                Precondition::isTrue(is_numeric($value), "Player numbers must be digits");
+                $this->playerOrm->number = $value;
                 break;
 
             default:

@@ -617,7 +617,7 @@ class View_Styles {
 
             /* accordion header */
             .accordion h2 {
-                background:#99ccff;
+                /* background:#99ccff; */
                 margin:0;
                 padding:5px 15px;
                 font-size:14px;
@@ -648,6 +648,29 @@ class View_Styles {
               margin:0 0 -5px 0;
               font-size:16px;
               color:#999;
+            }
+            
+            /* root element for noaccordion. decorated with rounded borders and gradient background image */
+            .noaccordion {
+                background:#ffffff;
+                margin: auto;
+                position: relative;
+                width: 635px;
+                border:1px solid #333;
+                /* -background:#666; */
+            }
+
+            /* noaccordion header */
+            .noaccordion h2 {
+                /* background:#99ccff; */
+                margin:0;
+                padding:5px 15px;
+                font-size:14px;
+                font-weight:normal;
+                border:1px solid #fff;
+                border-bottom:1px solid #ddd;
+                cursor:pointer;
+                : #000;
             }
         </style>
 

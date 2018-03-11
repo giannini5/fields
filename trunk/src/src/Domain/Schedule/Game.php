@@ -3,6 +3,7 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
+use DAG\Framework\Exception\Assertion;
 use DAG\Framework\Orm\NoResultsException;
 use DAG\Orm\Schedule\GameOrm;
 use DAG\Framework\Exception\Precondition;
@@ -612,10 +613,117 @@ class Game extends Domain
     }
 
     /**
+     * Set the game stats
+     *
+     * @param array     $gameStats  [gameId =>
+     *                                  [teamId =>
+     *                                      [playerId =>
+     *                                          [
+     *                                              playerId => <id>,
+     *                                              name => <name>,
+     *                                              goals => <goals>,
+     *                                              q1 => <q1> ... q4 => <q4>,
+     *                                              reds => <reds>,
+     *                                              yellows => <yellows>,
+     *                                          ]
+     *                                      ]
+     *                                  ]
+     *                              ]
+     * @param string    $notes
+     */
+    public function setStats($gameStats, $notes = '')
+    {
+        $homeScore          = 0;
+        $homeRedCards       = 0;
+        $homeYellowCards    = 0;
+        $visitScore         = 0;
+        $visitRedCards      = 0;
+        $visitYellowCards   = 0;
+
+        foreach ($gameStats as $gameId => $teamData) {
+            Assertion::isTrue($gameId == $this->id, "Invalid gameId: $gameId, expected $this->id");
+
+            foreach ($teamData as $teamId => $playerStats) {
+                $team = Team::lookupById($teamId);
+
+                foreach ($playerStats as $playerId => $stats) {
+                    if ($playerId <= 0) {
+                        continue;
+                    }
+
+                    $player             = Player::lookupById($playerId);
+                    $playerGameStats    = PlayerGameStats::findOrCreate($this, $team, $player);
+
+                    Assertion::isTrue($stats[\View_Base::PLAYER_GOALS] >= 0, "Invalid goals for player: $player->name: " . $stats[\View_Base::PLAYER_GOALS]);
+                    $playerGameStats->goals = $stats[\View_Base::PLAYER_GOALS];
+
+                    for ($i = 1; $i <= 4; $i++) {
+                        $label      = \View_Base::PLAYER_SUB_KEEP_BASE . $i;
+                        $subField   = 'substitutionQuarter' . $i;
+                        $keepField  = 'keeperQuarter' . $i;
+
+                        Assertion::isTrue(empty($stats[$label]) or $stats[$label] == 'X' or $stats[$label] == 'G',
+                            "Invalid sub/keep setting for player: $player->name: " . $stats[$label]);
+                        $playerGameStats->{$subField}   = $stats[$label] == 'X';
+                        $playerGameStats->{$keepField}  = $stats[$label] == 'G';
+                    }
+
+                    if ($player->team->id == $this->homeTeam->id) {
+                        $homeScore += $playerGameStats->goals;
+                    } else {
+                        $visitScore += $playerGameStats->goals;
+                    }
+                }
+            }
+        }
+
+        $this->homeTeamScore            = $homeScore;
+        $this->homeTeamYellowCards      = $homeYellowCards;
+        $this->homeTeamRedCards         = $homeRedCards;
+        $this->visitingTeamScore        = $visitScore;
+        $this->visitingTeamYellowCards  = $visitYellowCards;
+        $this->visitingTeamRedCards     = $visitRedCards;
+        $this->notes                    = $notes;
+    }
+
+    /**
+     * Clear the game stats
+     */
+    public function clearStats()
+    {
+        // Delete player game stats
+        $this->deletePlayerGameStats();
+
+        // Clear game stats
+        $this->homeTeamScore            = null;
+        $this->homeTeamYellowCards      = 0;
+        $this->homeTeamRedCards         = 0;
+        $this->visitingTeamScore        = null;
+        $this->visitingTeamYellowCards  = 0;
+        $this->visitingTeamRedCards     = 0;
+        $this->notes                    = '';
+    }
+
+    /**
+     *  Delete the game
+     */
+    public function deletePlayerGameStats()
+    {
+        // Delete all playerGameStat entities
+        $playerGameStats = PlayerGameStats::lookup($this);
+        foreach ($playerGameStats as $playerGameStat) {
+            $playerGameStat->delete();
+        }
+    }
+
+    /**
      *  Delete the game
      */
     public function delete()
     {
+        // Delete all playerGameStat entities
+        $this->deletePlayerGameStats();
+
         // Delete all familyGame entities
         $familyGames = FamilyGame::lookupByGame($this);
         foreach ($familyGames as $familyGame) {

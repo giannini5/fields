@@ -19,6 +19,7 @@ class DivisionTest extends ORM_TestHelper
     protected static $expectedDefaults = array(
         'name'                      => 'TEST Domain division name',
         'gender'                    => 'TEST gender',
+        'maxPlayersPerTeam'         => 18,
         'gameDurationMinutes'       => 120,
         'minutesBetweenGames'       => 180,
         'scoringTracked'            => 1,
@@ -39,6 +40,7 @@ class DivisionTest extends ORM_TestHelper
             $this->season,
             self::$expectedDefaults['name'],
             self::$expectedDefaults['gender'],
+            self::$expectedDefaults['maxPlayersPerTeam'],
             self::$expectedDefaults['gameDurationMinutes'],
             self::$expectedDefaults['displayOrder'],
             self::$expectedDefaults['scoringTracked']);
@@ -133,6 +135,7 @@ class DivisionTest extends ORM_TestHelper
         $this->assertTrue($division->id > 0);
         $this->assertEquals($expectedDefaults['name'],                      $division->name);
         $this->assertEquals($expectedDefaults['gender'],                    $division->gender);
+        $this->assertEquals($expectedDefaults['maxPlayersPerTeam'],         $division->maxPlayersPerTeam);
         $this->assertEquals($expectedDefaults['gameDurationMinutes'],       $division->gameDurationMinutes);
         $this->assertEquals($expectedDefaults['minutesBetweenGames'],       $division->minutesBetweenGames);
         $this->assertEquals($expectedDefaults['displayOrder'],              $division->displayOrder);

@@ -5,6 +5,7 @@ create table player (
     name         varchar(60) not NULL,
     email        varchar(128) not NULL,
     phone        varchar(128) not NULL,
+    number       int default NULL,
     PRIMARY KEY (id),
     unique index ux_teamNameEmail(teamId, name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

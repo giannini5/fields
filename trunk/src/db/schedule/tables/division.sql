@@ -3,6 +3,7 @@ create table division (
     seasonId                bigint not NULL,
     name                    varchar(60) not NULL,
     gender                  varchar(20) not NULL,
+    maxPlayersPerTeam       int default 22,
     gameDurationMinutes     int not NULL,
     minutesBetweenGames     int not NULL default 180,
     scoringTracked          int not NULL default 1,
