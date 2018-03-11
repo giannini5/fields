@@ -33,7 +33,8 @@ class HomeGameTracker extends Domain
         foreach ($teams as $team) {
             Precondition::isTrue(!isset($this->homeGamesByTeamId[$team->id]),
                 "$team->id already exists in homeGamesByTeamId");
-            $this->homeGamesByTeamId[$team->id] = 0;
+            $this->homeGamesByTeamId[$team->id]     = 0;
+            $this->visitingGamesByTeamId[$team->id] = 0;
         }
     }
 

@@ -4,6 +4,7 @@ use \DAG\Domain\Schedule\AssistantCoach;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\Team;
 use \DAG\Domain\Schedule\Division;
+use \DAG\Domain\Schedule\Player;
 
 /**
  * @brief Show the Team page and get the user to select a team to administer or create a new team.
@@ -49,12 +50,10 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                         <th>City</th>
                         <th>Coach</th>
                         <th>Assistant Coach</th>";
-/*
         if ($showPlayers) {
             print "
                         <th>Players</th>";
         }
-*/
 
         print "
                     </tr>
@@ -114,6 +113,18 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                         </td>";
                 }
 
+                if ($showPlayers) {
+                    $players = Player::lookupByTeam($team);
+                    print "
+                        <td rowspan='$rowspan' nowrap>";
+                    foreach ($players as $player) {
+                        print "
+                        $player->name<br>";
+                    }
+                    print "
+                        </td>";
+                }
+
                 print "
                         <td rowspan='$rowspan' align='left'>
                             <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
@@ -132,20 +143,6 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                 $this->displayInput('', 'text', View_Base::PHONE2, 'Cell Phone', '', $phone2, null, 1, true, 90, false);
                 print "
                     </form>";
-
-/*
-                if ($showPlayers) {
-                    $players = Player::lookupByTeam($team);
-                    print "
-                        <td>";
-                    foreach ($players as $player) {
-                        print "
-                        $player->name<br>";
-                    }
-                    print "
-                        </td>";
-                }
-*/
             }
         }
 
@@ -223,7 +220,7 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
         $this->printDivisionSelector($filterDivisionId, true);
         $this->printTeamSelector($filterTeamId);
         $this->printCoachSelector($filterCoachId);
-        // $this->printCheckboxSelector(View_Base::SHOW_PLAYERS, "Show Players", $showPlayers, 2);
+        $this->printCheckboxSelector(View_Base::SHOW_PLAYERS, "Show Players", $showPlayers, 2);
 
         // Print Filter button and end form
         print "
@@ -296,28 +293,5 @@ class View_AdminSchedules_Team extends View_AdminSchedules_Base {
                     </td>
                 </tr>
             </form>";
-    }
-
-    /**
-     * @brief Print the form to create a team.  Form includes the following
-     *        - Team Name
-     *        - Enabled radio button
-     *
-     * @param $maxColumns - Number of columns the form is covering
-     */
-    private function _printCreateTeamForm($maxColumns) {
-        // TODO
-    }
-
-    /**
-     * @brief Print the form to update a season.  Form includes the following
-     *        - Team Name
-     *        - Enabled radio button
-     *
-     * @param $maxColumns - Number of columns the form is covering
-     * @param $season - Team to be edited
-     */
-    private function _printUpdateTeamForm($maxColumns, $season) {
-        // TODO
     }
 }

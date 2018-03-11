@@ -54,6 +54,8 @@ class View_AdminScoring_Navigation extends View_Navigation
                 <ul id="nav">'
             . ($this->pageName == View_Base::SCORING_HOME_PAGE ?
                 '<li><div>HOME</div></li>' : '<li><a href="' . View_Base::SCORING_HOME_PAGE . '">HOME</a></li>')
+            . ($this->pageName == View_Base::SCORING_GAME_CARDS_PAGE ?
+                '<li><div>GAME CARDS</div></li>' : '<li><a href="' . View_Base::SCORING_GAME_CARDS_PAGE . '">GAME CARDS</a></li>')
             . '
                </ul>';
     }

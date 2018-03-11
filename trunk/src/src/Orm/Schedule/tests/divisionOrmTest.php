@@ -17,6 +17,7 @@ class DivisionOrmTest extends ORM_TestHelper
         [
             self::NAME                      => 'TEST Division',
             self::GENDER                    => 'TEST Boy',
+            self::MAX_PLAYERS_PER_TEAM      => 19,
             self::DISPLAY_ORDER             => '5',
             self::GAME_DURATION_MINUTES     => '25',
             self::MINUTES_BETWEEN_GAMES        => '60',
@@ -40,6 +41,7 @@ class DivisionOrmTest extends ORM_TestHelper
             $this->defaultSeasonOrm->id,
             self::$expectedDefaults[self::NAME],
             self::$expectedDefaults[self::GENDER],
+            self::$expectedDefaults[self::MAX_PLAYERS_PER_TEAM],
             self::$expectedDefaults[self::GAME_DURATION_MINUTES],
             self::$expectedDefaults[self::MINUTES_BETWEEN_GAMES],
             self::$expectedDefaults[self::DISPLAY_ORDER],
@@ -77,6 +79,7 @@ class DivisionOrmTest extends ORM_TestHelper
         $this->assertEquals($this->defaultSeasonOrm->id,                    $divisionOrm->seasonId);
         $this->assertEquals($attributes[self::NAME],                        $divisionOrm->name);
         $this->assertEquals($attributes[self::GENDER],                      $divisionOrm->gender);
+        $this->assertEquals($attributes[self::MAX_PLAYERS_PER_TEAM],        $divisionOrm->maxPlayersPerTeam);
         $this->assertEquals($attributes[self::GAME_DURATION_MINUTES],       $divisionOrm->gameDurationMinutes);
         $this->assertEquals($attributes[self::MINUTES_BETWEEN_GAMES],       $divisionOrm->minutesBetweenGames);
         $this->assertEquals($attributes[self::DISPLAY_ORDER],               $divisionOrm->displayOrder);

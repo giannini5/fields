@@ -49,7 +49,8 @@ abstract class View_Base {
     const SCHEDULE_PREVIEW_PAGE     = '/admin_schedule_preview';
 
     # Admin Scoring pages
-    const SCORING_HOME_PAGE     = '/admin_scoring_home';
+    const SCORING_HOME_PAGE         = '/admin_scoring_home';
+    const SCORING_GAME_CARDS_PAGE   = '/admin_scoring_gameCards';
 
     # Admin Referee pages
     const REFEREE_HOME_PAGE         = '/admin_referee_home';
@@ -185,7 +186,21 @@ abstract class View_Base {
     const GAME_DATE                 = 'gameDate';
     const GAME_DATES                = 'gameDates';
     const SCORING_TYPE              = 'scoringType';
+    const GAME_CARD_TYPE            = 'gameCardType';
     const IS_TITLE_GAME             = 'isTitleGame';
+    const GAME_CARD_DATA            = 'gameCardData';
+    const PLAYER_NAME               = 'playerName';
+    const PLAYER_NUMBER             = 'playerNumber';
+    const PLAYER_GOALS              = 'playerGoals';
+    const QUARTER_1                 = 'quarter1';
+    const QUARTER_2                 = 'quarter2';
+    const QUARTER_3                 = 'quarter3';
+    const QUARTER_4                 = 'quarter4';
+    const PLAYER_SUB_KEEP_BASE      = 'playerSubKeepQ';
+    const PLAYER_SUB_KEEP_Q1        = 'playerSubKeepQ1';
+    const PLAYER_SUB_KEEP_Q2        = 'playerSubKeepQ2';
+    const PLAYER_SUB_KEEP_Q3        = 'playerSubKeepQ3';
+    const PLAYER_SUB_KEEP_Q4        = 'playerSubKeepQ4';
 
     const SEASON_ID                 = 'seasonId';
     const DIVISION_ID               = 'divisionId';
@@ -193,6 +208,7 @@ abstract class View_Base {
     const DIVISION_NAMES            = 'divisionNames';
     const DIVISION_NAME             = 'divisionName';
     const DISPLAY_ORDER             = 'displayOrder';
+    const MAX_PLAYERS_PER_TEAM      = 'maxPlayersPerTeam';
     const GAME_DURATION_MINUTES     = 'gameDurationMinutes';
     const MINUTES_BETWEEN_GAMES     = 'minutesBetweenGames';
     const SCORING_TRACKED           = 'scoringTracked';

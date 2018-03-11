@@ -20,6 +20,7 @@ class PlayerTest extends ORM_TestHelper
         'name'          => 'TEST Domain player name',
         'email'         => 'TEST Domain player email',
         'phone'         => 'TEST Domain player phone',
+        'number'        => '',
     );
 
     protected $playersToCleanup = array();
@@ -103,12 +104,26 @@ class PlayerTest extends ORM_TestHelper
         $this->validatePlayer($players[0], $this->team, $this->family, self::$expectedDefaults);
     }
 
+    public function test_setNumber()
+    {
+        $player = Player::lookupById($this->playersToCleanup[0]->id);
+        $this->validatePlayer($player, $this->team, $this->family, self::$expectedDefaults);
+
+        $player->number = 25;
+        self::$expectedDefaults['number'] = 25;
+        $this->validatePlayer($player, $this->team, $this->family, self::$expectedDefaults);
+
+        $this->setExpectedException("PreconditionException");
+        $player->number = 'invalid';
+    }
+
     public function validatePlayer($player, $team, $family, $expectedDefaults)
     {
         $this->assertTrue($player->id > 0);
         $this->assertEquals($expectedDefaults['name'],      $player->name);
         $this->assertEquals($expectedDefaults['email'],     $player->email);
         $this->assertEquals($expectedDefaults['phone'],     $player->phone);
+        $this->assertEquals($expectedDefaults['number'],    $player->number);
         $this->assertEquals($team,                          $player->team);
         $this->assertEquals($family,                        $player->family);
     }

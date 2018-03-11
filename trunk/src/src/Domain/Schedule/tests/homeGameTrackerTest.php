@@ -31,15 +31,15 @@ class HomeGameTrackerTest extends ORM_TestHelper
     {
         $homeTeamTracker = new HomeGameTracker([$this->team1, $this->team2]);
         list($homeTeam, $visitingTeam) = $homeTeamTracker->getHomeVisitorTeams($this->team1, $this->team2);
-        $this->assertEquals($homeTeam->id, $this->team1->id);
-        $this->assertEquals($visitingTeam->id, $this->team2->id);
-
-        list($homeTeam, $visitingTeam) = $homeTeamTracker->getHomeVisitorTeams($this->team1, $this->team2);
         $this->assertEquals($homeTeam->id, $this->team2->id);
         $this->assertEquals($visitingTeam->id, $this->team1->id);
 
         list($homeTeam, $visitingTeam) = $homeTeamTracker->getHomeVisitorTeams($this->team1, $this->team2);
         $this->assertEquals($homeTeam->id, $this->team1->id);
         $this->assertEquals($visitingTeam->id, $this->team2->id);
+
+        list($homeTeam, $visitingTeam) = $homeTeamTracker->getHomeVisitorTeams($this->team1, $this->team2);
+        $this->assertEquals($homeTeam->id, $this->team2->id);
+        $this->assertEquals($visitingTeam->id, $this->team1->id);
     }
 }

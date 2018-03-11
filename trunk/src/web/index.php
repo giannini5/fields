@@ -157,6 +157,10 @@ class Web_Index
                 $this->m_controller = new Controller_AdminScoring_Home();
                 break;
 
+            case View_Base::SCORING_GAME_CARDS_PAGE:
+                $this->m_controller = new Controller_AdminScoring_GameCards();
+                break;
+
             case View_Base::GAMES_HOME_PAGE:
                 $this->m_controller = new Controller_Games_Home();
                 break;

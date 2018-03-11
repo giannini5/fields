@@ -235,6 +235,7 @@ class Season extends Domain
                 $divisionName           = str_replace('B', '', str_replace('G', '', $teamNameAttributes[0]));
                 $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
                 $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
+                $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
 
                 $name           = $fields[5];
                 $email          = $fields[8];
@@ -255,7 +256,7 @@ class Season extends Domain
                 }
 
                 // Create division, team and coach or assistant coach
-                $division       = Division::create($this, $divisionName, $gender, $gameDurationMinutes, $displayOrder, true);
+                $division       = Division::create($this, $divisionName, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder, true);
                 $team           = Team::create($division, null, $teamName, '', '', '', true);
 
                 switch (strtolower($fields[2])) {
@@ -323,6 +324,7 @@ class Season extends Domain
 
                 $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
                 $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
+                $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
 
                 // Do not store the same phone number a second time for a  coach
                 $coachPhone = ($coachPhone == $coachCell) ? '' : $coachPhone;
@@ -342,7 +344,7 @@ class Season extends Domain
                 }
 
                 // Create division, team and coach or assistant coach
-                $division       = Division::create($this, $divisionName, $gender, $gameDurationMinutes, $displayOrder, true);
+                $division       = Division::create($this, $divisionName, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder, true);
                 $team           = Team::create($division, null, $teamName, $teamId, $region, $city, true);
 
                 switch (strtolower($coachType)) {
@@ -353,6 +355,13 @@ class Season extends Domain
                         AssistantCoach::create($team, null, $coachName, $coachEmail, $coachPhone, $coachCell, true);
                         break;
                 }
+
+                // Create Assistant coach only (division and team must already exist)
+                /*
+                $division   = Division::lookupByNameAndGender($this, $divisionName, $gender);
+                $team       = Team::lookupByNameId($division, $teamId);
+                AssistantCoach::create($team, null, $coachName, $coachEmail, $coachPhone, $coachCell, true);
+                */
             }
         } catch (\Exception $e) {
             print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
@@ -494,6 +503,61 @@ class Season extends Domain
     }
 
     /**
+     * Return the duration of the game, including half time and time needed after the game before the next game starts.
+     *
+     * @param string $divisionName
+     *
+     * @return int
+     */
+    private function getMaxPlayersPerTeam($divisionName)
+    {
+        switch ($divisionName) {
+            case 'U5':
+            case 'U6':
+            case 'U7':
+            case 'U8':
+            case '5U-2013':
+            case '6U-2012':
+            case '7U-2011':
+            case '8U-2010':
+            case '5U':
+            case '6U':
+            case '7U':
+            case '8U':
+                return 10;
+
+            case 'U9':
+            case 'U10':
+            case '10U-2009-8':
+            case '10U':
+                return 10;
+
+            case 'U11':
+            case 'U12':
+            case '12U-2007-6':
+            case '12U':
+                return 14;
+
+            case 'U13':
+            case 'U14':
+            case '14U':
+            case '14U-2005-4':
+                return 18;
+
+            case 'U15':
+            case 'U16':
+            case 'U17':
+            case 'U18':
+            case 'U19':
+            case 'U16/19':
+            case '18U-2003-0':
+            case '18U':
+            default:
+                return 22;
+        }
+    }
+
+    /**
      * Populate Divisions, Teams, Players
      *
      * @param string $data - Expected format:
@@ -539,20 +603,63 @@ class Season extends Domain
                     continue;
                 }
 
-                $divisionName           = str_replace('B', '', str_replace('G', '', $fields[1]));
-                $teamName               = sprintf('%s-%02d', $fields[1], $fields[2]);
-                $gender                 = (strstr($teamName, 'B') == false) ? "Girls" : "Boys";
-                $playerName             = ucfirst(str_replace(';', ',', $fields[5]));
-                $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
-                $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
+                $divisionName   = str_replace('B', '', str_replace('G', '', $fields[1]));
+                $gender         = (strstr($fields[1], 'B') == false) ? "Girls" : "Boys";
+                $playerName     = ucfirst(str_replace(';', ',', $fields[5]));
+                $division       = Division::lookupByNameAndGender($this, $divisionName, $gender);
 
-                $division       = Division::create($this, $divisionName, $gender, $gameDurationMinutes, $displayOrder, true);
-                $team           = Team::create($division, null, $teamName, '', '', '', true);
-                Player::create($team, null, $playerName, '', $fields[6], true);
+                if (isset($division)) {
+                    $teamIdPrefix = $this->getTeamIdPrefixFromDivision($division);
+                    $teamId = sprintf('%s-%02d', $teamIdPrefix, $fields[2]);
+                    $team = Team::lookupByNameId($division, $teamId);
+                    if (isset($team)) {
+                        Player::create($team, null, $playerName, '', $fields[6], true);
+                    }
+                }
             }
         } catch (\Exception $e) {
             print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
         }
+    }
+
+    /**
+     * @param Division  $division
+     */
+    private function getTeamIdPrefixFromDivision($division)
+    {
+        $teamIdPrefix = $division->gender == Division::$BOYS ? 'B' : 'G';
+
+        switch ($division->name) {
+            case '5U':
+                $teamIdPrefix .= '2013';
+                break;
+            case '6U':
+                $teamIdPrefix .= '2012';
+                break;
+            case '7U':
+                $teamIdPrefix .= '2011';
+                break;
+            case '8U':
+                $teamIdPrefix .= '2010';
+                break;
+            case '10U':
+                $teamIdPrefix .= '2009-8';
+                break;
+            case '12U':
+                $teamIdPrefix .= '2007-6';
+                break;
+            case '14U':
+                $teamIdPrefix .= '2005-4';
+                break;
+            case '19U':
+                $teamIdPrefix .= '2003-0';
+                break;
+            default:
+                Precondition::isTrue(false, "Unrecognized division name: $division->name");
+                break;
+        }
+
+        return $teamIdPrefix;
     }
 
     /**

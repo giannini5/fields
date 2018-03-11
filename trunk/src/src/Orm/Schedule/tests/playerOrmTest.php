@@ -59,5 +59,6 @@ class PlayerOrmTest extends ORM_TestHelper
         $this->assertEquals($attributes[self::NAME],        $playerOrm->name);
         $this->assertEquals($attributes[self::EMAIL],       $playerOrm->email);
         $this->assertEquals($attributes[self::PHONE],       $playerOrm->phone);
+        $this->assertNull($attributes[self::NUMBER],        $playerOrm->number);
     }
 }

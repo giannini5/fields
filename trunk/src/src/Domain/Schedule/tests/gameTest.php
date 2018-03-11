@@ -277,11 +277,48 @@ class GameTest extends ORM_TestHelper
         $this->assertTrue($game->isForTeam($this->visitingTeam));
     }
 
+    public function test_setStats()
+    {
+        $game = Game::lookupById($this->gamesToCleanup[0]->id);
+
+        $playerGameStats[$game->id] = [
+            $game->homeTeam->id => [
+                $this->defaultPlayerOrm->id => [
+                    \View_Base::PLAYER_NUMBER       => $this->defaultPlayerOrm->number,
+                    \View_Base::PLAYER_NAME         => $this->defaultPlayerOrm->name,
+                    \View_Base::PLAYER_GOALS        => 5,
+                    \View_Base::PLAYER_SUB_KEEP_Q1  => 'X',
+                    \View_Base::PLAYER_SUB_KEEP_Q2  => '',
+                    \View_Base::PLAYER_SUB_KEEP_Q3  => 'G',
+                    \View_Base::PLAYER_SUB_KEEP_Q4  => '',
+                ]
+            ]
+        ];
+
+        $game->setStats($playerGameStats, "Hello Dave");
+
+        $this->validateGame($game, $homeScore = 5, $visitingScore = 0, $homeYellows = 0, $visitingYellows = 0, $homeReds = 0, $visitingReds = 0, $notes = 'Hello Dave');
+    }
+
+    public function test_clearStats()
+    {
+        $game = Game::lookupById($this->gamesToCleanup[0]->id);
+        $game->homeTeamScore            = 1;
+        $game->visitingTeamScore        = 2;
+        $game->homeTeamYellowCards      = 3;
+        $game->visitingTeamYellowCards  = 4;
+        $game->homeTeamRedCards         = 5;
+        $game->visitingTeamRedCards     = 6;
+        $game->notes                    = "Goodbye world";
+
+        $game->clearStats();
+        $this->validateGame($game);
+    }
+
     public function validateGame($game, $homeScore = NULL, $visitingScore = NULL, $homeYellows = 0, $visitingYellows = 0, $homeReds = 0, $visitingReds = 0, $notes = '')
     {
         $this->assertTrue($game->id > 0);
         $this->assertEquals($this->pool,            $game->pool);
-        $this->assertEquals($this->gameTime,        $game->gameTime);
         $this->assertEquals($this->homeTeam,        $game->homeTeam);
         $this->assertEquals($this->visitingTeam,    $game->visitingTeam);
         $this->assertEquals($this->title,           $game->title);
@@ -294,6 +331,11 @@ class GameTest extends ORM_TestHelper
         $this->assertEquals(0,                      $game->playInHomeGameId);
         $this->assertEquals(0,                      $game->playInVisitingGameId);
         $this->assertEquals(0,                      $game->playInByWin);
+
+        // Only check gameTime object if no overrides
+        if (!isset($homeScore) and !isset($visitingScore) and !isset($homeYellows) and !isset($visitingYellows) and !isset($homeReds) and !isset($visitingReds) and !isset($notes)) {
+            $this->assertEquals($this->gameTime,        $game->gameTime);
+        }
 
         if (!isset($homeScore)) {
             $this->assertTrue(!isset($game->homeTeamScore));

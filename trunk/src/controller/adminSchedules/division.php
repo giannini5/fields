@@ -18,6 +18,7 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
 
     private $m_name;
     private $m_gender;
+    private $m_maxPlayersPerTeam;
     private $m_displayOrder;
     private $m_gameDurationMinutes;
 
@@ -28,6 +29,7 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
             if ($this->m_operation == View_Base::CREATE) {
                 $this->m_name                   = $this->getPostAttribute(View_Base::NAME, '', TRUE);
                 $this->m_gender                 = $this->getPostAttribute(View_Base::GENDER, '', TRUE);
+                $this->m_maxPlayersPerTeam      = $this->getPostAttribute(View_Base::MAX_PLAYERS_PER_TEAM, '', TRUE, TRUE);
                 $this->m_displayOrder           = $this->getPostAttribute(View_Base::DISPLAY_ORDER, '', TRUE, TRUE);
                 $this->m_gameDurationMinutes    = $this->getPostAttribute(View_Base::GAME_DURATION_MINUTES, '', TRUE, TRUE);
             }
@@ -78,7 +80,7 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
         }
 
         // Create the new division
-        $division = Division::create($this->m_season, $this->m_name, $this->m_gender, (int)$this->m_gameDurationMinutes, $this->m_displayOrder);
+        $division = Division::create($this->m_season, $this->m_name, $this->m_gender, (int)$this->m_maxPlayersPerTeam, (int)$this->m_gameDurationMinutes, $this->m_displayOrder);
         $this->m_messageString = "Division $division->nameWithGender successfully created";
     }
 
@@ -104,6 +106,7 @@ class Controller_AdminSchedules_Division extends Controller_AdminSchedules_Base 
             foreach ($this->m_divisionUpdates as $divisionId => $data) {
                 $division                           = Division::lookupById($divisionId);
                 $division->name                     = $data[View_Base::NAME];
+                $division->maxPlayersPerTeam        = $data[View_Base::MAX_PLAYERS_PER_TEAM];
                 $division->displayOrder             = $data[View_Base::DISPLAY_ORDER];
                 $division->scoringTracked           = $data[View_Base::SCORING_TRACKED];
                 $division->combineLeagueSchedules   = $data[View_Base::COMBINE_LEAGUE_SCHEDULES];
