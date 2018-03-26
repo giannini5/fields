@@ -619,12 +619,19 @@ class Game extends Domain
      *                                  [teamId =>
      *                                      [playerId =>
      *                                          [
-     *                                              playerId => <id>,
-     *                                              name => <name>,
-     *                                              goals => <goals>,
-     *                                              q1 => <q1> ... q4 => <q4>,
-     *                                              reds => <reds>,
-     *                                              yellows => <yellows>,
+     *                                              playerId        => <id>,
+     *                                              playerName      => <name>,
+     *                                              playerGoals     => <goals>,
+     *                                              playerSubQ1     => <X or empty>
+     *                                              playerSubQ2     => <X or empty>
+     *                                              playerSubQ3     => <X or empty>
+     *                                              playerSubQ4     => <X or empty>
+     *                                              playerKeepQ1    => <G or empty>
+     *                                              playerKeepQ2    => <G or empty>
+     *                                              playerKeepQ3    => <G or empty>
+     *                                              playerKeepQ4    => <G or empty>
+     *                                              reds            => <reds>,
+     *                                              yellows         => <yellows>,
      *                                          ]
      *                                      ]
      *                                  ]
@@ -654,25 +661,58 @@ class Game extends Domain
                     $player             = Player::lookupById($playerId);
                     $playerGameStats    = PlayerGameStats::findOrCreate($this, $team, $player);
 
-                    Assertion::isTrue($stats[\View_Base::PLAYER_GOALS] >= 0, "Invalid goals for player: $player->name: " . $stats[\View_Base::PLAYER_GOALS]);
-                    $playerGameStats->goals = $stats[\View_Base::PLAYER_GOALS];
+                    // Update Player Number
+                    $player->number = (int)$stats[\View_Base::PLAYER_NUMBER];
 
+                    // Remove old stats from Player
+                    $this->removePlayerStats($playerGameStats);
+
+                    // Set Player Goals
+                    Assertion::isTrue($stats[\View_Base::PLAYER_GOALS] >= 0, "Invalid goals for player: $player->name: " . $stats[\View_Base::PLAYER_GOALS]);
+                    $playerGameStats->goals = empty($stats[\View_Base::PLAYER_GOALS]) ? 0 : (int) $stats[\View_Base::PLAYER_GOALS];
+
+                    // Process substitutions by quarter for player
                     for ($i = 1; $i <= 4; $i++) {
-                        $label      = \View_Base::PLAYER_SUB_KEEP_BASE . $i;
+                        $label      = \View_Base::PLAYER_SUB_BASE . $i;
                         $subField   = 'substitutionQuarter' . $i;
+
+                        Assertion::isTrue(empty($stats[$label]) or $stats[$label] == 'X',
+                            "Invalid substitution setting for player: $player->name: " . $stats[$label]);
+                        $playerGameStats->{$subField} = $stats[$label] == 'X';
+                    }
+
+                    // Process keeper by quarter for player
+                    for ($i = 1; $i <= 4; $i++) {
+                        $label      = \View_Base::PLAYER_KEEP_BASE . $i;
                         $keepField  = 'keeperQuarter' . $i;
 
-                        Assertion::isTrue(empty($stats[$label]) or $stats[$label] == 'X' or $stats[$label] == 'G',
-                            "Invalid sub/keep setting for player: $player->name: " . $stats[$label]);
-                        $playerGameStats->{$subField}   = $stats[$label] == 'X';
+                        Assertion::isTrue(empty($stats[$label]) or $stats[$label] == 'G',
+                            "Invalid keeper setting for player: $player->name: " . $stats[$label]);
                         $playerGameStats->{$keepField}  = $stats[$label] == 'G';
                     }
 
+                    // Process cards
+                    $yellowCards = 0;
+                    $yellowCards += isset($stats[\View_Base::PLAYER_YELLOW1]) ? 1 : 0;
+                    $yellowCards += isset($stats[\View_Base::PLAYER_YELLOW2]) ? 1 : 0;
+                    $playerGameStats->yellowCards = $yellowCards;
+
+                    $redCards = 0;
+                    $redCards += isset($stats[\View_Base::PLAYER_RED]) ? 1 : 0;
+                    $playerGameStats->redCard = $redCards > 0;
+
                     if ($player->team->id == $this->homeTeam->id) {
-                        $homeScore += $playerGameStats->goals;
+                        $homeScore          += $playerGameStats->goals;
+                        $homeYellowCards    += $yellowCards;
+                        $homeRedCards       += $redCards;
                     } else {
-                        $visitScore += $playerGameStats->goals;
+                        $visitScore         += $playerGameStats->goals;
+                        $visitYellowCards   += $yellowCards;
+                        $visitRedCards      += $redCards;
                     }
+
+                    // Add stats from Player
+                    $this->addPlayerStats($playerGameStats);
                 }
             }
         }
@@ -684,6 +724,77 @@ class Game extends Domain
         $this->visitingTeamYellowCards  = $visitYellowCards;
         $this->visitingTeamRedCards     = $visitRedCards;
         $this->notes                    = $notes;
+    }
+
+    /**
+     * Remove player stats from player
+     *
+     * @param PlayerGameStats $playerGameStats
+     */
+    private function removePlayerStats($playerGameStats)
+    {
+        $player = $playerGameStats->player;
+
+        // Update goals
+        $goals = $player->goals - $playerGameStats->goals;
+        $player->goals = $goals < 0 ? 0 : $goals;
+
+        // Update quartersSub
+        $quartersSub = $player->quartersSub - (
+            ($playerGameStats->substitutionQuarter1 ? 1 : 0) +
+            ($playerGameStats->substitutionQuarter2 ? 1 : 0) +
+            ($playerGameStats->substitutionQuarter3 ? 1 : 0) +
+            ($playerGameStats->substitutionQuarter4 ? 1 : 0));
+        $player->quartersSub = $quartersSub < 0 ? 0 : $quartersSub;
+
+        // Update quartersKeep
+        $quartersKeep = $player->quartersKeep - (
+            ($playerGameStats->keeperQuarter1 ? 1 : 0) +
+            ($playerGameStats->keeperQuarter2 ? 1 : 0) +
+            ($playerGameStats->keeperQuarter3 ? 1 : 0) +
+            ($playerGameStats->keeperQuarter4 ? 1 : 0));
+        $player->quartersKeep = $quartersKeep < 0 ? 0 : $quartersKeep;
+
+        // Update yellowCards
+        $yellowCards = $player->yellowCards - $playerGameStats->yellowCards;
+        $player->yellowCards = $yellowCards < 0 ? 0 : $yellowCards;
+
+        // Update redCards
+        $redCards = $player->redCards - ($playerGameStats->redCard ? 1 : 0);
+        $player->redCards = $redCards < 0 ? 0 : $redCards;
+    }
+
+    /**
+     * Add player stats to player
+     *
+     * @param PlayerGameStats $playerGameStats
+     */
+    private function addPlayerStats($playerGameStats)
+    {
+        $player = $playerGameStats->player;
+
+        // Update goals
+        $player->goals = $player->goals + $playerGameStats->goals;
+
+        // Update quartersSub
+        $player->quartersSub = $player->quartersSub + (
+                ($playerGameStats->substitutionQuarter1 ? 1 : 0) +
+                ($playerGameStats->substitutionQuarter2 ? 1 : 0) +
+                ($playerGameStats->substitutionQuarter3 ? 1 : 0) +
+                ($playerGameStats->substitutionQuarter4 ? 1 : 0));
+
+        // Update quartersKeep
+        $player->quartersKeep = $player->quartersKeep + (
+                ($playerGameStats->keeperQuarter1 ? 1 : 0) +
+                ($playerGameStats->keeperQuarter2 ? 1 : 0) +
+                ($playerGameStats->keeperQuarter3 ? 1 : 0) +
+                ($playerGameStats->keeperQuarter4 ? 1 : 0));
+
+        // Update yellowCards
+        $player->yellowCards = $player->yellowCards + $playerGameStats->yellowCards;
+
+        // Update redCards
+        $player->redCards = $player->redCards + ($playerGameStats->redCard ? 1 : 0);
     }
 
     /**

@@ -11,6 +11,8 @@ create table playerGameStats (
   keeperQuarter2          int default 0,
   keeperQuarter3          int default 0,
   keeperQuarter4          int default 0,
+  yellowCards             int default 0,
+  redCard                 int default 0,
 
   PRIMARY KEY (gameId, teamId, playerId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

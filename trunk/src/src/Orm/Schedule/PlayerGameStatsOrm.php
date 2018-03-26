@@ -22,6 +22,8 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $keeperQuarter2
  * @property int    $keeperQuarter3
  * @property int    $keeperQuarter4
+ * @property int    $yellowCards
+ * @property int    $redCard
  */
 class PlayerGameStatsOrm extends PersistenceModel
 {
@@ -37,6 +39,8 @@ class PlayerGameStatsOrm extends PersistenceModel
     const FIELD_KEEPER_QUARTER_2        = 'keeperQuarter2';
     const FIELD_KEEPER_QUARTER_3        = 'keeperQuarter3';
     const FIELD_KEEPER_QUARTER_4        = 'keeperQuarter4';
+    const FIELD_YELLOW_CARDS            = 'yellowCards';
+    const FIELD_RED_CARD                = 'redCard';
 
     protected static $fields = [
         self::FIELD_GAME_ID                 => [FV::INT,    [FV::NO_CONSTRAINTS]],
@@ -51,6 +55,8 @@ class PlayerGameStatsOrm extends PersistenceModel
         self::FIELD_KEEPER_QUARTER_2        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_KEEPER_QUARTER_3        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_KEEPER_QUARTER_4        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_YELLOW_CARDS            => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_RED_CARD                => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
 
     protected static $config = [
@@ -75,6 +81,8 @@ class PlayerGameStatsOrm extends PersistenceModel
      * @param int       $keeperQuarter2
      * @param int       $keeperQuarter3
      * @param int       $keeperQuarter4
+     * @param int       $yellowCards
+     * @param int       $redCard
      *
      * @return PlayerGameStatsOrm
      * @throws DuplicateEntryException
@@ -91,7 +99,9 @@ class PlayerGameStatsOrm extends PersistenceModel
         $keeperQuarter1 = 0,
         $keeperQuarter2 = 0,
         $keeperQuarter3 = 0,
-        $keeperQuarter4 = 0
+        $keeperQuarter4 = 0,
+        $yellowCards    = 0,
+        $redCard        = 0
     ) {
         // Create the PlayerGameStatsOrm
         $result = self::getPersistenceDriver()->create(
@@ -109,6 +119,8 @@ class PlayerGameStatsOrm extends PersistenceModel
                     self::FIELD_KEEPER_QUARTER_2        => $keeperQuarter2,
                     self::FIELD_KEEPER_QUARTER_3        => $keeperQuarter3,
                     self::FIELD_KEEPER_QUARTER_4        => $keeperQuarter4,
+                    self::FIELD_YELLOW_CARDS            => $yellowCards,
+                    self::FIELD_RED_CARD                => $redCard,
                 ],
                 function ($item) {
                     return $item !== null;

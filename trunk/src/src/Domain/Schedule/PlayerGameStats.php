@@ -20,6 +20,8 @@ use DAG\Orm\Schedule\PlayerGameStatsOrm;
  * @property bool   $keeperQuarter2
  * @property bool   $keeperQuarter3
  * @property bool   $keeperQuarter4
+ * @property int    $yellowCards
+ * @property bool   $redCard
  */
 class PlayerGameStats extends Domain
 {
@@ -106,7 +108,11 @@ class PlayerGameStats extends Domain
             case "keeperQuarter2":
             case "keeperQuarter3":
             case "keeperQuarter4":
+            case "redCard":
                 return $this->playerGameStatsOrm->{$propertyName} == 1;
+
+            case "yellowCards":
+                return $this->playerGameStatsOrm->{$propertyName};
 
             case "game":
             case "team":
@@ -138,7 +144,13 @@ class PlayerGameStats extends Domain
             case "keeperQuarter2":
             case "keeperQuarter3":
             case "keeperQuarter4":
+            case "redCard":
                 $this->playerGameStatsOrm->{$propertyName} = $value ? 1 : 0;
+                $this->playerGameStatsOrm->save();
+                break;
+
+            case "yellowCards":
+                $this->playerGameStatsOrm->{$propertyName} = $value;
                 $this->playerGameStatsOrm->save();
                 break;
 

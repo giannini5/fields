@@ -31,53 +31,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
     /**
      * @brief Render data for display on the page.
      */
-    public function render()
-    {
-        if ($this->m_controller->m_isAuthenticated) {
-            $this->renderGameCards();
-        } else {
-            $this->renderLogin();
-        }
-    }
-
-    /**
-     * @brief Render sign-in screen
-     */
-    public function renderLogin() {
-        print "
-            <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
-            <tr><td>
-            <table align='center' valign='top' border='0' cellpadding='5' cellspacing='0'>";
-
-        print "
-            <form method='post' action='" . self::SCORING_GAME_CARDS_PAGE . $this->m_urlParams . "'>";
-
-        print "
-                <tr>
-                    <td colspan='2' style='font-size:24px; color: darkblue'><b>Sign In</b></td>
-                </tr>";
-
-        $this->displayInput('Email Address:', 'text', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_EMAIL, 'email address', $this->m_controller->m_email);
-        $this->displayInput('Password:', 'password', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_PASSWORD, 'password', $this->m_controller->m_password);
-
-        print "
-                <tr>
-                    <td colspan='2' align='right'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
-                    </td>
-                    <td>&nbsp</td>
-                </tr>
-            </form>";
-
-        print "
-            </table>
-            </td></tr></table>";
-    }
-
-    /**
-     * @brief Render data for display on the page.
-     */
-    public function renderGameCards()
+    public function renderPage()
     {
         $sessionId          = $this->m_controller->getSessionId();
         $divisionsSelector  = $this->getDivisionsSelector(false, true, true);

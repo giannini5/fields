@@ -6,7 +6,6 @@ use \DAG\Domain\Schedule\Coach;
  * @brief: Abstract base class for all adminScoring views.
  */
 abstract class View_AdminScoring_Base extends View_Base {
-
     /**
      * @brief: Construct a new instance of this base class.
      *
@@ -17,6 +16,52 @@ abstract class View_AdminScoring_Base extends View_Base {
     {
         $navigation         = new View_AdminScoring_Navigation($controller, $page);
         parent::__construct($navigation, $page, "Administer Scoring", $controller, 0);
+    }
+
+    /**
+     * @brief Render data for display on the page.
+     */
+    public function render()
+    {
+        if ($this->m_controller->m_isAuthenticated) {
+            $this->renderPage();
+        } else {
+            $this->renderLogin();
+        }
+    }
+
+    /**
+     * @brief Render sign-in screen
+     */
+    public function renderLogin() {
+        print "
+            <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
+            <tr><td>
+            <table align='center' valign='top' border='0' cellpadding='5' cellspacing='0'>";
+
+        print "
+            <form method='post' action='" . self::SCORING_ENTER_SCORES_PAGE . $this->m_urlParams . "'>";
+
+        print "
+                <tr>
+                    <td colspan='2' style='font-size:24px'><font color='darkblue'><b>Sign In</b></font></td>
+                </tr>";
+
+        $this->displayInput('Email Address:', 'text', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_EMAIL, 'email address', $this->m_controller->m_email);
+        $this->displayInput('Password:', 'password', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_PASSWORD, 'password', $this->m_controller->m_password);
+
+        print "
+                <tr>
+                    <td colspan='2' align='right'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
+                    </td>
+                    <td>&nbsp</td>
+                </tr>
+            </form>";
+
+        print "
+            </table>
+            </td></tr></table>";
     }
 
     /**

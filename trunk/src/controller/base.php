@@ -35,6 +35,9 @@ abstract class Controller_Base
     public $m_filterTeamId;
     public $m_filterCoachId;
 
+    # Popup or regular page
+    public $m_isPopup = false;
+
     public function __construct($cookieName, $populateDivisions = true)
     {
         $this->m_cookieName = $cookieName;
@@ -107,7 +110,7 @@ abstract class Controller_Base
      * @param $isNumeric - TRUE if the attribute is numeric; FALSE by default
      * @param $errorMessage - Defaults to empty, if set and remembering errors then concat controller's error string
      *
-     * @return Value associated with attribute name or $defaultValue if attribute not found
+     * @return mixed - Value associated with attribute name or $defaultValue if attribute not found
      */
     protected function getPostAttribute($attributeName, $defaultValue, $rememberIfMissing = TRUE, $isNumeric = FALSE, $errorMessage = '') {
         if (isset($_POST[$attributeName])) {
@@ -195,7 +198,7 @@ abstract class Controller_Base
      * @param $attributeName - Name of the GET attribute
      * @param $defaultValue - Default value returned if GET attribute not found
      *
-     * @return Value associated with attribute name or $defaultValue if attribute not found
+     * @return mixed - Value associated with attribute name or $defaultValue if attribute not found
      */
     protected function getGetAttribute($attributeName, $defaultValue)
     {
@@ -305,7 +308,7 @@ abstract class Controller_Base
      * @param $facility - Model_Fields_Facility instance
      * @param bool $enabledOnly - If TRUE then get enabled fields only; otherwise get all fields
      *
-     * @return Model_Fields_Fieldodel_Fields_FieldArray of Model_Fields_Field instances; empty array if no fields found
+     * @return Model_Fields_Field[] - Model_Fields_Field instances; empty array if no fields found
      */
     public function getFields($facility, $enabledOnly = FALSE)
     {

@@ -287,10 +287,14 @@ class GameTest extends ORM_TestHelper
                     \View_Base::PLAYER_NUMBER       => $this->defaultPlayerOrm->number,
                     \View_Base::PLAYER_NAME         => $this->defaultPlayerOrm->name,
                     \View_Base::PLAYER_GOALS        => 5,
-                    \View_Base::PLAYER_SUB_KEEP_Q1  => 'X',
-                    \View_Base::PLAYER_SUB_KEEP_Q2  => '',
-                    \View_Base::PLAYER_SUB_KEEP_Q3  => 'G',
-                    \View_Base::PLAYER_SUB_KEEP_Q4  => '',
+                    \View_Base::PLAYER_SUB_Q1       => 'X',
+                    \View_Base::PLAYER_SUB_Q2       => '',
+                    \View_Base::PLAYER_SUB_Q3       => '',
+                    \View_Base::PLAYER_SUB_Q4       => '',
+                    \View_Base::PLAYER_KEEP_Q1      => '',
+                    \View_Base::PLAYER_KEEP_Q2      => 'G',
+                    \View_Base::PLAYER_KEEP_Q3      => '',
+                    \View_Base::PLAYER_KEEP_Q4      => '',
                 ]
             ]
         ];

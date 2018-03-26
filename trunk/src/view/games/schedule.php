@@ -283,7 +283,8 @@ class View_Games_Schedule extends View_Games_Base
                             $dayRow
                             <td nowrap>$fieldName$titleLine</td>
                             <td nowrap>$gameTime</td>
-                            <td nowrap align='center'>$game->id</td>
+                            <td nowrap align='center'>
+                                <a href=\"javascript:window.open('" . View_Base::GAMES_GAME_CARDS_PAGE . "?gameId=$game->id&submit=Enter&scoringType=game&popup=1','game cards','width=890,height=800')\">$game->id</a>
                             <td nowrap $homeTeamTitle>$homeTeamName</td>
                             <td nowrap align='center'>$homeTeamScore</td>
                             <td nowrap $visitingTeamTitle>$visitingTeamName</td>
