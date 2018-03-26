@@ -153,12 +153,20 @@ class Web_Index
                 $this->m_controller = new Controller_AdminReferee_Home();
                 break;
 
-            case View_Base::SCORING_HOME_PAGE:
+            case View_Base::SCORING_ENTER_SCORES_PAGE:
                 $this->m_controller = new Controller_AdminScoring_Home();
+                break;
+
+            case View_Base::SCORING_VOLUNTEER_POINTS_PAGE:
+                $this->m_controller = new Controller_AdminScoring_VolunteerPoints();
                 break;
 
             case View_Base::SCORING_GAME_CARDS_PAGE:
                 $this->m_controller = new Controller_AdminScoring_GameCards();
+                break;
+
+            case View_Base::SCORING_SCORE_SHEET_PAGE:
+                $this->m_controller = new Controller_AdminScoring_ScoreSheet();
                 break;
 
             case View_Base::GAMES_HOME_PAGE:
@@ -175,6 +183,14 @@ class Web_Index
 
             case View_Base::GAMES_STANDINGS_PAGE:
                 $this->m_controller = new Controller_Games_Standings();
+                break;
+
+            case View_Base::GAMES_PLAYER_STATS_PAGE:
+                $this->m_controller = new Controller_Games_PlayerStats();
+                break;
+
+            case View_Base::GAMES_GAME_CARDS_PAGE:
+                $this->m_controller = new Controller_Games_GameCards();
                 break;
 
             case View_Base::API_SWAP:
@@ -211,7 +227,7 @@ class Web_Index
             $this->m_controller->process();
         } catch (Exception $e) {
             $postString = $this->htmlFormatArray($_POST);
-            $message = "Post data: $postString\n";
+            $message = $e->getMessage() . " Post data: $postString\n";
             throw new ControllerException($message, $e);
         }
     }

@@ -6,9 +6,6 @@ use \DAG\Domain\Schedule\Division;
 use \DAG\Domain\Schedule\GameDate;
 use \DAG\Domain\Schedule\Pool;
 use \DAG\Domain\Schedule\Team;
-use \DAG\Domain\Schedule\Facility;
-use \DAG\Domain\Schedule\Field;
-use \DAG\Domain\Schedule\GameTime;
 use \DAG\Domain\Schedule\AssistantCoach;
 use \DAG\Domain\Schedule\Player;
 use \DAG\Domain\Schedule\PlayerGameStats;
@@ -28,59 +25,13 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
      */
     public function __construct($controller)
     {
-        parent::__construct(self::SCORING_HOME_PAGE, $controller);
+        parent::__construct(self::SCORING_ENTER_SCORES_PAGE, $controller);
     }
 
     /**
      * @brief Render data for display on the page.
      */
-    public function render()
-    {
-        if ($this->m_controller->m_isAuthenticated) {
-            $this->renderScoring();
-        } else {
-            $this->renderLogin();
-        }
-    }
-
-    /**
-     * @brief Render sign-in screen
-     */
-    public function renderLogin() {
-        print "
-            <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
-            <tr><td>
-            <table align='center' valign='top' border='0' cellpadding='5' cellspacing='0'>";
-
-        print "
-            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
-
-        print "
-                <tr>
-                    <td colspan='2' style='font-size:24px'><font color='darkblue'><b>Sign In</b></font></td>
-                </tr>";
-
-        $this->displayInput('Email Address:', 'text', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_EMAIL, 'email address', $this->m_controller->m_email);
-        $this->displayInput('Password:', 'password', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_PASSWORD, 'password', $this->m_controller->m_password);
-
-        print "
-                <tr>
-                    <td colspan='2' align='right'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
-                    </td>
-                    <td>&nbsp</td>
-                </tr>
-            </form>";
-
-        print "
-            </table>
-            </td></tr></table>";
-    }
-
-    /**
-     * @brief Render data for display on the page.
-     */
-    public function renderScoring()
+    public function renderPage()
     {
         $sessionId          = $this->m_controller->getSessionId();
         $divisionsSelector  = $this->getDivisionsSelector(true, false, true);
@@ -107,18 +58,6 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
 
         print "
                     </td>
-                    <td valign='top' bgcolor='" . View_Base::VIEW_COLOR . "'>";
-
-        $this->_printEnterVolunteerPoints($sessionId, $divisionsSelector);
-
-        print "
-                    </td>
-                    <td valign='top' bgcolor='" . View_Base::VIEW_COLOR . "'>";
-
-        $this->printSelectFacilityAndDay($sessionId, $gameDateSelector);
-
-        print "
-                    </td>
                 </tr>
             </table>
             <br><br>";
@@ -132,16 +71,6 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 break;
             case Controller_AdminScoring_Home::DIVISION_SCORING:
                 $this->printUpdateDivisionGamesForm($sessionId, $this->m_controller->m_division, $this->m_controller->m_gameDate);
-                break;
-            case Controller_AdminScoring_Home::VOLUNTEER_POINTS:
-                $this->printUpdateDivisionVolunteerPointsForm($sessionId, $this->m_controller->m_division);
-                break;
-            case Controller_AdminScoring_Home::GAME_DISPLAY_FOR_SCORING:
-                if (isset($this->m_controller->m_facility)) {
-                    $this->printGamesForFacilityForDay($this->m_controller->m_facility, $this->m_controller->m_gameDate, true);
-                } else {
-                    $this->printGamesForForDay($this->m_controller->m_gameDate);
-                }
                 break;
         }
     }
@@ -166,7 +95,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 <tr>
                     <th nowrap align='left' colspan='7'>Enter Score for Game</th>
                 </tr>
-                <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
+                <form method='post' action='" . self::SCORING_ENTER_SCORES_PAGE . $this->m_urlParams . "'>";
 
         $this->displayInput('Game Id:', 'number', View_Base::GAME_ID, '', '', $value, null, 6, true, 50, false, true);
 
@@ -199,7 +128,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 <tr>
                     <th nowrap align='left' colspan='2'>Enter/Update Scores</th>
                 </tr>
-            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . self::SCORING_ENTER_SCORES_PAGE . $this->m_urlParams . "'>";
 
         $this->displaySelector('Division:', View_Base::DIVISION_NAME, '', $divisionsSelector, $this->m_controller->m_divisionName);
         $this->displaySelector('Game Date:', View_Base::GAME_DATE, '', $gameDateSelector, $this->m_controller->m_gameDate->day);
@@ -210,73 +139,6 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ENTER . "'>
                         <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::DIVISION_SCORING . "'>
-                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
-                    </td>
-                </tr>
-            </form>
-            </table>";
-    }
-
-    /**
-     * @brief Print the form to enter volunteer points for teams by division.  Form includes the following
-     *        - List of Divisions
-     *
-     * @param int   $sessionId          - Session Identifier
-     * @param array $divisionsSelector  - List of divisionId => name
-     */
-    private function _printEnterVolunteerPoints($sessionId, $divisionsSelector)
-    {
-        print "
-            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <th nowrap align='left' colspan='2'>Enter/Update Volunteer Points</th>
-                </tr>
-            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
-
-        $this->displaySelector('Division:', View_Base::DIVISION_NAME, '', $divisionsSelector, $this->m_controller->m_divisionName);
-
-        // Print Enter button and end form
-        print "
-                <tr>
-                    <td align='left'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ENTER . "'>
-                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::VOLUNTEER_POINTS . "'>
-                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
-                    </td>
-                </tr>
-            </form>
-            </table>";
-    }
-
-    /**
-     * @brief Print the form to select the facility and date to display games for score keeping.
-     *        - List of Facilities
-     *        - Day to enter/update scores
-     *
-     * @param int   $sessionId          - Session Identifier
-     * @param array $gameDateSelector   - List of gameDateId => day
-     */
-    private function printSelectFacilityAndDay($sessionId, $gameDateSelector)
-    {
-        $facilitySelector       = $this->getFacilitySelector();
-        $selectedFacilityName   = isset($this->m_controller->m_facility) ? $this->m_controller->m_facility->name : '';
-
-        print "
-            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <th nowrap align='left' colspan='2'>View Games For Scoring</th>
-                </tr>
-            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
-
-        $this->displaySelector('Facility:', View_Base::FILTER_FACILITY_ID, '', $facilitySelector, $selectedFacilityName);
-        $this->displaySelector('Game Date:', View_Base::GAME_DATE, '', $gameDateSelector, $this->m_controller->m_gameDate->day);
-
-        // Print Update button and end form
-        print "
-                <tr>
-                    <td align='left'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ENTER . "'>
-                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::GAME_DISPLAY_FOR_SCORING . "'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
@@ -360,7 +222,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         }
 
         print "
-            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . self::SCORING_ENTER_SCORES_PAGE . $this->m_urlParams . "'>";
 
         print "
             <div style ='margin: auto; width: 1000px;'>";
@@ -486,14 +348,17 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                             <tr>
                                 <td rowspan='2' width='5px' align='center' style='border: 1px solid'><strong>#</strong></td>
                                 <td rowspan='2' width='65px' align='center' style='border: 1px solid'><strong>Player's Name</strong></td>
-                                <td rowspan='2' width='20px' colspan='1' align='center' style='border: 1px solid; border-right: double'><strong>Goals Scored</strong></td>
-                                <td width='60px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub: X, Keeper: G</strong></td>
+                                <td rowspan='2' width='15px' colspan='1' align='center' style='border: 1px solid; border-right: double'><strong>Goals</strong></td>
+                                <td width='80px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub: X, Keeper: G</strong></td>
+                                <td width='15px' colspan='2' align='center' style='border: 1px solid'><strong>Cards</strong></td>
                             </tr>
                             <tr>
                                 <td align='center' style='border: 1px solid; font-size: 10px; border-left: double'><strong>1</strong></td>
                                 <td align='center' style='border: 1px solid; font-size: 10px'><strong>2</strong></td>
                                 <td align='center' style='border: 1px solid; font-size: 10px'><strong>3</strong></td>
                                 <td align='center' style='border: 1px solid; font-size: 10px'><strong>4</strong></td>
+                                <td width='5px' align='center' style='border: 1px solid; font-size: 10px'><strong>Y</strong></td>
+                                <td width='5px' align='center' style='border: 1px solid; font-size: 10px'><strong>R</strong></td>
                             </tr>";
 
         $playerCount = 0;
@@ -530,55 +395,52 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                         <tr style='overflow: hidden'>
                             <td width='5px' align='center' style='font-size: larger'>";
 
+        // Player Name
         $this->printEnterPlayerNumber($baseInputName, $player);
 
-        // <td width='75px' style='overflow: hidden; white-space: nowrap; font-size: larger'>
         $inputName = $baseInputName . "[" . View_Base::PLAYER_NAME . "]";
         print "
                             </td> 
-                            <td width='75px'>
-                                <input type='text' name='$inputName' placeholder='Name' value='$playerName'>
+                            <td width='65px'>
+                                <input type='text' size='18' name='$inputName' placeholder='Name' value='$playerName'>
                             </td>
                             <td width='15px' align='center' style='border-right: double'>";
 
-        $bgColor    = $playerGoals == 0 ? 'white' : 'lightgreen';
-        $inputName = $baseInputName . "[" . View_Base::PLAYER_GOALS . "]";
+        // Goals Scored
+        $bgColor        = $playerGoals == 0 ? 'white' : 'lightgreen';
+        $inputName      = $baseInputName . "[" . View_Base::PLAYER_GOALS . "]";
+        $playerGoals    = $playerGoals == 0 ? '' : $playerGoals;
         print "
-                                <select style='width: 30px; background-color: $bgColor' name='$inputName'>";
-
-        for ($goals = 0; $goals < 10; $goals++) {
-            $selected = $goals == $playerGoals ? ' selected ' : '';
-            print "
-                                    <option value='$goals' $selected>$goals</option>";
-        }
+            <input type='number' class='no-spinners' name='$inputName' style='width: 15px; background-color: $bgColor' placeholder='' value='$playerGoals'>";
 
         print "             
-                                </select>
-                            </td>
-                            <td width='15px' style='border-left: double'>";
+                            </td>";
 
-        $this->printSubKeeperSelection($baseInputName, 1, $playerGameStats);
-
-        print "
-                            </td>
-                            <td width='15px'>";
-
+        // Substitution/Keeper by quarter
+        $this->printSubKeeperSelection($baseInputName, 1, $playerGameStats, true);
         $this->printSubKeeperSelection($baseInputName, 2, $playerGameStats);
-
-        print "
-                            </td>
-                            <td width='15px'>";
-
         $this->printSubKeeperSelection($baseInputName, 3, $playerGameStats);
-
-        print "
-                            </td>
-                            <td width='15px'>";
-
         $this->printSubKeeperSelection($baseInputName, 4, $playerGameStats);
 
+        // Yellow or Red Cards
+        $inputYellow1   = $baseInputName . "[" . View_Base::PLAYER_YELLOW1 . "]";
+        $inputYellow2   = $baseInputName . "[" . View_Base::PLAYER_YELLOW2 . "]";
+        $inputRed       = $baseInputName . "[" . View_Base::PLAYER_RED . "]";
+        $yellow1Checked = $playerGameStats->yellowCards >= 1 ? 'checked' : '';
+        $yellow2Checked = $playerGameStats->yellowCards >= 2 ? 'checked' : '';
+        $redChecked     = $playerGameStats->redCard ? 'checked' : '';
+        $yellowBgColor  = $playerGameStats->yellowCards > 0 ? 'yellow' : 'white';
+        $redBgColor     = $playerGameStats->redCard ? 'red' : 'white';
         print "
+                            <td style='background-color: $yellowBgColor'>
+                                <input type=checkbox name='$inputYellow1' value='1' $yellow1Checked><br>
+                                <input type=checkbox name='$inputYellow2' value='1' $yellow2Checked>
                             </td>
+                            <td style='background-color: $redBgColor'>
+                                <input type=checkbox name='$inputRed' value='1' $redChecked>
+                            </td>";
+
+        print "
                         </tr>";
     }
 
@@ -586,13 +448,13 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
      * @param string            $baseInputName
      * @param int               $quarter
      * @param PlayerGameStats   $playerGameStats
+     * @param bool              $addLeftDoubleBorder
      */
-    private function printSubKeeperSelection($baseInputName, $quarter, $playerGameStats = null)
+    private function printSubKeeperSelection($baseInputName, $quarter, $playerGameStats = null, $addLeftDoubleBorder = false)
     {
         // Figure out value that should be pre-selected
-        $defaultSelected        = 'selected';
-        $substitutionSelected   = '';
-        $keeperSelected         = '';
+        $substitutionChecked    = '';
+        $keeperChecked          = '';
         $bgColor                = 'white';
 
         if ($playerGameStats) {
@@ -600,24 +462,32 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
             $keeper         = 'keeperQuarter' . $quarter;
 
             if ($playerGameStats->{$substitution}) {
-                $defaultSelected        = '';
-                $substitutionSelected   = 'selected';
-                $bgColor                = 'lightgray';
+                $substitutionChecked = 'checked';
+                $bgColor             = 'lightgray';
             } else if ($playerGameStats->{$keeper}) {
-                $defaultSelected        = '';
-                $keeperSelected         = 'selected';
-                $bgColor                = 'lightcoral';
+                $keeperChecked = 'checked';
+                $bgColor       = 'lightsalmon';
             }
         }
 
-        // Show selector
-        $inputName      = $baseInputName . "[" . View_Base::PLAYER_SUB_KEEP_BASE . $quarter . "]";
-        print "             
-                                <select style='width: 30px; background-color: $bgColor' name='$inputName'>
-                                    <option value='' $defaultSelected></option>
-                                    <option value='X' $substitutionSelected>X</option>
-                                    <option value='G' $keeperSelected>G</option>
-                                </select>";
+        $leftBorder = $addLeftDoubleBorder ? 'border-left: double' : '';
+        $cellStyle = "style='background-color: $bgColor; $leftBorder'";
+
+        print "
+            <td $cellStyle>";
+
+        // Substitution Checkbox
+        $inputName = $baseInputName . "[" . View_Base::PLAYER_SUB_BASE . $quarter . "]";
+        print "
+                <input type=checkbox name='$inputName' value='X' $substitutionChecked>X";
+
+        // Keeper Checkbox
+        $inputName = $baseInputName . "[" . View_Base::PLAYER_KEEP_BASE . $quarter . "]";
+        print "
+                <input type=checkbox name='$inputName' value='G' $keeperChecked>G";
+
+        print "
+            </td>";
     }
 
     /**
@@ -626,21 +496,11 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
      */
     private function printEnterPlayerNumber($baseInputName, $player)
     {
-        $playerId       = isset($player) ? $player->id : '-1';
-        $playerNumber   = isset($player) ? $player->number : '-1';
-
-        $inputName = $baseInputName . "[" . View_Base::PLAYER_NUMBER . "]";
-        print "
-            <select style='width: 30px;' name='$inputName'>";
-
-        for ($number = 0; $number <= 99; $number++) {
-            $selected = $number == $playerNumber ? ' selected ' : '';
-            print "
-                <option value='$number' $selected>$number</option>";
-        }
+        $inputName      = $baseInputName . "[" . View_Base::PLAYER_NUMBER . "]";
+        $playerNumber   = isset($player) ? $player->number : '';
 
         print "
-            </select>";
+            <input type='number' class='no-spinners' name='$inputName' style='width: 15px' placeholder='' value='$playerNumber'>";
     }
 
     /**
@@ -707,7 +567,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                     <td colspan='1'>$time</td>
                     <td colspan='1'>$fieldName</td>
                 </tr>
-            <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
+            <form method='post' action='" . self::SCORING_ENTER_SCORES_PAGE . $this->m_urlParams . "'>";
 
         $defaultTeamSelection = '';
         if (isset($game->homeTeam)) {
@@ -848,252 +708,5 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         foreach ($games as $game) {
             $this->printUpdateGameForm($sessionId, $game, Controller_AdminScoring_Home::DIVISION_SCORING, null, $division, $gameDate);
         }
-    }
-
-    /**
-     * @param int       $sessionId
-     * @param Division  $division
-     */
-    private function printUpdateDivisionVolunteerPointsForm($sessionId, $division)
-    {
-        if (!isset($division)) {
-            return;
-        }
-
-        $divisionName   = $division->nameWithGender;
-        $teams          = Team::lookupByDivision($division);
-        $scoringType    = Controller_AdminScoring_Home::VOLUNTEER_POINTS;
-        $bgColor        = 'lightskyblue';
-
-        print "
-            <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
-                <tr bgcolor='$bgColor'>
-                    <th colspan='3'>$divisionName</th>
-                </tr>
-                <tr bgcolor='$bgColor'>
-                    <th>Team Id</th>
-                    <th>Coach</th>
-                    <th>Volunteer Points</th>
-                </tr>
-                <form method='post' action='" . self::SCORING_HOME_PAGE . $this->m_urlParams . "'>";
-
-        foreach ($teams as $team) {
-            $coach = Coach::lookupByTeam($team);
-            print "
-                <tr>
-                    <td>$team->nameId</td>
-                    <td>$coach->shortName</td>";
-
-            $name = View_Base::VOLUNTEER_POINTS_DATA . "[$team->id]";
-            $this->displayInput('', 'number', $name, '', '', $team->volunteerPoints, null, 1, false, 50, false, true, 'center');
-
-            print "
-                </tr>";
-        }
-
-        print "
-                <tr>
-                    <td colspan='3' align='left'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
-                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='$scoringType'>
-                        <input type='hidden' id='" . View_Base::DIVISION_NAME . "' name='" . View_Base::DIVISION_NAME . "' value='$divisionName'>
-                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
-                    </td>
-                </tr>
-            </form>
-            </table>";
-    }
-
-    /**
-     * @param GameDate  $gameDate
-     */
-    private function printGamesForForDay($gameDate)
-    {
-        $facilities = Facility::lookupBySeason($this->m_controller->m_season);
-        foreach ($facilities as $facility) {
-            $this->printGamesForFacilityForDay($facility, $gameDate, true);
-        }
-    }
-
-    /**
-     * @param Facility  $facility
-     * @param GameDate  $gameDate
-     * @param bool      $suppressNoGamesMessage
-     */
-    private function printGamesForFacilityForDay($facility, $gameDate, $suppressNoGamesMessage = false)
-    {
-        $fields     = Field::lookupByFacility($facility);
-        $gameTimes  = GameTime::lookupByGameDateAndFields($gameDate, $fields);
-        $gameData   = [];
-
-        foreach ($gameTimes as $gameTime) {
-            if (isset($gameTime->game)) {
-                $field              = $gameTime->field;
-                $game               = $gameTime->game;
-
-                $homeTeamName       = isset($game->homeTeam) ? $game->homeTeam->nameIdWithSeed : "TBD";
-                $visitingTeamName   = isset($game->visitingTeam) ? $game->visitingTeam->nameIdWithSeed : "TBD";
-                $division           = $game->flight->schedule->division;
-                $homeCoachName      = isset($game->homeTeam) ? Coach::lookupByTeam($game->homeTeam)->name : "TBD";
-                $visitingCoachName  = isset($game->visitingTeam) ? Coach::lookupByTeam($game->visitingTeam)->name : "TBD";
-                $teams['home']      = 'H: ' . $homeTeamName . " " . $homeCoachName;
-                $teams['visiting']  = 'V: ' . $visitingTeamName . " " . $visitingCoachName;
-
-                if ($division->isScoringTracked) {
-                    $gameTag = isset($game->title) ? $game->id . "<br>" . $game->title : $game->id;
-                    $gameData[$gameTime->actualStartTime][$division->nameWithGender][$field->name][$gameTag] = $teams;
-                }
-            }
-        }
-        ksort($gameData);
-
-        if (count($gameData) == 0) {
-            if (!$suppressNoGamesMessage) {
-                print "
-                    <p align='center' style='color: red; font-size: medium'>No games being played at $facility->name on $gameDate->day.</p>";
-            }
-            return;
-        }
-
-        $this->printGamesForFacilityForDayHeader($facility, $gameDate);
-
-        $timeCount      = 0;
-        $gameCount      = 0;
-        $startNewTable  = false;
-        foreach ($gameData as $actualStartTime => $divisionData) {
-            $startNewTable      = $this->startNewTableIfNecessary($startNewTable, $facility, $gameDate);
-            $timePrinted        = false;
-            $backgroundColor    = $timeCount % 2 == 0 ? 'white' : 'lightskyblue';
-            $fontColor          = $timeCount % 2 == 0 ? 'black' : 'black';
-            $timeCount          += 1;
-            $timeRowSpan        = 0;
-
-            foreach ($divisionData as $divisionName => $fieldData) {
-                $timeRowSpan += count($fieldData) * 2;
-            }
-
-            foreach ($divisionData as $divisionName => $fieldData) {
-                $startNewTable      = $this->startNewTableIfNecessary($startNewTable, $facility, $gameDate);
-                $divisionPrinted    = false;
-                $divisionRowSpan    = count($fieldData) * 2;
-
-                foreach ($fieldData as $fieldName => $gameData) {
-                    foreach ($gameData as $gameTag => $teams) {
-                        $startNewTable      = $this->startNewTableIfNecessary($startNewTable, $facility, $gameDate);
-                        $homeTeamData       = $teams['home'];
-                        $visitingTeamData   = $teams['visiting'];
-                        $style              = "style='background-color: $backgroundColor; color: $fontColor; -webkit-print-color-adjust: exact; height: .5in'";
-
-                        $gameBackgroundColor    = $gameCount % 2 == 0 ? 'lightyellow' : 'white';
-                        $gameFontColor          = $gameCount % 2 == 0 ? 'black' : 'black';
-                        $gameStyle              = "style='background-color: $gameBackgroundColor; color: $gameFontColor; -webkit-print-color-adjust: exact; height: .3in'";
-                        $gameCount              += 1;
-
-                        // Print home team
-                        if (!$timePrinted) {
-                            $timePrinted        = true;
-                            $divisionPrinted    = true;
-
-                            print "
-                                <tr style='font-size: medium'>
-                                    <td rowspan='$timeRowSpan' $style>$actualStartTime</td>
-                                    <td rowspan='$divisionRowSpan' $style>$divisionName</td>";
-                        } else if (!$divisionPrinted) {
-                            $divisionPrinted = true;
-
-                            print "
-                                <tr style='font-size: medium'>
-                                    <td rowspan='$divisionRowSpan' $style>$divisionName</td>";
-                        } else {
-                            print "
-                                <tr style='font-size: medium'>";
-                        }
-
-                        print "
-                                    <td rowspan='2' $gameStyle>$fieldName</td>
-                                    <td rowspan='2' align='center' $gameStyle>$gameTag</td>
-                                    <td $gameStyle>$homeTeamData</td>
-                                    <td $gameStyle>&nbsp</td>
-                                    <td $gameStyle>&nbsp</td>
-                                    <td $gameStyle>&nbsp</td>
-                                    <td $gameStyle width='400px'>&nbsp</td>
-                                </tr>";
-
-                        // Print visiting team
-                        print "
-                                <tr style='font-size: medium'>
-                                    <td $gameStyle>$visitingTeamData</td>
-                                    <td $gameStyle>&nbsp</td>
-                                    <td $gameStyle>&nbsp</td>
-                                    <td $gameStyle>&nbsp</td>
-                                    <td $gameStyle width='400px'>&nbsp</td>
-                                </tr>";
-
-                        // Adjust rowspans for page break accuracy
-                        $timeRowSpan        -= 2;
-                        $divisionRowSpan    -= 2;
-
-                        // Only print 12 games per page
-                        if ($gameCount % 10 == 0) {
-                            print "
-                                </table>";
-
-                            $startNewTable      = true;
-                            $timePrinted        = false;
-                            $divisionPrinted    = false;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (!$startNewTable) {
-            print "</table><br>";
-        }
-    }
-
-    /**
-     * @param bool      $startNewTable
-     * @param Facility  $facility
-     * @param GameDate  $gameDate
-     *
-     * @return bool
-     */
-    private function startNewTableIfNecessary($startNewTable, $facility, $gameDate)
-    {
-        if ($startNewTable) {
-            $this->printGamesForFacilityForDayHeader($facility, $gameDate, false);
-        }
-        return false;
-    }
-
-
-    /**
-     * @param Facility  $facility
-     * @param GameDate  $gameDate
-     * @param bool      $beginningLook
-     */
-    private function printGamesForFacilityForDayHeader($facility, $gameDate, $beginningLook = true)
-    {
-        $beginningStyle = $beginningLook ? "; height: .5in; font-size: 24px" : "; font-size: medium";
-
-        print "
-            <p style='page-break-before: always;'>&nbsp;</p>
-            <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
-                <thead>
-                    <tr style='background-color: lightskyblue; color: black; -webkit-print-color-adjust: exact${beginningStyle}'>
-                        <th colspan='9'>$facility->name ($gameDate->day)</th>
-                    <tr style='background-color: lightskyblue; color: black;  font-size: medium; -webkit-print-color-adjust: exact; height: .5in'>
-                        <th>Start</th>
-                        <th>Division</th>
-                        <th>Field</th>
-                        <th>GameId</th>
-                        <th>Teams</th>
-                        <th>Goals</th>
-                        <th>Yellow</th>
-                        <th>Red</th>
-                        <th>Notes</th>
-                    </tr>
-                </thead>";
     }
 }

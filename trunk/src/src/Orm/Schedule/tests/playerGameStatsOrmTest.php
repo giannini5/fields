@@ -34,6 +34,8 @@ class PlayerGameStatsOrmTest extends ORM_TestHelper
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_2          => 0,
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_3          => 0,
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_4          => 0,
+                PlayerGameStatsOrm::FIELD_YELLOW_CARDS              => 0,
+                PlayerGameStatsOrm::FIELD_RED_CARD                  => 0,
             ];
     }
 
@@ -94,6 +96,8 @@ class PlayerGameStatsOrmTest extends ORM_TestHelper
         $this->playerGameStatsOrm->keeperQuarter2       = 1;
         $this->playerGameStatsOrm->keeperQuarter3       = 1;
         $this->playerGameStatsOrm->keeperQuarter4       = 1;
+        $this->playerGameStatsOrm->yellowCards          = 2;
+        $this->playerGameStatsOrm->redCard              = 1;
         $this->playerGameStatsOrm->save();
 
         $playerGameStatsOrm = PlayerGameStatsOrm::loadByPk(
@@ -115,6 +119,8 @@ class PlayerGameStatsOrmTest extends ORM_TestHelper
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_2          => 1,
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_3          => 1,
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_4          => 1,
+                PlayerGameStatsOrm::FIELD_YELLOW_CARDS              => 2,
+                PlayerGameStatsOrm::FIELD_RED_CARD                  => 1,
             ];
 
         $this->verifyExpectedAttributes($playerGameStatsOrm);
@@ -150,5 +156,7 @@ class PlayerGameStatsOrmTest extends ORM_TestHelper
         $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_2], $playerGameStatsOrm->keeperQuarter2);
         $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_3], $playerGameStatsOrm->keeperQuarter3);
         $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_4], $playerGameStatsOrm->keeperQuarter4);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_YELLOW_CARDS],     $playerGameStatsOrm->yellowCards);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_RED_CARD],         $playerGameStatsOrm->redCard);
     }
 }

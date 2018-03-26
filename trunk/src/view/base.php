@@ -49,8 +49,10 @@ abstract class View_Base {
     const SCHEDULE_PREVIEW_PAGE     = '/admin_schedule_preview';
 
     # Admin Scoring pages
-    const SCORING_HOME_PAGE         = '/admin_scoring_home';
-    const SCORING_GAME_CARDS_PAGE   = '/admin_scoring_gameCards';
+    const SCORING_ENTER_SCORES_PAGE     = '/admin_scoring_home';
+    const SCORING_VOLUNTEER_POINTS_PAGE = '/admin_scoring_volunteerPoints';
+    const SCORING_GAME_CARDS_PAGE       = '/admin_scoring_gameCards';
+    const SCORING_SCORE_SHEET_PAGE      = '/admin_scoring_scoreSheet';
 
     # Admin Referee pages
     const REFEREE_HOME_PAGE         = '/admin_referee_home';
@@ -65,6 +67,8 @@ abstract class View_Base {
     const GAMES_FLIGHTS_PAGE        = '/games/flights';
     const GAMES_SCHEDULE_PAGE       = '/games/schedule';
     const GAMES_STANDINGS_PAGE      = '/games/standings';
+    const GAMES_PLAYER_STATS_PAGE   = '/games/playerStats';
+    const GAMES_GAME_CARDS_PAGE     = '/games/gameCards';
 
     # API
     const API_SWAP                  = '/api/swap';
@@ -196,11 +200,22 @@ abstract class View_Base {
     const QUARTER_2                 = 'quarter2';
     const QUARTER_3                 = 'quarter3';
     const QUARTER_4                 = 'quarter4';
-    const PLAYER_SUB_KEEP_BASE      = 'playerSubKeepQ';
-    const PLAYER_SUB_KEEP_Q1        = 'playerSubKeepQ1';
-    const PLAYER_SUB_KEEP_Q2        = 'playerSubKeepQ2';
-    const PLAYER_SUB_KEEP_Q3        = 'playerSubKeepQ3';
-    const PLAYER_SUB_KEEP_Q4        = 'playerSubKeepQ4';
+
+    const PLAYER_SUB_BASE           = 'playerSubQ';
+    const PLAYER_SUB_Q1             = 'playerSubQ1';
+    const PLAYER_SUB_Q2             = 'playerSubQ2';
+    const PLAYER_SUB_Q3             = 'playerSubQ3';
+    const PLAYER_SUB_Q4             = 'playerSubQ4';
+
+    const PLAYER_KEEP_BASE          = 'playerKeepQ';
+    const PLAYER_KEEP_Q1            = 'playerKeepQ1';
+    const PLAYER_KEEP_Q2            = 'playerKeepQ2';
+    const PLAYER_KEEP_Q3            = 'playerKeepQ3';
+    const PLAYER_KEEP_Q4            = 'playerKeepQ4';
+
+    const PLAYER_YELLOW1            = 'playerYellow1';
+    const PLAYER_YELLOW2            = 'playerYellow2';
+    const PLAYER_RED                = 'playerRed';
 
     const SEASON_ID                 = 'seasonId';
     const DIVISION_ID               = 'divisionId';
@@ -236,6 +251,7 @@ abstract class View_Base {
     const PHONE2                    = 'phone2';
     const SUBJECT                   = 'subject';
     const HELP_REQUEST              = 'helpRequest';
+    const POPUP                     = 'popup';
 
     # Request Attributes
     const NEW_SELECTION = 'newSelection';
@@ -1201,9 +1217,12 @@ abstract class View_Base {
     <body bgcolor='#FFFFFF'>
         <div id='wrap'>";
 
-        $this->navigation->displayBodyHeader($this->m_urlParams);
-        $this->navigation->displayNavigation();
-        $this->printError();
+        if (!$this->m_controller->m_isPopup) {
+            $this->navigation->displayBodyHeader($this->m_urlParams);
+            $this->navigation->displayNavigation();
+            $this->printError();
+        }
+
         $this->render();
 
         print "

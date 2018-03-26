@@ -36,6 +36,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const DAY                         = 'day';
     const PHONE                       = 'phone';
     const NUMBER                      = 'number';
+    const GOALS                       = 'goals';
+    const QUARTERS_SUB                = 'quartersSub';
+    const QUARTERS_KEEP               = 'quartersKeep';
+    const YELLOW_CARDS                = 'yellowCards';
+    const RED_CARDS                   = 'redCards';
     const EMAIL                       = 'email';
     const PHONE1                      = 'phone1';
     const PHONE2                      = 'phone2';
@@ -192,10 +197,15 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
 
     protected static $defaultPlayerOrmAttributes =
         [
-            self::NAME      => 'default player name',
-            self::EMAIL     => 'default player email',
-            self::PHONE     => 'default player phone1',
-            self::NUMBER    => null,
+            self::NAME          => 'default player name',
+            self::EMAIL         => 'default player email',
+            self::PHONE         => 'default player phone1',
+            self::NUMBER        => null,
+            self::GOALS         => 0,
+            self::QUARTERS_SUB  => 0,
+            self::QUARTERS_KEEP => 0,
+            self::YELLOW_CARDS  => 0,
+            self::RED_CARDS     => 0,
         ];
 
     protected static $defaultGameTimeOrmAttributes =

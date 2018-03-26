@@ -541,58 +541,20 @@ class View_Styles {
         // $this->_collapsibleCSS($facilityCount);
         // $this->_collapsibleJS($facilityCount);
         $this->_accordion();
-    }
 
-    /**
-     * @brief Render the CSS needed to mark a table collapsible and
-     *        start in the collapsed position.
-     *
-     * @param $facilityCount - Count of facilities
-     */
-    private function _collapsibleCSS($facilityCount) {
         print "
             <style>
-                table, tr, td, th
-                {
-                    border-collapse:collapse;
-                }";
-
-        for ($index = 1; $index <= $facilityCount; $index++) {
-            print "
-                .expandContract$index
-                {
-                    cursor:pointer;
-                    text-decoration: underline;
-                    color: darkblue;
-                    font-size: 125%;
-                }";
-        }
-
-        for ($index = 1; $index <= $facilityCount; $index++) {
-            print "
-                .collapsible$index { display: none;
-                }";
-        }
-
-        print "
+                /* hide up/down arrows (\"spinners\") on input fields marked type=\"number\" */
+                .no-spinners {
+                    -moz-appearance:textfield;
+                }
+                
+                .no-spinners::-webkit-outer-spin-button,
+                .no-spinners::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
+                }
             </style>";
-    }
-
-    private function _collapsibleJS($facilityCount) {
-        print '
-            <script>
-                $(document).ready(function(){';
-
-        for ($index = 1; $index <= $facilityCount; $index++) {
-            print '
-                    $(".expandContract' . $index . '").click(function(){
-                        $(".collapsible' . $index . '").toggle(500);
-                    });';
-        }
-
-        print "
-                });
-            </script>";
     }
 
     private function _accordion() {

@@ -13,9 +13,15 @@ use DAG\Framework\Exception\Precondition;
  * @property Team       $team
  * @property Family     $family
  * @property string     $name
+ * @property string     $firstName
  * @property string     $email
  * @property string     $phone
  * @property mixed      $number
+ * @property int        $goals
+ * @property int        $quartersSub
+ * @property int        $quartersKeep
+ * @property int        $yellowCards
+ * @property int        $redCards
  */
 class Player extends Domain
 {
@@ -144,6 +150,11 @@ class Player extends Domain
             case "name":
             case "email":
             case "phone":
+            case "goals":
+            case "quartersSub":
+            case "quartersKeep":
+            case "yellowCards":
+            case "redCards":
                 return $this->playerOrm->{$propertyName};
 
             case "number":
@@ -152,6 +163,13 @@ class Player extends Domain
             case "team":
             case "family":
                 return $this->{$propertyName};
+
+            case "firstName":
+                $words = explode(",", $this->name);
+                if (count($words) > 1) {
+                    return $words[1];
+                }
+                return $this->name;
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
@@ -171,9 +189,19 @@ class Player extends Domain
                 $this->team                 = $value;
                 break;
 
+            case "goals":
+            case "quartersSub":
+            case "quartersKeep":
+            case "yellowCards":
+            case "redCards":
+                $this->playerOrm->{$propertyName} = $value;
+                $this->playerOrm->save();
+                break;
+
             case "number":
                 Precondition::isTrue(is_numeric($value), "Player numbers must be digits");
                 $this->playerOrm->number = $value;
+                $this->playerOrm->save();
                 break;
 
             default:

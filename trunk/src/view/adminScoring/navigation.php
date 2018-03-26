@@ -12,7 +12,7 @@ class View_AdminScoring_Navigation extends View_Navigation
     {
         $sessionId          = $this->controller->getSessionId();
         $headerButton       = View_Base::SIGN_OUT;
-        $nextPage           = View_Base::SCORING_HOME_PAGE;
+        $nextPage           = View_Base::SCORING_ENTER_SCORES_PAGE;
         $headerImage        = "/images/aysoLogo.jpeg";
         $name               = isset($this->controller->m_coordinator) ? $this->controller->m_coordinator->name : '';
 
@@ -52,10 +52,14 @@ class View_AdminScoring_Navigation extends View_Navigation
     {
         print '
                 <ul id="nav">'
-            . ($this->pageName == View_Base::SCORING_HOME_PAGE ?
-                '<li><div>HOME</div></li>' : '<li><a href="' . View_Base::SCORING_HOME_PAGE . '">HOME</a></li>')
+            . ($this->pageName == View_Base::SCORING_ENTER_SCORES_PAGE ?
+                '<li><div>ENTER SCORES</div></li>' : '<li><a href="' . View_Base::SCORING_ENTER_SCORES_PAGE . '">ENTER SCORES</a></li>')
+            . ($this->pageName == View_Base::SCORING_VOLUNTEER_POINTS_PAGE ?
+                '<li><div>VOLUNTEER POINTS</div></li>' : '<li><a href="' . View_Base::SCORING_VOLUNTEER_POINTS_PAGE . '">VOLUNTEER POINTS</a></li>')
             . ($this->pageName == View_Base::SCORING_GAME_CARDS_PAGE ?
                 '<li><div>GAME CARDS</div></li>' : '<li><a href="' . View_Base::SCORING_GAME_CARDS_PAGE . '">GAME CARDS</a></li>')
+            . ($this->pageName == View_Base::SCORING_SCORE_SHEET_PAGE ?
+                '<li><div>SCORE SHEET</div></li>' : '<li><a href="' . View_Base::SCORING_SCORE_SHEET_PAGE . '">SCORE SHEET</a></li>')
             . '
                </ul>';
     }

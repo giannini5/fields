@@ -38,6 +38,10 @@ class View_Games_Navigation extends View_Navigation
                 '<li><div>SCHEDULE</div></li>' : '<li><a href="' . View_Base::GAMES_SCHEDULE_PAGE . '">SCHEDULE</a></li>')
             . ($this->pageName == View_Base::GAMES_STANDINGS_PAGE ?
                 '<li><div>STANDINGS</div></li>' : '<li><a href="' . View_Base::GAMES_STANDINGS_PAGE . '">STANDINGS</a></li>')
+            . ($this->pageName == View_Base::GAMES_PLAYER_STATS_PAGE ?
+                '<li><div>PLAYER STATS</div></li>' : '<li><a href="' . View_Base::GAMES_PLAYER_STATS_PAGE . '">PLAYER_STATS</a></li>')
+            . ($this->pageName == View_Base::GAMES_GAME_CARDS_PAGE ?
+                '<li><div>GAME CARDS</div></li>' : '<li><a href="' . View_Base::GAMES_GAME_CARDS_PAGE . '">GAME CARDS</a></li>')
             . '
                </ul>';
     }

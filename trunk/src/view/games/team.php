@@ -231,7 +231,9 @@ class View_Games_Team
                         print "
                             <tr $bgcolor>
                                 $dayCell
-                                <td>$game->id</td>
+                                <td>
+                                    <a href=\"javascript:window.open('" . View_Base::GAMES_GAME_CARDS_PAGE . "?gameId=$game->id&submit=Enter&scoringType=game&popup=1','game cards','width=890,height=800')\">$game->id</a>
+                                </td>
                                 <td $startTimeBgColor>$startTime</td>
                                 <td nowrap>$fieldName$gameTitle</td>
                                 <td nowrap $homeTeamStyle $homeTeamTitle>$homeTeamName</td>
