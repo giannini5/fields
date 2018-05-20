@@ -40,7 +40,7 @@ class View_Games_PlayerStats extends View_Games_Base
      *        - Division
      */
     private function _printDivisionSelector() {
-        $divisionsSelector = $this->getDivisionsSelector(true, false, true);
+        $divisionsSelector = $this->getDivisionsSelector(true, false, true, true);
 
         // Print the form
         print "
@@ -78,8 +78,6 @@ class View_Games_PlayerStats extends View_Games_Base
         $teams  = Team::lookupByDivision($division);
 
         foreach ($teams as $team) {
-            $players = Player::lookupByTeam($team, PlayerOrm::ORDER_BY_NUMBER);
-
             $this->printPlayerStatsForTeam($team);
         }
     }
@@ -117,7 +115,7 @@ class View_Games_PlayerStats extends View_Games_Base
             print "
                     <tr>
                         <td align='center'>$player->number</td>
-                        <td>&nbsp;</td>
+                        <td nowrap>$player->firstName</td>
                         <td align='right'>$player->goals</td>
                         <td align='right'>$player->quartersSub</td>
                         <td align='right'>$player->quartersKeep</td>

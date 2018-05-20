@@ -34,7 +34,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
     public function renderPage()
     {
         $sessionId          = $this->m_controller->getSessionId();
-        $divisionsSelector  = $this->getDivisionsSelector(false, true, true);
+        $divisionsSelector  = $this->getDivisionsSelector(false, true, true, true);
         $gameDateSelector   = $this->getGameDateSelector();
 
         $messageString = $this->m_controller->m_messageString;
@@ -175,7 +175,9 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
 
             // For each division print the games at the facility
             foreach ($divisionsById as $id => $division) {
-                $this->printGameCardsByDivision($division, $gameDate, $facility);
+                if ($division->isScoringTracked) {
+                    $this->printGameCardsByDivision($division, $gameDate, $facility);
+                }
             }
         }
     }
@@ -352,7 +354,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
      */
     private function printPlayerRow($playerName = '', $number = '') {
         print "
-                        <tr style='overflow: hidden'>
+                        <tr style='overflow: hidden; height: 30px'>
                             <td width='5px' align='center' style='font-size: larger'>$number</td> 
                             <td width='75px' style='overflow: hidden; white-space: nowrap; font-size: larger'>$playerName</td>
                             <td width='15px'>&nbsp</td>

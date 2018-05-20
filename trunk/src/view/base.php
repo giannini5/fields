@@ -120,6 +120,7 @@ abstract class View_Base {
     # Checkbox Names
     const SHOW_PLAYERS          = 'showPlayers';
     const SHOW_PUBLISHED        = 'showPublished';
+    const QUICK_SCORING         = 'quickScoring';
 
     # Post Attribute Names
     const SESSION_ID                = 'sessionId';
@@ -327,6 +328,7 @@ abstract class View_Base {
         $collapsibleClass   = isset($collapsible) ? "class='$collapsible'" : '';
         $width              = $width . 'px';
         $required           = $isRequired ? " required " : "";
+        $noSpinners         = $type == 'number' ? "class='no-spinners'" : "";
 
         if ($newRow) {
             print "
@@ -340,7 +342,7 @@ abstract class View_Base {
 
         print "
                     <td rowspan='$rowspan'  align='$align' colspan='$colspan'>
-                        <input style='width: $width' $required type='$type' name='$name' placeholder='$placeHolder'$valueString>
+                        <input style='width: $width' $required type='$type' $noSpinners name='$name' placeholder='$placeHolder'$valueString>
                     </td>";
 
         if ($showError) {
@@ -1081,10 +1083,11 @@ abstract class View_Base {
      * @param bool $byName          - if true then get by name instead of id.  Defaults to false, by id.
      * @param bool $allOption       - if true then All is an option otherwise All is not allowed
      * @param bool $includeGender   - if true then Gender is included in the display name
+     * @param bool $scoringEnabled  - If true, then only divisions where scoring is enabled are included
      *
      * @return array - id => name
      */
-    public function getDivisionsSelector($byName = false, $allOption = false, $includeGender = false)
+    public function getDivisionsSelector($byName = false, $allOption = false, $includeGender = false, $scoringEnabled = false)
     {
         $divisions = [];
         if (isset($this->m_controller->m_season))
@@ -1102,6 +1105,10 @@ abstract class View_Base {
         }
 
         foreach ($divisions as $division) {
+            if ($scoringEnabled and !$division->isScoringTracked) {
+                continue;
+            }
+
             $identifier = $division->id;
             if ($byName) {
                 $identifier = $division->name;

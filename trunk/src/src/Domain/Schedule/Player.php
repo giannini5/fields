@@ -6,6 +6,7 @@ use DAG\Domain\Domain;
 use DAG\Framework\Orm\DuplicateEntryException;
 use DAG\Orm\Schedule\PlayerOrm;
 use DAG\Framework\Exception\Precondition;
+use DAG\Services\MySql\DuplicateKeyException;
 
 
 /**
@@ -140,6 +141,31 @@ class Player extends Domain
     }
 
     /**
+     * Set the player's name.  Names must be unique for all players on a team.  Append
+     * (<number>) is appended to no-unique names where <number> is incremented for each
+     * non-unique name found.
+     *
+     * @param string    $name
+     * @param int       $attempt Number of attempts to set a unique name
+     */
+    public function setName($name, $attempt = null)
+    {
+        $updatedName = $name;
+        if (isset($attempt)) {
+            $updatedName .= " ($attempt)";
+            $attempt += 1;
+        } else {
+            $attempt = 2;
+        }
+
+        try {
+            $this->name = $updatedName;
+        } catch (DuplicateKeyException $e) {
+            $this->setName($name, $attempt);
+        }
+    }
+
+        /**
      * @param $propertyName
      * @return int|string
      */
@@ -189,6 +215,7 @@ class Player extends Domain
                 $this->team                 = $value;
                 break;
 
+            case "name":
             case "goals":
             case "quartersSub":
             case "quartersKeep":

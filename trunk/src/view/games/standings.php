@@ -56,7 +56,7 @@ class View_Games_Standings extends View_Games_Base
      *        - Division
      */
     private function _printViewStandingsByDivision() {
-        $divisionsSelector = $this->getDivisionsSelector(true, false, true);
+        $divisionsSelector = $this->getDivisionsSelector(true, false, true, true);
 
         // Print the form
         print "

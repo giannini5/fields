@@ -10,7 +10,6 @@ use \DAG\Domain\Schedule\AssistantCoach;
 use \DAG\Domain\Schedule\Player;
 use \DAG\Domain\Schedule\PlayerGameStats;
 use \DAG\Orm\Schedule\PlayerOrm;
-use \DAG\Framework\Exception\Precondition;
 use \DAG\Framework\Exception\Assertion;
 
 /**
@@ -34,7 +33,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
     public function renderPage()
     {
         $sessionId          = $this->m_controller->getSessionId();
-        $divisionsSelector  = $this->getDivisionsSelector(true, false, true);
+        $divisionsSelector  = $this->getDivisionsSelector(true, false, true, true);
         $gameDateSelector   = $this->getGameDateSelector();
 
         $messageString = $this->m_controller->m_messageString;
@@ -98,6 +97,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 <form method='post' action='" . self::SCORING_ENTER_SCORES_PAGE . $this->m_urlParams . "'>";
 
         $this->displayInput('Game Id:', 'number', View_Base::GAME_ID, '', '', $value, null, 6, true, 50, false, true);
+        $this->printCheckboxSelector(View_Base::QUICK_SCORING, "Quick Scoring", $this->m_controller->m_quickScoring, 2);
 
         // Print Enter button and end form
         print "
@@ -132,6 +132,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
 
         $this->displaySelector('Division:', View_Base::DIVISION_NAME, '', $divisionsSelector, $this->m_controller->m_divisionName);
         $this->displaySelector('Game Date:', View_Base::GAME_DATE, '', $gameDateSelector, $this->m_controller->m_gameDate->day);
+        $this->printCheckboxSelector(View_Base::QUICK_SCORING, "Quick Scoring", $this->m_controller->m_quickScoring, 2);
 
         // Print Update button and end form
         print "
@@ -157,8 +158,8 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
     private function printUpdateGameForm($sessionId, $game, $scoringType, $coachFilter = null, $divisionFilter = null, $gameDateFilter = null)
     {
         // Print message and return if game does not have a team
-        if (!isset($game->homeTeam) or $game->title != '') {
-            $this->printUpdateTitleGameForm($sessionId, $game, $scoringType, $coachFilter, $divisionFilter, $gameDateFilter);
+        if ($this->m_controller->m_quickScoring or !isset($game->homeTeam) or $game->title != '') {
+            $this->printQuickUpdateGameForm($sessionId, $game, $scoringType, $coachFilter, $divisionFilter, $gameDateFilter);
             return;
         }
 
@@ -168,8 +169,6 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $day            = $game->gameTime->gameDate->day;
         $time           = $game->gameTime->actualStartTime;
         $fieldName      = $game->gameTime->field->fullName;
-        $flightName     = $game->flight->name;
-        $poolName       = isset($game->pool) ? $game->pool->name : $game->title;
         $division       = $game->flight->schedule->division;
         $divisionName   = $division->nameWithGender;
         $homeTeamId     = $game->homeTeam->nameId;
@@ -225,13 +224,20 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
             <form method='post' action='" . self::SCORING_ENTER_SCORES_PAGE . $this->m_urlParams . "'>";
 
         print "
-            <div style ='margin: auto; width: 1000px;'>";
+            <table border='0' align='center'>
+                <tr>
+                    <td>";
 
-        $this->printGameCard($game, 'left', true);
-        $this->printGameCard($game, 'right', false);
+        $this->printGameCard($game, true);
 
         print "
-            </div>";
+                    </td><td width='50px'>&nbsp;</td><td>";
+        $this->printGameCard($game, false);
+
+        print "
+                    </td>
+                </tr>
+            </table>";
 
         // Print Update button and end form
         $coachInput = isset($coachFilter) ?
@@ -245,7 +251,8 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
             : '';
 
         print "
-            <table>
+            <br>
+            <table align='center'>
                 <tr>
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . $command . "'>
@@ -259,6 +266,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
 
         if ($addClearButton) {
             print "
+                    <td width='50px'>&nbsp;</td>
                     <td align='left'>
                         <input style='background-color: salmon' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::CLEAR . "'>
                         <input type='hidden' id='" . View_Base::GAME_ID . "' name='" . View_Base::GAME_ID . "' value='$game->id'>
@@ -274,11 +282,11 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 </tr>
             </table>
             </form>
-        </div>";
+        </div>";    // Pane or no accordian
 
         if ($useAccordian) {
             print "
-            </div>";
+            </div>"; // Accordian
         } else {
             print "<br>";
         }
@@ -288,10 +296,9 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
 
     /**
      * @param Game      $game
-     * @param string    $position
      * @param bool      $isHomeTeam
      */
-    private function printGameCard($game, $position, $isHomeTeam)
+    private function printGameCard($game, $isHomeTeam)
     {
         $homeOrVisitor          = $isHomeTeam ? "HOME" : "VISITOR";
         $team                   = $isHomeTeam ? $game->homeTeam : $game->visitingTeam;
@@ -312,9 +319,8 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $players                = $this->getPlayersOrderedByNumber($team);
 
         $headerElementHeight    = "20px";
+
         print "
-                <div style='float: $position; width=500px; height=700px; margin-left: 5px; margin-right 5px; border: none'>
-                    <br><br><br>
                     <table border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr>
                             <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
@@ -368,14 +374,11 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
             $playerCount += 1;
         }
 
-        while ($playerCount < 18) {
-            $this->printPlayerRow($game, $team);
-            $playerCount += 1;
-        }
+        // Add a "player add" row
+        $this->printPlayerRow($game, $team);
 
         print "
-                    </table>
-                </div>";
+                    </table>";
     }
 
     /**
@@ -521,12 +524,14 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
      * @param Division  $divisionFilter (defaults to null)
      * @param GameDate  $gameDateFilter (defaults to null)
      */
-    private function printUpdateTitleGameForm($sessionId, $game, $scoringType, $coachFilter = null, $divisionFilter = null, $gameDateFilter = null)
+    private function printQuickUpdateGameForm($sessionId, $game, $scoringType, $coachFilter = null, $divisionFilter = null, $gameDateFilter = null)
     {
-        Precondition::isTrue(!isset($game->homeTeam) or $game->title != '',
-            "printUpdateTitleGameForm should only be called for title games");
-
-        $bgcolor        = isset($game->homeTeamScore) ? 'orange' : 'orangered';
+        $isTitleGame    = !isset($game->homeTeam) or $game->title != '';
+        $titleGameValue = $isTitleGame ? 'yes' : 'no';
+        $bgcolor        = isset($game->homeTeamScore) ? 'lightyellow' : 'lightblue';
+        if ($isTitleGame) {
+            $bgcolor = isset($game->homeTeamScore) ? 'orange' : 'orangered';
+        }
         $addClearButton = isset($game->homeTeamScore);
         $command        = isset($game->homeTeamScore) ? View_Base::UPDATE : View_Base::ENTER;
         $day            = $game->gameTime->gameDate->day;
@@ -578,18 +583,33 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         print "
                 <tr>";
 
-        $this->displaySelector('Home Team:',
-            View_Base::HOME_TEAM_ID,
-            '',
-            $teamSelector,
-            $defaultTeamSelection,
-            null,
-            false,
-            300,
-            'left',
-            'Select a Team',
-            '',
-            6);
+        if ($isTitleGame) {
+            $this->displaySelector('Home Team:',
+                View_Base::HOME_TEAM_ID,
+                '',
+                $teamSelector,
+                $defaultTeamSelection,
+                null,
+                false,
+                300,
+                'left',
+                'Select a Team',
+                '',
+                6);
+        } else {
+            $this->displaySelector('Home Team:',
+                View_Base::HOME_TEAM_ID,
+                '',
+                $teamSelector,
+                $defaultTeamSelection,
+                null,
+                false,
+                300,
+                'left',
+                'Select a Team',
+                '',
+                6);
+        }
 
         print "
                 </tr>";
@@ -617,18 +637,33 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         print "
                 <tr>";
 
-        $this->displaySelector('Visiting Team:',
-            View_Base::VISITING_TEAM_ID,
-            '',
-            $teamSelector,
-            $defaultTeamSelection,
-            null,
-            false,
-            300,
-            'left',
-            'Select a Team',
-            '',
-            6);
+        if ($isTitleGame) {
+            $this->displaySelector('Visiting Team:',
+                View_Base::VISITING_TEAM_ID,
+                '',
+                $teamSelector,
+                $defaultTeamSelection,
+                null,
+                false,
+                300,
+                'left',
+                'Select a Team',
+                '',
+                6);
+        } else {
+            $this->displaySelector('Visiting Team:',
+                View_Base::VISITING_TEAM_ID,
+                '',
+                $teamSelector,
+                $defaultTeamSelection,
+                null,
+                false,
+                300,
+                'left',
+                'Select a Team',
+                '',
+                6);
+        }
 
         print "
                 </tr>";
@@ -667,7 +702,8 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                         $coachInput
                         $divisionInput
                         $gameDateInput
-                        <input type='hidden' id='isTitleGame' name='isTitleGame' value='yes'>
+                        <input type='hidden' id='isTitleGame' name='isTitleGame' value='$titleGameValue'>
+                        <input type='hidden' id='" . View_Base::QUICK_SCORING . "' name='" . View_Base::QUICK_SCORING . "' value='checked'> 
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>";
 
@@ -680,7 +716,8 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                         $coachInput
                         $divisionInput
                         $gameDateInput
-                        <input type='hidden' id='isTitleGame' name='isTitleGame' value='yes'>
+                        <input type='hidden' id='isTitleGame' name='isTitleGame' value='$titleGameValue'>
+                        <input type='hidden' id='" . View_Base::QUICK_SCORING . "' name='" . View_Base::QUICK_SCORING . "' value='checked'> 
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>";
         }
