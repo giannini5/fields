@@ -101,7 +101,7 @@ class View_Fields_SelectField extends View_Fields_Base {
                 }
             }
 
-            print "<div class='accordion'>";
+            print "<div class='accordion' style='background-color: lightyellow'>";
 
             $this->_printSelectFieldForm(
                 4,
@@ -292,7 +292,7 @@ class View_Fields_SelectField extends View_Fields_Base {
                 <td colspan='$maxColumns'>
                     <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
                         <tr>
-                            <td>Available</td>
+                            <td bgcolor='white'>Available</td>
                             <td bgcolor='blue'><font color='white'>Reserved</font></td>
                             <td bgcolor='salmon'>No Permit</td>
                         </tr>

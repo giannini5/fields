@@ -32,10 +32,18 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
     public $m_homeTeamId;
     public $m_visitingTeamId;
     public $m_facility;
+    public $m_quickScoring = true;
 
     private $m_gameCardData = [];
     private $m_gameNotes;
     private $m_isTitleGame;
+
+    private $m_homeTeamScore;
+    private $m_homeTeamYellowCards;
+    private $m_homeTeamRedCards;
+    private $m_visitingTeamScore;
+    private $m_visitingTeamYellowCards;
+    private $m_visitingTeamRedCards;
 
     public function __construct()
     {
@@ -45,9 +53,11 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
             $this->m_scoringType    = $this->getPostAttribute(View_Base::SCORING_TYPE, '', false, false);
             $isTitleGameString      = $this->getPostAttribute(View_Base::IS_TITLE_GAME, 'no', false, false);
             $this->m_isTitleGame    = $isTitleGameString == 'no' ? false : true;
+            $this->m_quickScoring   = $this->getPostAttribute(View_Base::QUICK_SCORING, false, false, false);
 
             if ($this->m_scoringType == self::GAME_SCORING) {
                 $this->m_gameId = $this->getPostAttribute(View_Base::GAME_ID, null, true, true);
+                $this->populateGameAttributes(true);
             } else if ($this->m_scoringType == self::UPDATE_GAME_SCORING) {
                 $this->populateGameAttributes(false);
             } else if ($this->m_scoringType == self::DIVISION_SCORING) {
@@ -99,7 +109,15 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
     private function populateGameAttributes($rememberIfGameIdMissing = true, $rememberIfGameDataIsMissing = true)
     {
         $this->m_gameId = $this->getPostAttribute(View_Base::GAME_ID, null, $rememberIfGameIdMissing, true);
-        if (isset($this->m_gameId)) {
+        if (isset($this->m_gameId) and $this->m_quickScoring) {
+            $this->m_homeTeamScore           = $this->getPostAttribute(View_Base::HOME_SCORE, NULL, false, false);
+            $this->m_homeTeamYellowCards     = $this->getPostAttribute(View_Base::HOME_YELLOW_CARDS, 0, false, false);
+            $this->m_homeTeamRedCards        = $this->getPostAttribute(View_Base::HOME_RED_CARDS, 0, false, false);
+            $this->m_visitingTeamScore       = $this->getPostAttribute(View_Base::VISITING_SCORE, NULL, false, false);
+            $this->m_visitingTeamYellowCards = $this->getPostAttribute(View_Base::VISITING_YELLOW_CARDS, 0, false, false);
+            $this->m_visitingTeamRedCards    = $this->getPostAttribute(View_Base::VISITING_RED_CARDS, 0, false, false);
+            $this->m_gameNotes               = $this->getPostAttribute(View_Base::GAME_NOTES, '', false, false);
+        } else {
             $this->m_gameCardData   = $this->getPostAttributeArray(View_Base::GAME_CARD_DATA);
             $this->m_gameNotes      = $this->getPostAttribute(View_Base::GAME_NOTES, '', false, false);
         }
@@ -163,7 +181,21 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
             $game->clearStats();
             $operation = 'cleared';
         } else {
-            $game->setStats($this->m_gameCardData);
+            if ($this->m_quickScoring) {
+                if (isset($this->m_homeTeamScore)) {
+                    $game->homeTeamScore            = $this->m_homeTeamScore;
+                    $game->homeTeamYellowCards      = $this->m_homeTeamYellowCards;
+                    $game->homeTeamRedCards         = $this->m_homeTeamRedCards;
+                    $game->visitingTeamScore        = $this->m_visitingTeamScore;
+                    $game->visitingTeamYellowCards  = $this->m_visitingTeamYellowCards;
+                    $game->visitingTeamRedCards     = $this->m_visitingTeamRedCards;
+                    $game->notes                    = $this->m_gameNotes;
+                } else {
+                    return;
+                }
+            } else {
+                $game->setStats($this->m_gameCardData);
+            }
 
             // Populate title games if any and all flight games are complete
             $result = $this->populateTitleGames($game);

@@ -654,15 +654,28 @@ class Game extends Domain
                 $team = Team::lookupById($teamId);
 
                 foreach ($playerStats as $playerId => $stats) {
-                    if ($playerId <= 0) {
+                    // Add new player if playerId <= 0 and either name or number is populated
+                    if ($playerId <= 0 and
+                        (!empty($stats[\View_Base::PLAYER_NUMBER]) or !empty($stats[\View_Base::PLAYER_NAME]))) {
+                        $player = Player::create($team, null, '', '', '');
+                    } else if ($playerId <= 0) {
                         continue;
+                    } else {
+                        $player = Player::lookupById($playerId);
                     }
 
-                    $player             = Player::lookupById($playerId);
                     $playerGameStats    = PlayerGameStats::findOrCreate($this, $team, $player);
 
-                    // Update Player Number
-                    $player->number = (int)$stats[\View_Base::PLAYER_NUMBER];
+                    // Update Player Number if not empty
+                    if (!empty($stats[\View_Base::PLAYER_NUMBER])) {
+                        $player->number = (int)$stats[\View_Base::PLAYER_NUMBER];
+                    }
+
+                    // Update Player Name if different (part of unique key, exception will be thrown if not unique)
+                    if (!empty($stats[\View_Base::PLAYER_NAME]) and
+                        $player->name != $stats[\View_Base::PLAYER_NAME]) {
+                        $player->setName($stats[\View_Base::PLAYER_NAME]);
+                    }
 
                     // Remove old stats from Player
                     $this->removePlayerStats($playerGameStats);

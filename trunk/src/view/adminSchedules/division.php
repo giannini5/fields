@@ -75,7 +75,7 @@ class View_AdminSchedules_Division extends View_AdminSchedules_Base {
             $this->displayInput('', 'string', $name, '', '', $division->gameDurationMinutes, null, 1, false, 25, false, true, 'right');
 
             $name = View_Base::DIVISION_UPDATE_DATA . "[$division->id][" . View_Base::MINUTES_BETWEEN_GAMES . "]";
-            $this->displayInput('', 'string', $name, '', '', $division->minutesBetweenGames, null, 1, false, 25, false, true, 'right');
+            $this->displayInput('', 'string', $name, '', '', $division->minutesBetweenGames, null, 1, false, 50, false, true, 'right');
 
             $name = View_Base::DIVISION_UPDATE_DATA . "[$division->id][" . View_Base::SCORING_TRACKED . "]";
             $this->displayInput('', 'string', $name, '', '', $division->scoringTracked, null, 1, false, 25, false, true, 'right');

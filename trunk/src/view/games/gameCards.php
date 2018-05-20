@@ -31,7 +31,7 @@ class View_Games_GameCards extends View_Games_Base
      */
     public function render()
     {
-        $divisionsSelector  = $this->getDivisionsSelector(true, false, true);
+        $divisionsSelector  = $this->getDivisionsSelector(true, false, true, true);
         $gameDateSelector   = $this->getGameDateSelector();
 
         if (!$this->m_controller->m_isPopup) {
@@ -194,21 +194,30 @@ class View_Games_GameCards extends View_Games_Base
         }
 
         print "
-            <div style ='margin: auto; width: 1000px;'>";
+            <table border='0' align='center'>
+                <tr>
+                    <td>";
 
-        $this->printGameCard($game, 'left', true);
-        $this->printGameCard($game, 'right', false);
-
-        print "
-            </div>";
+        $this->printGameCard($game, true);
 
         print "
-        </div>";
+                    </td><td width='50px'>&nbsp;</td><td>";
+        $this->printGameCard($game, false);
+
+        print "
+                    </td>
+                </tr>
+            </table>";
 
         if ($useAccordian) {
             print "
-            </div>";
-        } else {
+            </div>"; // Accordian Pane div
+        }
+
+        print "
+            </div>"; // Accordian NoAccordian div
+
+        if (!$useAccordian) {
             print "<br>";
         }
 
@@ -217,10 +226,9 @@ class View_Games_GameCards extends View_Games_Base
 
     /**
      * @param Game      $game
-     * @param string    $position
      * @param bool      $isHomeTeam
      */
-    private function printGameCard($game, $position, $isHomeTeam)
+    private function printGameCard($game, $isHomeTeam)
     {
         $homeOrVisitor          = $isHomeTeam ? "HOME" : "VISITOR";
         $team                   = $isHomeTeam ? $game->homeTeam : $game->visitingTeam;
@@ -241,17 +249,16 @@ class View_Games_GameCards extends View_Games_Base
         $players                = $this->getPlayersOrderedByNumber($team);
 
         $headerElementHeight    = "20px";
+
         print "
-                <div style='float: $position; width=500px; height=700px; margin-left: 5px; margin-right 5px; border: none'>
-                    <br><br><br>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table id='viewTable' class='table' border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr>
                             <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
                             <td align='center' nowrap><strong style='font-size: larger'>REGION 122 GAME CARD</strong></td>
                             <td align='right'><strong style='font-size: larger'>$homeOrVisitor</strong></td>
                         </tr>
                     </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table id='viewTable' class='table' border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='font-size: larger'>$day $time</td>
                             <td>&nbsp</td>
@@ -260,20 +267,20 @@ class View_Games_GameCards extends View_Games_Base
                             <td nowrap align='right'>GID: <strong style='font-size: larger'>$game->id</strong></td>
                         </tr>
                     </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table id='viewTable' class='table' border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$fullTeamName</td>
                             <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>OPPOSING TEAM: </strong>$fullOpposingTeamName</td>
                         </tr>
                     </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table id='viewTable' class='table' border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>COACH: </strong>$coachName</td>
                             <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>ASST. COACH: </strong>$assistantCoachName</td>
                         </tr>
                     </table>
                     <br>
-                    <table border='2' style='table-layout: fixed; width: 4.5in' cellpadding='5' cellspacing='0'>
+                    <table id='viewTable' class='table' border='2' style='table-layout: fixed; width: 4.5in' cellpadding='5' cellspacing='0'>
                             <tr>
                                 <td rowspan='2' width='5px' align='center' style='border: 1px solid'><strong>#</strong></td>
                                 <td rowspan='2' width='65px' align='center' style='border: 1px solid'><strong>Player's Name</strong></td>
@@ -298,8 +305,7 @@ class View_Games_GameCards extends View_Games_Base
         }
 
         print "
-                    </table>
-                </div>";
+                    </table>";
     }
 
     /**

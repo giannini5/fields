@@ -40,8 +40,8 @@ class PlayerTest extends ORM_TestHelper
         $this->family   = Family::lookupById($this->defaultFamilyOrm->id);
 
         // Clear out default player and create a new one for testing
-        $player = Player::lookupById($this->defaultPlayerOrm->id);
-        $player->delete();
+        // $player = Player::lookupById($this->defaultPlayerOrm->id);
+        // $player->delete();
 
         $this->playersToCleanup[] = Player::create(
             $this->team,
@@ -98,15 +98,15 @@ class PlayerTest extends ORM_TestHelper
     public function test_lookupByTeam()
     {
         $players = Player::lookupByTeam($this->team);
-        $this->assertTrue(count($players) == 1);
-        $this->validatePlayer($players[0], $this->team, $this->family, $this->expectedDefaults);
+        $this->assertEquals(2, count($players));
+        $this->validatePlayer($players[1], $this->team, $this->family, $this->expectedDefaults);
     }
 
     public function test_lookupByFamily()
     {
         $players = Player::lookupByFamily($this->family);
-        $this->assertTrue(count($players) == 1);
-        $this->validatePlayer($players[0], $this->team, $this->family, $this->expectedDefaults);
+        $this->assertEquals(2, count($players));
+        $this->validatePlayer($players[1], $this->team, $this->family, $this->expectedDefaults);
     }
 
     public function test_setNumber()
@@ -140,6 +140,18 @@ class PlayerTest extends ORM_TestHelper
         $this->expectedDefaults['redCards']     = 14;
 
         $this->validatePlayer($player, $this->team, $this->family, $this->expectedDefaults);
+    }
+
+    public function test_setName()
+    {
+        $player1 = Player::lookupById($this->playersToCleanup[0]->id);
+        $player2 = Player::lookupById($this->defaultPlayerOrm->id);
+
+        $player1->name = "David Giannini";
+        $player2->setName("David Giannini");
+
+        $this->assertEquals('David Giannini', $player1->name);
+        $this->assertEquals('David Giannini (2)', $player2->name);
     }
 
     public function validatePlayer($player, $team, $family, $expectedDefaults)

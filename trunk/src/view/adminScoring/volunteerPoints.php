@@ -25,7 +25,7 @@ class View_AdminScoring_VolunteerPoints extends View_AdminScoring_Base
     public function renderPage()
     {
         $sessionId          = $this->m_controller->getSessionId();
-        $divisionsSelector  = $this->getDivisionsSelector(true, false, true);
+        $divisionsSelector  = $this->getDivisionsSelector(true, false, true, true);
 
         $messageString = $this->m_controller->m_messageString;
         if (!empty($messageString)) {
