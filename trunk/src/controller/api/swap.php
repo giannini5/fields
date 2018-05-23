@@ -5,6 +5,7 @@ use \DAG\Domain\Schedule\GameTime;
 use \DAG\Domain\Schedule\DivisionField;
 use \DAG\Domain\Schedule\Game;
 use \DAG\Domain\Schedule\Field;
+use \DAG\Orm\Schedule\ScheduleOrm;
 
 /**
  * Class Controller_Api_Swap
@@ -65,10 +66,13 @@ class Controller_Api_Swap extends Controller_Api_Base
             return;
         }
 
-        // Verify moving in same day
-        if (!$this->gameDaysMatch($gameTime1, $gameTime2, $errorMessage)) {
-            print $errorMessage;
-            return;
+        // Verify moving in same day (okay to swap across days in tournament play)
+        if ((isset($schedule1) and $schedule1->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT)
+            or (isset($schedule2) and $schedule2->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT)) {
+            if (!$this->gameDaysMatch($gameTime1, $gameTime2, $errorMessage)) {
+                print $errorMessage;
+                return;
+            }
         }
 
         // Verify neither game is locked
