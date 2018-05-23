@@ -777,7 +777,7 @@ class Schedule extends Domain
             //   - Set minStartTime to beginning of day if no games have been assigned; otherwise
             //     set to last game that was assigned
             if (isset($gameDate) and $gameDate->day == $gameDates[count($gameDates) - 1]->day) {
-                $minStartTime       = date("H:i:s", strtotime($lastGameTime->startTime) + 60*60*3);
+                $minStartTime       = date("H:i:s", strtotime($lastGameTime->startTime) + 60*60*2.75);
             } else {
                 $minStartTime       = '05:00:00';
                 $gameDate           = $gameDates[count($gameDates) - 1];  // Final day
@@ -801,7 +801,7 @@ class Schedule extends Domain
                     Assertion::isTrue(isset($gameTime), 'Unable to find game time for Semi-Final Game $i');
                     $semiFinalGames[] = Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_SEMI_FINAL);
                 }
-                $minStartTime = date("H:i:s", strtotime($gameTime->startTime) + 60*60*3);
+                $minStartTime = date("H:i:s", strtotime($gameTime->startTime) + 60*60*2.75);
             }
 
             // Get Semi-final Game Ids
@@ -810,7 +810,7 @@ class Schedule extends Domain
 
             // 3rd/4th game if any
             if ($flight->include3rd4thGame) {
-                $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
+                $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender, true);
                 Assertion::isTrue(isset($gameTime), 'Unable to find game time for 3rd/4th Game');
                 Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_3RD_4TH, 0,
                     $semiFinal1GameId, $semiFinal2GameId, 0);
@@ -818,7 +818,7 @@ class Schedule extends Domain
 
             // Championship game if any
             if ($flight->includeChampionshipGame) {
-                $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
+                $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender, true);
                 Assertion::isTrue(isset($gameTime), 'Unable to find game time for Championship Game');
                 Game::create($flight, null, $gameTime, null, null, GameOrm::TITLE_CHAMPIONSHIP, 0,
                     $semiFinal1GameId, $semiFinal2GameId, 1);
@@ -1064,10 +1064,11 @@ class Schedule extends Domain
      * @param array     $gameTimesByTime
      * @param string    $minStartTime
      * @param string    $genderPreference
+     * @param bool      $tryEarlierTime
      *
      * @return GameTime | null
      */
-    private function findGameTime($gameTimesByTime, $minStartTime, $genderPreference)
+    private function findGameTime($gameTimesByTime, $minStartTime, $genderPreference, $tryEarlierTime = false)
     {
         // Try to find based on gender preference
         foreach ($gameTimesByTime as $time => $gameTimes) {
@@ -1082,9 +1083,21 @@ class Schedule extends Domain
             }
         }
 
-        // Unable to find based on gender preference to try to find regardless of gender
+        // Unable to find based on gender preference so try to find regardless of gender
         foreach ($gameTimesByTime as $time => $gameTimes) {
             if ($time >= $minStartTime) {
+                foreach ($gameTimes as $gameTime) {
+                    if (!isset($gameTime->game)) {
+                        return $gameTime;
+                    }
+                }
+            }
+        }
+
+        // Unable to find regardless of gender so fine first available time in reverse order
+        if ($tryEarlierTime) {
+            $gameTimesByTimeReversed = array_reverse($gameTimesByTime);
+            foreach ($gameTimesByTimeReversed as $time => $gameTimes) {
                 foreach ($gameTimes as $gameTime) {
                     if (!isset($gameTime->game)) {
                         return $gameTime;

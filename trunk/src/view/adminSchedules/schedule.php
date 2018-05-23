@@ -248,7 +248,6 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
         $flights        = Flight::lookupBySchedule($schedule);
         $pools          = Pool::lookupBySchedule($schedule);
 \DAG\Framework\Utils\TimeUtils::time_elapsed("Pools Lookup");
-        $gameIds        = [];
         $gamesByPoolId  = [];
         foreach ($pools as $pool) {
             $gamesByPoolId[$pool->id]   = 0;
@@ -300,7 +299,9 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 $fieldSelector[$gameTime->field->id]                        = $fieldName;
                 $gameTimesByDateByFieldByTime[$day][$fieldName][$startTime] = $gameTime;
                 if (isset($gameTime->game)) {
-                    $gamesExist = true;
+                    if ($gameTime->game->flight->schedule->id == $schedule->id) {
+                        $gamesExist = true;
+                    }
                     $gameIds[]  = $gameTime->game->id;
                 }
             }
