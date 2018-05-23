@@ -103,8 +103,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($this->m_operation == View_Base::CREATE
-                or $this->m_operation == View_Base::UPDATE
-                or $this->m_operation == View_Base::DELETE) {
+                or $this->m_operation == View_Base::UPDATE) {
 
                 $this->m_name = $this->getPostAttribute(
                     View_Base::NAME,
