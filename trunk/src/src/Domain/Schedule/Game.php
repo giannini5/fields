@@ -569,6 +569,10 @@ class Game extends Domain
             return true;
         }
 
+        if (!isset($this->pool) and !empty($this->title) and $this->flight->id == $team->pool->flight->id) {
+            return true;
+        }
+
         return false;
     }
 
