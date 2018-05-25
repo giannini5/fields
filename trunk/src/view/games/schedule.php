@@ -142,8 +142,10 @@ class View_Games_Schedule extends View_Games_Base
             $games          = Game::lookupByFlight($flight);
             $gamesByPool    = [];
             $poolsById      = [];
+            $poolsByName    = [];
             foreach ($games as $game) {
                 if (isset($game->pool)) {
+                    $poolsByName[$game->pool->name] = $game->pool;
                     $poolsById[$game->pool->id]     = $game->pool;
                     $gamesByPool[$game->pool->id][] = $game;
                 } else {
@@ -151,29 +153,37 @@ class View_Games_Schedule extends View_Games_Base
                 }
             }
 
+            ksort($poolsByName);
+
             print "
             <table bgcolor='lightgray' valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td valign='top'>";
 
-            foreach ($gamesByPool as $poolId => $poolGames) {
-                // No games for pools with cross-pool play so suppress output
-                if (count($poolGames) == 0 or $poolId == 0) {
-                    continue;
+            foreach ($poolsByName as $poolName => $pool) {
+                foreach ($gamesByPool as $poolId => $poolGames) {
+                    // No games for pools with cross-pool play so suppress output
+                    if (count($poolGames) == 0 or $poolId == 0) {
+                        continue;
+                    }
+
+                    if ($pool->id != $poolId) {
+                        continue;
+                    }
+
+                    $pool = $poolsById[$poolId];
+                    $gamesByDateByTimeByField = [];
+                    foreach ($poolGames as $game) {
+                        $day = $game->gameTime->gameDate->day;
+                        $startTime = $game->gameTime->actualStartTime;
+                        $fieldName = $game->gameTime->field->facility->name . ": " . $game->gameTime->field->name;
+                        $gamesByDateByTimeByField[$day][$startTime][$fieldName] = $game;
+                    }
+
+                    ksort($gamesByDateByTimeByField);
+
+                    View_Games_Schedule::printGames($schedule, $flight, $pool, $gamesByDateByTimeByField);
                 }
-
-                $pool                           = $poolsById[$poolId];
-                $gamesByDateByTimeByField       = [];
-                foreach ($poolGames as $game) {
-                    $day        = $game->gameTime->gameDate->day;
-                    $startTime  = $game->gameTime->actualStartTime;
-                    $fieldName  = $game->gameTime->field->facility->name . ": " . $game->gameTime->field->name;
-                    $gamesByDateByTimeByField[$day][$startTime][$fieldName] = $game;
-                }
-
-                ksort($gamesByDateByTimeByField);
-
-                View_Games_Schedule::printGames($schedule, $flight, $pool, $gamesByDateByTimeByField);
             }
 
             $titleGamesByDateByTimeByField  = [];
