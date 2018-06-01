@@ -5,6 +5,7 @@ use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\Schedule;
 use \DAG\Domain\Schedule\Game;
 use \DAG\Domain\Schedule\Flight;
+use \DAG\Orm\Schedule\ScheduleOrm;
 
 /**
  * @brief Show the Schedule Viewing page
@@ -235,7 +236,7 @@ class View_Games_Schedule extends View_Games_Base
         }
 
         // Printer Header row
-        $colspan            = 8;
+        $colspan = 8;
         print "
                 <thead>
                     <tr bgcolor='lightskyblue'>
@@ -275,12 +276,14 @@ class View_Games_Schedule extends View_Games_Base
                     $title = $game->title;
 
                     $values         = View_AdminSchedules_Base::getDisplayLabels($game, true);
-                    $homeTeamName   = $values[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                    $homeTeamName   = $schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT ?
+                        $values[View_Base::TEAM_ID_COACH_SHORT_NAME] : $values[View_Base::TEAM_ID_COACH_SHORT_NAME];
                     $homeTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
                     $homeTeamScore  = $values[View_Base::SCORE];
 
                     $values             = View_AdminSchedules_Base::getDisplayLabels($game, false);
-                    $visitingTeamName   = $values[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                    $visitingTeamName   = $schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT ?
+                        $values[View_Base::TEAM_ID_COACH_SHORT_NAME] : $values[View_Base::TEAM_ID_COACH_SHORT_NAME];
                     $visitingTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
                     $visitingTeamScore  = $values[View_Base::SCORE];
 

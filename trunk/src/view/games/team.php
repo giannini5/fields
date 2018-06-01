@@ -219,11 +219,11 @@ class View_Games_Team
                         }
 
                         $values         = View_AdminSchedules_Base::getDisplayLabels($game, true);
-                        $homeTeamName   = $values[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                        $homeTeamName   = $values[View_Base::TEAM_ID_COACH_SHORT_NAME];
                         $homeTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
 
                         $values             = View_AdminSchedules_Base::getDisplayLabels($game, false);
-                        $visitingTeamName   = $values[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                        $visitingTeamName   = $values[View_Base::TEAM_ID_COACH_SHORT_NAME];
                         $visitingTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
 
                         $bgcolor = ($dayCount % 2 == 0) ? "" : "bgcolor='lightgray'";

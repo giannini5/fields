@@ -805,11 +805,11 @@ class View_Games_Standings extends View_Games_Base
                             $field  = $game->gameTime->field->fullName;
 
                             $homeLabels     = View_AdminSchedules_Base::getDisplayLabels($game, true);
-                            $homeTeamName   = $homeLabels[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                            $homeTeamName   = $homeLabels[View_Base::TEAM_ID_COACH_SHORT_NAME];
                             $homeTeamTitle  = "title='" . $homeLabels[View_Base::HOVER_TEXT] . "'";
 
                             $visitingLabels     = View_AdminSchedules_Base::getDisplayLabels($game, false);
-                            $visitingTeamName   = $visitingLabels[View_Base::TAEAM_ID_COACH_SHORT_NAME];
+                            $visitingTeamName   = $visitingLabels[View_Base::TEAM_ID_COACH_SHORT_NAME];
                             $visitingTeamTitle  = "title='" . $visitingLabels[View_Base::HOVER_TEXT] . "'";
 
                             $score              = "&nbsp";
