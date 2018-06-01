@@ -201,9 +201,9 @@ class View_AdminScoring_ScoreSheet extends View_AdminScoring_Base
                         }
 
                         print "
-                                    <td rowspan='2' $gameStyle>$fieldName</td>
+                                    <td nowrap rowspan='2' $gameStyle>$fieldName</td>
                                     <td rowspan='2' align='center' $gameStyle>$gameTag</td>
-                                    <td $gameStyle>$homeTeamData</td>
+                                    <td nowrap $gameStyle>$homeTeamData</td>
                                     <td $gameStyle>&nbsp</td>
                                     <td $gameStyle>&nbsp</td>
                                     <td $gameStyle>&nbsp</td>
@@ -213,7 +213,7 @@ class View_AdminScoring_ScoreSheet extends View_AdminScoring_Base
                         // Print visiting team
                         print "
                                 <tr style='font-size: medium'>
-                                    <td $gameStyle>$visitingTeamData</td>
+                                    <td nowrap $gameStyle>$visitingTeamData</td>
                                     <td $gameStyle>&nbsp</td>
                                     <td $gameStyle>&nbsp</td>
                                     <td $gameStyle>&nbsp</td>

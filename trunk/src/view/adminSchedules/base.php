@@ -93,7 +93,7 @@ abstract class View_AdminSchedules_Base extends View_Base {
     /**
      * @param Game  $game
      * @param bool  $forHomeTeam
-     * @return array [COACH_NAME=>value, TEAM_ID=>value, TAEAM_ID_COACH_SHORT_NAME=>value, HOVER_TEXT=>value]
+     * @return array [COACH_NAME=>value, TEAM_ID=>value, TEAM_ID_COACH_SHORT_NAME=>value, HOVER_TEXT=>value]
      */
     public static function getDisplayLabels($game, $forHomeTeam = true)
     {
@@ -108,11 +108,13 @@ abstract class View_AdminSchedules_Base extends View_Base {
         $teamId             = ($playInGameId != 0 and $teamId == 'TBD') ? "$playInGameLabel $playInGameId" : $teamId;
 
         $teamIdWithCoachShortName   = isset($team) ? $teamId . ": " . $coach->shortName : "<span style='color: orange'>" . $teamId . "</span>";
+        $teamIdWithCoachAndCity     = isset($team) ? $team->name . "<br>&nbsp;&nbsp;$teamIdWithCoachShortName" . "<br>&nbsp;&nbsp;$team->region - $team->city" : $teamIdWithCoachShortName;
         $hoverText                  = isset($team) ? $teamId . " " . $team->region . " (" . $team->city . ")" : $teamId;
 
         $values[View_Base::COACH_NAME]                  = $coachName;
         $values[View_Base::TEAM_ID]                     = $teamId;
-        $values[View_Base::TAEAM_ID_COACH_SHORT_NAME]   = $teamIdWithCoachShortName;
+        $values[View_Base::TEAM_ID_COACH_SHORT_NAME]    = $teamIdWithCoachShortName;
+        $values[View_Base::TEAM_ID_COACH_AND_CITY]      = $teamIdWithCoachAndCity;
         $values[View_Base::HOVER_TEXT]                  = $hoverText;
 
         if ($forHomeTeam) {
