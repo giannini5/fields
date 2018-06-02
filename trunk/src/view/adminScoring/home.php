@@ -597,18 +597,10 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 '',
                 6);
         } else {
-            $this->displaySelector('Home Team:',
-                View_Base::HOME_TEAM_ID,
-                '',
-                $teamSelector,
-                $defaultTeamSelection,
-                null,
-                false,
-                300,
-                'left',
-                'Select a Team',
-                '',
-                6);
+            $name = $teamSelector[$game->homeTeam->id];
+            print "
+                    <td style='color: " . View_Base::AQUA . "'>Home Team:</td>
+                    <td colspan=6>$name</td>";
         }
 
         print "
@@ -651,18 +643,10 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 '',
                 6);
         } else {
-            $this->displaySelector('Visiting Team:',
-                View_Base::VISITING_TEAM_ID,
-                '',
-                $teamSelector,
-                $defaultTeamSelection,
-                null,
-                false,
-                300,
-                'left',
-                'Select a Team',
-                '',
-                6);
+            $name = $teamSelector[$game->visitingTeam->id];
+            print "
+                    <td style='color: " . View_Base::AQUA . "'>Visiting Team:</td>
+                    <td colspan=6>$name</td>";
         }
 
         print "
