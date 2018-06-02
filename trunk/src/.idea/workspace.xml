@@ -11,7 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="Formatting fixes.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminScoring/home.php" afterPath="$PROJECT_DIR$/view/adminScoring/home.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminScoring/home.php" afterPath="$PROJECT_DIR$/controller/adminScoring/home.php" />
     </list>
     <ignored path="src.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -86,7 +86,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="home.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="home.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/view/adminScoring/home.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="228">
@@ -203,11 +203,20 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="home.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/controller/adminScoring/home.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1149">
+              <caret line="118" column="111" lean-forward="true" selection-start-line="118" selection-start-column="111" selection-end-line="118" selection-end-column="111" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
     </leaf>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>skip</find>
       <find>Division::create</find>
       <find>printEnterPlayerGoals</find>
       <find>processTeamScoring</find>
@@ -237,6 +246,7 @@
       <find>TAEAM_ID_COACH_SHORT_NAME</find>
       <find>$titleGameValue</find>
       <find>$isTitleGame</find>
+      <find>m_homeTeamScore</find>
     </findStrings>
     <replaceStrings>
       <replace>pageName</replace>
@@ -293,7 +303,6 @@
         <option value="$PROJECT_DIR$/controller/games/gameCards.php" />
         <option value="$PROJECT_DIR$/view/navigation.php" />
         <option value="$PROJECT_DIR$/controller/base.php" />
-        <option value="$PROJECT_DIR$/controller/adminScoring/home.php" />
         <option value="$PROJECT_DIR$/view/fields/selectField.php" />
         <option value="$PROJECT_DIR$/src/Domain/Schedule/Player.php" />
         <option value="$PROJECT_DIR$/src/Domain/Schedule/tests/playerTest.php" />
@@ -315,6 +324,7 @@
         <option value="$PROJECT_DIR$/view/adminScoring/scoreSheet.php" />
         <option value="$PROJECT_DIR$/view/games/schedule.php" />
         <option value="$PROJECT_DIR$/view/adminScoring/home.php" />
+        <option value="$PROJECT_DIR$/controller/adminScoring/home.php" />
       </list>
     </option>
   </component>
@@ -1070,14 +1080,7 @@
       <workItem from="1527208008772" duration="2456000" />
       <workItem from="1527258597291" duration="1240000" />
       <workItem from="1527813071500" duration="997000" />
-      <workItem from="1527904760775" duration="1066000" />
-    </task>
-    <task id="LOCAL-00041" summary="Bug fix">
-      <created>1495916891751</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1495916891751</updated>
+      <workItem from="1527904760775" duration="1487000" />
     </task>
     <task id="LOCAL-00042" summary="Bug fix">
       <created>1495923422888</created>
@@ -1415,7 +1418,14 @@
       <option name="project" value="LOCAL" />
       <updated>1527813628339</updated>
     </task>
-    <option name="localTasksCounter" value="90" />
+    <task id="LOCAL-00090" summary="Formatting fixes.">
+      <created>1527905979456</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1527905979456</updated>
+    </task>
+    <option name="localTasksCounter" value="91" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1451,7 +1461,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="644206000" />
+    <option name="totallyTimeSpent" value="644627000" />
   </component>
   <component name="TodoView" selected-index="4">
     <todo-panel id="selected-file">
@@ -1588,11 +1598,16 @@
           <line>1098</line>
           <option name="timeStamp" value="786" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="php">
+          <url>file://$PROJECT_DIR$/controller/adminScoring/home.php</url>
+          <line>131</line>
+          <option name="timeStamp" value="795" />
+        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="794" />
+      <option name="time" value="796" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1821,13 +1836,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1140">
           <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/controller/adminScoring/home.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6825">
-          <caret line="463" column="0" lean-forward="false" selection-start-line="463" selection-start-column="0" selection-end-line="463" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -2440,6 +2448,14 @@
             <marker date="1527905894000" expanded="true" signature="32482:33384" ph="..." />
             <marker date="1527905894000" expanded="false" signature="32522:32546" ph="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controller/adminScoring/home.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1149">
+          <caret line="118" column="111" lean-forward="true" selection-start-line="118" selection-start-column="111" selection-end-line="118" selection-end-column="111" />
+          <folding />
         </state>
       </provider>
     </entry>
