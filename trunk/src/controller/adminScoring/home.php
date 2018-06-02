@@ -110,12 +110,12 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
     {
         $this->m_gameId = $this->getPostAttribute(View_Base::GAME_ID, null, $rememberIfGameIdMissing, true);
         if (isset($this->m_gameId) and $this->m_quickScoring) {
-            $this->m_homeTeamScore           = $this->getPostAttribute(View_Base::HOME_SCORE, NULL, false, false);
-            $this->m_homeTeamYellowCards     = $this->getPostAttribute(View_Base::HOME_YELLOW_CARDS, 0, false, false);
-            $this->m_homeTeamRedCards        = $this->getPostAttribute(View_Base::HOME_RED_CARDS, 0, false, false);
-            $this->m_visitingTeamScore       = $this->getPostAttribute(View_Base::VISITING_SCORE, NULL, false, false);
-            $this->m_visitingTeamYellowCards = $this->getPostAttribute(View_Base::VISITING_YELLOW_CARDS, 0, false, false);
-            $this->m_visitingTeamRedCards    = $this->getPostAttribute(View_Base::VISITING_RED_CARDS, 0, false, false);
+            $this->m_homeTeamScore           = $this->getPostAttribute(View_Base::HOME_SCORE, NULL, false, true);
+            $this->m_homeTeamYellowCards     = $this->getPostAttribute(View_Base::HOME_YELLOW_CARDS, 0, false, true);
+            $this->m_homeTeamRedCards        = $this->getPostAttribute(View_Base::HOME_RED_CARDS, 0, false, true);
+            $this->m_visitingTeamScore       = $this->getPostAttribute(View_Base::VISITING_SCORE, NULL, false, true);
+            $this->m_visitingTeamYellowCards = $this->getPostAttribute(View_Base::VISITING_YELLOW_CARDS, 0, false, true);
+            $this->m_visitingTeamRedCards    = $this->getPostAttribute(View_Base::VISITING_RED_CARDS, 0, false, true);
             $this->m_gameNotes               = $this->getPostAttribute(View_Base::GAME_NOTES, '', false, false);
         } else {
             $this->m_gameCardData   = $this->getPostAttributeArray(View_Base::GAME_CARD_DATA);
