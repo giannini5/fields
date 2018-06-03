@@ -500,28 +500,39 @@ class View_Games_Standings extends View_Games_Base
                     $games  = Game::lookupByTeam($team);
                     $points = '';
 
+                    // Order games by day/time
+                    $gamesByDateAndTime = [];
+                    foreach ($games as $game) {
+                        $gamesByDateAndTime[$game->gameTime->gameDate->day][$game->gameTime->actualStartTime] = $game;
+                    }
+                    ksort($gamesByDateAndTime);
+
                     print "
                         <tr>
                             <td>$team->nameId: $team->name<br>&nbsp&nbsp&nbsp&nbsp$team->region - $team->city</td>
                             <td>$coach->shortName</td>";
 
-                    foreach ($games as $game) {
-                        // Skip Title Games and games not in same pool
-                        if ($game->title != '' or $game->pool->id != $team->pool->id) {
-                            continue;
-                        }
+                    foreach ($gamesByDateAndTime as $day => $gamesByTime) {
+                        ksort($gamesByTime);
 
-                        $isHomeTeam         = $game->homeTeam->id == $team->id;
-                        $gameResultString   = "&nbsp";
-                        if (isset($game->homeTeamScore)) {
-                            $gamePoints         = $game->computeGamePoints($isHomeTeam);
-                            $gameResultString   = $this->getGameResultString($game, $isHomeTeam);
-                            $points             = $points == '' ? 0 : $points;
-                            $points             += $gamePoints;
-                        }
+                        foreach ($gamesByTime as $time => $game) {
+                            // Skip Title Games and games not in same pool
+                            if ($game->title != '' or $game->pool->id != $team->pool->id) {
+                                continue;
+                            }
 
-                        print "
+                            $isHomeTeam         = $game->homeTeam->id == $team->id;
+                            $gameResultString   = "&nbsp";
+                            if (isset($game->homeTeamScore)) {
+                                $gamePoints         = $game->computeGamePoints($isHomeTeam);
+                                $gameResultString   = $this->getGameResultString($game, $isHomeTeam);
+                                $points             = $points == '' ? 0 : $points;
+                                $points             += $gamePoints;
+                            }
+
+                            print "
                             <td align='center'>$gameResultString</td>";
+                        }
                     }
 
                     print "
