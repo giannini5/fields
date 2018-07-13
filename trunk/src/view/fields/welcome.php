@@ -55,7 +55,7 @@ class View_Fields_Welcome extends View_Fields_Base {
                 <br><p style="text-align: left;"><strong>Insurance:</strong></p>
                 <p style="text-align: left;">For Insurance purposes, AYSO is required to know the days and times where all teams are practicing.</p>
                 <br><p style="text-align: left;"><strong>Permits:</strong></p>
-                <p style="text-align: left;">All fields require a permit for field use.  Permits are on file with AYSO.  You will receive a confirmation email when you successfully reserve a field that will let you know the first day you can begin practice and the last day you can hold practice.</p>
+                <p style="text-align: left;">All fields require a permit for field use.  Permits are on file with AYSO.  You will receive an email when you successfully reserve a field that will let you know the first day you can begin practice and the last day you can hold practice.</p>
                 <br><p style="text-align: left;"><strong>Practice Guidelines:</strong></p>
                 <table style="text-align: center;" border="0" cellspacing="0" cellpadding="10" width="60%" align="center">
                     <tbody>
