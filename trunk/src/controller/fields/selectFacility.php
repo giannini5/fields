@@ -354,7 +354,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         if ($preApproved) {
             $this->m_reservationConfirmationMessage = "Confirmation email has been sent to ${toAddress}$resultString";
         } else {
-            $this->m_reservationConfirmationMessage .= "<font color='red'>Your reservation requires school approval.  See confirmation email that was sent to $toAddress for next steps$resultString</font>";
+            $this->m_reservationConfirmationMessage .= "<font color='red'>Your reservation requires school approval.  See email that was sent to $toAddress for next steps$resultString</font>";
         }
     }
 
