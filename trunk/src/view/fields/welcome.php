@@ -88,7 +88,7 @@ class View_Fields_Welcome extends View_Fields_Base {
                 <p style="text-align: left;">Please be courteous to other coaches and teams.</p>
                 <br><p style="text-align: left;"><strong>Field Reservations:</strong></p>
                 <p style="text-align: left;">Field reservations are handled in the order received.  Click on the SELECT tab to start the process (follow the authentication instructions on this page).</p>
-                <p style="text-align: left;"><strong><em>Please do not make direct contact with any of the practice facilities until you’ve received a confirmation email from AYSO. Your confirmation email will give you follow-on instructions for facilities that require additional processing.  In many cases AYSO approval is all you need.</em></strong></p>
+                <p style="text-align: left;"><strong><em>Please do not make direct contact with any of the practice facilities until you’ve received an email from AYSO after making your field selection. Your email will give you follow-on instructions for facilities that require additional processing.  In many cases AYSO approval is all you need.</em></strong></p>
                 <p style="text-align: left;"><strong>Schools that require additional processing:</strong></p>
                 <p style="padding-left: 90px; text-align: left;">Adams<br />Peabody<br />Hope<br />Monte Vista<br />Vieja Valley<br />Cold Springs<br />Montecito Union</p>
                 <p style="text-align: left;">All of the above requires teams to pay a usage fee for the fields.  This is handled by individual coaches.</p>
