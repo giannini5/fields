@@ -210,7 +210,7 @@ class View_Fields_SelectField extends View_Fields_Base {
 
         print "<tr><td>&nbsp</td></tr>";
         $this->_printFieldSelector($maxColumns, $fields);
-        $this->printTimeSelectors($maxColumns, '03:30:00', '07:00:00');
+        $this->printTimeSelectors($maxColumns, '03:00:00', '07:00:00');
         $this->printDaySelector($maxColumns, null, '', 'Days', false);
 
         // Print Submit button and end form

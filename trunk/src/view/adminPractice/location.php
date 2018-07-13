@@ -18,6 +18,12 @@ class View_AdminPractice_Location extends View_AdminPractice_Base {
      */
     public function render()
     {
+        $messageString = $this->m_controller->m_messageString;
+        if (!empty($messageString)) {
+            print "
+                <p style='color: green' align='center'><strong>$messageString</strong></p><br>";
+        }
+
         print "
             <table bgcolor='lightyellow' valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
@@ -31,20 +37,35 @@ class View_AdminPractice_Location extends View_AdminPractice_Base {
             </table>
             <br><br>";
 
-        foreach ($this->m_controller->m_locations as $location) {
+        $sessionId = $this->m_controller->getSessionId();
+        print "
+        <form method='post' action='" . self::ADMIN_LOCATION_PAGE . $this->m_urlParams . "'>
+        <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
+            <tr>
+                <th>Location Name</th>
+            </tr>";
+
+        $locations = Model_Fields_Location::GetLocations($this->m_controller->m_league->id);
+        foreach ($locations as $location) {
             print "
-            <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
-                <tr>
-                    <td>";
+            <tr>";
 
             $this->_printUpdateLocationForm(4, $location);
 
             print "
-                    </td>
-                </tr>
-            </table>
-            <br><br>";
+            </tr>";
         }
+
+        print "
+            <tr>
+                <td align='left'>
+                    <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
+                    <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                </td>
+            </tr>
+        </table>
+        </form>
+        <br><br>";
     }
 
     /**
@@ -85,26 +106,7 @@ class View_AdminPractice_Location extends View_AdminPractice_Base {
      * @param $location - Location to be edited
      */
     private function _printUpdateLocationForm($maxColumns, $location) {
-        $sessionId = $this->m_controller->getSessionId();
-        $errorString = ($this->m_controller->m_locationId == $location->id and $this->m_controller->m_missingAttributes > 0) ? $this->m_controller->m_name : '';
-
-        // Print the start of the form to select a facility
-        print "
-            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
-            <form method='post' action='" . self::ADMIN_LOCATION_PAGE . $this->m_urlParams . "'>";
-
-        $this->displayInput('Location Name:', 'text', Model_Fields_LocationDB::DB_COLUMN_NAME, 'Location Name', $errorString, $location->name);
-
-        // Print Submit button and end form
-        print "
-                <tr>
-                    <td align='left'>
-                        <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
-                        <input type='hidden' id='locationId' name='locationId' value='$location->id'>
-                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
-                    </td>
-                </tr>
-            </form>
-            </table>";
+        $name = View_Base::LOCATION_UPDATE_DATA . "[$location->id][" . Model_Fields_LocationDB::DB_COLUMN_NAME. "]";
+        $this->displayInput('', 'text', $name, 'Location Name', '', $location->name, NULL, 1, false, 235, false);
     }
 }

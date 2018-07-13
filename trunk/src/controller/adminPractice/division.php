@@ -6,42 +6,42 @@
  * @brief Select a division to administer or create a new division
  */
 class Controller_AdminPractice_Division extends Controller_AdminPractice_Base {
-    public $m_divisions = NULL;
     public $m_name = NULL;
     public $m_enabled = NULL;
     public $m_divisionId = NULL;
     public $m_maxMinutesPerPractice = NULL;
     public $m_maxMinutesPerWeek = NULL;
 
+    private $m_divisionUpdates = [];
+
     public function __construct() {
         parent::__construct();
 
-        $this->m_divisions = Model_Fields_Division::GitList($this->m_league, FALSE);
-
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->m_name = $this->getPostAttribute(
-                Model_Fields_DivisionDB::DB_COLUMN_NAME,
-                '* Name required'
-            );
-            $this->m_maxMinutesPerPractice = $this->getPostAttribute(
-                Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_PRACTICE,
-                '* Max Minutes Per Practice required'
-            );
-            $this->m_maxMinutesPerWeek = $this->getPostAttribute(
-                Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_WEEK,
-                '* Max Minutes Per Week required'
-            );
-            $this->m_enabled = $this->getPostAttribute(
-                Model_Fields_DivisionDB::DB_COLUMN_ENABLED,
-                '* Enabled required',
-                TRUE,
-                TRUE
-            );
-            $this->m_divisionId = $this->getPostAttribute(
-                View_Base::DIVISION_ID,
-                NULL,
-                FALSE
-            );
+            if ($this->m_operation == View_Base::CREATE) {
+                $this->m_name = $this->getPostAttribute(
+                    Model_Fields_DivisionDB::DB_COLUMN_NAME,
+                    '* Name required'
+                );
+                $this->m_maxMinutesPerPractice = $this->getPostAttribute(
+                    Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_PRACTICE,
+                    '* Max Minutes Per Practice required'
+                );
+                $this->m_maxMinutesPerWeek = $this->getPostAttribute(
+                    Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_WEEK,
+                    '* Max Minutes Per Week required'
+                );
+                $this->m_enabled = $this->getPostAttribute(
+                    Model_Fields_DivisionDB::DB_COLUMN_ENABLED,
+                    '* Enabled required',
+                    TRUE,
+                    TRUE
+                );
+            }
+
+            if ($this->m_operation == View_Base::UPDATE) {
+                $this->m_divisionUpdates = $this->getPostAttributeArray(View_Base::DIVISION_UPDATE_DATA);
+            }
         }
     }
 
@@ -78,8 +78,8 @@ class Controller_AdminPractice_Division extends Controller_AdminPractice_Base {
     private function _createDivision() {
         $division = Model_Fields_Division::LookupByName($this->m_league, $this->m_name, FALSE);
         if (!isset($division)) {
-            $division = Model_Fields_Division::Create($this->m_league, $this->m_name, $this->m_maxMinutesPerPractice, $this->m_maxMinutesPerWeek, $this->m_enabled);
-            $this->m_divisions[] = $division;
+            Model_Fields_Division::Create($this->m_league, $this->m_name, $this->m_maxMinutesPerPractice, $this->m_maxMinutesPerWeek, $this->m_enabled);
+            $this->m_messageString = "Division $this->m_name created";
         } else {
             $this->m_errorString = "Division '$this->m_name' already exists<br>Scroll down and update to make a change";
         }
@@ -89,24 +89,24 @@ class Controller_AdminPractice_Division extends Controller_AdminPractice_Base {
      * @brief Update Division.  Set the errorString if the Division cannot be updated.
      */
     private function _updateDivision() {
-        // Error check
-        foreach ($this->m_divisions as $division) {
-            if ($division->name == $this->m_name and $division->id != $this->m_divisionId) {
-                $this->m_errorString = "Division '$this->m_name' already exists<br>Scroll down and update to make a change";
+        foreach ($this->m_divisionUpdates as $divisionId => $divisionData) {
+            // Error check
+            $updateDivision     = Model_Fields_Division::LookupById($divisionId);
+            $existingDivision   = Model_Fields_Division::LookupByName($this->m_league, $divisionData[Model_Fields_DivisionDB::DB_COLUMN_NAME], FALSE);
+            if (isset($existingDivision) and $existingDivision->id != $updateDivision->id) {
+                $name = $divisionData[Model_Fields_DivisionDB::DB_COLUMN_NAME];
+                $this->m_errorString = "Division '$name' already exists<br>Scroll down and update to make a change";
                 return;
             }
+
+            // Update
+            $updateDivision->name                   = $divisionData[Model_Fields_DivisionDB::DB_COLUMN_NAME];
+            $updateDivision->maxMinutesPerPractice  = $divisionData[Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_PRACTICE];
+            $updateDivision->maxMinutesPerWeek      = $divisionData[Model_Fields_DivisionDB::DB_COLUMN_MAX_MINUTES_PER_WEEK];
+            $updateDivision->enabled                = $divisionData[Model_Fields_DivisionDB::DB_COLUMN_ENABLED];;
+            $updateDivision->saveModel();
         }
 
-        // Update
-        foreach ($this->m_divisions as $division) {
-            if ($division->id == $this->m_divisionId) {
-                $division->name = $this->m_name;
-                $division->maxMinutesPerPractice = $this->m_maxMinutesPerPractice;
-                $division->maxMinutesPerWeek = $this->m_maxMinutesPerWeek;
-                $division->enabled = $this->m_enabled;
-                $division->saveModel();
-                return;
-            }
-        }
+        $this->m_messageString = "Divisions updated";
     }
 }

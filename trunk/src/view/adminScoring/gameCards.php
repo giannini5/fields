@@ -318,34 +318,30 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                     
                     <table border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Halftime score:</td>
+                            <td align='left' nowrap>Half Score:</td>
                             <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>In Favor Of:</td>
+                            <td align='right' nowrap>Favor Of:</td>
                             <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                        </tr>
-                        <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Final Score:</td>
+                            <td align='right' nowrap>Final:</td>
                             <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>Winning Team Id:</td>
+                            <td align='right' nowrap>Winner:</td>
                             <td style='text-decoration: underline; border-bottom: 1px solid'></td>
                         </tr>
                         <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Center Referee:</td>
+                            <td align='left' nowrap>Center Ref:</td>
+                            <td colspan=7 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Asst Ref:</td>
                             <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
-                        </tr>
-                        <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Assistant Referee:</td>
-                            <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
-                        </tr>
-                        <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Assistant Referee:</td>
+                            <td align='right' nowrap>Asst Ref:</td>
                             <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
                         </tr>
                     </table>                 
-                    <p align='center'><strong>Write game comments (if any) on reverse side.  Thansks for reffing!</strong></p>
                     <br><br>
 
                 </div>";
+        // <p align='center'><strong>Write game comments (if any) on reverse side.  Thansks for reffing!</strong></p>
     }
 
     /**

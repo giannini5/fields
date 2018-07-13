@@ -6,26 +6,25 @@
  * @brief Select a location to administer or create a new location
  */
 class Controller_AdminPractice_Location extends Controller_AdminPractice_Base {
-    public $m_locations = NULL;
     public $m_name = NULL;
-    public $m_enabled = NULL;
     public $m_locationId = NULL;
+
+    private $m_locationUpdates;
 
     public function __construct() {
         parent::__construct();
 
-        $this->m_locations = $this->getLocations();
-
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->m_name = $this->getPostAttribute(
-                Model_Fields_LocationDB::DB_COLUMN_NAME,
-                '* Name required'
-            );
-            $this->m_locationId = $this->getPostAttribute(
-                View_Base::LOCATION_ID,
-                NULL,
-                FALSE
-            );
+            if ($this->m_operation == View_Base::CREATE) {
+                $this->m_name = $this->getPostAttribute(
+                    Model_Fields_LocationDB::DB_COLUMN_NAME,
+                    '* Name required'
+                );
+            }
+
+            if ($this->m_operation == View_Base::UPDATE) {
+                $this->m_locationUpdates = $this->getPostAttributeArray(View_Base::LOCATION_UPDATE_DATA);
+            }
         }
     }
 
@@ -60,10 +59,10 @@ class Controller_AdminPractice_Location extends Controller_AdminPractice_Base {
      *        Add the created Location to the list of locations.
      */
     private function _createLocation() {
-        $location = Model_Fields_Location::LookupByName($this->m_league, $this->m_name, FALSE);
+        $location = Model_Fields_Location::LookupByName($this->m_league->id, $this->m_name, FALSE);
         if (!isset($location)) {
-            $location = Model_Fields_Location::Create($this->m_league, $this->m_name);
-            $this->m_locations[] = $location;
+            Model_Fields_Location::Create($this->m_league->id, $this->m_name);
+            $this->m_messageString = "Location $this->m_name created";
         } else {
             $this->m_errorString = "Location '$this->m_name' already exists<br>Scroll down and update to make a change";
         }
@@ -73,21 +72,23 @@ class Controller_AdminPractice_Location extends Controller_AdminPractice_Base {
      * @brief Update Location.  Set the errorString if the Location cannot be updated.
      */
     private function _updateLocation() {
-        // Error check
-        foreach ($this->m_locations as $location) {
-            if ($location->name == $this->m_name and $location->id != $this->m_locationId) {
-                $this->m_errorString = "Location '$this->m_name' already exists<br>Scroll down and update to make a change";
+        foreach ($this->m_locationUpdates as $locationId => $locationData) {
+            // Error check
+            $updateLocation     = Model_Fields_Location::LookupById($locationId);
+            $existingLocation   = Model_Fields_Location::LookupByName($this->m_league->id, $locationData[Model_Fields_LocationDB::DB_COLUMN_NAME], FALSE);
+            if (isset($existingLocation) and $existingLocation->id != $updateLocation->id) {
+                $name = $locationData[Model_Fields_LocationDB::DB_COLUMN_NAME];
+                $this->m_errorString = "Location '$name' already exists<br>Scroll down and update to make a change";
                 return;
+            }
+
+            // Update
+            if ($updateLocation->name != $locationData[Model_Fields_LocationDB::DB_COLUMN_NAME]) {
+                $updateLocation->name = $locationData[Model_Fields_LocationDB::DB_COLUMN_NAME];
+                $updateLocation->saveModel();
             }
         }
 
-        // Update
-        foreach ($this->m_locations as $location) {
-            if ($location->id == $this->m_locationId) {
-                $location->name = $this->m_name;
-                $location->saveModel();
-                return;
-            }
-        }
+        $this->m_messageString = "Locations updated";
     }
 }
