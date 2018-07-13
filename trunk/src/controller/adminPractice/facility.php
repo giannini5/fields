@@ -6,7 +6,6 @@
  * @brief Select a facility to administer or create a new facility
  */
 class Controller_AdminPractice_Facility extends Controller_AdminPractice_Base {
-    public $m_facilities = NULL;
     public $m_name = NULL;
     public $m_address1;
     public $m_address2;
@@ -23,86 +22,87 @@ class Controller_AdminPractice_Facility extends Controller_AdminPractice_Base {
     public $m_facilityId = NULL;
     public $m_selectedLocations = [];
 
+    private $m_facilityUpdates = [];
+
     public function __construct() {
         parent::__construct();
 
-        $this->m_facilities = Model_Fields_Facility::LookupByLeague($this->m_league, FALSE);
-
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->m_name = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_NAME,
-                '* Name required'
-            );
-            $this->m_address1 = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_ADDRESS1,
-                '',
-                FALSE
-            );
-            $this->m_address2 = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_ADDRESS2,
-                '',
-                FALSE
-            );
-            $this->m_city = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_CITY,
-                '',
-                FALSE
-            );
-            $this->m_state = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_STATE,
-                '',
-                FALSE
-            );
-            $this->m_postalCode = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_POSTAL_CODE,
-                '',
-                FALSE
-            );
-            $this->m_country = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_COUNTRY,
-                '',
-                FALSE
-            );
-            $this->m_contactName = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_CONTACT_NAME,
-                '',
-                FALSE
-            );
-            $this->m_contactEmail = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_CONTACT_EMAIL,
-                '',
-                FALSE
-            );
-            $this->m_contactPhone = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_CONTACT_PHONE,
-                '',
-                FALSE
-            );
-            $this->m_image = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_IMAGE,
-                '',
-                FALSE
-            );
-            $this->m_preApproved = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_PRE_APPROVED,
-                '* Pre-Approved required',
-                TRUE,
-                TRUE
-            );
-            $this->m_enabled = $this->getPostAttribute(
-                Model_Fields_FacilityDB::DB_COLUMN_ENABLED,
-                '* Enabled required',
-                TRUE,
-                TRUE
-            );
-            $this->m_facilityId = $this->getPostAttribute(
-                View_Base::FACILITY_ID,
-                NULL,
-                FALSE
-            );
-            $this->m_selectedLocations = $this->getPostAttributeArray(
-                View_Base::LOCATION_IDS
-            );
+            if ($this->m_operation == View_Base::CREATE) {
+                $this->m_name = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_NAME,
+                    '* Name required'
+                );
+                $this->m_address1 = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_ADDRESS1,
+                    '',
+                    FALSE
+                );
+                $this->m_address2 = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_ADDRESS2,
+                    '',
+                    FALSE
+                );
+                $this->m_city = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_CITY,
+                    '',
+                    FALSE
+                );
+                $this->m_state = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_STATE,
+                    '',
+                    FALSE
+                );
+                $this->m_postalCode = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_POSTAL_CODE,
+                    '',
+                    FALSE
+                );
+                $this->m_country = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_COUNTRY,
+                    '',
+                    FALSE
+                );
+                $this->m_contactName = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_CONTACT_NAME,
+                    '',
+                    FALSE
+                );
+                $this->m_contactEmail = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_CONTACT_EMAIL,
+                    '',
+                    FALSE
+                );
+                $this->m_contactPhone = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_CONTACT_PHONE,
+                    '',
+                    FALSE
+                );
+                $this->m_image = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_IMAGE,
+                    '',
+                    FALSE
+                );
+                $this->m_preApproved = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_PRE_APPROVED,
+                    '* Pre-Approved required',
+                    TRUE,
+                    TRUE
+                );
+                $this->m_enabled = $this->getPostAttribute(
+                    Model_Fields_FacilityDB::DB_COLUMN_ENABLED,
+                    '* Enabled required',
+                    TRUE,
+                    TRUE
+                );
+                $this->m_selectedLocations = $this->getPostAttributeArray(
+                    View_Base::LOCATION_IDS
+                );
+            }
+
+            if ($this->m_operation == View_Base::UPDATE) {
+                $this->m_facilityUpdates = $this->getPostAttributeArray(View_Base::FACILITY_UPDATE_DATA);
+            }
         }
     }
 
@@ -137,7 +137,7 @@ class Controller_AdminPractice_Facility extends Controller_AdminPractice_Base {
      *
      * @param $facilityId - Model_Field_Facility identifier
      *
-     * @return Array of Model_Field_Location objects
+     * @return Model_Fields_FacilityLocation[]
      */
     public function getFacilityLocations($facilityId) {
         return Model_Fields_FacilityLocation::GetLocations($facilityId);
@@ -165,9 +165,10 @@ class Controller_AdminPractice_Facility extends Controller_AdminPractice_Base {
                 $this->m_image,
                 $this->m_preApproved,
                 $this->m_enabled);
-            $this->m_facilities[] = $facility;
 
             $this->_setLocations($facility);
+
+            $this->m_messageString = "Facility '$this->m_name' created.";
         } else {
             $this->m_errorString = "Facility '$this->m_name' already exists<br>Scroll down and update to make a change";
         }
@@ -177,37 +178,36 @@ class Controller_AdminPractice_Facility extends Controller_AdminPractice_Base {
      * @brief Update Facility.  Set the errorString if the Facility cannot be updated.
      */
     private function _updateFacility() {
-        // Error check
-        foreach ($this->m_facilites as $facility) {
-            if ($facility->name == $this->m_name and $facility->id != $this->m_facilityId) {
-                $this->m_errorString = "Facility '$this->m_name' already exists<br>Scroll down and update to make a change";
+        foreach ($this->m_facilityUpdates as $facilityId => $facilityData) {
+            // Error check
+            $updateFacility     = Model_Fields_Facility::LookupById($facilityId);
+            $existingFacility   = Model_Fields_Facility::LookupByName($this->m_league, $facilityData[Model_Fields_FacilityDB::DB_COLUMN_NAME], FALSE);
+            if (isset($existingFacility) and $existingFacility->id != $updateFacility->id) {
+                $name = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_NAME];
+                $this->m_errorString = "Facility '$name' already exists<br>Scroll down and update to make a change";
                 return;
             }
+
+            // Update
+            $updateFacility->name           = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_NAME];
+            $updateFacility->address1       = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_ADDRESS1];
+            $updateFacility->city           = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_CITY];
+            $updateFacility->state          = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_STATE];
+            $updateFacility->postalCode     = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_POSTAL_CODE];
+            $updateFacility->contactName    = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_CONTACT_NAME];
+            $updateFacility->contactEmail   = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_CONTACT_EMAIL];
+            $updateFacility->contactPhone   = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_CONTACT_PHONE];
+            $updateFacility->image          = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_IMAGE];
+            $updateFacility->preApproved    = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_PRE_APPROVED];
+            $updateFacility->enabled        = $facilityData[Model_Fields_FacilityDB::DB_COLUMN_ENABLED];
+
+            $updateFacility->saveModel();
+
+            $this->m_selectedLocations = $facilityData[View_Base::LOCATION_IDS];
+            $this->_setLocations($updateFacility);
         }
 
-        // Update
-        foreach ($this->m_facilities as $facility) {
-            if ($facility->id == $this->m_facilityId) {
-                $facility->name = $this->m_name;
-                $facility->address1 = $this->m_address1;
-                $facility->address2 = $this->m_address2;
-                $facility->city = $this->m_city;
-                $facility->state = $this->m_state;
-                $facility->postalCode = $this->m_postalCode;
-                $facility->country = $this->m_country;
-                $facility->contactName = $this->m_contactName;
-                $facility->contactEmail = $this->m_contactEmail;
-                $facility->contactPhone = $this->m_contactPhone;
-                $facility->image = $this->m_image;
-                $facility->preApproved = $this->m_preApproved;
-                $facility->enabled = $this->m_enabled;
-                $facility->saveModel();
-
-                $this->_setLocations($facility);
-
-                return;
-            }
-        }
+        $this->m_messageString = "Facilities updated";
     }
 
     /**

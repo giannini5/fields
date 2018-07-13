@@ -268,8 +268,8 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $fromAddress                    = $practiceFieldCoordinators[0]->email;
         $toAddress                      = $this->m_coach->email;
         $preApproved                    = $this->m_facility->preApproved == 1;
-        $subject                        = $preApproved ? 'AYSO Practice Field Approval' : 'AYSO Practice Field Pending';
-        $intro                          = $preApproved ? "Your team's practice field request has been approved." : "Your team's practice field request is pending.";
+        $subject                        = $preApproved ? 'AYSO Practice Field Approval' : 'AYSO Practice Field Requires School Approval';
+        $intro                          = $preApproved ? "Your team's practice field request has been approved." : "Your team's practice field request requires school approval.";
         $coachName                      = $this->m_coach->name;
         $divisionName                   = $this->m_division->name;
         $gender                         = $this->m_team->gender;
@@ -332,6 +332,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
                         <font color='red'>
                             <strong>Next Step:</strong> Contact $contactName, $contactEmail, $contactPhone to fill out requested paperwork and pay any fees.
                             Reply to this message with your receipt for any fees paid along with your name and address and AYSO will reimburse you for the fees.
+                            Be sure to take this next step ASAP since the school makes the final decision on who gets to use their fields.
                         </font>
                     </p>";
         }
@@ -342,6 +343,8 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
                         $practiceFieldCoordinatorName
                         <br>
                         $title
+                        <br><br>
+                        During practice, only park in designated parking areas.  Please make sure no one drives onto the field, parks illegally or uses roads designated for emergency vehicals only.
                     </p>
                 </body>
             </html>";
@@ -351,7 +354,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         if ($preApproved) {
             $this->m_reservationConfirmationMessage = "Confirmation email has been sent to ${toAddress}$resultString";
         } else {
-            $this->m_reservationConfirmationMessage .= "<font color='red'>Your reservation is pending.  See confirmation email that was sent to $toAddress for next steps$resultString</font>";
+            $this->m_reservationConfirmationMessage .= "<font color='red'>Your reservation requires school approval.  See confirmation email that was sent to $toAddress for next steps$resultString</font>";
         }
     }
 

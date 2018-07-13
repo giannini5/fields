@@ -6,84 +6,78 @@
  * @brief Select a field to administer or create a new field
  */
 class Controller_AdminPractice_Field extends Controller_AdminPractice_Base {
-    public $m_facilities = NULL;
-    public $m_facilitiesById = NULL;
-    public $m_fields = NULL;
-    public $m_name = NULL;
-    public $m_enabled = NULL;
-    public $m_facilityId = NULL;
-    public $m_fieldId = NULL;
-    public $m_selectedDivisions = array();
-    public $m_startDate = NULL;
-    public $m_endDate = NULL;
-    public $m_startTime = NULL;
-    public $m_endTime = NULL;
-    public $m_daysSelected = array();
+    public $m_facilityName = '';
+
+    private $m_name              = NULL;
+    private $m_enabled           = NULL;
+    private $m_facilityId        = NULL;
+    private $m_selectedDivisions = [];
+    private $m_startDate         = NULL;
+    private $m_endDate           = NULL;
+    private $m_startTime         = NULL;
+    private $m_endTime           = NULL;
+    private $m_daysSelected      = [];
+
+    private $m_fieldId          = NULL;
+    private $m_fieldUpdates     = [];
 
     public function __construct() {
         parent::__construct();
 
-        $this->m_facilities = Model_Fields_Facility::LookupByLeague($this->m_league);
-        $this->m_facilitiesById = array();
-        $this->m_fields = array();
-        foreach ($this->m_facilities as $facility) {
-            $this->m_facilitiesById[$facility->id] = $facility;
-            $fields = Model_Fields_Field::LookupByFacility($facility);
-            $this->m_fields[$facility->id] = $fields;
-        }
-
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->m_name = $this->getPostAttribute(
-                Model_Fields_FieldDB::DB_COLUMN_NAME,
-                '',
-                TRUE,
-                FALSE,
-                'Error: Name required'
-            );
-            $this->m_enabled = $this->getPostAttribute(
-                Model_Fields_FieldDB::DB_COLUMN_ENABLED,
-                '',
-                TRUE,
-                TRUE,
-                'Error: Enabled required'
-            );
-            $this->m_facilityId = $this->getPostAttribute(
-                View_Base::FACILITY_ID,
-                NULL,
-                FALSE
-            );
-            $this->m_fieldId = $this->getPostAttribute(
-                View_Base::FIELD_ID,
-                NULL,
-                FALSE
-            );
-            $this->m_selectedDivisions = $this->getPostAttributeArray(
-                View_Base::DIVISION_IDS
-            );
+            if ($this->m_operation == View_Base::CREATE) {
+                $this->m_name = $this->getPostAttribute(
+                    Model_Fields_FieldDB::DB_COLUMN_NAME,
+                    '',
+                    TRUE,
+                    FALSE,
+                    'Error: Name required'
+                );
+                $this->m_enabled = $this->getPostAttribute(
+                    Model_Fields_FieldDB::DB_COLUMN_ENABLED,
+                    '',
+                    TRUE,
+                    TRUE,
+                    'Error: Enabled required'
+                );
+                $this->m_facilityId = $this->getPostAttribute(
+                    View_Base::FACILITY_ID,
+                    NULL,
+                    FALSE
+                );
+                $this->m_selectedDivisions = $this->getPostAttributeArray(
+                    View_Base::DIVISION_IDS
+                );
 
-            $this->m_startDate = $this->getPostAttribute(View_Base::START_DATE, null);
-            $this->m_endDate = $this->getPostAttribute(View_Base::END_DATE, null);
-            $this->m_startTime = $this->getPostAttribute(View_Base::START_TIME, null);
-            $this->m_endTime = $this->getPostAttribute(View_Base::END_TIME, null);
+                $this->m_startDate  = $this->getPostAttribute(View_Base::START_DATE, null);
+                $this->m_endDate    = $this->getPostAttribute(View_Base::END_DATE, null);
+                $this->m_startTime  = $this->getPostAttribute(View_Base::START_TIME, null);
+                $this->m_endTime    = $this->getPostAttribute(View_Base::END_TIME, null);
 
-            $this->m_daysSelected[View_Base::MONDAY]    = $this->_isDaySelected(View_Base::MONDAY);
-            $this->m_daysSelected[View_Base::TUESDAY]   = $this->_isDaySelected(View_Base::TUESDAY);
-            $this->m_daysSelected[View_Base::WEDNESDAY] = $this->_isDaySelected(View_Base::WEDNESDAY);
-            $this->m_daysSelected[View_Base::THURSDAY]  = $this->_isDaySelected(View_Base::THURSDAY);
-            $this->m_daysSelected[View_Base::FRIDAY]    = $this->_isDaySelected(View_Base::FRIDAY);
-            $this->m_daysSelected[View_Base::SATURDAY]  = $this->_isDaySelected(View_Base::SATURDAY);
-            $this->m_daysSelected[View_Base::SUNDAY]    = $this->_isDaySelected(View_Base::SUNDAY);
+                $this->m_daysSelected[View_Base::MONDAY]    = $this->_isDaySelected(View_Base::MONDAY);
+                $this->m_daysSelected[View_Base::TUESDAY]   = $this->_isDaySelected(View_Base::TUESDAY);
+                $this->m_daysSelected[View_Base::WEDNESDAY] = $this->_isDaySelected(View_Base::WEDNESDAY);
+                $this->m_daysSelected[View_Base::THURSDAY]  = $this->_isDaySelected(View_Base::THURSDAY);
+                $this->m_daysSelected[View_Base::FRIDAY]    = $this->_isDaySelected(View_Base::FRIDAY);
+                $this->m_daysSelected[View_Base::SATURDAY]  = $this->_isDaySelected(View_Base::SATURDAY);
+                $this->m_daysSelected[View_Base::SUNDAY]    = $this->_isDaySelected(View_Base::SUNDAY);
 
-            // Verify that at least one days was selected
-            if (!$this->m_daysSelected[View_Base::MONDAY]
-                and !$this->m_daysSelected[View_Base::TUESDAY]
-                and !$this->m_daysSelected[View_Base::WEDNESDAY]
-                and !$this->m_daysSelected[View_Base::THURSDAY]
-                and !$this->m_daysSelected[View_Base::FRIDAY]
-                and !$this->m_daysSelected[View_Base::SATURDAY]
-                and !$this->m_daysSelected[View_Base::SUNDAY]) {
+                // Verify that at least one days was selected
+                if (!$this->m_daysSelected[View_Base::MONDAY]
+                    and !$this->m_daysSelected[View_Base::TUESDAY]
+                    and !$this->m_daysSelected[View_Base::WEDNESDAY]
+                    and !$this->m_daysSelected[View_Base::THURSDAY]
+                    and !$this->m_daysSelected[View_Base::FRIDAY]
+                    and !$this->m_daysSelected[View_Base::SATURDAY]
+                    and !$this->m_daysSelected[View_Base::SUNDAY]
+                ) {
 
-                $this->setErrorString('Error: At least one day must be selected');
+                    $this->setErrorString('Error: At least one day must be selected');
+                }
+            }
+
+            if ($this->m_operation == View_Base::UPDATE) {
+                $this->m_fieldUpdates = $this->getPostAttributeArray(View_Base::FIELD_UPDATE_DATA);
             }
         }
     }
@@ -119,34 +113,22 @@ class Controller_AdminPractice_Field extends Controller_AdminPractice_Base {
     }
 
     /**
-     * @brief Get the divisions for the specified field
-     *
-     * @param $facilityId - Model_Field_Facility identifier
-     * @param $fieldId - Model_Field_Field identifier
-     *
-     * @return Array of Model_Field_Division objects
-     */
-    public function getFacilityFieldDivisions($facilityId, $fieldId) {
-        return Model_Fields_DivisionField::GetFacilityFieldDivisions($facilityId, $fieldId);
-    }
-
-    /**
      * @brief Create Field.  If the field already exists then set the errorString.
      *        Add the created Field to the list of fields.
      */
     private function _createField()
     {
-        $facility = Model_Fields_Facility::LookupById($this->m_facilityId);
-        $field = Model_Fields_Field::LookupByName($facility, $this->m_name, FALSE);
+        $facility               = Model_Fields_Facility::LookupById($this->m_facilityId);
+        $this->m_facilityName   = $facility->name;
+        $field                  = Model_Fields_Field::LookupByName($facility, $this->m_name, FALSE);
         if (!isset($field)) {
             $field = Model_Fields_Field::Create($facility, $this->m_name, $this->m_enabled);
 
-            $fields = $this->m_fields[$facility->id];
-            $fields[] = $field;
-            $this->m_fields[$facility->id] = $fields;
+            $this->_setDivisions($facility, $field, $this->m_selectedDivisions);
+            $this->_setAvailability($field, $this->m_daysSelected, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime);
 
-            $this->_setDivisions($facility, $field);
-            $this->_setAvailability($field);
+            $name = $facility->name . ":" . $field->name;
+            $this->m_messageString = "Field $name created";
         } else {
             $this->m_errorString = "Field '$this->m_name' already exists<br>Scroll down and update to make a change";
         }
@@ -157,50 +139,79 @@ class Controller_AdminPractice_Field extends Controller_AdminPractice_Base {
      */
     private function _updateField()
     {
-        $facility = Model_Fields_Facility::LookupById($this->m_facilityId);
-
-        // Error check
-        $fields = $this->m_fields[$facility->id];
-        foreach ($this->m_fields as $field) {
-            if ($field->name == $this->m_name and $field->id != $this->m_fieldId) {
-                $this->m_errorString = "Field '$facility->name: $this->m_name' already exists<br>Scroll down and update to make a change";
+        foreach ($this->m_fieldUpdates as $fieldId => $fieldData) {
+            // Error check
+            $updateField            = Model_Fields_Field::LookupById($fieldId);
+            $this->m_facilityName   = $updateField->m_facility->name;
+            $existingField          = Model_Fields_Field::LookupByName($updateField->m_facility, $fieldData[Model_Fields_FieldDB::DB_COLUMN_NAME], FALSE);
+            if (isset($existingField) and $existingField->id != $updateField->id) {
+                $name = $updateField->m_facility->name . ":" . $fieldData[Model_Fields_FieldDB::DB_COLUMN_NAME];
+                $this->m_errorString = "Field '$name' already exists<br>Scroll down and update to make a change";
                 return;
             }
-        }
 
-        // Update
-        foreach ($fields as $field) {
-            if ($field->id == $this->m_fieldId) {
-                $field->name = $this->m_name;
-                $field->enabled = $this->m_enabled;
-                $field->saveModel();
+            // Update field
+            $updateField->name      = $fieldData[Model_Fields_FieldDB::DB_COLUMN_NAME];
+            $updateField->enabled   = $fieldData[Model_Fields_FieldDB::DB_COLUMN_ENABLED];
+            $updateField->saveModel();
 
-                $this->_setDivisions($facility, $field);
-                $this->_setAvailability($field);
+            // Update field availability
+            $startDate     = $fieldData[View_Base::START_DATE];
+            $endDate       = $fieldData[View_Base::END_DATE];
+            $startTime     = $fieldData[View_Base::START_TIME];
+            $endTime       = $fieldData[View_Base::END_TIME];
+
+            $daysSelected[View_Base::MONDAY]    = isset($fieldData[View_Base::MONDAY]);
+            $daysSelected[View_Base::TUESDAY]   = isset($fieldData[View_Base::TUESDAY]);
+            $daysSelected[View_Base::WEDNESDAY] = isset($fieldData[View_Base::WEDNESDAY]);
+            $daysSelected[View_Base::THURSDAY]  = isset($fieldData[View_Base::THURSDAY]);
+            $daysSelected[View_Base::FRIDAY]    = isset($fieldData[View_Base::FRIDAY]);
+            $daysSelected[View_Base::SATURDAY]  = isset($fieldData[View_Base::SATURDAY]);
+            $daysSelected[View_Base::SUNDAY]    = isset($fieldData[View_Base::SUNDAY]);
+
+            // Verify that at least one days was selected
+            if (!$daysSelected[View_Base::MONDAY]
+                and !$daysSelected[View_Base::TUESDAY]
+                and !$daysSelected[View_Base::WEDNESDAY]
+                and !$daysSelected[View_Base::THURSDAY]
+                and !$daysSelected[View_Base::FRIDAY]
+                and !$daysSelected[View_Base::SATURDAY]
+                and !$daysSelected[View_Base::SUNDAY]
+            ) {
+                $name = $updateField->m_facility->name . ":" . $updateField->name;
+
+                $this->setErrorString("Error: At least one day must be selected for field: $name");
                 return;
             }
+
+            $this->_setAvailability($updateField, $daysSelected, $startDate, $endDate, $startTime, $endTime);
+
+            // Update divisions
+            $this->_setDivisions($updateField->m_facility, $updateField, $fieldData[View_Base::DIVISION_IDS]);
         }
+
+        $this->m_messageString = "Fields updated";
     }
 
     /**
      * @brief Update a field's divisions.  Delete ones that are no longer valid
      *        and add ones that are new
      *
-     * @param $facility - Model_Fields_Facility instance that owns the field
-     * @param $field - Model_Fields_Field instance being updated
+     * @param Model_Fields_Facility $facility               - Facility instance that owns the field
+     * @param Model_Fields_Field    $field                  - Field instance being updated
+     * @param int[]                 $selectedDivisionIds    - Selected divisions for field
      */
-    private function _setDivisions($facility, $field) {
+    private function _setDivisions($facility, $field, $selectedDivisionIds) {
         // Delete current divisions for facility/field if not in updated list
         $currentDivisions = Model_Fields_DivisionField::GetFacilityFieldDivisions($facility->id, $field->id);
         foreach ($currentDivisions as $division) {
-            if (!in_array($division->id, $this->m_selectedDivisions)) {
+            if (!in_array($division->id, $selectedDivisionIds)) {
                 Model_Fields_DivisionField::Delete($division->id, $facility->id, $field->id);
             }
         }
 
         // Create new divisions for field if they do not already exist
-        $currentDivisions = Model_Fields_DivisionField::GetFacilityFieldDivisions($facility->id, $field->id);
-        foreach ($this->m_selectedDivisions as $divisionId) {
+        foreach ($selectedDivisionIds as $divisionId) {
             $divisionField = Model_Fields_DivisionField::LookupByDivisionField($divisionId, $facility->id, $field->id);
             if (!isset($divisionField)) {
                 Model_Fields_DivisionField::Create($divisionId, $facility->id, $field->id);
@@ -212,22 +223,27 @@ class Controller_AdminPractice_Field extends Controller_AdminPractice_Base {
      * @brief Update a field's availability.  Delete current availability (if any)
      *        and add new availability.
      *
-     * @param $field - Model_Fields_Field instance being updated
+     * @param Model_Fields_Field    $field          - Field instance being updated
+     * @param []                    $daysSelected   - [day => <true | false>]
+     * @param string                $startDate
+     * @param string                $endDate
+     * @param string                $startTime
+     * @param string                $endTime
      */
-    private function _setAvailability($field) {
+    private function _setAvailability($field, $daysSelected, $startDate, $endDate, $startTime, $endTime) {
         // Verify that at least one day is selected
         $daysSelectedString = '';
-        foreach ($this->m_daysSelected as $day=>$selected) {
+        foreach ($daysSelected as $day=>$selected) {
             $daysSelectedString .= $selected ? '1' : '0';
         }
 
         // Delete current availability for field if different than new availability
         $currentAvailability = Model_Fields_FieldAvailability::LookupByFieldId($field->id, FALSE);
         if (isset($currentAvailability)) {
-            if ($currentAvailability->startDate == $this->m_startDate
-                and $currentAvailability->endDate == $this->m_endDate
-                and $currentAvailability->startTime == $this->m_startTime
-                and $currentAvailability->endTime == $this->m_endTime
+            if ($currentAvailability->startDate      == $startDate
+                and $currentAvailability->endDate    == $endDate
+                and $currentAvailability->startTime  == $startTime
+                and $currentAvailability->endTime    == $endTime
                 and $currentAvailability->daysOfWeek == $daysSelectedString) {
                 // current availability is the same as new so we just return
                 return;
@@ -238,25 +254,19 @@ class Controller_AdminPractice_Field extends Controller_AdminPractice_Base {
         }
 
         // Create new availability
-        Model_Fields_FieldAvailability::Create($field, $this->m_startDate, $this->m_endDate, $this->m_startTime, $this->m_endTime, $daysSelectedString);
+        Model_Fields_FieldAvailability::Create($field, $startDate, $endDate, $startTime, $endTime, $daysSelectedString);
     }
 
     /**
      * @brief Delete Field.
      */
     private function _deleteField() {
-        $facility = Model_Fields_Facility::LookupById($this->m_facilityId);
+        $this->m_errorString = "Delete not supported - still need to implement cascading delete functionality";
+        return;
 
-        // Delete
-        $fields = $this->m_fields[$facility->id];
-        foreach ($fields as $field) {
-            if ($field->id == $this->m_fieldId) {
-                $field->_delete();
+        $field    = Model_Fields_Field::LookupById($this->m_fieldId);
+        $field->_delete();
 
-                $fields = Model_Fields_Field::LookupByFacility($facility);
-                $this->m_fields[$facility->id] = $fields;
-                return;
-            }
-        }
+        // TODO: Delete Model_Fields_FieldAvailability and Model_Fields_DivisionField entries
     }
 }

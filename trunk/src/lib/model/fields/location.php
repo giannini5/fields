@@ -78,6 +78,8 @@ class Model_Fields_Location extends Model_Fields_Base implements SaveModelInterf
             $dataObject->{Model_Fields_LocationDB::DB_COLUMN_LEAGUE_ID},
             $dataObject->{Model_Fields_LocationDB::DB_COLUMN_NAME});
 
+        $location->setLoaded();
+
         return $location;
     }
 

@@ -136,6 +136,7 @@ abstract class View_Base {
     const SUNDAY                    = 'Sunday';
     const BEGIN_RESERVATION_DATE    = 'beginReservationDate';
     const DAY                       = 'day';
+    const DAYS                      = 'days';
     const START_DATE                = 'startDate';
     const END_DATE                  = 'endDate';
     const START_TIME                = 'startTime';
@@ -176,6 +177,8 @@ abstract class View_Base {
     const GAME_TITLE                = 'gameTitle';
     const FLIGHT_UPDATE_DATA        = 'flightUpdateData';
     const DIVISION_UPDATE_DATA      = 'divisionUpdateData';
+    const LOCATION_UPDATE_DATA      = 'locationUpdateData';
+    const FACILITY_UPDATE_DATA      = 'facilityUpdateData';
     const SCHEDULE_TYPE             = 'scheduleType';
     const INCLUDE_5TH_6TH_GAME      = '5th/6th';
     const INCLUDE_3RD_4TH_GAME      = '3rd/4th';
@@ -531,12 +534,16 @@ abstract class View_Base {
 
         }
 
+        if (!empty($selectorTitle)) {
+            print "
+                <td nowrap align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>";
+        }
+
         print "
-                <td nowrap align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>
                 <td nowrap align='left' colspan='$colspan'>";
 
         foreach ($selectorData as $identifier=>$data) {
-            $checked = $currentSelection == $data ? ' checked ' : '';
+            $checked = ($currentSelection == $data ? ' checked ' : '');
             print "
                     <input type=radio name='$selectorName' value='$identifier' $checked>$data";
         }
@@ -604,6 +611,56 @@ abstract class View_Base {
                     <td><font color='" . View_Base::AQUA . "'><b>$endTimeLabel:&nbsp</b></font></td>
                     <td colspan='$colspan'><select name=" . View_Base::END_TIME . ">$endTimeSectionHTML</select></td>
                 </tr>";
+    }
+
+    /**
+     * @brief Print time selector
+     *
+     * @param string    $defaultTime - Default selection for time HH:MM:SS (example to 03:30:00)
+     * @param string    $name        - Name of the attribute (used by the controller)
+     * @param string    $label       - Optional label to be displayed to the user
+     * @param bool      $newRow      - Default to true
+     */
+    public function printPracticeTimeSelector($defaultTime, $name, $label = '', $newRow = true)
+    {
+        $timeSectionHTML = '';
+
+        $minute = 0;
+        for ($hour = 3; $hour <= 8; ++$hour) {
+            while ($minute <= 45) {
+                $time = sprintf("%2d:%02d", $hour, $minute);
+
+                // Normalize the time to check if it is a selected time
+                $dateTime = DateTime::createFromFormat('Y-m-d H:i:s', "2015-06-01 $time" . ":00");
+                $timeToCheck = $dateTime->format('H:i:s');
+
+                $timeSelected = ($timeToCheck == $defaultTime) ? ' selected ' : '';
+
+                // Populate the time drop downs
+                $timeSectionHTML .= "<option value='$time'$timeSelected>$time</option>";
+
+                $minute += 15;
+            }
+            $minute = 0;
+        }
+
+        if ($newRow) {
+            print "
+                <tr>";
+        }
+
+        if (!empty($label)) {
+            print "
+                    <td><font color='" . View_Base::AQUA . "'><b>$label:&nbsp</b></font></td>";
+        }
+
+        print "
+                    <td><select name=$name>$timeSectionHTML</select></td>";
+
+        if ($newRow) {
+            print "
+                    </tr>";
+        }
     }
 
     /**
@@ -730,8 +787,9 @@ abstract class View_Base {
      * @param $newRow           - Defaults to true
      * @param $daysPerRow       - Defaults to 7
      * @param $daysColspan      - Defaults to 1
+     * @param $name             - Name of attribute for controller, defaults to day of week
      */
-    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '', $label = 'Days', $includeWeekend = true, $newRow = true, $daysPerRow = 7, $emptyCells = 1, $daysColspan = 1) {
+    protected function printDaySelector($maxColumns, $collapsible, $daysOfWeek = '', $label = 'Days', $includeWeekend = true, $newRow = true, $daysPerRow = 7, $emptyCells = 1, $daysColspan = 1, $name = '') {
         /*
         $monChecked = (isset($daysOfWeek[0]) and $daysOfWeek[0] == 1) ? 'checked' : '';
         $tueChecked = (isset($daysOfWeek[1]) and $daysOfWeek[1] == 1) ? 'checked' : '';
@@ -743,16 +801,16 @@ abstract class View_Base {
         */
 
         $weekdayData = array(
-            'Monday'    => (isset($daysOfWeek[0]) and $daysOfWeek[0] == 1) ? 'checked' : '',
-            'Tuesday'   => (isset($daysOfWeek[1]) and $daysOfWeek[1] == 1) ? 'checked' : '',
-            'Wednesday' => (isset($daysOfWeek[2]) and $daysOfWeek[2] == 1) ? 'checked' : '',
-            'Thursday'  => (isset($daysOfWeek[3]) and $daysOfWeek[3] == 1) ? 'checked' : '',
-            'Friday'    => (isset($daysOfWeek[4]) and $daysOfWeek[4] == 1) ? 'checked' : '',
+            View_Base::MONDAY    => (isset($daysOfWeek[0]) and $daysOfWeek[0] == 1) ? 'checked' : '',
+            View_Base::TUESDAY   => (isset($daysOfWeek[1]) and $daysOfWeek[1] == 1) ? 'checked' : '',
+            View_Base::WEDNESDAY => (isset($daysOfWeek[2]) and $daysOfWeek[2] == 1) ? 'checked' : '',
+            View_Base::THURSDAY  => (isset($daysOfWeek[3]) and $daysOfWeek[3] == 1) ? 'checked' : '',
+            View_Base::FRIDAY    => (isset($daysOfWeek[4]) and $daysOfWeek[4] == 1) ? 'checked' : '',
         );
 
         $weekendData = array(
-            'Saturday'  => (isset($daysOfWeek[5]) and $daysOfWeek[5] == 1) ? 'checked' : '',
-            'Sunday'    => (isset($daysOfWeek[6]) and $daysOfWeek[6] == 1) ? 'checked' : '',
+            View_Base::SATURDAY => (isset($daysOfWeek[5]) and $daysOfWeek[5] == 1) ? 'checked' : '',
+            View_Base::SUNDAY   => (isset($daysOfWeek[6]) and $daysOfWeek[6] == 1) ? 'checked' : '',
         );
 
         $closeRow = false;
@@ -773,8 +831,9 @@ abstract class View_Base {
                     <td nowrap colspan='$daysColspan'>";
 
         foreach ($weekdayData as $day => $checked) {
+            $nameId = !empty($name) ? $name . "[$day]" : $day;
             print "
-                        <nobr><input type=checkbox name='$day'    id='$day'    value='$day'    $checked>$day</nobr>";
+                        <nobr><input type=checkbox name='$nameId'    id='$day'    value='$day'    $checked>$day</nobr>";
 
             $currentDaysPrinted += 1;
             if ($currentDaysPrinted == $daysPerRow) {
@@ -814,8 +873,9 @@ abstract class View_Base {
                     $currentDaysPrinted = 0;
                 }
 
+                $nameId = !empty($name) ? $name . "[$day]" : $day;
                 print "
-                        <nobr><input type=checkbox name='$day'  id='$day'  value='$day'  $checked>$day</nobr>";
+                        <nobr><input type=checkbox name='$nameId'  id='$day'  value='$day'  $checked>$day</nobr>";
                 $currentDaysPrinted += 1;
             }
         }
