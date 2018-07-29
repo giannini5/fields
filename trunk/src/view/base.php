@@ -1184,6 +1184,26 @@ abstract class View_Base {
     }
 
     /**
+     * Get selector array for Genders
+     *
+     * @param bool   $allOption      - if true then All is an option otherwise All is not allowed
+     *
+     * @return array - id => Gender
+     */
+    public function getGenderSelector($allOption = false)
+    {
+        $genderSelector = [];
+        if ($allOption) {
+            $genderSelector[Division::$ALL] = Division::$ALL;
+        }
+
+        $genderSelector[Division::$BOYS]  = Division::$BOYS;
+        $genderSelector[Division::$GIRLS] = Division::$GIRLS;
+
+        return $genderSelector;
+    }
+
+    /**
      * Get selector array for GameDates
      *
      * @return array - id => name

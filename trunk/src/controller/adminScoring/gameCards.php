@@ -13,7 +13,8 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
     const FACILITY_BY_DAY   = 'facilityByDay';
 
     public $displayType;
-    public $divisionId;
+    public $divisionName;
+    public $gender;
     public $gameDate;
     public $gameDateId;
     public $facilityId;
@@ -32,7 +33,8 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
 
             switch ($this->displayType) {
                 case self::DIVISION_BY_DAY:
-                    $this->divisionId = $this->getPostAttribute(View_Base::DIVISION_ID, null, true, true);
+                    $this->divisionName = $this->getPostAttribute(View_Base::DIVISION_NAME, null, true, false);
+                    $this->gender       = $this->getPostAttribute(View_Base::GENDER, null, true, false);
                     break;
 
                 case self::FACILITY_BY_DAY:

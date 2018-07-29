@@ -34,7 +34,8 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
     public function renderPage()
     {
         $sessionId          = $this->m_controller->getSessionId();
-        $divisionsSelector  = $this->getDivisionsSelector(false, true, true, true);
+        $divisionsSelector  = $this->getDivisionsSelector(true, true, false, true);
+        $genderSelector     = $this->getGenderSelector(true);
         $gameDateSelector   = $this->getGameDateSelector();
 
         $messageString = $this->m_controller->m_messageString;
@@ -48,7 +49,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                 <tr>
                     <td valign='top' bgcolor='" . View_Base::VIEW_COLOR . "'>";
 
-        $this->_printGameCardsByDivisionAndDay($sessionId, $divisionsSelector, $gameDateSelector);
+        $this->_printGameCardsByDivisionGenderAndDay($sessionId, $divisionsSelector, $genderSelector, $gameDateSelector);
 
         print "
                     </td>
@@ -68,7 +69,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                 break;
 
             case Controller_AdminScoring_GameCards::DIVISION_BY_DAY:
-                $this->printGameCardsByDivisionId($this->m_controller->divisionId, $this->m_controller->gameDate);
+                $this->printGameCardsByDivisionNameAndGender($this->m_controller->divisionName, $this->m_controller->gender, $this->m_controller->gameDate);
                 break;
         }
     }
@@ -82,11 +83,11 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
      * @param array $divisionsSelector  - List of divisionId => name
      * @param array $gameDateSelector   - List of gameDateId => day
      */
-    private function _printGameCardsByDivisionAndDay($sessionId, $divisionsSelector, $gameDateSelector)
+    private function _printGameCardsByDivisionGenderAndDay($sessionId, $divisionsSelector, $genderSelector, $gameDateSelector)
     {
-        $division               = isset($this->m_controller->divisionId) ? Division::lookupById($this->m_controller->divisionId) : null;
-        $selectedDivisionName   = isset($division) ? $division->nameWithGender : '';
+        $selectedDivisionName   = isset($this->m_controller->divisionName) ? $this->m_controller->divisionName : '';
         $gameDay                = isset($this->m_controller->gameDate) ? $this->m_controller->gameDate->day : '';
+        $selectedGender         = isset($this->m_controller->gender) ? $this->m_controller->gender : '';
 
         print "
             <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
@@ -95,7 +96,8 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                 </tr>
             <form method='post' action='" . self::SCORING_GAME_CARDS_PAGE . $this->m_urlParams . "'>";
 
-        $this->displaySelector('Division:', View_Base::DIVISION_ID, '', $divisionsSelector, $selectedDivisionName);
+        $this->displaySelector('Division:', View_Base::DIVISION_NAME, '', $divisionsSelector, $selectedDivisionName);
+        $this->displaySelector('Gender:', View_Base::GENDER, '', $genderSelector, $selectedGender);
         $this->displaySelector('Game Date:', View_Base::GAME_DATE_ID, '', $gameDateSelector, $gameDay);
 
         // Print Update button and end form
@@ -183,20 +185,21 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
     }
 
     /**
-     * @param int       $divisionId
+     * @param string    $divisionName
+     * @param string    $gender     - All, Boys, Girls
      * @param GameDate  $gameDate
      */
-    private function  printGameCardsByDivisionId($divisionId, $gameDate)
+    private function  printGameCardsByDivisionNameAndGender($divisionName, $gender, $gameDate)
     {
         $divisions = [];
-        if ($divisionId == 0) {
+        if ($divisionName == 'All') {
             $divisions = Division::lookupBySeason($this->m_controller->m_season);
         } else {
-            $divisions[] = Division::lookupById($divisionId);
+            $divisions = Division::lookupByName($this->m_controller->m_season, $divisionName);
         }
 
         foreach ($divisions as $division) {
-            $this->printGameCardsByDivision($division, $gameDate);
+            $this->printGameCardsByDivision($division, $gameDate, null, $gender);
         }
     }
 
@@ -204,10 +207,11 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
      * @param Division          $division
      * @param GameDate          $gameDate
      * @param Facility | null   $facilityFilter
+     * @param string            $genderFilter -
      */
-    private function printGameCardsByDivision($division, $gameDate, $facilityFilter = null)
+    private function printGameCardsByDivision($division, $gameDate, $facilityFilter = null, $genderFilter = 'All')
     {
-        $games          = Game::lookupByDivisionDay($division, $gameDate->day, true);
+        $games = Game::lookupByDivisionDay($division, $gameDate->day, true);
 
         foreach ($games as $game) {
             // Skip games that are not played at the specified facility
@@ -217,12 +221,43 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                 }
             }
 
+            // Skip games that are not associated with the spcified gender
+            if ($genderFilter != 'All') {
+                if ($game->flight->schedule->division->gender != $genderFilter) {
+                    continue;
+                }
+            }
+
+            // Home Team Game Card (front and back, two pages
             print "
             <p style='page-break-before: always;'>&nbsp</p>
-            <div style ='margin: auto; width: 1000px;'>";
+            <div style ='margin: auto; width: 500px;'>";
 
             $this->printGameCard($game, 'left', true);
-            $this->printGameCard($game, 'right', false);
+
+            print "
+            </div>
+            <p style='page-break-before: always;'>&nbsp</p>
+            <div style ='margin: auto; width: 500px;'>";
+
+            $this->printBackOfGameCard($game, 'left', true);
+
+            print "
+            </div>";
+
+            // Visiting Team Game Card (front and back, two pages
+            print "
+            <p style='page-break-before: always;'>&nbsp</p>
+            <div style ='margin: auto; width: 500px;'>";
+
+            $this->printGameCard($game, 'left', false);
+
+            print "
+            </div>
+            <p style='page-break-before: always;'>&nbsp</p>
+            <div style ='margin: auto; width: 500px;'>";
+
+            $this->printBackOfGameCard($game, 'left', false);
 
             print "
             </div>";
@@ -258,6 +293,131 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         print "
                 <div style='float: $position; width=500px; height=700px; margin-left: 5px; margin-right 5px; border: none'>
                     <br><br><br>
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr>
+                            <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
+                            <td align='center' nowrap><strong style='font-size: larger'>GAME CARD</strong></td>
+                            <td align='right'><strong style='font-size: larger'>$homeOrVisitor</strong></td>
+                        </tr>
+                    </table>
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr style='height: $headerElementHeight'>
+                            <td nowrap align='left' style='font-size: larger'>$day $time</td>
+                            <td>&nbsp</td>
+                            <td nowrap align='left' style='font-size: larger'>$fieldName</td>
+                            <td>&nbsp</td>
+                            <td nowrap align='right'>GID: <strong style='font-size: larger'>$game->id</strong></td>
+                        </tr>
+                    </table>
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr style='height: $headerElementHeight'>
+                            <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$fullTeamName</td>
+                            <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>OPPOSING TEAM: </strong>$fullOpposingTeamName</td>
+                        </tr>
+                    </table>
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr style='height: $headerElementHeight'>
+                            <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>COACH: </strong>$coachName</td>
+                            <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>ASST. COACH: </strong>$assistantCoachName</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <table border='2' style='table-layout: fixed; width: 4.5in' cellpadding='5' cellspacing='0'>
+                            <tr>
+                                <td rowspan='2' width='5px' align='center' style='border: 1px solid'><strong>#</strong></td>
+                                <td rowspan='2' width='65px' align='center' style='border: 1px solid'><strong>Player's Name</strong></td>
+                                <td rowspan='2' width='30px' colspan='2' align='center' style='border: 1px solid; border-right: double'><strong>Goals Scored</strong></td>
+                                <td width='60px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub: X, Keeper: G</strong></td>
+                            </tr>
+                            <tr>
+                                <td align='center' style='border: 1px solid; font-size: 10px; border-left: double'><strong>1</strong></td>
+                                <td align='center' style='border: 1px solid; font-size: 10px'><strong>2</strong></td>
+                                <td align='center' style='border: 1px solid; font-size: 10px'><strong>3</strong></td>
+                                <td align='center' style='border: 1px solid; font-size: 10px'><strong>4</strong></td>
+                            </tr>";
+
+        $playerCount = 0;
+        Assertion::isTrue(count($players) < 18, "Count of players on a team cannot exceed 18. Team has " . count($players) . " players");
+        foreach ($players as $player) {
+            $this->printPlayerRow($player->name, $player->number);
+            $playerCount += 1;
+        }
+
+        while ($playerCount < 22) {
+            $this->printPlayerRow();
+            $playerCount += 1;
+        }
+
+        print "
+                    </table>
+                    <br><br>
+                    </div>";
+
+        /*
+        print "
+                    </table>
+                    
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Half Score:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
+                            <td align='right' nowrap>Favor Of:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
+                            <td align='right' nowrap>Final:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
+                            <td align='right' nowrap>Winner:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Center Ref:</td>
+                            <td colspan=7 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Asst Ref:</td>
+                            <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                            <td align='right' nowrap>Asst Ref:</td>
+                            <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                    </table>                 
+                    <br><br>
+
+                </div>";
+        */
+        // <p align='center'><strong>Write game comments (if any) on reverse side.  Thansks for reffing!</strong></p>
+    }
+
+    /**
+     * @param Game      $game
+     * @param string    $position
+     * @param bool      $isHomeTeam
+     */
+    private function printBackOfGameCard($game, $position, $isHomeTeam)
+    {
+        $homeOrVisitor          = $isHomeTeam ? "HOME" : "VISITOR";
+        $team                   = $isHomeTeam ? $game->homeTeam : $game->visitingTeam;
+        $teamId                 = isset($team) ? $team->nameId : "";
+        $teamName               = isset($team) ? $team->name : "";
+        $opposingTeam           = $isHomeTeam ? $game->visitingTeam : $game->homeTeam;
+        $opposingTeamId         = isset($opposingTeam) ? $opposingTeam->nameId : "";
+        $opposingTeamName       = isset($opposingTeam) ? $opposingTeam->name : "";
+        $coach                  = isset($team) ? Coach::lookupByTeam($team) : null;
+        $coachName              = isset($coach) ? $coach->name : "";
+        $assistantCoaches       = isset($team) ? AssistantCoach::lookupByTeam($team) : [];
+        $assistantCoachName     = count($assistantCoaches) > 0 ? $assistantCoaches[0]->name : "";
+        $day                    = $game->gameTime->gameDate->day;
+        $time                   = substr($game->gameTime->actualStartTime, 0, 5);
+        $fieldName              = $game->gameTime->field->fullName;
+        $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId: $teamName";
+        $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId: $opposingTeamName";
+        $players                = $this->getPlayersOrderedByNumber($team);
+
+        $headerElementHeight    = "20px";
+        print "
+                <div style='float: $position; width=500px; height=700px; margin-left: 5px; margin-right 5px; border: none'>
+                    <br><br><br>";
+
+        /*
+        print "
                     <table border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr>
                             <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
@@ -312,29 +472,87 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
             $this->printPlayerRow();
             $playerCount += 1;
         }
+        */
 
         print "
-                    </table>
-                    
                     <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr>
+                            <th style='font-size: 20px' colspan='4' align='center'>Referee Game Report</th>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
                         <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Half Score:</td>
+                            <td align='left' nowrap>Halftime Score:</td>
                             <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>Favor Of:</td>
-                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>Final:</td>
-                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>Winner:</td>
+                            <td align='right' nowrap>In Favor Of:</td>
                             <td style='text-decoration: underline; border-bottom: 1px solid'></td>
                         </tr>
-                        <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Center Ref:</td>
-                            <td colspan=7 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        <tr><td>&nbsp</td></tr>
+                        <tr>
+                            <td align='left' nowrap>Final Score:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
+                            <td align='right' nowrap>In Favor Of:</td>
+                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
                         </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr>
+                            <th style='font-size: 20px' colspan='4' align='center'>Preliminary Incident Report</th>
+                        </tr>
+                        <tr>
+                            <th style='font-size: 12px' colspan='4' align='center'>(A more detailed report may be required.  Check at the referee tent.)</th>
+                        </tr>
+                        <tr>
+                            <th style='font-size: 8px' colspan='4' align='center'>Disciplinary Action / Significant Injuries / Additional Comments: Please include names and player numbers.</th>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
                         <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Asst Ref:</td>
+                            <td colspan=4 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td colspan=4 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td colspan=4 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td colspan=4 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td colspan=4 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td colspan=4 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td colspan=4 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td colspan=4 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr>
+                            <th style='font-size: 20px' colspan='4' align='center'>Referee Signatures</th>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Center Referee:</td>
                             <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>Asst Ref:</td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Assistant Referee:</td>
+                            <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
+                        </tr>
+                        <tr><td>&nbsp</td></tr>
+                        <tr style='font-size: 12px; height: 25px'>
+                            <td align='left' nowrap>Assistant Referee:</td>
                             <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
                         </tr>
                     </table>                 
