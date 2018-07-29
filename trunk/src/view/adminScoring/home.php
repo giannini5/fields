@@ -321,14 +321,14 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $headerElementHeight    = "20px";
 
         print "
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table border='0' style='table-layout: fixed; width: 5.0in'>
                         <tr>
                             <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
                             <td align='center' nowrap><strong style='font-size: larger'>REGION 122 GAME CARD</strong></td>
                             <td align='right'><strong style='font-size: larger'>$homeOrVisitor</strong></td>
                         </tr>
                     </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table border='0' style='table-layout: fixed; width: 5.0in'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='font-size: larger'>$day $time</td>
                             <td>&nbsp</td>
@@ -337,26 +337,26 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                             <td nowrap align='right'>GID: <strong style='font-size: larger'>$game->id</strong></td>
                         </tr>
                     </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table border='0' style='table-layout: fixed; width: 5.0in'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$fullTeamName</td>
                             <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>OPPOSING TEAM: </strong>$fullOpposingTeamName</td>
                         </tr>
                     </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table border='0' style='table-layout: fixed; width: 5.0in'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>COACH: </strong>$coachName</td>
                             <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>ASST. COACH: </strong>$assistantCoachName</td>
                         </tr>
                     </table>
                     <br>
-                    <table border='2' style='table-layout: fixed; width: 4.5in' cellpadding='5' cellspacing='0'>
+                    <table border='2' style='table-layout: fixed; width: 5.0in' cellpadding='5' cellspacing='0'>
                             <tr>
                                 <td rowspan='2' width='5px' align='center' style='border: 1px solid'><strong>#</strong></td>
                                 <td rowspan='2' width='65px' align='center' style='border: 1px solid'><strong>Player's Name</strong></td>
                                 <td rowspan='2' width='15px' colspan='1' align='center' style='border: 1px solid; border-right: double'><strong>Goals</strong></td>
-                                <td width='80px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub: X, Keeper: G</strong></td>
-                                <td width='15px' colspan='2' align='center' style='border: 1px solid'><strong>Cards</strong></td>
+                                <td width='85px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub: X, Keeper: G</strong></td>
+                                <td width='20' colspan='2' align='center' style='border: 1px solid'><strong>Cards</strong></td>
                             </tr>
                             <tr>
                                 <td align='center' style='border: 1px solid; font-size: 10px; border-left: double'><strong>1</strong></td>
@@ -405,7 +405,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         print "
                             </td> 
                             <td width='65px'>
-                                <input type='text' size='18' name='$inputName' placeholder='Name' value='$playerName'>
+                                <input type='text' size='12' name='$inputName' placeholder='Name' value='$playerName'>
                             </td>
                             <td width='15px' align='center' style='border-right: double'>";
 
