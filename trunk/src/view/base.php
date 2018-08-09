@@ -53,6 +53,8 @@ abstract class View_Base {
     const SCORING_VOLUNTEER_POINTS_PAGE = '/admin_scoring_volunteerPoints';
     const SCORING_GAME_CARDS_PAGE       = '/admin_scoring_gameCards';
     const SCORING_SCORE_SHEET_PAGE      = '/admin_scoring_scoreSheet';
+    const SCORING_PLAYER_STATS_PAGE     = '/admin_scoring/playerStats';
+    const SCORING_TEAM_STATS_PAGE       = '/admin_scoring/teamStats';
 
     # Admin Referee pages
     const REFEREE_HOME_PAGE         = '/admin_referee_home';
@@ -67,6 +69,7 @@ abstract class View_Base {
     const GAMES_FLIGHTS_PAGE        = '/games/flights';
     const GAMES_SCHEDULE_PAGE       = '/games/schedule';
     const GAMES_STANDINGS_PAGE      = '/games/standings';
+    const GAMES_TEAM_STATS_PAGE     = '/games/teamStats';
     const GAMES_PLAYER_STATS_PAGE   = '/games/playerStats';
     const GAMES_GAME_CARDS_PAGE     = '/games/gameCards';
 
@@ -205,6 +208,12 @@ abstract class View_Base {
     const QUARTER_3                 = 'quarter3';
     const QUARTER_4                 = 'quarter4';
 
+    const PLAYER_BASE               = 'playerQ';
+    const PLAYER_Q1                 = 'playerQ1';
+    const PLAYER_Q2                 = 'playerQ2';
+    const PLAYER_Q3                 = 'playerQ3';
+    const PLAYER_Q4                 = 'playerQ4';
+
     const PLAYER_SUB_BASE           = 'playerSubQ';
     const PLAYER_SUB_Q1             = 'playerSubQ1';
     const PLAYER_SUB_Q2             = 'playerSubQ2';
@@ -216,6 +225,18 @@ abstract class View_Base {
     const PLAYER_KEEP_Q2            = 'playerKeepQ2';
     const PLAYER_KEEP_Q3            = 'playerKeepQ3';
     const PLAYER_KEEP_Q4            = 'playerKeepQ4';
+
+    const PLAYER_INJURED_BASE       = 'playerInjuredQ';
+    const PLAYER_INJURED_Q1         = 'playerInjuredQ1';
+    const PLAYER_INJURED_Q2         = 'playerInjuredQ2';
+    const PLAYER_INJURED_Q3         = 'playerInjuredQ3';
+    const PLAYER_INJURED_Q4         = 'playerInjuredQ4';
+
+    const PLAYER_ABSENT_BASE        = 'playerAbsentQ';
+    const PLAYER_ABSENT_Q1          = 'playerAbsentQ1';
+    const PLAYER_ABSENT_Q2          = 'playerAbsentQ2';
+    const PLAYER_ABSENT_Q3          = 'playerAbsentQ3';
+    const PLAYER_ABSENT_Q4          = 'playerAbsentQ4';
 
     const PLAYER_YELLOW1            = 'playerYellow1';
     const PLAYER_YELLOW2            = 'playerYellow2';

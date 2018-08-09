@@ -244,8 +244,8 @@ class View_Games_GameCards extends View_Games_Base
         $day                    = $game->gameTime->gameDate->day;
         $time                   = substr($game->gameTime->actualStartTime, 0, 5);
         $fieldName              = $game->gameTime->field->fullName;
-        $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId: $teamName";
-        $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId: $opposingTeamName";
+        $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId($teamName)";
+        $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId($opposingTeamName)";
         $players                = $this->getPlayersOrderedByNumber($team);
 
         $headerElementHeight    = "20px";
@@ -254,7 +254,7 @@ class View_Games_GameCards extends View_Games_Base
                     <table id='viewTable' class='table' border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr>
                             <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
-                            <td align='center' nowrap><strong style='font-size: larger'>REGION 122 GAME CARD</strong></td>
+                            <td align='center' nowrap><strong style='font-size: larger'>GAME CARD</strong></td>
                             <td align='right'><strong style='font-size: larger'>$homeOrVisitor</strong></td>
                         </tr>
                     </table>
@@ -270,7 +270,7 @@ class View_Games_GameCards extends View_Games_Base
                     <table id='viewTable' class='table' border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$fullTeamName</td>
-                            <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>OPPOSING TEAM: </strong>$fullOpposingTeamName</td>
+                            <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>VS: </strong>$fullOpposingTeamName</td>
                         </tr>
                     </table>
                     <table id='viewTable' class='table' border='0' style='table-layout: fixed; width: 4.5in'>
@@ -285,7 +285,7 @@ class View_Games_GameCards extends View_Games_Base
                                 <td rowspan='2' width='5px' align='center' style='border: 1px solid'><strong>#</strong></td>
                                 <td rowspan='2' width='65px' align='center' style='border: 1px solid'><strong>Player's Name</strong></td>
                                 <td rowspan='2' width='15px' colspan='1' align='center' style='border: 1px solid; border-right: double'><strong>Goals</strong></td>
-                                <td width='80px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub: X, Keeper: G</strong></td>
+                                <td width='80px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub:X, Keep:G<br>Injured:I, Absent:A</strong></td>
                                 <td width='15px' colspan='2' align='center' style='border: 1px solid'><strong>Cards</strong></td>
                             </tr>
                             <tr>
@@ -305,7 +305,7 @@ class View_Games_GameCards extends View_Games_Base
         }
 
         print "
-                    </table>";
+                    </table><br>";
     }
 
     /**
@@ -364,13 +364,21 @@ class View_Games_GameCards extends View_Games_Base
         if ($playerGameStats) {
             $substitution   = 'substitutionQuarter' . $quarter;
             $keeper         = 'keeperQuarter' . $quarter;
+            $injured        = 'injuredQuarter' . $quarter;
+            $absent         = 'absentQuarter' . $quarter;
 
             if ($playerGameStats->{$substitution}) {
                 $value      = 'X';
                 $bgColor    = 'lightgray';
             } else if ($playerGameStats->{$keeper}) {
                 $value      = 'G';
-                $bgColor    = 'lightsalmon';
+                $bgColor    = 'lightblue';
+            } else if ($playerGameStats->{$injured}) {
+                $value      = 'I';
+                $bgColor    = 'lightpink';
+            } else if ($playerGameStats->{$absent}) {
+                $value      = 'A';
+                $bgColor    = 'orange';
             }
         }
 
@@ -378,7 +386,7 @@ class View_Games_GameCards extends View_Games_Base
         $cellStyle  = "style='background-color: $bgColor; $leftBorder'";
 
         print "
-            <td $cellStyle>$value</td>";
+            <td align='center' $cellStyle>$value</td>";
     }
 
     /**

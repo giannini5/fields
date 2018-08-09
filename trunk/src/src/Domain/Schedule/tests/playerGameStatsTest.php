@@ -37,6 +37,14 @@ class PlayerGameStatsTest extends ORM_TestHelper
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_2          => 0,
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_3          => 0,
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_4          => 0,
+                PlayerGameStatsOrm::FIELD_INJURED_QUARTER_1         => 0,
+                PlayerGameStatsOrm::FIELD_INJURED_QUARTER_2         => 0,
+                PlayerGameStatsOrm::FIELD_INJURED_QUARTER_3         => 0,
+                PlayerGameStatsOrm::FIELD_INJURED_QUARTER_4         => 0,
+                PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_1          => 0,
+                PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_2          => 0,
+                PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_3          => 0,
+                PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_4          => 0,
                 PlayerGameStatsOrm::FIELD_YELLOW_CARDS              => 0,
                 PlayerGameStatsOrm::FIELD_RED_CARD                  => 0,
             ];
@@ -89,6 +97,14 @@ class PlayerGameStatsTest extends ORM_TestHelper
         $this->playerGameStats->keeperQuarter2       = true;
         $this->playerGameStats->keeperQuarter3       = true;
         $this->playerGameStats->keeperQuarter4       = true;
+        $this->playerGameStats->injuredQuarter1      = true;
+        $this->playerGameStats->injuredQuarter2      = true;
+        $this->playerGameStats->injuredQuarter3      = true;
+        $this->playerGameStats->injuredQuarter4      = true;
+        $this->playerGameStats->absentQuarter1       = true;
+        $this->playerGameStats->absentQuarter2       = true;
+        $this->playerGameStats->absentQuarter3       = true;
+        $this->playerGameStats->absentQuarter4       = true;
         $this->playerGameStats->yellowCards          = 2;
         $this->playerGameStats->redCard              = true;
 
@@ -115,6 +131,14 @@ class PlayerGameStatsTest extends ORM_TestHelper
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_2          => 1,
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_3          => 1,
                 PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_4          => 1,
+                PlayerGameStatsOrm::FIELD_INJURED_QUARTER_1         => 1,
+                PlayerGameStatsOrm::FIELD_INJURED_QUARTER_2         => 1,
+                PlayerGameStatsOrm::FIELD_INJURED_QUARTER_3         => 1,
+                PlayerGameStatsOrm::FIELD_INJURED_QUARTER_4         => 1,
+                PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_1          => 1,
+                PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_2          => 1,
+                PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_3          => 1,
+                PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_4          => 1,
                 PlayerGameStatsOrm::FIELD_YELLOW_CARDS              => 2,
                 PlayerGameStatsOrm::FIELD_RED_CARD                  => 1,
             ];
@@ -138,6 +162,14 @@ class PlayerGameStatsTest extends ORM_TestHelper
         $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_2], $playerGameStats->keeperQuarter2 ? 1 : 0);
         $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_3], $playerGameStats->keeperQuarter3 ? 1 : 0);
         $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_KEEPER_QUARTER_4], $playerGameStats->keeperQuarter4 ? 1 : 0);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_INJURED_QUARTER_1], $playerGameStats->injuredQuarter1 ? 1 : 0);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_INJURED_QUARTER_2], $playerGameStats->injuredQuarter2 ? 1 : 0);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_INJURED_QUARTER_3], $playerGameStats->injuredQuarter3 ? 1 : 0);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_INJURED_QUARTER_4], $playerGameStats->injuredQuarter4 ? 1 : 0);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_1], $playerGameStats->absentQuarter1 ? 1 : 0);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_2], $playerGameStats->absentQuarter2 ? 1 : 0);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_3], $playerGameStats->absentQuarter3 ? 1 : 0);
+        $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_ABSENT_QUARTER_4], $playerGameStats->absentQuarter4 ? 1 : 0);
         $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_YELLOW_CARDS],     $playerGameStats->yellowCards);
         $this->assertEquals($this->expectedPlayerGameStatsOrm[PlayerGameStatsOrm::FIELD_RED_CARD],         $playerGameStats->redCard ? 1 : 0);
     }

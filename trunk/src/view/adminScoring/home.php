@@ -355,7 +355,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                                 <td rowspan='2' width='5px' align='center' style='border: 1px solid'><strong>#</strong></td>
                                 <td rowspan='2' width='65px' align='center' style='border: 1px solid'><strong>Player's Name</strong></td>
                                 <td rowspan='2' width='15px' colspan='1' align='center' style='border: 1px solid; border-right: double'><strong>Goals</strong></td>
-                                <td width='85px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub: X, Keeper: G</strong></td>
+                                <td width='85px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub:X, Keep:G<br>Injured:I, Absent:A</strong></td>
                                 <td width='20' colspan='2' align='center' style='border: 1px solid'><strong>Cards</strong></td>
                             </tr>
                             <tr>
@@ -458,18 +458,28 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         // Figure out value that should be pre-selected
         $substitutionChecked    = '';
         $keeperChecked          = '';
+        $injuredChecked         = '';
+        $absentChecked          = '';
         $bgColor                = 'white';
 
         if ($playerGameStats) {
             $substitution   = 'substitutionQuarter' . $quarter;
             $keeper         = 'keeperQuarter' . $quarter;
+            $injured        = 'injuredQuarter' . $quarter;
+            $absent         = 'absentQuarter' . $quarter;
 
             if ($playerGameStats->{$substitution}) {
                 $substitutionChecked = 'checked';
                 $bgColor             = 'lightgray';
             } else if ($playerGameStats->{$keeper}) {
                 $keeperChecked = 'checked';
-                $bgColor       = 'lightsalmon';
+                $bgColor       = 'lightblue';
+            } else if ($playerGameStats->{$injured}) {
+                $injuredChecked = 'checked';
+                $bgColor        = 'lightpink';
+            } else if ($playerGameStats->{$absent}) {
+                $absentChecked = 'checked';
+                $bgColor       = 'orange';
             }
         }
 
@@ -479,15 +489,26 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         print "
             <td $cellStyle>";
 
-        // Substitution Checkbox
-        $inputName = $baseInputName . "[" . View_Base::PLAYER_SUB_BASE . $quarter . "]";
+        // Radio Button - Sub
+        $inputName = $baseInputName . "[" . View_Base::PLAYER_BASE . $quarter . "]";
         print "
-                <input type=checkbox name='$inputName' value='X' $substitutionChecked>X";
+                <input type=radio name='$inputName' value='X' $substitutionChecked>X";
 
-        // Keeper Checkbox
-        $inputName = $baseInputName . "[" . View_Base::PLAYER_KEEP_BASE . $quarter . "]";
+        // Radio Button - Keeper
         print "
-                <input type=checkbox name='$inputName' value='G' $keeperChecked>G";
+                <input type=radio name='$inputName' value='G' $keeperChecked>G";
+
+        // Radio Button - Injured
+        print "
+                <input type=radio name='$inputName' value='I' $injuredChecked>I";
+
+        // Radio Button - Absent
+        print "
+                <input type=radio name='$inputName' value='A' $absentChecked>A";
+
+        // Radio Button - Empty
+        print "
+                <input type=radio name='$inputName' value='E'>";
 
         print "
             </td>";

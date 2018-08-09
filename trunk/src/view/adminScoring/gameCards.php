@@ -229,38 +229,12 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
             }
 
             // Home Team Game Card (front and back, two pages
-            print "
-            <p style='page-break-before: always;'>&nbsp</p>
-            <div style ='margin: auto; width: 500px;'>";
-
             $this->printGameCard($game, 'left', true);
-
-            print "
-            </div>
-            <p style='page-break-before: always;'>&nbsp</p>
-            <div style ='margin: auto; width: 500px;'>";
-
             $this->printBackOfGameCard($game, 'left', true);
 
-            print "
-            </div>";
-
             // Visiting Team Game Card (front and back, two pages
-            print "
-            <p style='page-break-before: always;'>&nbsp</p>
-            <div style ='margin: auto; width: 500px;'>";
-
             $this->printGameCard($game, 'left', false);
-
-            print "
-            </div>
-            <p style='page-break-before: always;'>&nbsp</p>
-            <div style ='margin: auto; width: 500px;'>";
-
             $this->printBackOfGameCard($game, 'left', false);
-
-            print "
-            </div>";
         }
     }
 
@@ -285,15 +259,13 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         $day                    = $game->gameTime->gameDate->day;
         $time                   = substr($game->gameTime->actualStartTime, 0, 5);
         $fieldName              = $game->gameTime->field->fullName;
-        $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId: $teamName";
-        $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId: $opposingTeamName";
+        $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId($teamName)";
+        $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId($opposingTeamName)";
         $players                = $this->getPlayersOrderedByNumber($team);
 
         $headerElementHeight    = "20px";
         print "
-                <div style='float: $position; width=500px; height=700px; margin-left: 5px; margin-right 5px; border: none'>
-                    <br><br><br>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table border='0' style='page-break-before: always; table-layout: fixed; width: 4.5in'>
                         <tr>
                             <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
                             <td align='center' nowrap><strong style='font-size: larger'>GAME CARD</strong></td>
@@ -312,7 +284,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                     <table border='0' style='table-layout: fixed; width: 4.5in'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$fullTeamName</td>
-                            <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>OPPOSING TEAM: </strong>$fullOpposingTeamName</td>
+                            <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>VS: </strong>$fullOpposingTeamName</td>
                         </tr>
                     </table>
                     <table border='0' style='table-layout: fixed; width: 4.5in'>
@@ -321,19 +293,20 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                             <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>ASST. COACH: </strong>$assistantCoachName</td>
                         </tr>
                     </table>
-                    <br>
+                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                        <tr style='height: $headerElementHeight'>
+                            <td nowrap align='right' style='font-size: 9px'><strong>Sub: X, Keeper: G, Injured: I, Absent: A</strong></td>
+                        </tr>
+                    </table>
                     <table border='2' style='table-layout: fixed; width: 4.5in' cellpadding='5' cellspacing='0'>
                             <tr>
-                                <td rowspan='2' width='5px' align='center' style='border: 1px solid'><strong>#</strong></td>
-                                <td rowspan='2' width='65px' align='center' style='border: 1px solid'><strong>Player's Name</strong></td>
-                                <td rowspan='2' width='30px' colspan='2' align='center' style='border: 1px solid; border-right: double'><strong>Goals Scored</strong></td>
-                                <td width='60px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub: X, Keeper: G</strong></td>
-                            </tr>
-                            <tr>
-                                <td align='center' style='border: 1px solid; font-size: 10px; border-left: double'><strong>1</strong></td>
-                                <td align='center' style='border: 1px solid; font-size: 10px'><strong>2</strong></td>
-                                <td align='center' style='border: 1px solid; font-size: 10px'><strong>3</strong></td>
-                                <td align='center' style='border: 1px solid; font-size: 10px'><strong>4</strong></td>
+                                <td rowspan='1' width='5px' align='center' style='border: 1px solid'><strong>#</strong></td>
+                                <td rowspan='1' width='65px' align='center' style='border: 1px solid'><strong>Player's Name</strong></td>
+                                <td rowspan='1' width='30px' colspan='2' align='center' style='border: 1px solid; border-right: double'><strong>Goals</strong></td>
+                                <td width='15px' align='center' style='border: 1px solid; border-left: double; font-size: 10px; border-left: double'><strong>1</strong></td>
+                                <td width='15px' align='center' style='border: 1px solid; font-size: 10px'><strong>2</strong></td>
+                                <td width='15px' align='center' style='border: 1px solid; font-size: 10px'><strong>3</strong></td>
+                                <td width='15px' align='center' style='border: 1px solid; font-size: 10px'><strong>4</strong></td>
                             </tr>";
 
         $playerCount = 0;
@@ -349,41 +322,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         }
 
         print "
-                    </table>
-                    <br><br>
-                    </div>";
-
-        /*
-        print "
-                    </table>
-                    
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
-                        <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Half Score:</td>
-                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>Favor Of:</td>
-                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>Final:</td>
-                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>Winner:</td>
-                            <td style='text-decoration: underline; border-bottom: 1px solid'></td>
-                        </tr>
-                        <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Center Ref:</td>
-                            <td colspan=7 style='text-decoration: underline; border-bottom: 1px solid'></td>
-                        </tr>
-                        <tr style='font-size: 12px; height: 25px'>
-                            <td align='left' nowrap>Asst Ref:</td>
-                            <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
-                            <td align='right' nowrap>Asst Ref:</td>
-                            <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
-                        </tr>
-                    </table>                 
-                    <br><br>
-
-                </div>";
-        */
-        // <p align='center'><strong>Write game comments (if any) on reverse side.  Thansks for reffing!</strong></p>
+                    </table>";
     }
 
     /**
@@ -393,89 +332,8 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
      */
     private function printBackOfGameCard($game, $position, $isHomeTeam)
     {
-        $homeOrVisitor          = $isHomeTeam ? "HOME" : "VISITOR";
-        $team                   = $isHomeTeam ? $game->homeTeam : $game->visitingTeam;
-        $teamId                 = isset($team) ? $team->nameId : "";
-        $teamName               = isset($team) ? $team->name : "";
-        $opposingTeam           = $isHomeTeam ? $game->visitingTeam : $game->homeTeam;
-        $opposingTeamId         = isset($opposingTeam) ? $opposingTeam->nameId : "";
-        $opposingTeamName       = isset($opposingTeam) ? $opposingTeam->name : "";
-        $coach                  = isset($team) ? Coach::lookupByTeam($team) : null;
-        $coachName              = isset($coach) ? $coach->name : "";
-        $assistantCoaches       = isset($team) ? AssistantCoach::lookupByTeam($team) : [];
-        $assistantCoachName     = count($assistantCoaches) > 0 ? $assistantCoaches[0]->name : "";
-        $day                    = $game->gameTime->gameDate->day;
-        $time                   = substr($game->gameTime->actualStartTime, 0, 5);
-        $fieldName              = $game->gameTime->field->fullName;
-        $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId: $teamName";
-        $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId: $opposingTeamName";
-        $players                = $this->getPlayersOrderedByNumber($team);
-
-        $headerElementHeight    = "20px";
         print "
-                <div style='float: $position; width=500px; height=700px; margin-left: 5px; margin-right 5px; border: none'>
-                    <br><br><br>";
-
-        /*
-        print "
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
-                        <tr>
-                            <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
-                            <td align='center' nowrap><strong style='font-size: larger'>REGION 122 GAME CARD</strong></td>
-                            <td align='right'><strong style='font-size: larger'>$homeOrVisitor</strong></td>
-                        </tr>
-                    </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
-                        <tr style='height: $headerElementHeight'>
-                            <td nowrap align='left' style='font-size: larger'>$day $time</td>
-                            <td>&nbsp</td>
-                            <td nowrap align='left' style='font-size: larger'>$fieldName</td>
-                            <td>&nbsp</td>
-                            <td nowrap align='right'>GID: <strong style='font-size: larger'>$game->id</strong></td>
-                        </tr>
-                    </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
-                        <tr style='height: $headerElementHeight'>
-                            <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$fullTeamName</td>
-                            <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>OPPOSING TEAM: </strong>$fullOpposingTeamName</td>
-                        </tr>
-                    </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
-                        <tr style='height: $headerElementHeight'>
-                            <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>COACH: </strong>$coachName</td>
-                            <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>ASST. COACH: </strong>$assistantCoachName</td>
-                        </tr>
-                    </table>
-                    <br>
-                    <table border='2' style='table-layout: fixed; width: 4.5in' cellpadding='5' cellspacing='0'>
-                            <tr>
-                                <td rowspan='2' width='5px' align='center' style='border: 1px solid'><strong>#</strong></td>
-                                <td rowspan='2' width='65px' align='center' style='border: 1px solid'><strong>Player's Name</strong></td>
-                                <td rowspan='2' width='30px' colspan='2' align='center' style='border: 1px solid; border-right: double'><strong>Goals Scored</strong></td>
-                                <td width='60px' colspan='4' align='center' style='border: 1px solid; border-left: double'><strong>Sub: X, Keeper: G</strong></td>
-                            </tr>
-                            <tr>
-                                <td align='center' style='border: 1px solid; font-size: 10px; border-left: double'><strong>1</strong></td>
-                                <td align='center' style='border: 1px solid; font-size: 10px'><strong>2</strong></td>
-                                <td align='center' style='border: 1px solid; font-size: 10px'><strong>3</strong></td>
-                                <td align='center' style='border: 1px solid; font-size: 10px'><strong>4</strong></td>
-                            </tr>";
-
-        $playerCount = 0;
-        Assertion::isTrue(count($players) < 18, "Count of players on a team cannot exceed 18. Team has " . count($players) . " players");
-        foreach ($players as $player) {
-            $this->printPlayerRow($player->name, $player->number);
-            $playerCount += 1;
-        }
-
-        while ($playerCount < 18) {
-            $this->printPlayerRow();
-            $playerCount += 1;
-        }
-        */
-
-        print "
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table border='0' style='page-break-before: always; table-layout: fixed; width: 4.5in'>
                         <tr>
                             <th style='font-size: 20px' colspan='4' align='center'>Referee Game Report</th>
                         </tr>
@@ -555,11 +413,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                             <td align='left' nowrap>Assistant Referee:</td>
                             <td colspan=3 style='text-decoration: underline; border-bottom: 1px solid'></td>
                         </tr>
-                    </table>                 
-                    <br><br>
-
-                </div>";
-        // <p align='center'><strong>Write game comments (if any) on reverse side.  Thansks for reffing!</strong></p>
+                    </table>";
     }
 
     /**
@@ -568,9 +422,9 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
      */
     private function printPlayerRow($playerName = '', $number = '') {
         print "
-                        <tr style='overflow: hidden; height: 30px'>
-                            <td width='5px' align='center' style='font-size: larger'>$number</td> 
-                            <td width='75px' style='overflow: hidden; white-space: nowrap; font-size: larger'>$playerName</td>
+                        <tr style='overflow: hidden; height: 25px'>
+                            <td width='5px' align='center' style='font-size: 12px'>$number</td> 
+                            <td width='75px' style='overflow: hidden; white-space: nowrap; font-size: 12px'>$playerName</td>
                             <td width='15px'>&nbsp</td>
                             <td width='15px' style='border-right: double'>&nbsp</td>
                             <td width='15px' style='border-left: double'>&nbsp</td>

@@ -22,6 +22,14 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $keeperQuarter2
  * @property int    $keeperQuarter3
  * @property int    $keeperQuarter4
+ * @property int    $injuredQuarter1
+ * @property int    $injuredQuarter2
+ * @property int    $injuredQuarter3
+ * @property int    $injuredQuarter4
+ * @property int    $absentQuarter1
+ * @property int    $absentQuarter2
+ * @property int    $absentQuarter3
+ * @property int    $absentQuarter4
  * @property int    $yellowCards
  * @property int    $redCard
  */
@@ -39,6 +47,14 @@ class PlayerGameStatsOrm extends PersistenceModel
     const FIELD_KEEPER_QUARTER_2        = 'keeperQuarter2';
     const FIELD_KEEPER_QUARTER_3        = 'keeperQuarter3';
     const FIELD_KEEPER_QUARTER_4        = 'keeperQuarter4';
+    const FIELD_INJURED_QUARTER_1       = 'injuredQuarter1';
+    const FIELD_INJURED_QUARTER_2       = 'injuredQuarter2';
+    const FIELD_INJURED_QUARTER_3       = 'injuredQuarter3';
+    const FIELD_INJURED_QUARTER_4       = 'injuredQuarter4';
+    const FIELD_ABSENT_QUARTER_1        = 'absentQuarter1';
+    const FIELD_ABSENT_QUARTER_2        = 'absentQuarter2';
+    const FIELD_ABSENT_QUARTER_3        = 'absentQuarter3';
+    const FIELD_ABSENT_QUARTER_4        = 'absentQuarter4';
     const FIELD_YELLOW_CARDS            = 'yellowCards';
     const FIELD_RED_CARD                = 'redCard';
 
@@ -55,6 +71,14 @@ class PlayerGameStatsOrm extends PersistenceModel
         self::FIELD_KEEPER_QUARTER_2        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_KEEPER_QUARTER_3        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_KEEPER_QUARTER_4        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_INJURED_QUARTER_1       => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_INJURED_QUARTER_2       => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_INJURED_QUARTER_3       => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_INJURED_QUARTER_4       => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_ABSENT_QUARTER_1        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_ABSENT_QUARTER_2        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_ABSENT_QUARTER_3        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_ABSENT_QUARTER_4        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_YELLOW_CARDS            => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_RED_CARD                => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
@@ -81,6 +105,14 @@ class PlayerGameStatsOrm extends PersistenceModel
      * @param int       $keeperQuarter2
      * @param int       $keeperQuarter3
      * @param int       $keeperQuarter4
+     * @param int       $injuredQuarter1
+     * @param int       $injuredQuarter2
+     * @param int       $injuredQuarter3
+     * @param int       $injuredQuarter4
+     * @param int       $absentQuarter1
+     * @param int       $absentQuarter2
+     * @param int       $absentQuarter3
+     * @param int       $absentQuarter4
      * @param int       $yellowCards
      * @param int       $redCard
      *
@@ -100,6 +132,14 @@ class PlayerGameStatsOrm extends PersistenceModel
         $keeperQuarter2 = 0,
         $keeperQuarter3 = 0,
         $keeperQuarter4 = 0,
+        $injuredQuarter1 = 0,
+        $injuredQuarter2 = 0,
+        $injuredQuarter3 = 0,
+        $injuredQuarter4 = 0,
+        $absentQuarter1 = 0,
+        $absentQuarter2 = 0,
+        $absentQuarter3 = 0,
+        $absentQuarter4 = 0,
         $yellowCards    = 0,
         $redCard        = 0
     ) {
@@ -119,6 +159,14 @@ class PlayerGameStatsOrm extends PersistenceModel
                     self::FIELD_KEEPER_QUARTER_2        => $keeperQuarter2,
                     self::FIELD_KEEPER_QUARTER_3        => $keeperQuarter3,
                     self::FIELD_KEEPER_QUARTER_4        => $keeperQuarter4,
+                    self::FIELD_INJURED_QUARTER_1       => $injuredQuarter1,
+                    self::FIELD_INJURED_QUARTER_2       => $injuredQuarter2,
+                    self::FIELD_INJURED_QUARTER_3       => $injuredQuarter3,
+                    self::FIELD_INJURED_QUARTER_4       => $injuredQuarter4,
+                    self::FIELD_ABSENT_QUARTER_1        => $absentQuarter1,
+                    self::FIELD_ABSENT_QUARTER_2        => $absentQuarter2,
+                    self::FIELD_ABSENT_QUARTER_3        => $absentQuarter3,
+                    self::FIELD_ABSENT_QUARTER_4        => $absentQuarter4,
                     self::FIELD_YELLOW_CARDS            => $yellowCards,
                     self::FIELD_RED_CARD                => $redCard,
                 ],
