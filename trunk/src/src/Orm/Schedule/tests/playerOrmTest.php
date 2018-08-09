@@ -54,16 +54,18 @@ class PlayerOrmTest extends ORM_TestHelper
     private function verifyExpectedAttributes($playerOrm, $attributes)
     {
         $this->assertTrue($playerOrm->id > 0);
-        $this->assertEquals($this->defaultTeamOrm->id,      $playerOrm->teamId);
-        $this->assertEquals($this->defaultFamilyOrm->id,    $playerOrm->familyId);
-        $this->assertEquals($attributes[self::NAME],        $playerOrm->name);
-        $this->assertEquals($attributes[self::EMAIL],       $playerOrm->email);
-        $this->assertEquals($attributes[self::PHONE],       $playerOrm->phone);
-        $this->assertNull($attributes[self::NUMBER],        $playerOrm->number);
-        $this->assertEquals($attributes[self::GOALS],         $playerOrm->goals);
-        $this->assertEquals($attributes[self::QUARTERS_SUB],  $playerOrm->quartersSub);
-        $this->assertEquals($attributes[self::QUARTERS_KEEP], $playerOrm->quartersKeep);
-        $this->assertEquals($attributes[self::YELLOW_CARDS],  $playerOrm->yellowCards);
-        $this->assertEquals($attributes[self::RED_CARDS],     $playerOrm->redCards);
+        $this->assertEquals($this->defaultTeamOrm->id,           $playerOrm->teamId);
+        $this->assertEquals($this->defaultFamilyOrm->id,         $playerOrm->familyId);
+        $this->assertEquals($attributes[self::NAME],             $playerOrm->name);
+        $this->assertEquals($attributes[self::EMAIL],            $playerOrm->email);
+        $this->assertEquals($attributes[self::PHONE],            $playerOrm->phone);
+        $this->assertNull($attributes[self::NUMBER],             $playerOrm->number);
+        $this->assertEquals($attributes[self::GOALS],            $playerOrm->goals);
+        $this->assertEquals($attributes[self::QUARTERS_SUB],     $playerOrm->quartersSub);
+        $this->assertEquals($attributes[self::QUARTERS_KEEP],    $playerOrm->quartersKeep);
+        $this->assertEquals($attributes[self::QUARTERS_INJURED], $playerOrm->quartersInjured);
+        $this->assertEquals($attributes[self::QUARTERS_ABSENT],  $playerOrm->quartersAbsent);
+        $this->assertEquals($attributes[self::YELLOW_CARDS],     $playerOrm->yellowCards);
+        $this->assertEquals($attributes[self::RED_CARDS],        $playerOrm->redCards);
     }
 }

@@ -20,6 +20,14 @@ use DAG\Orm\Schedule\PlayerGameStatsOrm;
  * @property bool   $keeperQuarter2
  * @property bool   $keeperQuarter3
  * @property bool   $keeperQuarter4
+ * @property bool   $injuredQuarter1
+ * @property bool   $injuredQuarter2
+ * @property bool   $injuredQuarter3
+ * @property bool   $injuredQuarter4
+ * @property bool   $absentQuarter1
+ * @property bool   $absentQuarter2
+ * @property bool   $absentQuarter3
+ * @property bool   $absentQuarter4
  * @property int    $yellowCards
  * @property bool   $redCard
  */
@@ -108,6 +116,14 @@ class PlayerGameStats extends Domain
             case "keeperQuarter2":
             case "keeperQuarter3":
             case "keeperQuarter4":
+            case "injuredQuarter1":
+            case "injuredQuarter2":
+            case "injuredQuarter3":
+            case "injuredQuarter4":
+            case "absentQuarter1":
+            case "absentQuarter2":
+            case "absentQuarter3":
+            case "absentQuarter4":
             case "redCard":
                 return $this->playerGameStatsOrm->{$propertyName} == 1;
 
@@ -144,6 +160,14 @@ class PlayerGameStats extends Domain
             case "keeperQuarter2":
             case "keeperQuarter3":
             case "keeperQuarter4":
+            case "injuredQuarter1":
+            case "injuredQuarter2":
+            case "injuredQuarter3":
+            case "injuredQuarter4":
+            case "absentQuarter1":
+            case "absentQuarter2":
+            case "absentQuarter3":
+            case "absentQuarter4":
             case "redCard":
                 $this->playerGameStatsOrm->{$propertyName} = $value ? 1 : 0;
                 $this->playerGameStatsOrm->save();

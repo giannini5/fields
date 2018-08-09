@@ -169,6 +169,10 @@ class Web_Index
                 $this->m_controller = new Controller_AdminScoring_ScoreSheet();
                 break;
 
+            case View_Base::SCORING_PLAYER_STATS_PAGE:
+                $this->m_controller = new Controller_AdminScoring_PlayerStats();
+                break;
+
             case View_Base::GAMES_HOME_PAGE:
                 $this->m_controller = new Controller_Games_Home();
                 break;
@@ -185,8 +189,8 @@ class Web_Index
                 $this->m_controller = new Controller_Games_Standings();
                 break;
 
-            case View_Base::GAMES_PLAYER_STATS_PAGE:
-                $this->m_controller = new Controller_Games_PlayerStats();
+            case View_Base::GAMES_TEAM_STATS_PAGE:
+                $this->m_controller = new Controller_Games_TeamStats();
                 break;
 
             case View_Base::GAMES_GAME_CARDS_PAGE:

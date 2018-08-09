@@ -21,6 +21,8 @@ use DAG\Services\MySql\DuplicateKeyException;
  * @property int        $goals
  * @property int        $quartersSub
  * @property int        $quartersKeep
+ * @property int        $quartersInjured
+ * @property int        $quartersAbsent
  * @property int        $yellowCards
  * @property int        $redCards
  */
@@ -179,6 +181,8 @@ class Player extends Domain
             case "goals":
             case "quartersSub":
             case "quartersKeep":
+            case "quartersInjured":
+            case "quartersAbsent":
             case "yellowCards":
             case "redCards":
                 return $this->playerOrm->{$propertyName};
@@ -219,6 +223,8 @@ class Player extends Domain
             case "goals":
             case "quartersSub":
             case "quartersKeep":
+            case "quartersInjured":
+            case "quartersAbsent":
             case "yellowCards":
             case "redCards":
                 $this->playerOrm->{$propertyName} = $value;

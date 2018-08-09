@@ -688,24 +688,26 @@ class Game extends Domain
                     Assertion::isTrue($stats[\View_Base::PLAYER_GOALS] >= 0, "Invalid goals for player: $player->name: " . $stats[\View_Base::PLAYER_GOALS]);
                     $playerGameStats->goals = empty($stats[\View_Base::PLAYER_GOALS]) ? 0 : (int) $stats[\View_Base::PLAYER_GOALS];
 
-                    // Process substitutions by quarter for player
+                    // Process player by quarter
                     for ($i = 1; $i <= 4; $i++) {
-                        $label      = \View_Base::PLAYER_SUB_BASE . $i;
-                        $subField   = 'substitutionQuarter' . $i;
+                        $label          = \View_Base::PLAYER_BASE . $i;
+                        $subField       = 'substitutionQuarter' . $i;
+                        $keepField      = 'keeperQuarter' . $i;
+                        $injuredField   = 'injuredQuarter' . $i;
+                        $absentField    = 'absentQuarter' . $i;
 
-                        Assertion::isTrue(empty($stats[$label]) or $stats[$label] == 'X',
-                            "Invalid substitution setting for player: $player->name: " . $stats[$label]);
-                        $playerGameStats->{$subField} = $stats[$label] == 'X';
-                    }
+                        Assertion::isTrue(empty($stats[$label])
+                            or $stats[$label] == 'X'
+                            or $stats[$label] == 'G'
+                            or $stats[$label] == 'I'
+                            or $stats[$label] == 'A'
+                            or $stats[$label] == 'E',
+                            "Invalid setting for player: $player->name: " . $stats[$label]);
 
-                    // Process keeper by quarter for player
-                    for ($i = 1; $i <= 4; $i++) {
-                        $label      = \View_Base::PLAYER_KEEP_BASE . $i;
-                        $keepField  = 'keeperQuarter' . $i;
-
-                        Assertion::isTrue(empty($stats[$label]) or $stats[$label] == 'G',
-                            "Invalid keeper setting for player: $player->name: " . $stats[$label]);
-                        $playerGameStats->{$keepField}  = $stats[$label] == 'G';
+                        $playerGameStats->{$subField}       = $stats[$label] == 'X';
+                        $playerGameStats->{$keepField}      = $stats[$label] == 'G';
+                        $playerGameStats->{$injuredField}   = $stats[$label] == 'I';
+                        $playerGameStats->{$absentField}    = $stats[$label] == 'A';
                     }
 
                     // Process cards
@@ -772,6 +774,22 @@ class Game extends Domain
             ($playerGameStats->keeperQuarter4 ? 1 : 0));
         $player->quartersKeep = $quartersKeep < 0 ? 0 : $quartersKeep;
 
+        // Update quartersInjured
+        $quartersInjured = $player->quartersKeep - (
+                ($playerGameStats->injuredQuarter1 ? 1 : 0) +
+                ($playerGameStats->injuredQuarter2 ? 1 : 0) +
+                ($playerGameStats->injuredQuarter3 ? 1 : 0) +
+                ($playerGameStats->injuredQuarter4 ? 1 : 0));
+        $player->quartersInjured = $quartersInjured < 0 ? 0 : $quartersInjured;
+
+        // Update quartersAbsent
+        $quartersAbsent = $player->quartersAbsent - (
+                ($playerGameStats->absentQuarter1 ? 1 : 0) +
+                ($playerGameStats->absentQuarter2 ? 1 : 0) +
+                ($playerGameStats->absentQuarter3 ? 1 : 0) +
+                ($playerGameStats->absentQuarter4 ? 1 : 0));
+        $player->quartersAbsent = $quartersAbsent < 0 ? 0 : $quartersAbsent;
+
         // Update yellowCards
         $yellowCards = $player->yellowCards - $playerGameStats->yellowCards;
         $player->yellowCards = $yellowCards < 0 ? 0 : $yellowCards;
@@ -806,6 +824,20 @@ class Game extends Domain
                 ($playerGameStats->keeperQuarter2 ? 1 : 0) +
                 ($playerGameStats->keeperQuarter3 ? 1 : 0) +
                 ($playerGameStats->keeperQuarter4 ? 1 : 0));
+
+        // Update quartersInjured
+        $player->quartersInjured = $player->quartersInjured + (
+                ($playerGameStats->injuredQuarter1 ? 1 : 0) +
+                ($playerGameStats->injuredQuarter2 ? 1 : 0) +
+                ($playerGameStats->injuredQuarter3 ? 1 : 0) +
+                ($playerGameStats->injuredQuarter4 ? 1 : 0));
+
+        // Update quartersAbsent
+        $player->quartersAbsent = $player->quartersAbsent + (
+                ($playerGameStats->absentQuarter1 ? 1 : 0) +
+                ($playerGameStats->absentQuarter2 ? 1 : 0) +
+                ($playerGameStats->absentQuarter3 ? 1 : 0) +
+                ($playerGameStats->absentQuarter4 ? 1 : 0));
 
         // Update yellowCards
         $player->yellowCards = $player->yellowCards + $playerGameStats->yellowCards;

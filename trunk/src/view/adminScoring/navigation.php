@@ -60,6 +60,8 @@ class View_AdminScoring_Navigation extends View_Navigation
                 '<li><div>GAME CARDS</div></li>' : '<li><a href="' . View_Base::SCORING_GAME_CARDS_PAGE . '">GAME CARDS</a></li>')
             . ($this->pageName == View_Base::SCORING_SCORE_SHEET_PAGE ?
                 '<li><div>SCORE SHEET</div></li>' : '<li><a href="' . View_Base::SCORING_SCORE_SHEET_PAGE . '">SCORE SHEET</a></li>')
+            . ($this->pageName == View_Base::SCORING_PLAYER_STATS_PAGE ?
+                '<li><div>PLAYER STATS</div></li>' : '<li><a href="' . View_Base::SCORING_PLAYER_STATS_PAGE . '">PLAYER STATS</a></li>')
             . '
                </ul>';
     }

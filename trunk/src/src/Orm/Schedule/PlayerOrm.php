@@ -19,37 +19,43 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $goals
  * @property int    $quartersSub
  * @property int    $quartersKeep
+ * @property int    $quartersInjured
+ * @property int    $quartersAbsent
  * @property int    $yellowCards
  * @property int    $redCards
  */
 class PlayerOrm extends PersistenceModel
 {
-    const FIELD_ID              = 'id';
-    const FIELD_TEAM_ID         = 'teamId';
-    const FIELD_FAMILY_ID       = 'familyId';
-    const FIELD_NAME            = 'name';
-    const FIELD_EMAIL           = 'email';
-    const FIELD_PHONE           = 'phone';
-    const FIELD_NUMBER          = 'number';
-    const FIELD_GOALS           = 'goals';
-    const FIELD_QUARTERS_SUB    = 'quartersSub';
-    const FIELD_QUARTERS_KEEP   = 'quartersKeep';
-    const FIELD_YELLOW_CARDS    = 'yellowCards';
-    const FIELD_RED_CARDS       = 'redCards';
+    const FIELD_ID                  = 'id';
+    const FIELD_TEAM_ID             = 'teamId';
+    const FIELD_FAMILY_ID           = 'familyId';
+    const FIELD_NAME                = 'name';
+    const FIELD_EMAIL               = 'email';
+    const FIELD_PHONE               = 'phone';
+    const FIELD_NUMBER              = 'number';
+    const FIELD_GOALS               = 'goals';
+    const FIELD_QUARTERS_SUB        = 'quartersSub';
+    const FIELD_QUARTERS_KEEP       = 'quartersKeep';
+    const FIELD_QUARTERS_INJURED    = 'quartersInjured';
+    const FIELD_QUARTERS_ABSENT     = 'quartersAbsent';
+    const FIELD_YELLOW_CARDS        = 'yellowCards';
+    const FIELD_RED_CARDS           = 'redCards';
 
     protected static $fields = [
-        self::FIELD_ID              => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_TEAM_ID         => [FV::INT,    [FV::NO_CONSTRAINTS]],
-        self::FIELD_FAMILY_ID       => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_NAME            => [FV::STRING, [FV::NO_CONSTRAINTS]],
-        self::FIELD_EMAIL           => [FV::STRING, [FV::NO_CONSTRAINTS]],
-        self::FIELD_PHONE           => [FV::STRING, [FV::NO_CONSTRAINTS]],
-        self::FIELD_NUMBER          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
-        self::FIELD_GOALS           => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
-        self::FIELD_QUARTERS_SUB    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
-        self::FIELD_QUARTERS_KEEP   => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
-        self::FIELD_YELLOW_CARDS    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
-        self::FIELD_RED_CARDS       => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_ID               => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_TEAM_ID          => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_FAMILY_ID        => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_NAME             => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_EMAIL            => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_PHONE            => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_NUMBER           => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_GOALS            => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_QUARTERS_SUB     => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_QUARTERS_KEEP    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_QUARTERS_INJURED => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_QUARTERS_ABSENT  => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_YELLOW_CARDS     => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_RED_CARDS        => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
 
     protected static $config = [

@@ -17,15 +17,17 @@ class PlayerTest extends ORM_TestHelper
      * Expected values on create and load
      */
     private $expectedDefaults = array(
-        'name'          => 'TEST Domain player name',
-        'email'         => 'TEST Domain player email',
-        'phone'         => 'TEST Domain player phone',
-        'number'        => '',
-        'goals'         => 0,
-        'quartersSub'   => 0,
-        'quartersKeep'  => 0,
-        'yellowCards'   => 0,
-        'redCards'      => 0,
+        'name'              => 'TEST Domain player name',
+        'email'             => 'TEST Domain player email',
+        'phone'             => 'TEST Domain player phone',
+        'number'            => '',
+        'goals'             => 0,
+        'quartersSub'       => 0,
+        'quartersKeep'      => 0,
+        'quartersInjured'   => 0,
+        'quartersAbsent'    => 0,
+        'yellowCards'       => 0,
+        'redCards'          => 0,
     );
 
     protected $playersToCleanup = array();
@@ -127,17 +129,21 @@ class PlayerTest extends ORM_TestHelper
         $player = Player::lookupById($this->playersToCleanup[0]->id);
         $this->validatePlayer($player, $this->team, $this->family, $this->expectedDefaults);
 
-        $player->goals          = 10;
-        $player->quartersSub    = 11;
-        $player->quartersKeep   = 12;
-        $player->yellowCards    = 13;
-        $player->redCards       = 14;
+        $player->goals           = 10;
+        $player->quartersSub     = 11;
+        $player->quartersKeep    = 12;
+        $player->quartersInjured = 15;
+        $player->quartersAbsent  = 16;
+        $player->yellowCards     = 13;
+        $player->redCards        = 14;
 
-        $this->expectedDefaults['goals']        = 10;
-        $this->expectedDefaults['quartersSub']  = 11;
-        $this->expectedDefaults['quartersKeep'] = 12;
-        $this->expectedDefaults['yellowCards']  = 13;
-        $this->expectedDefaults['redCards']     = 14;
+        $this->expectedDefaults['goals']            = 10;
+        $this->expectedDefaults['quartersSub']      = 11;
+        $this->expectedDefaults['quartersKeep']     = 12;
+        $this->expectedDefaults['yellowCards']      = 13;
+        $this->expectedDefaults['redCards']         = 14;
+        $this->expectedDefaults['quartersInjured']  = 15;
+        $this->expectedDefaults['quartersAbsent']   = 16;
 
         $this->validatePlayer($player, $this->team, $this->family, $this->expectedDefaults);
     }
@@ -157,16 +163,18 @@ class PlayerTest extends ORM_TestHelper
     public function validatePlayer($player, $team, $family, $expectedDefaults)
     {
         $this->assertTrue($player->id > 0);
-        $this->assertEquals($expectedDefaults['name'],          $player->name);
-        $this->assertEquals($expectedDefaults['email'],         $player->email);
-        $this->assertEquals($expectedDefaults['phone'],         $player->phone);
-        $this->assertEquals($expectedDefaults['number'],        $player->number);
-        $this->assertEquals($expectedDefaults['goals'],         $player->goals);
-        $this->assertEquals($expectedDefaults['quartersSub'],   $player->quartersSub);
-        $this->assertEquals($expectedDefaults['quartersKeep'],  $player->quartersKeep);
-        $this->assertEquals($expectedDefaults['yellowCards'],   $player->yellowCards);
-        $this->assertEquals($expectedDefaults['redCards'],      $player->redCards);
-        $this->assertEquals($team,                              $player->team);
-        $this->assertEquals($family,                            $player->family);
+        $this->assertEquals($expectedDefaults['name'],              $player->name);
+        $this->assertEquals($expectedDefaults['email'],             $player->email);
+        $this->assertEquals($expectedDefaults['phone'],             $player->phone);
+        $this->assertEquals($expectedDefaults['number'],            $player->number);
+        $this->assertEquals($expectedDefaults['goals'],             $player->goals);
+        $this->assertEquals($expectedDefaults['quartersSub'],       $player->quartersSub);
+        $this->assertEquals($expectedDefaults['quartersKeep'],      $player->quartersKeep);
+        $this->assertEquals($expectedDefaults['quartersInjured'],   $player->quartersInjured);
+        $this->assertEquals($expectedDefaults['quartersAbsent'],    $player->quartersAbsent);
+        $this->assertEquals($expectedDefaults['yellowCards'],       $player->yellowCards);
+        $this->assertEquals($expectedDefaults['redCards'],          $player->redCards);
+        $this->assertEquals($team,                                  $player->team);
+        $this->assertEquals($family,                                $player->family);
     }
 }
