@@ -330,20 +330,19 @@ class Season extends Domain
                 $coachPhone = ($coachPhone == $coachCell) ? '' : $coachPhone;
 
                 // Skip teams where there is no coach (or the team number is 0)
-                // $teamIdAttributes   = explode("-", $teamId);
-                // $teamNumber         = $teamIdAttributes[count($teamIdAttributes) - 1];
-                // unset($teamIdAttributes[count($teamIdAttributes) - 1]);
-                // $teamId             = implode("-", $teamIdAttributes);
-                // $teamId             = sprintf("%s-%02d", $teamId, $teamNumber);
+                $teamIdAttributes   = explode("-", $teamId);
+                $teamNumber         = $teamIdAttributes[count($teamIdAttributes) - 1];
+                unset($teamIdAttributes[count($teamIdAttributes) - 1]);
+                $teamId             = implode("-", $teamIdAttributes);
+                $teamId             = sprintf("%s-%02d", $teamId, $teamNumber);
 
                 if (empty($teamName)) {
                     $teamName = $teamId;
                 }
-                /*
+
                 if (empty($coachName) or $teamNumber == 0) {
                     continue;
                 }
-                */
 
                 // Create division, team and coach or assistant coach
                 $division       = Division::create($this, $divisionName, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder, true);
