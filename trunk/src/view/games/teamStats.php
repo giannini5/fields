@@ -115,27 +115,29 @@ class View_Games_TeamStats extends View_Games_Base
         $teamName     = $team->nameIdWithSeed;
         $coachName    = $coach->name;
 
-        $games = \DAG\Domain\Schedule\Game::lookupByTeam($team);
+        $games = Game::lookupByTeam($team);
 
         foreach ($games as $game) {
-            if (isset($game->homeTeam) and $game->homeTeam->id == $team->id) {
-                $goalsScored    += $game->homeTeamScore;
-                $goalsAllowed   += $game->visitingTeamScore;
-                $yellowCards    += $game->homeTeamYellowCards;
-                $redCards       += $game->homeTeamRedCards;
+            if (isset($game->homeTeamScore)) {
+                if (isset($game->homeTeam) and $game->homeTeam->id == $team->id) {
+                    $goalsScored    += $game->homeTeamScore;
+                    $goalsAllowed   += $game->visitingTeamScore;
+                    $yellowCards    += $game->homeTeamYellowCards;
+                    $redCards       += $game->homeTeamRedCards;
 
-                $wins   += $game->homeTeamScore > $game->visitingTeamScore ? 1 : 0;
-                $losses += $game->homeTeamScore < $game->visitingTeamScore ? 1 : 0;
-                $ties   += $game->homeTeamScore == $game->visitingTeamScore ? 1 : 0;
-            } else if (isset($game->visitingTeam) and $game->visitingTeam->id == $team->id) {
-                $goalsScored    += $game->visitingTeamScore;
-                $goalsAllowed   += $game->homeTeamScore;
-                $yellowCards    += $game->visitingTeamYellowCards;
-                $redCards       += $game->visitingTeamRedCards;
+                    $wins   += $game->homeTeamScore > $game->visitingTeamScore ? 1 : 0;
+                    $losses += $game->homeTeamScore < $game->visitingTeamScore ? 1 : 0;
+                    $ties   += $game->homeTeamScore == $game->visitingTeamScore ? 1 : 0;
+                } else if (isset($game->visitingTeam) and $game->visitingTeam->id == $team->id) {
+                    $goalsScored    += $game->visitingTeamScore;
+                    $goalsAllowed   += $game->homeTeamScore;
+                    $yellowCards    += $game->visitingTeamYellowCards;
+                    $redCards       += $game->visitingTeamRedCards;
 
-                $wins   += $game->homeTeamScore < $game->visitingTeamScore ? 1 : 0;
-                $losses += $game->homeTeamScore > $game->visitingTeamScore ? 1 : 0;
-                $ties   += $game->homeTeamScore == $game->visitingTeamScore ? 1 : 0;
+                    $wins   += $game->homeTeamScore < $game->visitingTeamScore ? 1 : 0;
+                    $losses += $game->homeTeamScore > $game->visitingTeamScore ? 1 : 0;
+                    $ties   += $game->homeTeamScore == $game->visitingTeamScore ? 1 : 0;
+                }
             }
         }
 
