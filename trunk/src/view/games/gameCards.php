@@ -419,8 +419,16 @@ class View_Games_GameCards extends View_Games_Base
         }
 
         $games = Game::lookupByDivisionDay($division, $gameDate->day, true);
+        $countPrinted = 0;
         foreach ($games as $game) {
-            $this->printGame($game, $this->m_controller->m_scoringType);
+            if ($game->flight->schedule->isPublished()) {
+                $this->printGame($game, $this->m_controller->m_scoringType);
+                $countPrinted += 1;
+            }
+        }
+
+        if ($countPrinted == 0) {
+            print "<p style='color: red; font-size: medium' align='center'>Schedules have not yet been published for Division: $division->name $division->gender.</p>";
         }
     }
 }
