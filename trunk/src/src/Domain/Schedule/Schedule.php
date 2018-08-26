@@ -559,7 +559,11 @@ class Schedule extends Domain
                         $gameTime = $selectedGameTimes[0];
 
                         // Set the home team and visiting team based on the pool type
-                        list($homeTeam, $visitingTeam) = $homeGameTracker->getHomeVisitorTeams($teams[$team1Index], $teams[$team2Index]);
+                        if ($pool->gamesAgainstPool->id != $pool->id) {
+                            list($homeTeam, $visitingTeam) = $homeGameTracker->getHomeVisitorTeams($teams[$team1Index], $crossPoolTeams[$team2Index]);
+                        } else {
+                            list($homeTeam, $visitingTeam) = $homeGameTracker->getHomeVisitorTeams($teams[$team1Index], $teams[$team2Index]);
+                        }
                         Assertion::isTrue(isset($homeTeam), "Major bug, homeTeam did not get set - See Dave");
                         Assertion::isTrue(isset($visitingTeam), "Major bug, visitingTeam did not get set - See Dave");
 
