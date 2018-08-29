@@ -23,6 +23,7 @@ class ScheduleOrmTest extends ORM_TestHelper
             self::START_TIME        => '10:00:00',
             self::END_TIME          => '15:00:00',
             self::DAYS_OF_WEEK      => '1100000',
+            self::DISPLAY_NOTES     => 'Dude!',
             self::PUBLISHED         => 1,
         ];
 
@@ -48,7 +49,8 @@ class ScheduleOrmTest extends ORM_TestHelper
             self::$expectedDefaults[self::START_TIME],
             self::$expectedDefaults[self::END_TIME],
             self::$expectedDefaults[self::DAYS_OF_WEEK],
-            self::$expectedDefaults[self::PUBLISHED]);
+            self::$expectedDefaults[self::PUBLISHED],
+            self::$expectedDefaults[self::DISPLAY_NOTES]);
 
         $this->verifyExpectedAttributes($scheduleOrm, self::$expectedDefaults);
     }
@@ -83,6 +85,7 @@ class ScheduleOrmTest extends ORM_TestHelper
         $this->assertEquals($attributes[self::START_TIME],      $scheduleOrm->startTime);
         $this->assertEquals($attributes[self::END_TIME],        $scheduleOrm->endTime);
         $this->assertEquals($attributes[self::DAYS_OF_WEEK],    $scheduleOrm->daysOfWeek);
+        $this->assertEquals($attributes[self::DISPLAY_NOTES],   $scheduleOrm->displayNotes);
         $this->assertEquals($attributes[self::PUBLISHED],       $scheduleOrm->published);
     }
 }

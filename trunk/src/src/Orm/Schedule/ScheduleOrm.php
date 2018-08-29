@@ -17,6 +17,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property string $startTime
  * @property string $endTime
  * @property string $daysOfWeek
+ * @property string $displayNotes
  * @property int    $published
  */
 class ScheduleOrm extends PersistenceModel
@@ -31,6 +32,7 @@ class ScheduleOrm extends PersistenceModel
     const FIELD_START_TIME              = 'startTime';
     const FIELD_END_TIME                = 'endTime';
     const FIELD_DAYS_OF_WEEK            = 'daysOfWeek';
+    const FIELD_DISPLAY_NOTES           = 'displayNotes';
     const FIELD_PUBLISHED               = 'published';
 
     const SCHEDULE_TYPE_LEAGUE      = 'L';
@@ -54,6 +56,7 @@ class ScheduleOrm extends PersistenceModel
         self::FIELD_START_TIME              => [FV::TIME,   [FV::NO_CONSTRAINTS], ''],
         self::FIELD_END_TIME                => [FV::TIME,   [FV::NO_CONSTRAINTS], ''],
         self::FIELD_DAYS_OF_WEEK            => [FV::STRING, [FV::NO_CONSTRAINTS], '0000011'],
+        self::FIELD_DISPLAY_NOTES           => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_PUBLISHED               => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
     ];
 
@@ -78,6 +81,7 @@ class ScheduleOrm extends PersistenceModel
      * @param string    $endTime
      * @param string    $daysOfWeek
      * @param int       $published
+     * @param string    $displayNotes
      *
      * @return ScheduleOrm
      * @throws DuplicateEntryException
@@ -92,24 +96,28 @@ class ScheduleOrm extends PersistenceModel
         $startTime,
         $endTime,
         $daysOfWeek,
-        $published)
+        $published,
+        $displayNotes = '')
     {
         $result = self::getPersistenceDriver()->create(
-            [
-                self::FIELD_DIVISION_ID             => $divisionId,
-                self::FIELD_NAME                    => $name,
-                self::FIELD_SCHEDULE_TYPE           => $scheduleType,
-                self::FIELD_GAMES_PER_TEAM          => $gamesPerTeam,
-                self::FIELD_START_DATE              => $startDate,
-                self::FIELD_END_DATE                => $endDate,
-                self::FIELD_START_TIME              => $startTime,
-                self::FIELD_END_TIME                => $endTime,
-                self::FIELD_DAYS_OF_WEEK            => $daysOfWeek,
-                self::FIELD_PUBLISHED               => $published,
-            ],
-            function ($item) {
-                return $item !== null;
-            }
+            array_filter(
+                [
+                    self::FIELD_DIVISION_ID             => $divisionId,
+                    self::FIELD_NAME                    => $name,
+                    self::FIELD_SCHEDULE_TYPE           => $scheduleType,
+                    self::FIELD_GAMES_PER_TEAM          => $gamesPerTeam,
+                    self::FIELD_START_DATE              => $startDate,
+                    self::FIELD_END_DATE                => $endDate,
+                    self::FIELD_START_TIME              => $startTime,
+                    self::FIELD_END_TIME                => $endTime,
+                    self::FIELD_DAYS_OF_WEEK            => $daysOfWeek,
+                    self::FIELD_DISPLAY_NOTES           => $displayNotes,
+                    self::FIELD_PUBLISHED               => $published,
+                ],
+                function ($item) {
+                    return $item !== null;
+                }
+            )
         );
 
         return new static($result);

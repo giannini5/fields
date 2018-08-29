@@ -21,6 +21,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const ACTUAL_START_TIME           = 'actualStartTime';
     const END_TIME                    = 'endTime';
     const DAYS_OF_WEEK                = 'daysOfWeek';
+    const DISPLAY_NOTES               = 'displayNotes';
     const PUBLISHED                   = 'published';
     const ENABLED                     = 'enabled';
     const ADDRESS1                    = 'address1';
@@ -159,6 +160,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::END_TIME          => '19:00:00',
             self::DAYS_OF_WEEK      => '0001100',
             self::PUBLISHED         => 0,
+            self::DISPLAY_NOTES     => '',
         ];
 
     protected static $defaultTeamOrmAttributes =
@@ -326,7 +328,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultScheduleOrmAttributes[self::START_TIME],
             self::$defaultScheduleOrmAttributes[self::END_TIME],
             self::$defaultScheduleOrmAttributes[self::DAYS_OF_WEEK],
-            self::$defaultScheduleOrmAttributes[self::PUBLISHED]);
+            self::$defaultScheduleOrmAttributes[self::PUBLISHED],
+            self::$defaultScheduleOrmAttributes[self::DISPLAY_NOTES]);
 
         $this->defaultFlightOrm = FlightOrm::create(
             $this->defaultScheduleOrm->id,

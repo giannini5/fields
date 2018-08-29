@@ -119,6 +119,7 @@ class View_Games_Team
         $teamName       = $division->name . ": " . $team->nameId . " (" . $coach->lastName . ")";
         $teamNameTitle  = "title='" . $team->name . " " . $team->region . " (" . $team->city . ")'";
         $playInGameIds  = [];
+        $displayNotes   = '';
 
         if (!isset($gamesByDay)) {
             // Get games across all schedules for division
@@ -244,6 +245,17 @@ class View_Games_Team
                         $gameCount += 1;
                     }
                 }
+            }
+
+            foreach ($schedules as $schedule) {
+                $displayNotes .= $schedule->displayNotes;
+            }
+
+            if (!empty($displayNotes)) {
+                print "
+                <tr>
+                    <td colspan='7'>$displayNotes</td>
+                </tr>";
             }
 
             if ($showHomeTeamCount) {
