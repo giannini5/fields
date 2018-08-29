@@ -64,6 +64,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
 
     /** @var string */
     public $m_name;
+    public $m_displayNotes;
     public $m_divisionNames;
     public $m_scheduleId;
     public $m_scheduleType;
@@ -108,6 +109,10 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
                 $this->m_name = $this->getPostAttribute(
                     View_Base::NAME,
                     '', true, false, 'Error: Schedule Name is a Required Field'
+                );
+                $this->m_displayNotes = $this->getPostAttribute(
+                    View_Base::DISPLAY_NOTES,
+                    '', false
                 );
             }
 
@@ -646,8 +651,9 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
 
         // Update only allowed if games have not yet been populated
         if ($this->gamesExistForSchedule($schedule)) {
-            $this->m_messageString  = '';
-            $this->m_errorString    = "Schedule update failed for $divisionNameWithGender.  Reason: games already exist.  You must clear out existing games before updating schedule data.";
+            $this->m_messageString  = 'Schedule name and display notes updated.  No other updates made for $divisionNameWithGender because games already exist';
+            $schedule->name         = $this->m_name;
+            $schedule->displayNotes = isset($this->m_displayNotes) ? $this->m_displayNotes : '';
             return;
         }
 
