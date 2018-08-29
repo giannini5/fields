@@ -540,6 +540,13 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
         print "
                 </tr>
                 <tr>
+                    <td $redipsDarkCell colspan='3' nowrap align='right'><strong>Display Notes:</strong></td>";
+
+        $this->displayInput('', 'text', View_Base::DISPLAY_NOTES, 'Display Notes', '', $schedule->displayNotes, null, 1, false, 240, false, false);
+
+        print "
+                </tr>
+                <tr>
                     <td $redipsDarkCell colspan='3' nowrap align='right'><strong>Games Per Team:</strong></td>";
         $this->displayInput('', 'int', View_Base::GAMES_PER_TEAM, 'Games Per Team', '', $schedule->gamesPerTeam, null, 1, false, 75);
         print "

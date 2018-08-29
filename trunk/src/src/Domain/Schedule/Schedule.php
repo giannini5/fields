@@ -21,6 +21,7 @@ use DAG\Framework\Exception\Assertion;
  * @property string     $startTime
  * @property string     $endTime
  * @property string     $daysOfWeek
+ * @property string     $displayNotes
  * @property int        $published
  */
 class Schedule extends Domain
@@ -59,6 +60,7 @@ class Schedule extends Domain
      * @param string    $endTime (SQL Format)
      * @param string    $daysOfWeek defaults to "0000011" (Saturday, Sunday only)
      * @param int       $published defaults to 0
+     * @param string    $displayNotes defaults to ''
      *
      * @return Schedule
      */
@@ -72,7 +74,8 @@ class Schedule extends Domain
         $startTime,
         $endTime,
         $daysOfWeek = "0000011",
-        $published  = 0
+        $published  = 0,
+        $displayNotes = ''
     ) {
         self::verifyDate($startDate, $division->season, 'StartDate');
         self::verifyDate($endDate, $division->season, 'EndDate');
@@ -80,7 +83,7 @@ class Schedule extends Domain
         self::verifyTime($endTime, $division->season, 'EndTime');
         self::verifyDaysOfWeek($daysOfWeek, $division->season);
 
-        $scheduleOrm = ScheduleOrm::create($division->id, $name, $scheduleType, $gamesPerTeam, $startDate, $endDate, $startTime, $endTime, $daysOfWeek, $published);
+        $scheduleOrm = ScheduleOrm::create($division->id, $name, $scheduleType, $gamesPerTeam, $startDate, $endDate, $startTime, $endTime, $daysOfWeek, $published, $displayNotes );
         return new static($scheduleOrm, $division);
     }
 
@@ -146,6 +149,7 @@ class Schedule extends Domain
             case "endTime":
             case "daysOfWeek":
             case "published":
+            case "displayNotes":
                 return $this->scheduleOrm->{$propertyName};
 
             case "division":
@@ -168,6 +172,7 @@ class Schedule extends Domain
             case "scheduleType":
             case "gamesPerTeam":
             case "published":
+            case "displayNotes":
                 $this->scheduleOrm->{$propertyName} = $value;
                 $this->scheduleOrm->save();
                 break;

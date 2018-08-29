@@ -9,6 +9,7 @@ create table schedule (
     startTime             time NOT NULL,
     endTime               time NOT NULL,
     daysOfWeek            char(8) DEFAULT '0000011',
+    displayNotes          varchar(4096) DEFAULT '',
     published             tinyint NOT NULL default 0,
 
     PRIMARY KEY (id),

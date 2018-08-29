@@ -153,6 +153,7 @@ abstract class View_Base {
     const SWAP_TEAM_ID2             = 'swapTeamId2';
     const FILTER_COACH_ID           = 'filterCoachId';
     const NAME                      = 'name';
+    const DISPLAY_NOTES             = 'displayNotes';
     const NAME_ID                   = 'nameId';
     const REGION                    = 'region';
     const GENDER                    = 'gender';
