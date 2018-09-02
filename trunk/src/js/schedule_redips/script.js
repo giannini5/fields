@@ -96,7 +96,7 @@ redips.toggleGameLock = function (gameTimeId) {
     var sessionId           = buttonElement.getAttribute("data-sessionid");
     var gameId              = buttonElement.getAttribute("data-gameid");
     var params              = "gameId=" + gameId + "&sessionId=" + sessionId;
-    var divElement          = document.getElementById("div" + gameId);;
+    var divElement          = document.getElementById("div" + gameId);
 
     if (divElement.style.backgroundColor === 'orange') {
         divElement.style.backgroundColor   = unlockBgColor;
@@ -108,6 +108,27 @@ redips.toggleGameLock = function (gameTimeId) {
 
     // make AJAX call and set redips.handler as callback function
     REDIPS.drag.ajaxCall(redips.ajaxSave  + "/api/toggle", redips.handler, {method: 'POST', data: params});
+};
+
+// method parses form elements and submits to the server
+redips.toggleGameTimeLock = function (gameTimeId) {
+    var buttonElement       = document.getElementById('button' + gameTimeId);
+    var buttonImageElement  = document.getElementById('lockButton' + gameTimeId);
+    var unlockBgColor       = buttonElement.getAttribute("data-bgcolor");
+    var sessionId           = buttonElement.getAttribute("data-sessionid");
+    var params              = "gameTimeId=" + gameTimeId + "&sessionId=" + sessionId;
+    var cellElement         = document.getElementById(gameTimeId);
+
+    if (cellElement.style.backgroundColor === 'red') {
+        cellElement.style.backgroundColor   = unlockBgColor;
+        buttonImageElement.src              = '/images/unlock.jpeg';
+    } else {
+        cellElement.style.backgroundColor   = 'red';
+        buttonImageElement.src              = '/images/lock.jpeg';
+    }
+
+    // make AJAX call and set redips.handler as callback function
+    REDIPS.drag.ajaxCall(redips.ajaxSave  + "/api/toggleGameTime", redips.handler, {method: 'POST', data: params});
 };
 
 // AJAX callback function

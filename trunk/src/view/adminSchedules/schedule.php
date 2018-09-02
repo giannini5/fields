@@ -88,14 +88,14 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 if (($this->m_controller->m_operation == View_Base::CREATE
                     or $this->m_controller->m_operation == View_Base::UPDATE)
                     and $schedule->name == $this->m_controller->m_name) {
-                    $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
+                    $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId, $dataPrinted);
                     $dataPrinted = true;
                 }
 
                 // If View then only show published schedules if checked
                 if (($this->m_controller->m_operation == View_Base::VIEW)
                     and ($this->m_controller->m_showPublishedSchedules or !$schedule->published)) {
-                    $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
+                    $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId, $dataPrinted);
                     $dataPrinted = true;
                 }
 
@@ -117,7 +117,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     or $this->m_controller->m_operation == View_Base::DELETE_GAME)
                     and $this->m_controller->m_scheduleId == $schedule->id) {
 
-                    $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId);
+                    $this->_printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId, $dataPrinted);
                     $dataPrinted = true;
                 }
             }
@@ -242,8 +242,9 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      * @param Schedule  $schedule           - Schedule to be edited
      * @param array     $gameDateSelector   - List of gameDateId => day
      * @param int       $sessionId          - Session Identifier
+     * @param bool      $draggableDisplayed - True if displayed, false otherwise
      */
-    private function _printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId) {
+    private function _printUpdateScheduleForm($schedule, $gameDateSelector, $sessionId, $draggableDisplayed = false) {
 \DAG\Framework\Utils\TimeUtils::time_elapsed("Prime");
         $flights        = Flight::lookupBySchedule($schedule);
         $pools          = Pool::lookupBySchedule($schedule);
@@ -371,7 +372,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                 </div>
             </div><br>";
 
-        $this->_printGames($schedule, $pools, $defaultGameTimes, $gameTimesByDateByFieldByTime, $sessionId, $redipsDarkCell);
+        $this->_printGames($schedule, $pools, $defaultGameTimes, $gameTimesByDateByFieldByTime, $sessionId, $redipsDarkCell, $draggableDisplayed);
 
         print "
                                 <br><br>";
@@ -1070,8 +1071,9 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
      * @param array     $gameTimesByDateByFieldByTime
      * @param int       $sessionId
      * @param string    $redipsDarkCell - Mark selected cells as non-draggable
+     * @param bool      $draggableDisplayed - True if displayed, false otherwise
      */
-    private function _printGames($schedule, $pools, $defaultGameTimes, $gameTimesByDateByFieldByTime, $sessionId, $redipsDarkCell)
+    private function _printGames($schedule, $pools, $defaultGameTimes, $gameTimesByDateByFieldByTime, $sessionId, $redipsDarkCell, $draggableDisplayed = false)
     {
         // Compute max Team rows
         $teamRowspan = 0;
@@ -1201,19 +1203,17 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                             //     - lightyellow for movable girls game
                             //     - orange if game is locked (and disable drag)
                             //     - salmon if game is published (and disable drag)
-                            if ($game->flight->schedule->published == 1) {
-                                $bgColor            = "salmon";
+                            if (($game->pool->id == $pool->id)
+                                or ($game->title != '' and $game->flight->id == $pool->flight->id)) {
+                                $bgColor = "lightgreen";
                             } else {
-                                if (($game->pool->id == $pool->id)
-                                    or ($game->title != '' and $game->flight->id == $pool->flight->id)) {
-                                    $bgColor = "lightgreen";
-                                } else {
-                                    $bgColor = $game->flight->schedule->division->gender == Division::$BOYS ?
-                                        "lightblue" :
-                                        "lightyellow";
-                                }
+                                $bgColor = $game->flight->schedule->division->gender == Division::$BOYS ?
+                                    "lightblue" :
+                                    "lightyellow";
+                            }
 
-                                $buttonImage    = $game->isLocked() ? "/images/lock.jpeg" : "/images/unlock.jpeg";
+                            if ($game->flight->schedule->published != 1 and !$draggableDisplayed) {
+                                $buttonImage = $game->isLocked() ? "/images/lock.jpeg" : "/images/unlock.jpeg";
                                 $lockButtonHTML = "
                                     <button id='button$gameTime->id' type=\"button\"
                                         style='border: none; cursor: pointer; background-color: transparent'
@@ -1227,6 +1227,20 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
                                 $redipsDragStart    = "<div id='div$game->id' class='redips-drag' style='background-color: $bgColor'>";
                                 $redipsDragEnd      = "</div>";
+                            }
+                        } else {
+                            if (!$draggableDisplayed) {
+                                $buttonImage = $gameTime->isLocked() ? "/images/lock.jpeg" : "/images/unlock.jpeg";
+                                $lockButtonHTML = "
+                                    <button id='button$gameTime->id' type=\"button\"
+                                        style='border: none; cursor: pointer; background-color: transparent'
+                                        onclick='redips.toggleGameTimeLock($gameTime->id)' data-bgcolor='$bgColor' data-gametimeid='$gameTime->id' data-sessionid='$sessionId'>
+                                        <img id='lockButton$gameTime->id' src=\"$buttonImage\" width='15px' height='15px'>
+                                     </button>";
+                            }
+
+                            if ($gameTime->isLocked()) {
+                                $bgColor = "red";
                             }
                         }
 
@@ -1247,6 +1261,8 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
             print "
             </table>
             <br>";
+
+            $draggableDisplayed = true;
         }
     }
 }

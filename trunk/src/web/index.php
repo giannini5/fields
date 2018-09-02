@@ -205,6 +205,10 @@ class Web_Index
                 $this->m_controller = new Controller_Api_Toggle();
                 break;
 
+            case View_Base::API_TOGGLE_GAME_TIME:
+                $this->m_controller = new Controller_Api_ToggleGameTime();
+                break;
+
             default:
                 $this->m_controller = new Controller_Fields_Welcome();
                 break;

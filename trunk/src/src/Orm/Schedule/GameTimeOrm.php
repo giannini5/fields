@@ -15,6 +15,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property string $startTime
  * @property string $genderPreference
  * @property int    $gameId
+ * @property int    locked
  */
 class GameTimeOrm extends PersistenceModel
 {
@@ -25,6 +26,7 @@ class GameTimeOrm extends PersistenceModel
     const FIELD_ACTUAL_START_TIME   = 'actualStartTime';
     const FIELD_GENDER_PREFERENCE   = 'genderPreference';
     const FIELD_GAME_ID             = 'gameId';
+    const FIELD_LOCKED              = 'locked';
 
     const BOYS  = 'Boys';
     const GIRLS = 'Girls';
@@ -37,6 +39,7 @@ class GameTimeOrm extends PersistenceModel
         self::FIELD_ACTUAL_START_TIME   => [FV::STRING, [FV::NO_CONSTRAINTS], null],
         self::FIELD_GENDER_PREFERENCE   => [FV::STRING, [FV::NO_CONSTRAINTS]],
         self::FIELD_GAME_ID             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_LOCKED              => [FV::INT,    [FV::NO_CONSTRAINTS]],
     ];
 
     protected static $config = [
@@ -56,6 +59,7 @@ class GameTimeOrm extends PersistenceModel
      * @param string    $genderPreference
      * @param int       $gameId
      * @param string    $actualStartTime
+     * @param int       $locked
      *
      * @return GameTimeOrm
      * @throws DuplicateEntryException
@@ -66,20 +70,24 @@ class GameTimeOrm extends PersistenceModel
         $startTime,
         $genderPreference,
         $gameId = null,
-        $actualStartTime = null)
+        $actualStartTime = null,
+        $locked = 0)
     {
         $result = self::getPersistenceDriver()->create(
-            [
-                self::FIELD_GAME_DATE_ID        => $gameDateId,
-                self::FIELD_FIELD_ID            => $fieldId,
-                self::FIELD_START_TIME          => $startTime,
-                self::FIELD_GENDER_PREFERENCE   => $genderPreference,
-                self::FIELD_GAME_ID             => $gameId,
-                self::FIELD_ACTUAL_START_TIME   => $actualStartTime,
-            ],
-            function ($item) {
-                return $item !== null;
-            }
+            array_filter(
+                [
+                    self::FIELD_GAME_DATE_ID        => $gameDateId,
+                    self::FIELD_FIELD_ID            => $fieldId,
+                    self::FIELD_START_TIME          => $startTime,
+                    self::FIELD_GENDER_PREFERENCE   => $genderPreference,
+                    self::FIELD_GAME_ID             => $gameId,
+                    self::FIELD_ACTUAL_START_TIME   => $actualStartTime,
+                    self::FIELD_LOCKED              => $locked,
+                ],
+                function ($item) {
+                    return $item !== null;
+                }
+            )
         );
 
         return new static($result);

@@ -96,6 +96,13 @@ class Controller_Api_Swap extends Controller_Api_Base
             return;
         }
 
+        // Verify neither gameTime is locked
+        if ($this->isGameTimeLocked($gameTime1, $errorMessage)
+            or $this->isGameTimeLocked($gameTime2, $errorMessage)) {
+            print $errorMessage;
+            return;
+        }
+
         // Move (or swap) games
         $gameTime1->game = null;
         $gameTime2->game = null;
@@ -144,6 +151,24 @@ class Controller_Api_Swap extends Controller_Api_Base
     {
         if (isset($game) and $game->isLocked()) {
             $errorMessage = "FAILURE: Cannot move a locked game.  Unlock the game first";
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Verify that gameTime is not locked
+     *
+     * @param GameTime  $gameTime
+     * @param string    $errorMessage
+     *
+     * @return bool
+     */
+    private function isGameTimeLocked($gameTime, &$errorMessage)
+    {
+        if ($gameTime->isLocked()) {
+            $errorMessage = "FAILURE: Cannot move a game to a locked gameTime.  Unlock the gameTime first";
             return true;
         }
 

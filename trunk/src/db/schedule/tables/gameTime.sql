@@ -6,6 +6,8 @@ create table gameTime (
     actualStartTime   time default NULL,
     genderPreference  varchar(10) not NULL,
     gameId            bigint default NULL,
+    locked            tinyint not NULL default 0,
+
     PRIMARY KEY (id),
     unique key ux_gameOneGame(gameDateId, fieldId, startTime),
     unique key ux_gameId(gameId),

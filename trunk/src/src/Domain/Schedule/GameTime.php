@@ -17,6 +17,7 @@ use DAG\Framework\Exception\Precondition;
  * @property string     $actualStartTime
  * @property string     $genderPreference
  * @property Game       $game
+ * @property int        $locked
  */
 class GameTime extends Domain
 {
@@ -370,6 +371,7 @@ class GameTime extends Domain
             case "id":
             case "startTime":
             case "genderPreference":
+            case "locked":
                 return $this->gameTimeOrm->{$propertyName};
 
             case "actualStartTime":
@@ -396,6 +398,7 @@ class GameTime extends Domain
             case "id":
             case "startTime":
             case "actualStartTime":
+            case "locked":
                 return isset($this->gameTimeOrm->{$propertyName});
 
             case "gameDate":
@@ -426,9 +429,22 @@ class GameTime extends Domain
                 $this->gameTimeOrm->save();
                 break;
 
+            case "locked":
+                $this->gameTimeOrm->locked = $value;
+                $this->gameTimeOrm->save();
+                break;
+
             default:
                 Precondition::isTrue(false, "Unrecognized set property: $propertyName");
         }
+    }
+
+    /**
+     * @return bool true if locked; false otherwise
+     */
+    public function isLocked()
+    {
+        return $this->gameTimeOrm->locked == 1;
     }
 
     /**

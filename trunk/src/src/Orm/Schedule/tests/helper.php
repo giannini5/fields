@@ -218,6 +218,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         [
             self::START_TIME        => '16:30:00',
             self::GENDER_PREFERENCE => 'Girls',
+            self::LOCKED            => 0,
         ];
 
     protected static $defaultGameOrmAttributes =
