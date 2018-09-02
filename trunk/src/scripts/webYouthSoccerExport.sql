@@ -4,10 +4,10 @@ use schedule;
 --
 -- Dump schedules for import into Web Youth Soccer
 --    TODO: Add support for Standby game slot creation
---    TODO: Add support for End-Of-Day game slot creation so nets are not taken down
 --
+set @seasonName = "2018 - League";
 set @division = "14U";
-set @startDate = "2017-11-10";
+set @startDate = "2018-09-08";
 set @tempHomeTeam = "50";
 set @tempVisitingTeam = "51";
 
@@ -26,6 +26,7 @@ from (
                 case when gameDurationMinutes = 60 then "01:00:00"
                      when gameDurationMinutes = 75 then "01:15:00"
                      when gameDurationMinutes = 90 then "01:30:00"
+                     when gameDurationMinutes = 105 then "01:45:00"
                      else "error" end),
             5) as End,
         f.thirdPartyFieldId,
@@ -44,7 +45,7 @@ from (
             t.id = g.gameTimeId
         join gameDate as d on
             d.id = t.gameDateId
-            and d.day > @startDate
+            and d.day >= @startDate
         left outer join team as h on
             h.id = g.homeTeamId
         left outer join team as v on
@@ -58,5 +59,10 @@ from (
             and i.name = @division
         join field as f on
             f.id = t.fieldId
+        join season as n on
+            n.id = i.seasonId
+            and n.name = @seasonName
+    order by
+        d.id, t.id
     ) as data
-into outfile "/Users/dag/ayso/schedule_VAT_14U.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2018/schedule_14U.txt" LINES TERMINATED BY '\n';
