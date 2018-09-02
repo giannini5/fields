@@ -76,6 +76,7 @@ abstract class View_Base {
     # API
     const API_SWAP                  = '/api/swap';
     const API_TOGGLE                = '/api/toggle';
+    const API_TOGGLE_GAME_TIME      = '/api/toggleGameTime';
 
     # Operations
     const SUBMIT           = 'submit';
@@ -175,6 +176,7 @@ abstract class View_Base {
     const GAME_ID1                  = 'gameId1';
     const GAME_ID2                  = 'gameId2';
     const GAME_TIME                 = 'gameTime';
+    const GAME_TIME_ID              = 'gameTimeId';
     const GAME_TIME_ID1             = 'gameTimeId1';
     const GAME_TIME_ID2             = 'gameTimeId2';
     const ACTUAL_START_TIME         = 'actualGameTime';

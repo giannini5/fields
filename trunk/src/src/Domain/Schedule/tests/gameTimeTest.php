@@ -21,11 +21,13 @@ class GameTimeTest extends ORM_TestHelper
     protected static $expectedDefaults = array(
         'startTime'         => '16:30:00',
         'genderPreference'  => 'Boys',
+        'locked'            => 0,
     );
 
     protected $gameTimesToCleanup = array();
     protected $gameDate;
     protected $field;
+    protected $locked;
 
     protected function setUp()
     {
@@ -139,12 +141,27 @@ class GameTimeTest extends ORM_TestHelper
         $this->assertTrue(!isset($gameTime->actualStartTime));
     }
 
+    public function test_setLocked()
+    {
+        $gameTimes = GameTime::lookupByField($this->field);
+        $this->assertTrue(count($gameTimes) == 1);
+        $gameTime = $gameTimes[0];
+
+        $this->assertEquals(self::$expectedDefaults['locked'], $gameTime->locked);
+        $this->assertFalse($gameTime->isLocked());
+
+        $gameTime->locked = 1;
+        $this->assertEquals(1, $gameTime->locked);
+        $this->assertTrue($gameTime->isLocked());
+    }
+
     public function validateGameTime($gameTime, $gameDate, $field, $expectedDefaults)
     {
         $this->assertTrue($gameTime->id > 0);
         $this->assertEquals($expectedDefaults['startTime'],         $gameTime->startTime);
         $this->assertEquals($expectedDefaults['startTime'],         $gameTime->actualStartTime);
         $this->assertEquals($expectedDefaults['genderPreference'],  $gameTime->genderPreference);
+        $this->assertEquals($expectedDefaults['locked'],            $gameTime->locked);
         $this->assertEquals($gameDate,                              $gameTime->gameDate);
         $this->assertEquals($field,                                 $gameTime->field);
         $this->assertFalse(isset($gameTime->actualStartTime), "actualStartTime should not be set");

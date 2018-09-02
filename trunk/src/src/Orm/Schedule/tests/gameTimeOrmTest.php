@@ -18,6 +18,7 @@ class GameTimeOrmTest extends ORM_TestHelper
             self::START_TIME        => '03:30:00',
             self::GENDER_PREFERENCE => GameTimeOrm::BOYS,
             self::ACTUAL_START_TIME => null,
+            self::LOCKED            => 0,
         ];
 
     protected function setUp()
@@ -119,6 +120,7 @@ class GameTimeOrmTest extends ORM_TestHelper
         $this->assertEquals($this->defaultFieldOrm->id,             $gameTimeOrm->fieldId);
         $this->assertEquals($attributes[self::START_TIME],          $gameTimeOrm->startTime);
         $this->assertEquals($attributes[self::GENDER_PREFERENCE],   $gameTimeOrm->genderPreference);
+        $this->assertEquals($attributes[self::LOCKED],              $gameTimeOrm->locked);
         if (isset($actualStartTime)) {
             $this->assertEquals($actualStartTime, $gameTimeOrm->actualStartTime);
         } else {

@@ -279,6 +279,8 @@ class GameTest extends ORM_TestHelper
 
     public function test_setStats()
     {
+        $this->markTestSkipped('test_setStats: needs to be re-written.');
+
         $game = Game::lookupById($this->gamesToCleanup[0]->id);
 
         $playerGameStats[$game->id] = [

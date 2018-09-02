@@ -136,25 +136,27 @@ class GameOrm extends PersistenceModel
     ) {
         // Verify GameTimeOrm exists and a game has not been assigned
         $gameTimeOrm = GameTimeOrm::loadById($gameTimeId);
-        Assertion::isTrue(!isset($gameTimeOrm->gameId), "GameTime already has a game assignment.  Cannot double book.");
+        Assertion::isTrue(!isset($gameTimeOrm->gameId), "GameTime $gameTimeId already has a game assignment.  Cannot double book.");
 
         // Create the GameOrm
         $result = self::getPersistenceDriver()->create(
-            [
-                self::FIELD_FLIGHT_ID                   => $flightId,
-                self::FIELD_POOL_ID                     => $poolId,
-                self::FIELD_GAME_TIME_ID                => $gameTimeId,
-                self::FIELD_HOME_TEAM_ID                => $homeTeamId,
-                self::FIELD_VISITING_TEAM_ID            => $visitingTeamId,
-                self::FIELD_TITLE                       => $title,
-                self::FIELD_PLAY_IN_HOME_GAME_ID        => $playInHomeGameId,
-                self::FIELD_PLAY_IN_VISITING_GAME_ID    => $playInVisitingGameId,
-                self::FIELD_PLAY_IN_BY_WIN              => $playInByWin,
-                self::FIELD_LOCKED                      => $locked,
-            ],
-            function ($item) {
-                return $item !== null;
-            }
+            array_filter(
+                [
+                    self::FIELD_FLIGHT_ID                   => $flightId,
+                    self::FIELD_POOL_ID                     => $poolId,
+                    self::FIELD_GAME_TIME_ID                => $gameTimeId,
+                    self::FIELD_HOME_TEAM_ID                => $homeTeamId,
+                    self::FIELD_VISITING_TEAM_ID            => $visitingTeamId,
+                    self::FIELD_TITLE                       => $title,
+                    self::FIELD_PLAY_IN_HOME_GAME_ID        => $playInHomeGameId,
+                    self::FIELD_PLAY_IN_VISITING_GAME_ID    => $playInVisitingGameId,
+                    self::FIELD_PLAY_IN_BY_WIN              => $playInByWin,
+                    self::FIELD_LOCKED                      => $locked,
+                ],
+                function ($item) {
+                    return $item !== null;
+                }
+            )
         );
 
         $gameOrm = new static($result);
