@@ -569,7 +569,7 @@ class Season extends Domain
      *
      *      where:
      *          Region is ignored
-     *          Division is of the format <Division><Gender>.  For example: U6G
+     *          Division is of the format <Gender><Division>.  For example: GU6 or U6G
      *          Team is of the format <Number>
      *          Status is ignored
      *          ID is ignored
@@ -631,7 +631,9 @@ class Season extends Domain
     private function getTeamIdPrefixFromDivision($division)
     {
         $teamIdPrefix = $division->gender == Division::$BOYS ? 'B' : 'G';
-
+        $teamIdPrefix .= $division->name;
+        return $teamIdPrefix;
+/*
         switch ($division->name) {
             case '5U':
                 $teamIdPrefix .= '2013';
@@ -661,6 +663,7 @@ class Season extends Domain
                 Precondition::isTrue(false, "Unrecognized division name: $division->name");
                 break;
         }
+*/
 
         return $teamIdPrefix;
     }

@@ -191,15 +191,15 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
      */
     private function  printGameCardsByDivisionNameAndGender($divisionName, $gender, $gameDate)
     {
-        $divisions = [];
         if ($divisionName == 'All') {
-            $divisions = Division::lookupBySeason($this->m_controller->m_season);
+            $this->printGameCardsByGameDate($gameDate, $gender);
         } else {
             $divisions = Division::lookupByName($this->m_controller->m_season, $divisionName);
-        }
-
-        foreach ($divisions as $division) {
-            $this->printGameCardsByDivision($division, $gameDate, null, $gender);
+            foreach ($divisions as $division) {
+                if ($division->isScoringTracked) {
+                    $this->printGameCardsByDivision($division, $gameDate, null, $gender);
+                }
+            }
         }
     }
 
@@ -235,6 +235,54 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
             // Visiting Team Game Card (front and back, two pages
             $this->printGameCard($game, 'left', false);
             $this->printBackOfGameCard($game, 'left', false);
+        }
+    }
+
+    /**
+     * @param GameDate          $gameDate
+     * @param string            $genderFilter -
+     */
+    private function printGameCardsByGameDate($gameDate, $genderFilter = 'All')
+    {
+        $divisions                          = Division::lookupBySeason($this->m_controller->m_season);
+        $gamesByFacilityByDivisionByTime    = [];
+
+        foreach ($divisions as $division) {
+            if ($division->isScoringTracked) {
+                $games = Game::lookupByDivisionDay($division, $gameDate->day);
+                foreach ($games as $game) {
+                    $gamesByFacilityByDivisionByTime[$game->gameTime->field->facility->id][$division->id][$game->gameTime->actualStartTime][] = $game;
+                }
+            }
+        }
+
+        ksort($gamesByFacilityByDivisionByTime);
+
+        foreach ($gamesByFacilityByDivisionByTime as $facilityId => $gamesByDivision) {
+            ksort($gamesByDivision);
+
+            foreach ($gamesByDivision as $divisionId => $gamesByStartTime) {
+                ksort($gamesByStartTime);
+
+                foreach ($gamesByStartTime as $startTime => $games) {
+                    foreach ($games as $game) {
+                        // Skip games that are not associated with the spcified gender
+                        if ($genderFilter != 'All') {
+                            if ($game->flight->schedule->division->gender != $genderFilter) {
+                                continue;
+                            }
+                        }
+
+                        // Home Team Game Card (front and back, two pages
+                        $this->printGameCard($game, 'left', true);
+                        $this->printBackOfGameCard($game, 'left', true);
+
+                        // Visiting Team Game Card (front and back, two pages
+                        $this->printGameCard($game, 'left', false);
+                        $this->printBackOfGameCard($game, 'left', false);
+                    }
+                }
+            }
         }
     }
 
