@@ -18,8 +18,10 @@ use \DAG\Framework\Exception\Precondition;
 class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
 {
     const GAME_SCORING              = 'game';
+    const GAME_SCORING_LOOKUP       = 'gameLookup';
     const UPDATE_GAME_SCORING       = 'updateGame';
     const DIVISION_SCORING          = 'division';
+    const DIVISION_SCORING_LOOKUP   = 'division';
 
     public $m_scoringType;
     public $m_gameId;
@@ -55,12 +57,12 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
             $this->m_isTitleGame    = $isTitleGameString == 'no' ? false : true;
             $this->m_quickScoring   = $this->getPostAttribute(View_Base::QUICK_SCORING, false, false, false);
 
-            if ($this->m_scoringType == self::GAME_SCORING) {
+            if ($this->m_scoringType == self::GAME_SCORING or $this->m_scoringType == self::GAME_SCORING_LOOKUP) {
                 $this->m_gameId = $this->getPostAttribute(View_Base::GAME_ID, null, true, true);
                 $this->populateGameAttributes(true);
             } else if ($this->m_scoringType == self::UPDATE_GAME_SCORING) {
                 $this->populateGameAttributes(false);
-            } else if ($this->m_scoringType == self::DIVISION_SCORING) {
+            } else if ($this->m_scoringType == self::DIVISION_SCORING or $this->m_scoringType == self::DIVISION_SCORING_LOOKUP) {
                 $this->m_divisionName   = $this->getPostAttribute(View_Base::DIVISION_NAME, '', false, false);
                 $this->m_divisionId     = $this->getPostAttribute(View_Base::FILTER_DIVISION_ID, null, false, true);
                 $this->m_gameDateId     = $this->getPostAttribute(View_Base::GAME_DATE, null, true, false);
@@ -148,6 +150,14 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
                     if (isset($this->m_gameId)) {
                         $this->processDivisionScoring();
                     }
+                    break;
+
+                case self::GAME_SCORING_LOOKUP:
+                    $this->m_scoringType = self::GAME_SCORING;
+                    break;
+
+                case self::DIVISION_SCORING_LOOKUP:
+                    $this->m_scoringType = self::DIVISION_SCORING;
                     break;
 
                 default:

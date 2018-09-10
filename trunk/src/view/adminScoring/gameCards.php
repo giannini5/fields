@@ -444,7 +444,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                         </tr>
                         <tr><td>&nbsp</td></tr>
                         <tr>
-                            <th style='font-size: 20px' colspan='4' align='center'>Referee Signatures</th>
+                            <th style='font-size: 20px' colspan='4' align='center'>Referee Printed Name</th>
                         </tr>
                         <tr><td>&nbsp</td></tr>
                         <tr style='font-size: 12px; height: 25px'>

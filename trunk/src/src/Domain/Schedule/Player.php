@@ -232,7 +232,9 @@ class Player extends Domain
                 break;
 
             case "number":
-                Precondition::isTrue(is_numeric($value), "Player numbers must be digits");
+                if (isset($value)) {
+                    Precondition::isTrue(is_numeric($value), "Player numbers must be digits");
+                }
                 $this->playerOrm->number = $value;
                 $this->playerOrm->save();
                 break;

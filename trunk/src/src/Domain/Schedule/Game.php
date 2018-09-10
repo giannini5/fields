@@ -673,12 +673,16 @@ class Game extends Domain
                     // Update Player Number if not empty
                     if (!empty($stats[\View_Base::PLAYER_NUMBER])) {
                         $player->number = (int)$stats[\View_Base::PLAYER_NUMBER];
+                    } else {
+                        $player->number = null;
                     }
 
                     // Update Player Name if different (part of unique key, exception will be thrown if not unique)
                     if (!empty($stats[\View_Base::PLAYER_NAME]) and
                         $player->name != $stats[\View_Base::PLAYER_NAME]) {
                         $player->setName($stats[\View_Base::PLAYER_NAME]);
+                    } else if (empty($stats[\View_Base::PLAYER_NAME])) {
+                        $player->setName('');
                     }
 
                     // Remove old stats from Player

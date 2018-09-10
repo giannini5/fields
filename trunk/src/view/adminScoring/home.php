@@ -104,7 +104,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 <tr>
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ENTER . "'>
-                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::GAME_SCORING . "'>
+                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::GAME_SCORING_LOOKUP . "'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
@@ -139,7 +139,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 <tr>
                     <td align='left'>
                         <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::ENTER . "'>
-                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::DIVISION_SCORING . "'>
+                        <input type='hidden' id='" . View_Base::SCORING_TYPE . "' name='" . View_Base::SCORING_TYPE . "' value='" . Controller_AdminScoring_Home::DIVISION_SCORING_LOOKUP . "'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
                 </tr>
