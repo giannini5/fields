@@ -210,8 +210,10 @@ select
     t.teamId,
     t.coachName,
     sum(ifnull(gameCount, 0)) as totalGamesRefereed,
-    case when 20 - sum(ifnull(gameCount, 0)) > 0 then
-        20 - sum(ifnull(gameCount, 0)) else 0 end as gamesNeededToQualifyForTournament
+    case when 5 - sum(ifnull(gameCount, 0)) > 0 then
+        5 - sum(ifnull(gameCount, 0)) else 0 end as gamesNeededForRefereeBonus,
+    case when 18 - sum(ifnull(gameCount, 0)) > 0 then
+        18 - sum(ifnull(gameCount, 0)) else 0 end as gamesNeededToQualifyForTournament
 from
     team as t
     left outer join gamesByTeam as g on
