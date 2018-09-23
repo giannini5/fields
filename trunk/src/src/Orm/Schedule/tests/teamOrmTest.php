@@ -17,6 +17,7 @@ class TeamOrmTest extends ORM_TestHelper
         [
             self::NAME              => 'TEST Team',
             self::NAME_ID           => 'TEST 20',
+            self::COLOR             => 'red',
             self::REGION            => '122',
             self::CITY              => 'Santa Barbara',
             self::VOLUNTEER_POINTS  => 2,
@@ -43,7 +44,8 @@ class TeamOrmTest extends ORM_TestHelper
             self::$expectedDefaults[self::REGION],
             self::$expectedDefaults[self::CITY],
             self::$expectedDefaults[self::VOLUNTEER_POINTS],
-            self::$expectedDefaults[self::SEED]);
+            self::$expectedDefaults[self::SEED],
+            self::$expectedDefaults[self::COLOR]);
 
         $this->verifyExpectedAttributes($teamOrm, self::$expectedDefaults);
     }
@@ -67,6 +69,7 @@ class TeamOrmTest extends ORM_TestHelper
         $this->assertEquals($this->defaultPoolOrm->id,              $teamOrm->poolId);
         $this->assertEquals($attributes[self::NAME],                $teamOrm->name);
         $this->assertEquals($attributes[self::NAME_ID],             $teamOrm->nameId);
+        $this->assertEquals($attributes[self::COLOR],               $teamOrm->color);
         $this->assertEquals($attributes[self::REGION],              $teamOrm->region);
         $this->assertEquals($attributes[self::CITY],                $teamOrm->city);
         $this->assertEquals($attributes[self::VOLUNTEER_POINTS],    $teamOrm->volunteerPoints);

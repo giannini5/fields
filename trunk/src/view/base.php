@@ -154,6 +154,7 @@ abstract class View_Base {
     const SWAP_TEAM_ID2             = 'swapTeamId2';
     const FILTER_COACH_ID           = 'filterCoachId';
     const NAME                      = 'name';
+    const COLOR                     = 'color';
     const DISPLAY_NOTES             = 'displayNotes';
     const NAME_ID                   = 'nameId';
     const REGION                    = 'region';
@@ -210,6 +211,10 @@ abstract class View_Base {
     const QUARTER_2                 = 'quarter2';
     const QUARTER_3                 = 'quarter3';
     const QUARTER_4                 = 'quarter4';
+    const HOME_TEAM_NAME            = 'homeTeamName';
+    const HOME_TEAM_COLOR           = 'homeTeamColor';
+    const VISITING_TEAM_NAME        = 'visitingTeamName';
+    const VISITING_TEAM_COLOR       = 'visitingTeamColor';
 
     const PLAYER_BASE               = 'playerQ';
     const PLAYER_Q1                 = 'playerQ1';

@@ -3,8 +3,8 @@
 --
 use schedule;
 set @seasonName = "2018 - League";
-set @divisions = '5U,6U,7U,8U,10U,12U,14U';
-set @gameDate = "2018-09-15";
+set @divisions = '5U,6U,7U,8U,10U';
+set @gameDate = "2018-09-22";
 
 select
     date_format(d.day, "%c/%e/%Y") as Date,

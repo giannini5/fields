@@ -26,6 +26,7 @@ class TeamTest extends ORM_TestHelper
         $this->expectedDefaults = array(
             'name'              => 'TEST Domain team name',
             'nameId'            => 'TEST 1',
+            'color'             => 'Orange',
             'region'            => '4',
             'city'              => 'Temecula',
             'volunteerPoints'   => 5,
@@ -46,7 +47,8 @@ class TeamTest extends ORM_TestHelper
             $this->expectedDefaults['city'],
             false,
             $this->expectedDefaults['volunteerPoints'],
-            $this->expectedDefaults['seed']);
+            $this->expectedDefaults['seed'],
+            $this->expectedDefaults['color']);
     }
 
     protected function tearDown()
@@ -76,7 +78,8 @@ class TeamTest extends ORM_TestHelper
             $this->expectedDefaults['city'],
             false,
             $this->expectedDefaults['volunteerPoints'],
-            $this->expectedDefaults['seed']);
+            $this->expectedDefaults['seed'],
+            $this->expectedDefaults['color']);
         $this->teamsToCleanup[] = $team;
 
         $this->validateTeam($team, $this->division, null, $this->expectedDefaults);
@@ -111,6 +114,7 @@ class TeamTest extends ORM_TestHelper
         $this->assertTrue($team->id > 0);
         $this->assertEquals($expectedDefaults['name'],              $team->name);
         $this->assertEquals($expectedDefaults['nameId'],            $team->nameId);
+        $this->assertEquals($expectedDefaults['color'],             $team->color);
         $this->assertEquals($expectedDefaults['region'],            $team->region);
         $this->assertEquals($expectedDefaults['city'],              $team->city);
         $this->assertEquals($expectedDefaults['volunteerPoints'],   $team->volunteerPoints);

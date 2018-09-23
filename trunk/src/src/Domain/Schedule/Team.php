@@ -14,6 +14,7 @@ use DAG\Framework\Exception\Precondition;
  * @property Pool       $pool
  * @property string     $name
  * @property string     $nameId
+ * @property string     $color
  * @property string     $region
  * @property string     $city
  * @property int        $volunteerPoints
@@ -53,6 +54,7 @@ class Team extends Domain
      * @param bool      $ignore - defaults to false and duplicates raise an exception
      * @param int       $volunteerPoints - defaults to 0
      * @param int       $seed - defaults to 0
+     * @param string    $color - default to ''
      *
      * @return Team
      *
@@ -68,12 +70,13 @@ class Team extends Domain
         $city,
         $ignore = false,
         $volunteerPoints = 0,
-        $seed = 0)
+        $seed = 0,
+        $color = '')
     {
         $poolId = isset($pool) ? $pool->id : null;
 
         try {
-            $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints, $seed);
+            $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints, $seed, $color);
             return new static($teamOrm, $division, $pool);
         } catch (DuplicateEntryException $e) {
             if ($ignore) {
@@ -171,6 +174,7 @@ class Team extends Domain
             case "id":
             case "name":
             case "nameId":
+            case "color":
             case "region":
             case "city":
             case "volunteerPoints":
@@ -201,6 +205,7 @@ class Team extends Domain
         switch ($propertyName) {
             case "name":
             case "nameId":
+            case "color":
             case "region":
             case "city":
             case "volunteerPoints":
@@ -242,6 +247,9 @@ class Team extends Domain
             case "volunteerPoints":
             case "seed":
                 return true;
+
+            case "color":
+                return !empty($this->teamOrm->color);
 
             case "pool":
                 return isset($this->teamOrm->poolId);

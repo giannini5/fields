@@ -4,6 +4,7 @@ create table team (
     poolId          bigint default NULL,
     name            varchar(60) not NULL,
     nameId          varchar(10) not NULL,
+    color           varchar(24) not NULL default '',
     region          varchar(60) not NULL default '',
     city            varchar(60) not NULL default '',
     volunteerPoints int         not NULL default 0,
