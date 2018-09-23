@@ -13,6 +13,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $poolId
  * @property string $name
  * @property string $nameId
+ * @property string $color
  * @property string $region
  * @property string $city
  * @property int    $volunteerPoints
@@ -25,6 +26,7 @@ class TeamOrm extends PersistenceModel
     const FIELD_POOL_ID             = 'poolId';
     const FIELD_NAME                = 'name';
     const FIELD_NAME_ID             = 'nameId';
+    const FIELD_COLOR               = 'color';
     const FIELD_REGION              = 'region';
     const FIELD_CITY                = 'city';
     const FIELD_VOLUNTEER_POINTS    = 'volunteerPoints';
@@ -36,6 +38,7 @@ class TeamOrm extends PersistenceModel
         self::FIELD_POOL_ID             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_NAME                => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_NAME_ID             => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_COLOR               => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_REGION              => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_CITY                => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_VOLUNTEER_POINTS    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
@@ -73,7 +76,8 @@ class TeamOrm extends PersistenceModel
         $region,
         $city,
         $volunteerPoints = 0,
-        $seed = 0
+        $seed = 0,
+        $color = ''
     ) {
         $result = self::getPersistenceDriver()->create(
             [
@@ -81,6 +85,7 @@ class TeamOrm extends PersistenceModel
                 self::FIELD_POOL_ID             => $poolId,
                 self::FIELD_NAME                => $name,
                 self::FIELD_NAME_ID             => $nameId,
+                self::FIELD_COLOR               => $color,
                 self::FIELD_REGION              => $region,
                 self::FIELD_CITY                => $city,
                 self::FIELD_VOLUNTEER_POINTS    => $volunteerPoints,

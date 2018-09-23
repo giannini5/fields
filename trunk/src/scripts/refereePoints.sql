@@ -87,30 +87,83 @@ create table refereeByTeam
 (
     teamId      varchar(20),
     refereeName varchar(64),
+    status      char(1) default 'A',
     
     primary key (teamId, refereeName)
 );
 
 insert into refereeByTeam
-    select teamId, refereeName1 from rawRefereesByTeam where refereeName1 != '';
+    select
+        teamId,
+        case when left(refereeName1, 2) = "N:" then right(refereeName1, length(refereeName1) - 2) else refereeName1 end as refereeName,
+        case when left(refereeName1, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName1 != '';
 insert into refereeByTeam
-    select teamId, refereeName2 from rawRefereesByTeam where refereeName2 != '';
+    select
+        teamId,
+        case when left(refereeName2, 2) = "N:" then right(refereeName2, length(refereeName2) - 2) else refereeName2 end as refereeName,
+        case when left(refereeName2, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName2 != '';
 insert into refereeByTeam
-    select teamId, refereeName3 from rawRefereesByTeam where refereeName3 != '';
+    select
+        teamId,
+        case when left(refereeName3, 2) = "N:" then right(refereeName3, length(refereeName3) - 2) else refereeName3 end as refereeName,
+        case when left(refereeName3, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName3 != '';
 insert into refereeByTeam
-    select teamId, refereeName4 from rawRefereesByTeam where refereeName4 != '';
+    select
+        teamId,
+        case when left(refereeName4, 2) = "N:" then right(refereeName4, length(refereeName4) - 2) else refereeName4 end as refereeName,
+        case when left(refereeName4, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName4 != '';
 insert into refereeByTeam
-    select teamId, refereeName5 from rawRefereesByTeam where refereeName5 != '';
+    select
+        teamId,
+        case when left(refereeName5, 2) = "N:" then right(refereeName5, length(refereeName5) - 2) else refereeName5 end as refereeName,
+        case when left(refereeName5, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName5 != '';
 insert into refereeByTeam
-    select teamId, refereeName6 from rawRefereesByTeam where refereeName6 != '';
+    select
+        teamId,
+        case when left(refereeName6, 2) = "N:" then right(refereeName6, length(refereeName6) - 2) else refereeName6 end as refereeName,
+        case when left(refereeName6, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName6 != '';
 insert into refereeByTeam
-    select teamId, refereeName7 from rawRefereesByTeam where refereeName7 != '';
+    select
+        teamId,
+        case when left(refereeName7, 2) = "N:" then right(refereeName7, length(refereeName7) - 2) else refereeName7 end as refereeName,
+        case when left(refereeName7, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName7 != '';
 insert into refereeByTeam
-    select teamId, refereeName8 from rawRefereesByTeam where refereeName8 != '';
+    select
+        teamId,
+        case when left(refereeName8, 2) = "N:" then right(refereeName8, length(refereeName8) - 2) else refereeName8 end as refereeName,
+        case when left(refereeName8, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName9 != '';
 insert into refereeByTeam
-    select teamId, refereeName9 from rawRefereesByTeam where refereeName9 != '';
+    select
+        teamId,
+        case when left(refereeName9, 2) = "N:" then right(refereeName9, length(refereeName9) - 2) else refereeName9 end as refereeName,
+        case when left(refereeName9, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName9 != '';
 insert into refereeByTeam
-    select teamId, refereeName10 from rawRefereesByTeam where refereeName10 != '';
+    select
+        teamId,
+        case when left(refereeName10, 2) = "N:" then right(refereeName10, length(refereeName10) - 2) else refereeName10 end as refereeName,
+        case when left(refereeName10, 2) = "N:" then 'N' else 'A' end as status
+    from rawRefereesByTeam 
+    where refereeName10 != '';
+    
+-- select status, count(1) from refereeByTeam group by 1;
 
 drop table if exists refereeTeamCount;
 create table refereeTeamCount
@@ -204,6 +257,30 @@ insert into gamesByTeam (teamId, gameDate, gameCount)
                 1, 2
         ) as data;
 
+drop table if exists refereeStatusByTeam;
+create table refereeStatusByTeam
+(
+    teamId             varchar(20),
+    refereesWithStatus   varchar(1024),
+    
+    primary key (teamId)
+);
+
+insert into refereeStatusByTeam (teamId, refereesWithStatus)
+    select
+        t.teamId,
+        case when t.status != 'A' then concat(t.refereeName, " (NOT YET APPROVED)")
+             when r.teamCount > 1 then concat(t.refereeName, " (Helping ", r.teamCount, " teams)")
+             else t.refereeName end as refereesWithStatus
+    from
+        refereeByTeam as t
+        join refereeTeamCount as r on
+            r.refereeName = t.refereeName
+on duplicate key
+    update refereesWithStatus = concat(refereesWithStatus, ", ",
+        case when t.status != 'A' then concat(t.refereeName, " (NOT YET APPROVED)")
+             when r.teamCount > 1 then concat(t.refereeName, " (Helping ", r.teamCount, " teams)")
+             else t.refereeName end);
 
 /* Games for Team */
 select
@@ -255,3 +332,15 @@ from
         and g.day = gDate.gameDate
 order by
     1;
+
+/* Referee Status by Team */
+select
+    t.teamId,
+    t.coachName as coach,
+    r.refereesWithStatus
+from
+    refereeStatusByTeam as r
+    join team as t on
+        t.teamId = r.teamId
+order by
+    teamId;

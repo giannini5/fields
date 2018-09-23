@@ -13,6 +13,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     // Database column names:
     const NAME                        = 'name';
     const NAME_ID                     = 'nameId';
+    const COLOR                       = 'color';
     const REGION                      = 'region';
     const PASSWORD                    = 'password';
     const START_DATE                  = 'startDate';
@@ -167,6 +168,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         [
             self::NAME              => 'Test Default Team 1',
             self::NAME_ID           => 'Test Id1',
+            self::COLOR             => 'white',
             self::REGION            => '686',
             self::CITY              => 'Who Knows',
             self::VOLUNTEER_POINTS  => 0,
@@ -177,6 +179,7 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         [
             self::NAME              => 'Test Default Team 2',
             self::NAME_ID           => 'Test Id2',
+            self::COLOR             => 'blue',
             self::REGION            => '688',
             self::CITY              => 'Uhhh',
             self::VOLUNTEER_POINTS  => 0,
@@ -353,7 +356,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultTeamOrmAttributes[self::REGION],
             self::$defaultTeamOrmAttributes[self::CITY],
             self::$defaultTeamOrmAttributes[self::VOLUNTEER_POINTS],
-            self::$defaultTeamOrmAttributes[self::SEED]);
+            self::$defaultTeamOrmAttributes[self::SEED],
+            self::$defaultTeamOrmAttributes[self::COLOR]);
 
         $this->defaultVisitingTeamOrm = TeamOrm::create(
             $this->defaultDivisionOrm->id,
@@ -363,7 +367,8 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultVisitingTeamOrmAttributes[self::REGION],
             self::$defaultVisitingTeamOrmAttributes[self::CITY],
             self::$defaultVisitingTeamOrmAttributes[self::VOLUNTEER_POINTS],
-            self::$defaultVisitingTeamOrmAttributes[self::SEED]);
+            self::$defaultVisitingTeamOrmAttributes[self::SEED],
+            self::$defaultVisitingTeamOrmAttributes[self::COLOR]);
 
         $this->defaultCoachOrm = CoachOrm::create(
             $this->defaultTeamOrm->id,

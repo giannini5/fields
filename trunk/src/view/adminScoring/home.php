@@ -17,6 +17,8 @@ use \DAG\Framework\Exception\Assertion;
  */
 class View_AdminScoring_Home extends View_AdminScoring_Base
 {
+    private $uniqueId;
+
     /**
      * @brief Construct the View
      *
@@ -25,6 +27,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
     public function __construct($controller)
     {
         parent::__construct(self::SCORING_ENTER_SCORES_PAGE, $controller);
+        $this->uniqueId = 0;
     }
 
     /**
@@ -72,6 +75,18 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                 $this->printUpdateDivisionGamesForm($sessionId, $this->m_controller->m_division, $this->m_controller->m_gameDate);
                 break;
         }
+
+        print "
+            <script language=\"javascript\">
+                function setRadioTrue(obj)
+                {
+                    obj.checked = true;
+                }
+                function setRadioFalse(obj)
+                {
+                    obj.checked = false;
+                }
+            </script>";
     }
 
     /**
@@ -317,8 +332,12 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId: $teamName";
         $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId: $opposingTeamName";
         $players                = $this->getPlayersOrderedByNumber($team);
+        $teamColor              = 'white';
 
         $headerElementHeight    = "20px";
+
+        $teamNametag    = $isHomeTeam ? View_Base::HOME_TEAM_NAME : View_Base::VISITING_TEAM_NAME;
+        $teamColortag   = $isHomeTeam ? View_Base::HOME_TEAM_COLOR : View_Base::VISITING_TEAM_COLOR;
 
         print "
                     <table border='0' style='table-layout: fixed; width: 5.0in'>
@@ -339,8 +358,15 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                     </table>
                     <table border='0' style='table-layout: fixed; width: 5.0in'>
                         <tr style='height: $headerElementHeight'>
-                            <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$fullTeamName</td>
-                            <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>OPPOSING TEAM: </strong>$fullOpposingTeamName</td>
+                            <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$teamId</td>
+                            <td align='left'><strong>NAME: </strong>
+                                <input type='text' size='16' name='$teamNametag' placeholder='Name' value='$teamName'>
+                            </td>
+                            <td align='right'><strong>COLOR: </strong>
+                                <input type='text' size='12' name='$teamColortag' placeholder='Color' value='$teamColor'>
+                            </td>
+                            <!-- <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$fullTeamName</td> -->
+                            <!-- <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>OPPOSING TEAM: </strong>$fullOpposingTeamName</td> -->
                         </tr>
                     </table>
                     <table border='0' style='table-layout: fixed; width: 5.0in'>
@@ -490,9 +516,12 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
             <td $cellStyle>";
 
         // Radio Button - Sub
-        $inputName = $baseInputName . "[" . View_Base::PLAYER_BASE . $quarter . "]";
+        $this->uniqueId += 1;
+        $substitutionId = $this->uniqueId . "_sub_" . $quarter;
+        $inputName      = $baseInputName . "[" . View_Base::PLAYER_BASE . $quarter . "]";
+
         print "
-                <input type=radio name='$inputName' value='X' $substitutionChecked>X";
+                <input type=radio id='$substitutionId' name='$inputName' value='X' $substitutionChecked>X";
 
         // Radio Button - Keeper
         print "

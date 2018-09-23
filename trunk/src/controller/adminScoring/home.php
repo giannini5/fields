@@ -35,6 +35,10 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
     public $m_visitingTeamId;
     public $m_facility;
     public $m_quickScoring = true;
+    public $m_homeTeamName;
+    public $m_homeTeamColor;
+    public $m_visitingTeamName;
+    public $m_visitingTeamColor;
 
     private $m_gameCardData = [];
     private $m_gameNotes;
@@ -52,10 +56,14 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
         parent::__construct();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->m_scoringType    = $this->getPostAttribute(View_Base::SCORING_TYPE, '', false, false);
-            $isTitleGameString      = $this->getPostAttribute(View_Base::IS_TITLE_GAME, 'no', false, false);
-            $this->m_isTitleGame    = $isTitleGameString == 'no' ? false : true;
-            $this->m_quickScoring   = $this->getPostAttribute(View_Base::QUICK_SCORING, false, false, false);
+            $this->m_scoringType        = $this->getPostAttribute(View_Base::SCORING_TYPE, '', false, false);
+            $isTitleGameString          = $this->getPostAttribute(View_Base::IS_TITLE_GAME, 'no', false, false);
+            $this->m_isTitleGame        = $isTitleGameString == 'no' ? false : true;
+            $this->m_quickScoring       = $this->getPostAttribute(View_Base::QUICK_SCORING, false, false, false);
+            $this->m_homeTeamName       = $this->getPostAttribute(View_Base::HOME_TEAM_NAME, '', false, false);
+            $this->m_homeTeamColor      = $this->getPostAttribute(View_Base::HOME_TEAM_COLOR, '', false, false);
+            $this->m_visitingTeamName   = $this->getPostAttribute(View_Base::VISITING_TEAM_NAME, '', false, false);
+            $this->m_visitingTeamColor  = $this->getPostAttribute(View_Base::VISITING_TEAM_COLOR, '', false, false);
 
             if ($this->m_scoringType == self::GAME_SCORING or $this->m_scoringType == self::GAME_SCORING_LOOKUP) {
                 $this->m_gameId = $this->getPostAttribute(View_Base::GAME_ID, null, true, true);
@@ -205,6 +213,22 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
                 }
             } else {
                 $game->setStats($this->m_gameCardData);
+
+                // Set home team name, color
+                if (!empty($this->m_homeTeamName)) {
+                    $game->homeTeam->name = $this->m_homeTeamName;
+                }
+                if (!empty($this->m_homeTeamColor)) {
+                    $game->homeTeam->color = $this->m_homeTeamColor;
+                }
+
+                // Set visiting team name, color
+                if (!empty($this->m_visitingTeamName)) {
+                    $game->visitingTeam->name = $this->m_visitingTeamName;
+                }
+                if (!empty($this->m_visitingTeamColor)) {
+                    $game->visitingTeam->color = $this->m_visitingTeamColor;
+                }
             }
 
             // Populate title games if any and all flight games are complete
