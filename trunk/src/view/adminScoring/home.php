@@ -173,7 +173,10 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
     private function printUpdateGameForm($sessionId, $game, $scoringType, $coachFilter = null, $divisionFilter = null, $gameDateFilter = null)
     {
         // Print message and return if game does not have a team
-        if ($this->m_controller->m_quickScoring or !isset($game->homeTeam) or $game->title != '') {
+
+        // Disable quick scoring - causing bugs when scores are entered backwards
+        // if ($this->m_controller->m_quickScoring or !isset($game->homeTeam) or $game->title != '') {
+        if (!isset($game->homeTeam) or $game->title != '') {
             $this->printQuickUpdateGameForm($sessionId, $game, $scoringType, $coachFilter, $divisionFilter, $gameDateFilter);
             return;
         }

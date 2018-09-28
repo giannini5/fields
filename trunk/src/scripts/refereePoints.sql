@@ -319,17 +319,17 @@ order by
 
 /* Games By Day for Referee */
 select
-    r.refereeName,
+    g.refereeName,
     gDate.gameDate,
     ifnull(count, 0) as gamesRefereed,
-    r.teamCount as countOfTeams,
-    round(ifnull(count, 0) / r.teamCount, 1) as gamesPerTeam
+    ifnull(r.teamCount, 0) as countOfTeams,
+    case when r.teamCount is null then 0 else round(ifnull(count, 0) / r.teamCount, 1) end as gamesPerTeam
 from
-    refereeTeamCount as r
-    join (select distinct gameDate from gamesByTeam) as gDate
+    (select distinct gameDate from gamesByTeam) as gDate
     left outer join game as g on
-        g.refereeName = r.refereeName
-        and g.day = gDate.gameDate
+        g.day = gDate.gameDate
+    left outer join refereeTeamCount as r on
+        r.refereeName = g.refereeName
 order by
     1;
 
@@ -337,10 +337,31 @@ order by
 select
     t.teamId,
     t.coachName as coach,
-    r.refereesWithStatus
+    ifnull(r.refereesWithStatus, "No referees assigned to team") as refereesWithStatus
 from
-    refereeStatusByTeam as r
-    join team as t on
-        t.teamId = r.teamId
+    team as t
+    left outer join refereeStatusByTeam as r on
+        r.teamId = t.teamId
 order by
     teamId;
+
+select
+    data.refereeName
+from
+(
+    select
+        g.refereeName
+    from
+        game as g
+        left outer join refereeTeamCount as r on
+            r.refereeName = g.refereeName
+    union
+    select
+        r.refereeName
+    from
+        refereeTeamCount as r
+        left outer join game as g on
+            g.refereeName = r.refereeName
+) as data
+group by 1
+order by 1;
