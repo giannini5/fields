@@ -281,7 +281,7 @@ class View_Games_Standings extends View_Games_Base
                 foreach ($teamPoints as $teamId => $points) {
                     if (isset($poolTeams[$pool->id]) and in_array($teamId, $poolTeams[$pool->id])) {
                         $stats              = $teamStats[$teamId];
-                        $teamName           = $teams[$teamId]->name;
+                        $teamName           = $teams[$teamId]->nameId . " (" . $teams[$teamId]->name . ")";
                         $wins               = $stats[self::WINS];
                         $losses             = $stats[self::LOSSES];
                         $ties               = $stats[self::TIES];
