@@ -310,7 +310,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId($teamName)";
         $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId($opposingTeamName), $opposingTeam->color";
         $players                = $this->getPlayersOrderedByNumber($team);
-        $color                  = "";
+        $color                  = $team->color;
         $color                  = $color == "" ? "<u>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</u>" : $color;
         $teamName               = $teamName == $teamId ? "<u>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</u>" : $teamName;
 

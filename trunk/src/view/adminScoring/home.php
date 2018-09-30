@@ -335,7 +335,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId: $teamName";
         $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId: $opposingTeamName";
         $players                = $this->getPlayersOrderedByNumber($team);
-        $teamColor              = 'white';
+        $teamColor              = $team->color;
 
         $headerElementHeight    = "20px";
 
