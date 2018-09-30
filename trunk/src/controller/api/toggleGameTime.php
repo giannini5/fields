@@ -39,8 +39,8 @@ class Controller_Api_ToggleGameTime extends Controller_Api_Base
         // Verify no game associated with gameTime
         if (isset($gameTime->game)) {
             $lockMessage = $gameTime->game->isLocked() ? "Unlocked" : "Locked";
-            $gameTime->game->locked = $gameTime->isLocked() ? 0 : 1;
-            print "SUCCESS: gameId: $gameTime->game->id $lockMessage";
+            $gameTime->game->locked = $gameTime->game->isLocked() ? 0 : 1;
+            print "SUCCESS: gt gameId: " . $gameTime->game->id . " $lockMessage";
             return;
         }
 
