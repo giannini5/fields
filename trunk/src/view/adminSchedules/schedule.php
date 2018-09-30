@@ -1155,7 +1155,6 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                         $gameTime               = null;
                         $cellId                 = '';
                         $actualStartTimeHTML    = '';
-                        $lockFormHTML           = '<br>';
                         $title                  = '';
                         $bgColor                = 'white';
                         $redipsDragStart        = '';
