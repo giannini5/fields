@@ -645,12 +645,12 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                     $visitingCoach      = isset($game->visitingTeam) ? Coach::lookupByTeam($game->visitingTeam) : null;
 
                     if (isset($game->homeTeam)) {
-                        $homeTeamName   = $game->homeTeam->name . ": " . $homeCoach->lastName;
+                        $homeTeamName   = $game->homeTeam->nameId . ": " . $homeCoach->lastName;
                     } else {
                         $homeTeamName   = 'TBD';
                     }
                     if (isset($game->visitingTeam)) {
-                        $visitingTeamName   = $game->visitingTeam->name . ": " . $visitingCoach->lastName;
+                        $visitingTeamName   = $game->visitingTeam->nameId . ": " . $visitingCoach->lastName;
                     } else {
                         $visitingTeamName   = 'TBD';
                     }
