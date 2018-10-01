@@ -65,8 +65,10 @@ class HomeGameTracker extends Domain
 
     /**
      * Best attempt to even out the home/visiting team assignments
+     *
+     * @param Schedule  - $schedule
      */
-    public function evenOutHomeGames()
+    public function evenOutHomeGames($schedule)
     {
         // For each team that has more home games than visiting games
         foreach ($this->teams as $team) {
@@ -75,6 +77,11 @@ class HomeGameTracker extends Domain
                 $homeGames = Game::lookupByHomeTeam($team);
 
                 foreach ($homeGames as $game) {
+                    // skip games that are not in desired schedule
+                    if ($game->flight->schedule->id != $schedule->id) {
+                        continue;
+                    }
+
                     // Swap with another team that has more visiting games than home games
                     $swapTeam = $game->visitingTeam;
                     if ($this->homeGamesByTeamId[$swapTeam->id] < $this->visitingGamesByTeamId[$swapTeam->id]) {
