@@ -307,8 +307,8 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         $day                    = $game->gameTime->gameDate->day;
         $time                   = substr($game->gameTime->actualStartTime, 0, 5);
         $fieldName              = $game->gameTime->field->fullName;
-        $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId($teamName)";
-        $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId($opposingTeamName), $opposingTeam->color";
+        $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId ($teamName)";
+        $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId ($opposingTeamName), $opposingTeam->color";
         $players                = $this->getPlayersOrderedByNumber($team);
         $color                  = $team->color;
         $color                  = $color == "" ? "<u>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</u>" : $color;
@@ -332,7 +332,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                             <td nowrap align='right'>GID: <strong style='font-size: larger'>$game->id</strong></td>
                         </tr>
                     </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table border='0' style='width: 4.5in; table-layout: auto'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>TEAM: </strong>$teamId</td>
                             <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>NAME: </strong>$teamName</td>
@@ -341,7 +341,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                             <!-- <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>VS: </strong>$fullOpposingTeamName</td> -->
                         </tr>
                     </table>
-                    <table border='0' style='table-layout: fixed; width: 4.5in'>
+                    <table border='0' style='table-layout: auto; width: 4.5in'>
                         <tr style='height: $headerElementHeight'>
                             <td nowrap align='left' style='overflow: hidden; font-size: larger'><strong>COACH: </strong>$coachName</td>
                             <td nowrap align='right' style='overflow: hidden; font-size: larger'><strong>ASST. COACH: </strong>$assistantCoachName</td>
@@ -378,8 +378,8 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         $remainingRows = 22 - $playerCount;
         print "
                         <tr style='height: 25px'>
-                            <td colspan='4' rowspan='$remainingRows' valign='top' style='border: none;'><strong>VS:</strong> $fullOpposingTeamName</td> 
-                            <td colspan='4' rowspan='$remainingRows' valign='top' align='right' style='border: none;'>High Five John Maloney Day</td>
+                            <td colspan='3' rowspan='$remainingRows' valign='top' style='border: none;'><strong>VS:</strong> $fullOpposingTeamName</td> 
+                            <td colspan='5' rowspan='$remainingRows' valign='top' align='right' style='border: none;'>Silent Saturday: whisper in John's ear</td>
                         </tr>";
 
         while ($remainingRows > 1) {
