@@ -3,13 +3,13 @@ use schedule;
 -- select * from field where facilityId = 1;
 --
 -- Dump schedules for import into Web Youth Soccer
---    TODO: Add support for Standby game slot creation
 --
-set @seasonName = "2018 - League";
-set @division = "14U";
-set @startDate = "2018-09-08";
-set @tempHomeTeam = "50";
-set @tempVisitingTeam = "51";
+set @seasonName         = "2018 - League";
+set @division           = "12U";
+set @startDate          = "2018-10-06";
+set @tempHomeTeam       = "50";
+set @tempVisitingTeam   = "51";
+set @outputFile         = "NEEDS TO BE UPDATED AT END OF SCRIPT BELOW";
 
 select
     data.Date,
@@ -65,4 +65,4 @@ from (
     order by
         d.id, t.id
     ) as data
-into outfile "/Users/dag/webYouth/2018/schedule_14U.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2018/secondHalf/schedule_12U.txt" LINES TERMINATED BY '\n';

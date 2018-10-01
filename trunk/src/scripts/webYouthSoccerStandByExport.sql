@@ -2,10 +2,10 @@
 -- Stand By Game Slots
 --
 use schedule;
-set @seasonName = "2018 - League";
-set @startDate = '2018-09-08';
-set @endDate = '2018-09-29';
-set @homeTeamId = 80;
+set @seasonName     = "2018 - League";
+set @startDate      = '2018-10-06';
+set @endDate        = '2018-11-03';
+set @homeTeamId     = 80;
 set @visitingTeamId = 81;
 
 select
@@ -71,4 +71,4 @@ from (
     order by 1, 2
 ) as data
 group by 1, 2, 3, 4, 5, 6
-into outfile "/Users/dag/webYouth/2018/schedule_standBy_Girsh.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2018/secondHalf/schedule_standBy.txt" LINES TERMINATED BY '\n';

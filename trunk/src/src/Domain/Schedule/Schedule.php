@@ -615,7 +615,7 @@ class Schedule extends Domain
 
         // Attempt to even out home and visiting games
         foreach ($homeGameTrackerByPool as $poolId => $homeGameTracker) {
-            $homeGameTracker->evenOutHomeGames();
+            $homeGameTracker->evenOutHomeGames($this);
         }
     }
 
