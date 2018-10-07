@@ -380,7 +380,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
             $playerCount += 1;
         }
 
-        while ($playerCount < 18) {
+        while ($playerCount < 12) {
             $this->printPlayerRow();
             $playerCount += 1;
         }
