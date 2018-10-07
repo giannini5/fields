@@ -27,20 +27,22 @@ class View_Games_Schedule extends View_Games_Base
      */
     public function render()
     {
-        // Print selectors
-        print "
-        <table valign='top' align='center' border=0 cellpadding='5' cellspacing='0'>
-                <tr><td>";
+        if (!$this->m_controller->m_isPopup) {
+            // Print selectors
+            print "
+            <table valign='top' align='center' border=0 cellpadding='5' cellspacing='0'>
+                    <tr><td>";
 
-        View_Games_Team::printTeamSelectors($this->m_controller->m_season, $this->m_controller->m_filterCoachId);
+            View_Games_Team::printTeamSelectors($this->m_controller->m_season, $this->m_controller->m_filterCoachId);
 
-        print "
-                </td><td>";
+            print "
+                    </td><td>";
 
-        $this->_printViewSchedulesByDivision();
-        print "
-                </td></tr>
-        </table>";
+            $this->_printViewSchedulesByDivision();
+            print "
+                    </td></tr>
+            </table>";
+        }
 
         // Print schedule for team if selected
         if ($this->m_controller->m_filterCoachId != 0) {
@@ -236,7 +238,7 @@ class View_Games_Schedule extends View_Games_Base
         }
 
         // Printer Header row
-        $colspan = 8;
+        $colspan = 9;
         print "
                 <thead>
                     <tr bgcolor='lightskyblue'>
@@ -249,6 +251,7 @@ class View_Games_Schedule extends View_Games_Base
                         <th rowspan='2'>Game Id</th>
                         <th colspan='2'>Home Team</th>
                         <th colspan='2'>Visiting Team</th>
+                        <th rowspan='2'>Goal Differential</th>
                     </tr>
                     <tr bgcolor='lightskyblue'>
                         <th>Name</th>
@@ -286,6 +289,8 @@ class View_Games_Schedule extends View_Games_Base
                         $values[View_Base::TEAM_ID_COACH_SHORT_NAME] : $values[View_Base::TEAM_ID_COACH_SHORT_NAME];
                     $visitingTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
                     $visitingTeamScore  = $values[View_Base::SCORE];
+                    $goalDifferential   = abs($homeTeamScore - $visitingTeamScore);
+                    $gdbgColor          = $goalDifferential > 5 ? "bgcolor='salmon'" : '';
 
                     $dayRow         = $dayRowPrinted ? "" : "<td nowrap rowspan='$dayRowSpan'>$day</td>";
                     $dayRowPrinted  = true;
@@ -302,6 +307,7 @@ class View_Games_Schedule extends View_Games_Base
                             <td nowrap align='center'>$homeTeamScore</td>
                             <td nowrap $visitingTeamTitle>$visitingTeamName</td>
                             <td nowrap align='center'>$visitingTeamScore</td>
+                            <td nowrap align='center' $gdbgColor>$goalDifferential</td>
                         </tr>";
                 }
             }

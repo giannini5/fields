@@ -199,6 +199,8 @@ class View_Games_Team
                         $visitingTeamStyle  = '';
                         $result             = '';
                         $startTimeBgColor   = '';
+                        $homeTeamHTML       = '';
+                        $visitingTeamHTML   = '';
                         $gameTitle          = empty($game->title) ? "" : "<br><strong style='color:green'>$game->title</strong>";
                         if ($lastStartTime != '' and !$publishedOnly) {
                             $diffInHours        = self::diffInHours($lastStartTime, $startTime);
@@ -207,25 +209,31 @@ class View_Games_Team
                         }
                         $lastStartTime      = $startTime;
 
-                        if (isset($game->homeTeam)) {
-                            if ($team->id == $game->homeTeam->id) {
-                                $homeTeamCount  += 1;
-                                $homeTeamStyle  = "style='color: red'";
-                                $result         = self::computeResult($game, true);
-                            } else {
-                                $visitingTeamCount += 1;
-                                $visitingTeamStyle = "style='color: red'";
-                                $result         = self::computeResult($game, false);
-                            }
-                        }
-
                         $values         = View_AdminSchedules_Base::getDisplayLabels($game, true);
                         $homeTeamName   = $values[View_Base::TEAM_ID_COACH_SHORT_NAME];
                         $homeTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
+                        $homeCoachId    = $values[View_Base::COACH_ID];
 
                         $values             = View_AdminSchedules_Base::getDisplayLabels($game, false);
                         $visitingTeamName   = $values[View_Base::TEAM_ID_COACH_SHORT_NAME];
                         $visitingTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
+                        $visitingCoachId    = $values[View_Base::COACH_ID];
+
+                        if (isset($game->homeTeam)) {
+                            if ($team->id == $game->homeTeam->id) {
+                                $homeTeamCount      += 1;
+                                $homeTeamStyle      = "style='color: red'";
+                                $result             = self::computeResult($game, true);
+                                $homeTeamHTML       = $homeTeamName;
+                                $visitingTeamHTML   = "<a href=\"javascript:window.open('" . View_Base::GAMES_SCHEDULE_PAGE . "?" . View_Base::FILTER_COACH_ID . "=$visitingCoachId&submit=submit&popup=1','game schedule','width=600,height=400')\">$visitingTeamName</a>";
+                            } else {
+                                $visitingTeamCount += 1;
+                                $visitingTeamStyle = "style='color: red'";
+                                $result         = self::computeResult($game, false);
+                                $homeTeamHTML       = "<a href=\"javascript:window.open('" . View_Base::GAMES_SCHEDULE_PAGE . "?" . View_Base::FILTER_COACH_ID . "=$homeCoachId&submit=submit&popup=1','game schedule','width=600,height=400')\">$homeTeamName</a>";
+                                $visitingTeamHTML   = $visitingTeamName;
+                            }
+                        }
 
                         $bgcolor = ($dayCount % 2 == 0) ? "" : "bgcolor='lightgray'";
 
@@ -237,8 +245,8 @@ class View_Games_Team
                                 </td>
                                 <td $startTimeBgColor>$startTime</td>
                                 <td nowrap>$fieldName$gameTitle</td>
-                                <td nowrap $homeTeamStyle $homeTeamTitle>$homeTeamName</td>
-                                <td nowrap $visitingTeamStyle $visitingTeamTitle>$visitingTeamName</td>
+                                <td nowrap $homeTeamStyle $homeTeamTitle>$homeTeamHTML</td>
+                                <td nowrap $visitingTeamStyle $visitingTeamTitle>$visitingTeamHTML</td>
                                 <td nowrap>$result</td>
                             </tr>";
 

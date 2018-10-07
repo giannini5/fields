@@ -294,10 +294,11 @@ class View_Games_Standings extends View_Games_Base
                         $reds               = $stats[self::REDS];
                         $coach              = Coach::lookupByTeam($teams[$teamId]);
                         $coachName          = $coach->shortName;
+                        $teamHTML           = "<a href=\"javascript:window.open('" . View_Base::GAMES_SCHEDULE_PAGE . "?" . View_Base::FILTER_COACH_ID . "=$coach->id&submit=submit&popup=1','game schedule','width=600,height=400')\">$teamName</a>";
 
                         print "
                             <tr>
-                                <td nowrap>$teamName</td>
+                                <td nowrap>$teamHTML</td>
                                 <td nowrap>$coachName</td>
                                 <td align='right'>$wins</td>
                                 <td align='right'>$losses</td>

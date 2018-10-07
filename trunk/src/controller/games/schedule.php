@@ -11,13 +11,14 @@ class Controller_Games_Schedule extends Controller_Games_Base {
     public $m_filterCoachId = 0;
     public $m_divisionName;
     public $m_division;
-
+    public $m_isPopup       = false;
 
     public function __construct() {
         parent::__construct();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'GET') {
-            $this->m_filterCoachId = $this->getRequestAttribute(View_Base::FILTER_COACH_ID, 0);
+            $this->m_filterCoachId  = $this->getRequestAttribute(View_Base::FILTER_COACH_ID, 0);
+            $this->m_isPopup        = $this->getRequestAttribute(View_Base::POPUP, false);
 
             $this->m_divisionName = $this->getRequestAttribute(View_Base::DIVISION_NAME, '');
             if (!empty($this->m_divisionName)) {
