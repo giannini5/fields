@@ -18,14 +18,18 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
     public $gameDate;
     public $gameDateId;
     public $facilityId;
+    public $medalRoundGames = false;
+    public $refereeNote;
 
     public function __construct()
     {
         parent::__construct();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->displayType    = $this->getPostAttribute(View_Base::GAME_CARD_TYPE, '', false, false);
-            $this->gameDateId     = $this->getPostAttribute(View_Base::GAME_DATE_ID, null, false, false);
+            $this->displayType     = $this->getPostAttribute(View_Base::GAME_CARD_TYPE, '', false, false);
+            $this->gameDateId      = $this->getPostAttribute(View_Base::GAME_DATE_ID, null, false, false);
+            $this->refereeNote     = $this->getPostAttribute(View_Base::REFEREE_NOTE, '', false, false);
+            $this->medalRoundGames = $this->getPostAttribute(View_Base::MEDAL_ROUND_GAMES, false, false, false);
 
             if (isset($this->gameDateId)) {
                 $this->gameDate = GameDate::lookupById((int)$this->gameDateId);

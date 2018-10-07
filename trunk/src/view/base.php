@@ -125,6 +125,7 @@ abstract class View_Base {
     const SHOW_PLAYERS          = 'showPlayers';
     const SHOW_PUBLISHED        = 'showPublished';
     const QUICK_SCORING         = 'quickScoring';
+    const MEDAL_ROUND_GAMES     = 'medalRoundGames';
 
     # Post Attribute Names
     const SESSION_ID                = 'sessionId';
@@ -156,6 +157,7 @@ abstract class View_Base {
     const NAME                      = 'name';
     const COLOR                     = 'color';
     const DISPLAY_NOTES             = 'displayNotes';
+    const REFEREE_NOTE              = 'refereeNote';
     const NAME_ID                   = 'nameId';
     const REGION                    = 'region';
     const GENDER                    = 'gender';
@@ -164,6 +166,7 @@ abstract class View_Base {
     const ADDRESS2                  = 'address2';
     const CITY                      = 'city';
     const COACH_NAME                = 'coachName';
+    const COACH_ID                  = 'coachId';
     const STATE                     = 'state';
     const POSTAL_CODE               = 'postalCode';
     const CONTACT_NAME              = 'contactName';

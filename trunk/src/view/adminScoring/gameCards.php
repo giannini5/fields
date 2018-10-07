@@ -88,6 +88,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         $selectedDivisionName   = isset($this->m_controller->divisionName) ? $this->m_controller->divisionName : '';
         $gameDay                = isset($this->m_controller->gameDate) ? $this->m_controller->gameDate->day : '';
         $selectedGender         = isset($this->m_controller->gender) ? $this->m_controller->gender : '';
+        $refereeNote            = isset($this->m_controller->refereeNote) ? $this->m_controller->refereeNote : '';
 
         print "
             <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
@@ -99,6 +100,8 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         $this->displaySelector('Division:', View_Base::DIVISION_NAME, '', $divisionsSelector, $selectedDivisionName);
         $this->displaySelector('Gender:', View_Base::GENDER, '', $genderSelector, $selectedGender);
         $this->displaySelector('Game Date:', View_Base::GAME_DATE_ID, '', $gameDateSelector, $gameDay);
+        $this->displayInput('Special Note:', 'text', View_Base::REFEREE_NOTE, 'Referee Note', '', $refereeNote, null, 1, true, 150, false);
+        $this->printCheckboxSelector(View_Base::MEDAL_ROUND_GAMES, "Medal Round Games", $this->m_controller->medalRoundGames, 2);
 
         // Print Update button and end form
         print "
@@ -229,12 +232,12 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
             }
 
             // Home Team Game Card (front and back, two pages
-            $this->printGameCard($game, 'left', true);
-            $this->printBackOfGameCard($game, 'left', true);
+            $this->printGameCard($game, $game->homeTeam, $game->visitingTeam, true);
+            $this->printBackOfGameCard();
 
             // Visiting Team Game Card (front and back, two pages
-            $this->printGameCard($game, 'left', false);
-            $this->printBackOfGameCard($game, 'left', false);
+            $this->printGameCard($game, $game->visitingTeam, $game->homeTeam, false);
+            $this->printBackOfGameCard();
         }
     }
 
@@ -274,12 +277,12 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
                         }
 
                         // Home Team Game Card (front and back, two pages
-                        $this->printGameCard($game, 'left', true);
-                        $this->printBackOfGameCard($game, 'left', true);
+                        $this->printGameCard($game, $game->homeTeam, $game->visitingTeam, true);
+                        $this->printBackOfGameCard();
 
                         // Visiting Team Game Card (front and back, two pages
-                        $this->printGameCard($game, 'left', false);
-                        $this->printBackOfGameCard($game, 'left', false);
+                        $this->printGameCard($game, $game->visitingTeam, $game->homeTeam, false);
+                        $this->printBackOfGameCard();
                     }
                 }
             }
@@ -288,16 +291,23 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
 
     /**
      * @param Game      $game
-     * @param string    $position
-     * @param bool      $isHomeTeam
+     * @param Team      $team
+     * @param Team      $opposingTeam
+     * @param string    $homeVisitorOrMedal - 'home', 'visitor', 'medal'
      */
-    private function printGameCard($game, $position, $isHomeTeam)
+    private function printGameCard($game, $team, $opposingTeam, $homeVisitorOrMedal)
     {
-        $homeOrVisitor          = $isHomeTeam ? "HOME" : "VISITOR";
-        $team                   = $isHomeTeam ? $game->homeTeam : $game->visitingTeam;
+        /*
+        switch ($homeVisitorOrMedal) {
+            case 'home':
+                break;
+                case
+        }
+        */
+
+        $homeOrVisitor          = $homeVisitorOrMedal == 'home' ? "HOME" : "VISITOR";
         $teamId                 = isset($team) ? $team->nameId : "";
         $teamName               = isset($team) ? $team->name : "";
-        $opposingTeam           = $isHomeTeam ? $game->visitingTeam : $game->homeTeam;
         $opposingTeamId         = isset($opposingTeam) ? $opposingTeam->nameId : "";
         $opposingTeamName       = isset($opposingTeam) ? $opposingTeam->name : "";
         $coach                  = isset($team) ? Coach::lookupByTeam($team) : null;
@@ -375,11 +385,12 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
             $playerCount += 1;
         }
 
-        $remainingRows = 22 - $playerCount;
+        $remainingRows  = 22 - $playerCount;
+        $refereeNote    = $this->m_controller->refereeNote;
         print "
                         <tr style='height: 25px'>
                             <td colspan='3' rowspan='$remainingRows' valign='top' style='border: none;'><strong>VS:</strong> $fullOpposingTeamName</td> 
-                            <td colspan='5' rowspan='$remainingRows' valign='top' align='right' style='border: none;'>Silent Saturday: whisper in John's ear</td>
+                            <td colspan='5' rowspan='$remainingRows' valign='top' align='right' style='border: none;'>$refereeNote</td>
                         </tr>";
 
         while ($remainingRows > 1) {
@@ -393,11 +404,8 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
     }
 
     /**
-     * @param Game      $game
-     * @param string    $position
-     * @param bool      $isHomeTeam
      */
-    private function printBackOfGameCard($game, $position, $isHomeTeam)
+    private function printBackOfGameCard()
     {
         print "
                     <table border='0' style='page-break-before: always; table-layout: fixed; width: 4.5in'>

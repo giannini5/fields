@@ -116,6 +116,7 @@ abstract class View_AdminSchedules_Base extends View_Base {
         $values[View_Base::TEAM_ID_COACH_SHORT_NAME]    = $teamIdWithCoachShortName;
         $values[View_Base::TEAM_ID_COACH_AND_CITY]      = $teamIdWithCoachAndCity;
         $values[View_Base::HOVER_TEXT]                  = $hoverText;
+        $values[View_Base::COACH_ID]                    = $coach->id;
 
         if ($forHomeTeam) {
             $values[View_Base::SCORE]   = isset($game->homeTeamScore) ? $game->homeTeamScore : "&nbsp";
