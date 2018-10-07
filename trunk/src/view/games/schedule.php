@@ -289,8 +289,8 @@ class View_Games_Schedule extends View_Games_Base
                         $values[View_Base::TEAM_ID_COACH_SHORT_NAME] : $values[View_Base::TEAM_ID_COACH_SHORT_NAME];
                     $visitingTeamTitle  = "title='" . $values[View_Base::HOVER_TEXT] . "'";
                     $visitingTeamScore  = $values[View_Base::SCORE];
-                    $goalDifferential   = abs($homeTeamScore - $visitingTeamScore);
-                    $gdbgColor          = $goalDifferential > 5 ? "bgcolor='salmon'" : '';
+                    $goalDifferential   = isset($game->homeTeamScore) ? abs($homeTeamScore - $visitingTeamScore) : '';
+                    $gdbgColor          = ($goalDifferential != '' and $goalDifferential > 5) ? "bgcolor='salmon'" : '';
 
                     $dayRow         = $dayRowPrinted ? "" : "<td nowrap rowspan='$dayRowSpan'>$day</td>";
                     $dayRowPrinted  = true;
