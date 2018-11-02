@@ -11,6 +11,7 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
 {
     const DIVISION_BY_DAY   = 'divisionByDay';
     const FACILITY_BY_DAY   = 'facilityByDay';
+    const MEDAL_BY_DAY      = 'medalByDay';
 
     public $displayType;
     public $divisionName;
@@ -29,7 +30,6 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
             $this->displayType     = $this->getPostAttribute(View_Base::GAME_CARD_TYPE, '', false, false);
             $this->gameDateId      = $this->getPostAttribute(View_Base::GAME_DATE_ID, null, false, false);
             $this->refereeNote     = $this->getPostAttribute(View_Base::REFEREE_NOTE, '', false, false);
-            $this->medalRoundGames = $this->getPostAttribute(View_Base::MEDAL_ROUND_GAMES, false, false, false);
 
             if (isset($this->gameDateId)) {
                 $this->gameDate = GameDate::lookupById((int)$this->gameDateId);
@@ -43,6 +43,10 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
 
                 case self::FACILITY_BY_DAY:
                     $this->facilityId   = $this->getPostAttribute(View_Base::FACILITY_ID, null, true, true);
+                    break;
+
+                case self::MEDAL_BY_DAY:
+                    $this->gender       = $this->getPostAttribute(View_Base::GENDER, null, true, false);
                     break;
 
                 default:
@@ -71,6 +75,7 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
             switch ($this->displayType) {
                 case self::DIVISION_BY_DAY:
                 case self::FACILITY_BY_DAY:
+                case self::MEDAL_BY_DAY:
                     break;
 
                 default:
