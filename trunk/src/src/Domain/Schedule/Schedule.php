@@ -1476,6 +1476,9 @@ class Schedule extends Domain
             case 32:
                 $flightData = [1 => [8], 2 => [8], 3 => [8], 4 => [8]];
                 break;
+            case 36:
+                $flightData = [1 => [8], 2 => [8], 3 => [10], 4 => [10]];
+                break;
             case 42:
                 $flightData = [1 => [9], 2 => [9], 3 => [8], 4 => [8], 5 => [8]];
                 break;
