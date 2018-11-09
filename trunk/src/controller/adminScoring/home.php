@@ -90,9 +90,8 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
                 }
 
                 if ($this->m_isTitleGame) {
-                    $this->m_homeTeamId     = $this->getPostAttribute(View_Base::HOME_TEAM_ID, '', true, true);
-                    $this->m_visitingTeamId = $this->getPostAttribute(View_Base::VISITING_TEAM_ID, '', true, true);
-                    $this->m_gameId         = $this->getPostAttribute(View_Base::GAME_ID, null, true, true);
+                    $this->m_homeTeamId     = $this->getPostAttribute(View_Base::HOME_TEAM_ID, '', false, true);
+                    $this->m_visitingTeamId = $this->getPostAttribute(View_Base::VISITING_TEAM_ID, '', false, true);
                     $this->populateGameAttributes(true, false);
                 } else {
                     $this->populateGameAttributes(false, true);
@@ -263,14 +262,21 @@ class Controller_AdminScoring_Home extends Controller_AdminScoring_Base
             $game->visitingTeamRedCards     = 0;
             $game->notes                    = '';
         } else {
-            // Set the teams
-            $homeTeam           = Team::lookupById((int)$this->m_homeTeamId);
-            $visitingTeam       = Team::lookupById((int)$this->m_visitingTeamId);
-            $game->homeTeam     = $homeTeam;
-            $game->visitingTeam = $visitingTeam;
+            // Set the teams if specified
+            $homeTeam = $game->homeTeam;
+            if (isset($this->m_homeTeamId) and !empty($this->m_homeTeamId)) {
+                $homeTeam = Team::lookupById((int)$this->m_homeTeamId);
+                $game->homeTeam     = $homeTeam;
+            }
+
+            $visitingTeam = $game->visitingTeam;
+            if (isset($this->m_visitingTeamId) and !empty($this->m_visitingTeamId)) {
+                $visitingTeam       = Team::lookupById((int)$this->m_visitingTeamId);
+                $game->visitingTeam = $visitingTeam;
+            }
 
             // Enter/Update games scores if passed along in request
-            if ($this->m_homeScore != '') {
+            if ($this->m_homeTeamScore != '') {
                 $this->processGameScoring();
             }
         }

@@ -3,8 +3,8 @@
 --
 use schedule;
 set @seasonName = "2018 - League";
-set @startDay   = '2018-10-06';
-set @endDay     = '2018-11-03';
+set @startDay   = '2018-11-10';
+set @endDay     = '2018-11-11';
 
 select
     date_format(d.day, "%c/%e/%Y") as Date,
@@ -28,6 +28,6 @@ from
         and d.day <= @endDay
 where
     f.name like "%UCSB%"
-    or f.name like "%Girsh%"
+    -- or f.name like "%Girsh%"
 group by 1, 2, 3, 4, 5, 6
-into outfile "/Users/dag/webYouth/2018/secondHalf/schedule_lastGameOfDay.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2018/vat/schedule_lastGameOfDay.txt" LINES TERMINATED BY '\n';

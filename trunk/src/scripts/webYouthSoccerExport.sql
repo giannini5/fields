@@ -6,7 +6,7 @@ use schedule;
 --
 set @seasonName         = "2018 - League";
 set @division           = "12U";
-set @startDate          = "2018-10-06";
+set @startDate          = "2018-11-10";
 set @tempHomeTeam       = "50";
 set @tempVisitingTeam   = "51";
 set @outputFile         = "NEEDS TO BE UPDATED AT END OF SCRIPT BELOW";
@@ -65,4 +65,4 @@ from (
     order by
         d.id, t.id
     ) as data
-into outfile "/Users/dag/webYouth/2018/secondHalf/schedule_12U.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2018/vat/schedule_12U.txt" LINES TERMINATED BY '\n';

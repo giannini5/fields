@@ -3,8 +3,8 @@
 --
 use schedule;
 set @seasonName     = "2018 - League";
-set @startDate      = '2018-10-06';
-set @endDate        = '2018-11-03';
+set @startDate      = '2018-11-10';
+set @endDate        = '2018-11-11';
 set @homeTeamId     = 80;
 set @visitingTeamId = 81;
 
@@ -22,17 +22,18 @@ select
          when data.divisionName = '10U' and data.gender = 'Girls' then 802
          when data.divisionName = '12U' and data.facilityName like '%Girsh%' then 1084
          when data.divisionName = '12U' and data.facilityName like '%Storke%' then 921
-         when data.divisionName = '14U' then 1001
+         when data.divisionName = '14U' and data.facilityName like '%Rec%' then 1001
+         when data.divisionName = '14U' and data.facilityName like '%Storke%' then 1100
          else 'ERROR' end as thridPartyFieldId,
     case when data.divisionName = '10U' then
-            concat('122-', case when data.gender = 'Boys' then 'B' else 'G' end, data.divisionName, "-80")
+            concat('122-', case when data.gender = 'Boys' then 'B' else 'G' end, data.divisionName, "-", @homeTeamId)
          else
-            concat('122-B', data.divisionName, "-80")
+            concat('122-B', data.divisionName, "-", @homeTeamId)
          end as homeTeam,
     case when data.divisionName = '10U' then
-            concat('122-', case when data.gender = 'Boys' then 'B' else 'G' end, data.divisionName, "-81")
+            concat('122-', case when data.gender = 'Boys' then 'B' else 'G' end, data.divisionName, "-", @visitingTeamId)
          else
-            concat('122-B', data.divisionName, "-81")
+            concat('122-B', data.divisionName, "-", @visitingTeamId)
          end as visitingTeam
 from (
     select
@@ -64,11 +65,11 @@ from (
         join division as i on
             i.id = c.divisionId
             and i.scoringTracked = 1
-    where
-        -- No 14U at Storke
-        !(i.name = '14U' and f.name like '%Storke%')
+    -- where
+        -- i.name = '14U' and f.name like '%Storke%'
+        -- !(i.name = '14U' and f.name like '%Storke%')
     group by 1, 2, 3, 4, 5, 6, 7
     order by 1, 2
 ) as data
 group by 1, 2, 3, 4, 5, 6
-into outfile "/Users/dag/webYouth/2018/secondHalf/schedule_standBy.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2018/vat/schedule_standBy2.txt" LINES TERMINATED BY '\n';

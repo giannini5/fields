@@ -174,7 +174,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
     {
         // Print message and return if game does not have a team
 
-        // Disable quick scoring - causing bugs when scores are entered backwards
+        // Force quick scoring -
         // if ($this->m_controller->m_quickScoring or !isset($game->homeTeam) or $game->title != '') {
         if (!isset($game->homeTeam) or $game->title != '') {
             $this->printQuickUpdateGameForm($sessionId, $game, $scoringType, $coachFilter, $divisionFilter, $gameDateFilter);
@@ -579,8 +579,8 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
      */
     private function printQuickUpdateGameForm($sessionId, $game, $scoringType, $coachFilter = null, $divisionFilter = null, $gameDateFilter = null)
     {
-        $isTitleGame    = !isset($game->homeTeam) or $game->title != '';
-        $titleGameValue = $isTitleGame ? 'yes' : 'no';
+        $isTitleGame    = (!isset($game->homeTeam) or !isset($game->visitingTeam));
+        $titleGameValue = !empty($game->title);
         $bgcolor        = isset($game->homeTeamScore) ? 'lightyellow' : 'lightblue';
         if ($isTitleGame) {
             $bgcolor = isset($game->homeTeamScore) ? 'orange' : 'orangered';
