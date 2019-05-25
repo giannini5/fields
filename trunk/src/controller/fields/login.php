@@ -70,7 +70,7 @@ class Controller_Fields_Login extends Controller_Fields_Base {
     /**
      * @brief Login to existing account and then transition to show reservation page
      */
-    private function _login() {
+    protected function _login() {
         $this->m_division = Model_Fields_Division::LookupById($this->m_divisionId);
         $this->m_coach = Model_Fields_Coach::LookupByEmail($this->m_season, $this->m_division, $this->m_email, FALSE);
 
