@@ -9,144 +9,9 @@
     <bookmark url="file://$PROJECT_DIR$/view/adminSchedules/schedule.php" line="522" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="Added referee module">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminReferee/preferences.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminReferee/preview.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminReferee/referee.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminReferee/schedule.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/adminReferee/team.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/api/refAssign.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/api/refDelete.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/referees/base.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/controller/referees/preferences.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/tables/divisionReferee.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/tables/gameDateReferee.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/tables/gameReferee.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/tables/referee.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/tables/refereeCrew.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/tables/standbyReferee.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/tables/teamReferee.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/049_addCoachNameIndex.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/050_addScheduleIdToGame.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/051_addGameDateIdToGame.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/052_addDateTimeIndexToGame.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/db/schedule/upgrade/053_addRefereeCrewIdToGame.sql" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/js/schedule_redips/script_ref.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/js/schedule_redips/style_ref.css" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Coordinator.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/DivisionReferee.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/GameDateReferee.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/GameReferee.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Referee.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/RefereeCrew.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/StandbyReferee.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/TeamReferee.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/coordinatorTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/divisionRefereeTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/gameDateRefereeTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/gameRefereeTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/refereeCrewTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/refereeTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/standbyRefereeTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/teamRefereeTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Fields/SessionOrm.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Fields/tests/helper.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/DivisionRefereeOrm.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/GameRefereeOrm.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/RefereeCrewOrm.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/RefereeOrm.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/StandbyRefereeOrm.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/TeamRefereeOrm.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/gameDateRefereeOrm.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/divisionRefereeOrmTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/gameDateRefereeOrmTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/gameRefereeOrmTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/refereeCrewOrmTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/refereeOrmTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/standbyRefereeOrmTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/teamRefereeOrmTest.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminReferee/preferences.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminReferee/preview.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminReferee/referee.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminReferee/schedule.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/adminReferee/team.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/referees/base.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/referees/navigation.php" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/view/referees/preferences.php" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/controller/adminSchedules/referee.php" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/src.iml" afterPath="$PROJECT_DIR$/.idea/src.iml" />
+    <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminPractice/base.php" afterPath="$PROJECT_DIR$/controller/adminPractice/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminReferee/base.php" afterPath="$PROJECT_DIR$/controller/adminReferee/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminReferee/home.php" afterPath="$PROJECT_DIR$/controller/adminReferee/home.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminSchedules/base.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminSchedules/team.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminSchedules/upload.php" afterPath="$PROJECT_DIR$/controller/adminSchedules/upload.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminScoring/base.php" afterPath="$PROJECT_DIR$/controller/adminScoring/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/api/base.php" afterPath="$PROJECT_DIR$/controller/api/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/api/swap.php" afterPath="$PROJECT_DIR$/controller/api/swap.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/api/toggle.php" afterPath="$PROJECT_DIR$/controller/api/toggle.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/api/toggleGameTime.php" afterPath="$PROJECT_DIR$/controller/api/toggleGameTime.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/base.php" afterPath="$PROJECT_DIR$/controller/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/fields/base.php" afterPath="$PROJECT_DIR$/controller/fields/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/games/base.php" afterPath="$PROJECT_DIR$/controller/games/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/install.sh" afterPath="$PROJECT_DIR$/db/schedule/install.sh" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/assistantCoach.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/assistantCoach.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/coach.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/coach.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/division.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/division.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/divisionField.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/divisionField.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/facility.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/facility.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/family.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/family.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/familyGame.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/familyGame.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/field.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/field.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/flight.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/flight.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/game.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/game.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/gameDate.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/gameDate.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/gameTime.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/gameTime.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/league.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/league.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/player.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/player.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/playerGameStats.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/playerGameStats.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/pool.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/pool.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/schedule.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/schedule.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/scheduleCoordinator.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/scheduleCoordinator.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/season.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/season.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/db/schedule/tables/team.sql" afterPath="$PROJECT_DIR$/db/schedule/tables/team.sql" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/schedule_redips/script.js" afterPath="$PROJECT_DIR$/js/schedule_redips/script.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/schedule_redips/style.css" afterPath="$PROJECT_DIR$/js/schedule_redips/style.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/coach.php" afterPath="$PROJECT_DIR$/lib/model/fields/coach.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/division.php" afterPath="$PROJECT_DIR$/lib/model/fields/division.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/session.php" afterPath="$PROJECT_DIR$/lib/model/fields/session.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/model/fields/team.php" afterPath="$PROJECT_DIR$/lib/model/fields/team.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Coach.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Coach.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Division.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Division.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/DivisionField.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/DivisionField.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Facility.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Facility.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Family.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Family.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Game.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Game.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/GameDate.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/GameDate.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/GameTime.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/GameTime.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Schedule.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Schedule.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/Season.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Season.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/tests/coachTest.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/coachTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/tests/gameTest.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/gameTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/tests/gameTimeTest.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/gameTimeTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Domain/Schedule/tests/seasonTest.php" afterPath="$PROJECT_DIR$/src/Domain/Schedule/tests/seasonTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/CoachOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/CoachOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/DivisionFieldOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/DivisionFieldOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/GameOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/GameOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/ScheduleCoordinatorOrm.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/ScheduleCoordinatorOrm.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/tests/coachOrmTest.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/coachOrmTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/tests/gameOrmTest.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/gameOrmTest.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/Orm/Schedule/tests/helper.php" afterPath="$PROJECT_DIR$/src/Orm/Schedule/tests/helper.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminPractice/facility.php" afterPath="$PROJECT_DIR$/view/adminPractice/facility.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminReferee/base.php" afterPath="$PROJECT_DIR$/view/adminReferee/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminReferee/home.php" afterPath="$PROJECT_DIR$/view/adminReferee/home.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminReferee/navigation.php" afterPath="$PROJECT_DIR$/view/adminReferee/navigation.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/adminSchedules/schedule.php" afterPath="$PROJECT_DIR$/view/adminSchedules/schedule.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/base.php" afterPath="$PROJECT_DIR$/view/base.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/fields/welcome.php" afterPath="$PROJECT_DIR$/view/fields/welcome.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/navigation.php" afterPath="$PROJECT_DIR$/view/navigation.php" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/index.php" afterPath="$PROJECT_DIR$/web/index.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/adminPractice/home.php" afterPath="$PROJECT_DIR$/controller/adminPractice/home.php" />
     </list>
     <ignored path="src.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -186,37 +51,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="preview.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/view/adminReferee/preview.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="259">
-              <caret line="117" column="67" lean-forward="false" selection-start-line="117" selection-start-column="67" selection-end-line="117" selection-end-column="67" />
-              <folding>
-                <element signature="e#7#41#0#PHP" expanded="true" />
-                <marker date="1558783965000" expanded="true" signature="1343:1355" ph="..." />
-                <marker date="1558783965000" expanded="true" signature="4426:4491" ph="..." />
-                <marker date="1558783965000" expanded="true" signature="5060:5170" ph="..." />
-                <marker date="1558783965000" expanded="true" signature="5522:5561" ph="..." />
-                <marker date="1558783965000" expanded="true" signature="5522:5889" ph="..." />
-                <marker date="1558783965000" expanded="true" signature="5568:5859" ph="..." />
-                <marker date="1558783965000" expanded="false" signature="5616:5640" ph="..." />
-                <marker date="1558783965000" expanded="true" signature="6489:6596" ph="..." />
-                <marker date="1558783965000" expanded="true" signature="6537:6596" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Facility.php" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/Facility.php">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="185">
-              <caret line="194" column="25" lean-forward="false" selection-start-line="194" selection-start-column="25" selection-end-line="194" selection-end-column="25" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="base.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/view/base.php">
           <provider selected="true" editor-type-id="text-editor">
@@ -321,7 +155,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RefereeCrew.php" pinned="false" current-in-tab="true">
+      <file leaf-file-name="RefereeCrew.php" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/RefereeCrew.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="486">
@@ -329,6 +163,26 @@
               <folding>
                 <element signature="e#39#61#0#PHP" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/web/index.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-908">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="home.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/controller/adminPractice/home.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="222">
+              <caret line="40" column="20" lean-forward="true" selection-start-line="40" selection-start-column="20" selection-end-line="40" selection-end-column="20" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -412,7 +266,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/db/schedule/tables/refereeCrew.sql" />
         <option value="$PROJECT_DIR$/db/schedule/upgrade/053_addRefereeCrewIdToGame.sql" />
         <option value="$PROJECT_DIR$/src/Orm/Schedule/RefereeCrewOrm.php" />
         <option value="$PROJECT_DIR$/src/Orm/Schedule/tests/refereeCrewOrmTest.php" />
@@ -463,6 +316,7 @@
         <option value="$PROJECT_DIR$/view/adminReferee/preview.php" />
         <option value="$PROJECT_DIR$/src/Domain/Schedule/Facility.php" />
         <option value="$PROJECT_DIR$/view/base.php" />
+        <option value="$PROJECT_DIR$/controller/adminPractice/home.php" />
       </list>
     </option>
   </component>
@@ -533,6 +387,52 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="web" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="controller" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="controller" />
+              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="adminPractice" />
               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
             </PATH_ELEMENT>
           </PATH>
@@ -947,14 +847,7 @@
       <workItem from="1549640674620" duration="27990000" />
       <workItem from="1550852573015" duration="628000" />
       <workItem from="1553035463946" duration="85664000" />
-      <workItem from="1555690427498" duration="106686000" />
-    </task>
-    <task id="LOCAL-00071" summary="Added bracket support and cleaned up schedule and standing displays">
-      <created>1508686159778</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
-      <option name="project" value="LOCAL" />
-      <updated>1508686159778</updated>
+      <workItem from="1555690427498" duration="107425000" />
     </task>
     <task id="LOCAL-00072" summary="Updated published schedule and standings display to support brackets.">
       <created>1509809997413</created>
@@ -1292,7 +1185,14 @@
       <option name="project" value="LOCAL" />
       <updated>1541780147639</updated>
     </task>
-    <option name="localTasksCounter" value="120" />
+    <task id="LOCAL-00120" summary="Added referee module">
+      <created>1558784512709</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
+      <option name="project" value="LOCAL" />
+      <updated>1558784512709</updated>
+    </task>
+    <option name="localTasksCounter" value="121" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1328,7 +1228,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="971952000" />
+    <option name="totallyTimeSpent" value="972691000" />
   </component>
   <component name="TodoView" selected-index="4">
     <todo-panel id="selected-file">
@@ -1489,22 +1389,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/Orm/Schedule/StandbyRefereeOrm.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="39" column="0" lean-forward="false" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Framework/Orm/PersistenceModel.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/db/schedule/tables/gameReferee.sql">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
@@ -2270,6 +2154,22 @@
           <folding>
             <element signature="e#39#61#0#PHP" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/web/index.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-908">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/controller/adminPractice/home.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="40" column="20" lean-forward="true" selection-start-line="40" selection-start-column="20" selection-end-line="40" selection-end-column="20" />
+          <folding />
         </state>
       </provider>
     </entry>
