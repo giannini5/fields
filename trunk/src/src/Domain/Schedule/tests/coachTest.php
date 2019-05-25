@@ -3,6 +3,7 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Orm\Schedule\ORM_TestHelper;
+use DAG\Orm\Schedule\RefereeOrm;
 
 require_once dirname(dirname(dirname(__DIR__))) . '/Orm/Schedule/tests/helper.php';
 
@@ -23,8 +24,11 @@ class CoachTest extends ORM_TestHelper
         'phone2'        => 'TEST Domain coach phone2',
     );
 
+    /** @var Coach[] */
     protected $coachesToCleanup = array();
+    /** @var Team */
     protected $team;
+    /** @var Family */
     protected $family;
 
     protected function setUp()
@@ -120,6 +124,35 @@ class CoachTest extends ORM_TestHelper
         $coaches = Coach::lookupByFamily($this->family);
         $this->assertTrue(count($coaches) == 1);
         $this->validateCoach($coaches[0], $this->team, $this->family, self::$expectedDefaults);
+    }
+
+    public function test_lookupByReferee()
+    {
+        $season     = Season::lookupById($this->defaultSeasonOrm->id);
+        $referee    = Referee::create(
+            $season,
+            null,
+            $this->coachesToCleanup[0]->name,
+            $this->coachesToCleanup[0]->email,
+            $this->coachesToCleanup[0]->phone1,
+            RefereeOrm::REGIONAL,
+            1,
+            "");
+        $coaches = Coach::lookupByReferee($referee);
+        $this->assertTrue(count($coaches) == 1);
+        $this->validateCoach($coaches[0], $this->team, $this->family, self::$expectedDefaults);
+    }
+
+    public function test_isset()
+    {
+        $coach = $this->coachesToCleanup[0];
+
+        $this->assertTrue(isset($coach->name));
+        $this->assertTrue(isset($coach->email));
+        $this->assertTrue(isset($coach->phone1));
+        $this->assertTrue(isset($coach->phone2));
+        $this->assertTrue(isset($coach->family));
+        $this->assertTrue(isset($coach->team));
     }
 
     public function validateCoach($coach, $team, $family, $expectedDefaults)

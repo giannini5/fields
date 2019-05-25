@@ -4,6 +4,7 @@ namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
 use DAG\Framework\Exception\Assertion;
+use DAG\Orm\Schedule\RefereeOrm;
 use DAG\Orm\Schedule\SeasonOrm;
 use DAG\Framework\Exception\Precondition;
 
@@ -130,6 +131,7 @@ class Season extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return false;
         }
     }
 
@@ -583,6 +585,7 @@ class Season extends Domain
      */
     public function populatePlayers($data, $ignoreHeaderRow = true)
     {
+        $line = "";
         try {
             $lines = explode("\n", $data);
             $processedLines = 0;
@@ -627,6 +630,7 @@ class Season extends Domain
 
     /**
      * @param Division  $division
+     * @return string
      */
     private function getTeamIdPrefixFromDivision($division)
     {
@@ -663,9 +667,9 @@ class Season extends Domain
                 Precondition::isTrue(false, "Unrecognized division name: $division->name");
                 break;
         }
-*/
 
         return $teamIdPrefix;
+*/
     }
 
     /**
@@ -692,6 +696,7 @@ class Season extends Domain
      */
     public function populateFacilities($data, $ignoreHeaderRow = true)
     {
+        $line = "";
         try {
             $lines = explode("\n", $data);
             $processedLines = 0;
@@ -741,6 +746,7 @@ class Season extends Domain
      */
     public function populateFields($data, $ignoreHeaderRow = true)
     {
+        $line = "";
         try {
             $lines = explode("\n", $data);
             $processedLines = 0;
@@ -786,6 +792,191 @@ class Season extends Domain
     }
 
     /**
+     * Populate Referees
+     *
+     * @param string $data - Expected format:
+     *      Approved,Last Seen,eAYSO Vol App,AYSO ID,Name,Years,Games,Badge,Phone,Email
+     *
+     *      Multi line data where fields are comma separated
+     *
+     *      where:
+     *          Approved        - Unused
+     *          Last Seen       - Unused
+     *          eAYSO Vol App   - Unused
+     *          AYSO ID         - Unused
+     *          Name            - Referee's name
+     *          Years           - Unused
+     *          Games           - Unused
+     *          Badge           - Referee's badge level
+     *          Phone           - Referee's phone number
+     *          Email           - Referee's email address
+     *
+     * @param bool  $ignoreHeaderRow - defaults to true
+     */
+    public function populateReferees($data, $ignoreHeaderRow = true)
+    {
+        $line = "";
+        try {
+            $lines = explode("\n", $data);
+            $processedLines = 0;
+
+            foreach ($lines as $line) {
+                // Skip header line
+                $processedLines += 1;
+                if ($processedLines == 1 and $ignoreHeaderRow) {
+                    continue;
+                }
+
+                // Skip blank lines
+                if ($line == '') {
+                    continue;
+                }
+
+                $fields = explode(',', $line);
+                Assertion::isTrue(count($fields) == 10, "Invalid line: $line");
+
+                $name       = $fields[4];
+                $badgeLevel = $fields[7];
+                $phone      = $fields[8];
+                $email      = $fields[9];
+
+                // Create or Update Referee
+                /** @var Referee $referee */
+                $referee    = null;
+                $badgeId    = $this->getBadgeId($badgeLevel);
+                $family     = null;
+                Family::findByPhone($this, $phone, $family);
+                if (Referee::findByEmailAndName($this, $email, $name, $referee)) {
+                    $referee->phone     = $phone;
+                    $referee->badgeId   = $badgeId;
+                    $referee->family    = $family;
+                } else {
+                    Referee::create($this, $family, $name, $email, $phone, $badgeId, 0, '');
+                }
+            }
+        } catch (\Exception $e) {
+            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete all team referees and re-populate from file data
+     *
+     * @param string $data - Expected format:
+     *      Division,Team#,TeamID,Coach,Referee1,Referee2,Referee3,Referee4,Referee5,Referee6,Referee7,Referee8,Referee9,Referee10
+     *
+     *      Multi line data where fields are comma separated
+     *
+     *      where:
+     *          Division        - Division Name <Gender><Age>, B10U
+     *          Team#           - <number>, 5
+     *          TeamID          - <Genger><Age>-<NN>, B10U-05
+     *          Coach           - <Name>, Dave Giannini
+     *          Referee1        - <Name>, Dave Giannini
+     *          ...
+     *          Referee10       - <Name>, Theresa Giannini (or empty)
+     *
+     * @param bool  $ignoreHeaderRow - defaults to true
+     */
+    public function populateRefereesByTeam($data, $ignoreHeaderRow = true)
+    {
+        // Delete all team referees and re-populate from file data
+        $divisions = Division::lookupBySeason($this);
+        foreach ($divisions as $division) {
+            $teams = Team::lookupByDivision($division);
+            foreach ($teams as $team) {
+                $teamReferees = TeamReferee::lookupByTeam($team);
+                foreach ($teamReferees as $teamReferee) {
+                    $teamReferee->delete();
+                }
+            }
+        }
+
+        // Populate team referees from file data
+        $line = "";
+        try {
+            $lines = explode("\n", $data);
+            $processedLines = 0;
+
+            foreach ($lines as $line) {
+                // Skip header line
+                $processedLines += 1;
+                if ($processedLines == 1 and $ignoreHeaderRow) {
+                    continue;
+                }
+
+                // Skip blank lines
+                if ($line == '') {
+                    continue;
+                }
+
+                // Trim the new line
+                $line = trim($line);
+
+                // Break into fields
+                $fields = explode(',', $line);
+                Assertion::isTrue(count($fields) >= 5, "Invalid line: $line");
+
+                $divisionName   = $fields[0];
+                $teamId         = $fields[2];
+
+                // Lookup team
+                $gender     = $divisionName[0] == 'B' ? Division::$BOYS : Division::$GIRLS;
+                $division   = Division::lookupByNameAndGender($this, substr($divisionName, 1), $gender);
+                $team       = Team::lookupByNameId($division, $teamId);
+
+                // Find/create TeamReferees (idempotent) for each referee
+                for ($i = 4; $i < count($fields); ++$i) {
+                    if (empty($fields[$i])) {
+                        continue;
+                    }
+
+                    $referees = Referee::lookupByName($this, $fields[$i]);
+                    if (count($referees) == 0) {
+                        print "Referee($i): '$fields[$i]' for team '$teamId' not found<br>";
+                    }
+                    else if (count($referees) > 1) {
+                        print "Referee($i): '$fields[$i]' cannot be added to team '$teamId' because there are " . count($referees) . " with the same name<br>";
+                    } else {
+                        $teamReferee = TeamReferee::create($team, $referees[0], true);
+                        $teamReferee->referee->setDefaultPreferences();
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
+        }
+    }
+
+    /**
+     * @param $badgeLevel
+     * @return string
+     * @throws \Exception
+     */
+    private function getBadgeId($badgeLevel)
+    {
+        switch ($badgeLevel) {
+            case 'R':
+                return RefereeOrm::REGIONAL;
+            case 'I':
+            case 'INT':
+            case 'INTc':
+                return RefereeOrm::INTERMEDIATE;
+            case 'A':
+            case 'ADV':
+                return RefereeOrm::ADVANCED;
+            case 'N':
+            case 'N1':
+            case 'N2':
+            case 'Nc':
+                return RefereeOrm::NATIONAL;
+            case 'NEW':
+            default:
+                return RefereeOrm::UNKNOWN;
+        }
+    }
+
+    /**
      * Create GameTimes for Field.  Delete existing GameTimes if requested.
      *
      * @param Field $field
@@ -806,6 +997,64 @@ class Season extends Domain
         // Create games times for the field across all of the game dates
         $ignoreDuplicates = !$deleteExistingGameTimes;
         GameTime::createByGameDates($gameDates, $field, $startTime, $endTime, $ignoreDuplicates);
+    }
+
+    /**
+     * Populate game day referees
+     *
+     * @param GameDate  $gameDate
+     * @param string    $divisionName - defaults to '' causing all divisions to be populated
+     */
+    public function populateGameDayReferees($gameDate, $divisionName = '')
+    {
+        // Get Divisions
+        $divisions = Division::lookupBySeason($this);
+
+        // For each division, populate game day referees via team assignments
+        foreach ($divisions as $division) {
+            if ($division->isScoringTracked and ($divisionName == '' or $division->name == $divisionName)) {
+                $division->populateGameDayReferees($gameDate, Referee::TEAM_REFEREE);
+            }
+        }
+
+        // For each division, populate game day referees via floating referees
+        foreach ($divisions as $division) {
+            if ($division->isScoringTracked and ($divisionName == '' or $division->name == $divisionName)) {
+                $division->populateGameDayReferees($gameDate, Referee::NON_TEAM_REFEREE);
+            }
+        }
+
+        // For each division, make two more passes to try to fill in open slots
+        foreach ($divisions as $division) {
+            if ($division->isScoringTracked and ($divisionName == '' or $division->name == $divisionName)) {
+                $division->populateGameDayReferees($gameDate, Referee::ALL_REFEREES);
+            }
+        }
+
+        foreach ($divisions as $division) {
+            if ($division->isScoringTracked and ($divisionName == '' or $division->name == $divisionName)) {
+                $division->populateGameDayReferees($gameDate, Referee::ALL_REFEREES);
+            }
+        }
+
+        // TODO: Return counts of assignments that still need to be filled
+    }
+
+    /**
+     * Clear game day referees
+     *
+     * @param GameDate  $gameDate
+     * @param string    $divisionName
+     */
+    public function clearGameDayReferees($gameDate, $divisionName)
+    {
+        // Get Divisions
+        $divisions = Division::lookupByName($this, $divisionName);
+
+        // For each division, populate game day referees via team assignments
+        foreach ($divisions as $division) {
+            $division->clearGameDayReferees($gameDate);
+        }
     }
 
     /**

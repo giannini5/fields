@@ -67,17 +67,19 @@ class CoachOrm extends PersistenceModel
         $phone2)
     {
         $result = self::getPersistenceDriver()->create(
-            [
-                self::FIELD_TEAM_ID     => $teamId,
-                self::FIELD_FAMILY_ID   => $familyId,
-                self::FIELD_NAME        => $name,
-                self::FIELD_EMAIL       => $email,
-                self::FIELD_PHONE1      => $phone1,
-                self::FIELD_PHONE2      => $phone2,
-            ],
-            function ($item) {
-                return $item !== null;
-            }
+            array_filter(
+                [
+                    self::FIELD_TEAM_ID     => $teamId,
+                    self::FIELD_FAMILY_ID   => $familyId,
+                    self::FIELD_NAME        => $name,
+                    self::FIELD_EMAIL       => $email,
+                    self::FIELD_PHONE1      => $phone1,
+                    self::FIELD_PHONE2      => $phone2,
+                ],
+                function ($item) {
+                    return $item !== null;
+                }
+            )
         );
 
         return new static($result);
@@ -126,6 +128,28 @@ class CoachOrm extends PersistenceModel
         $results = self::getPersistenceDriver()->getMany(
             [
                 self::FIELD_FAMILY_ID  => $familyId
+            ]);
+
+        $coachOrms = [];
+        foreach ($results as $result) {
+            $coachOrms[] = new static($result);
+        }
+
+        return $coachOrms;
+    }
+
+    /**
+     * Load a CoachOrms by name
+     *
+     * @param string $name
+     *
+     * @return CoachOrm[]
+     */
+    public static function loadByName($name)
+    {
+        $results = self::getPersistenceDriver()->getMany(
+            [
+                self::FIELD_NAME => $name
             ]);
 
         $coachOrms = [];

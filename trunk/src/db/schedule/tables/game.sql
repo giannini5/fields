@@ -1,7 +1,9 @@
-create table game (
+create table if not exists game (
     id                      bigint auto_increment,
+    scheduleId              bigint not NULL,
     flightId                bigint not NULL,
     poolId                  bigint default NULL,
+    gameDateId              bigint not NULL,
     gameTimeId              bigint not NULL,
     homeTeamId              bigint default NULL,
     visitingTeamId          bigint default NULL,
@@ -17,14 +19,19 @@ create table game (
     playInVisitingGameId    int not NULL default 0,
     playInByWin             tinyint not NULL default 0,
     locked                  tinyint not NULL default 0,
+    refereeCrewId           bigint default NULL,
 
     PRIMARY KEY (id),
     unique key ux_gameTimeTeamFlight(flightId, gameTimeId, homeTeamId, visitingTeamId),
     key ix_gameTimeTeamPool(poolId, gameTimeId, homeTeamId, visitingTeamId),
     key ix_gameTime(gameTimeId),
     key ix_homeTeam(homeTeamId),
+    key ix_schedule(scheduleId),
+    key ix_scheduleDate(scheduleId, gameDateId),
     key ix_visitingTeam(visitingTeamId),
     key ix_playInHomeByWin(playInByWin, playInHomeGameId),
     key ix_playInVisitingByWin(playInByWin, playInVisitingGameId),
-    key ix_title(title)
+    key ix_title(title),
+    key ix_dateHomeTeamId(gameDateId, homeTeamId),
+    key ix_dateVisitingTeamId(gameDateId, visitingTeamId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -1,4 +1,4 @@
-create table league (
+create table if not exists league (
     id          bigint auto_increment,
     name        varchar(60) not NULL,
     PRIMARY KEY (id),

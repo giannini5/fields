@@ -113,3 +113,31 @@ body{
 .dark{
 	color: #444;
 }
+
+/* last row and last column without border */
+.noborder {
+	border-width: 0px;
+}
+
+
+/* blank cells (upper left corner) */
+.blank {
+	background-color: white;
+}
+
+
+/* message line */
+#message_ref {
+	color: white;
+	background-color: #aaa;
+	text-align: center;
+	margin-top: 10px;
+}
+
+/* trash cell */
+.redips-trash {
+	color: white;
+	background-color: CornflowerBlue;
+	text-align: center;
+	font-size: 12pt;
+}

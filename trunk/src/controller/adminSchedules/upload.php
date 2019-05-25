@@ -32,6 +32,10 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
                 $this->m_operation = View_Base::UPLOAD_FACILITY_FILE;
             } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_FIELD_FILE)) {
                 $this->m_operation = View_Base::UPLOAD_FIELD_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_REFEREE_FILE)) {
+                $this->m_operation = View_Base::UPLOAD_REFEREE_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_REFBYTEAM_FILE)) {
+                $this->m_operation = View_Base::UPLOAD_REFBYTEAM_FILE;
             }
         }
     }
@@ -100,25 +104,6 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
         // or successful login with next steps for administration
         $view = new View_AdminSchedules_Home($this);
         $view->displayPage();
-    }
-
-    /**
-     * @brief Login to existing account
-     */
-    private function _login() {
-        try {
-            $this->m_coordinator = \DAG\Orm\Schedule\ScheduleCoordinatorOrm::loadByLeagueIdAndEmail($this->m_league->id, $this->m_email);
-
-            if ($this->m_coordinator->password != $this->m_password) {
-                $this->_reset();
-                $this->m_password = "* Incorrect password - try again";
-            } else {
-                $this->createSession($this->m_coordinator->id, Model_Fields_Session::SCHEDULE_COORDINATOR_USER_TYPE, 0);
-            }
-        } catch (\DAG\Framework\Orm\NoResultsException $e) {
-            $this->_reset();
-            $this->m_email = "* Incorrect email - try again";
-        }
     }
 
     /**

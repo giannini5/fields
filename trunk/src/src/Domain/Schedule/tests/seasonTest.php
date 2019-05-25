@@ -3,6 +3,7 @@
 namespace DAG\Domain\Schedule;
 
 use DAG\Orm\Schedule\ORM_TestHelper;
+use DAG\Orm\Schedule\RefereeOrm;
 
 require_once dirname(dirname(dirname(__DIR__))) . '/Orm/Schedule/tests/helper.php';
 
@@ -290,6 +291,36 @@ UCSB Rec Center,Field 1,1,U14;U16/19';
         $field = Field::lookupByName($facility, 'Field 1');
         $divisionFields = DivisionField::lookupByField($field);
         $this->assertEquals(4, count($divisionFields));
+    }
+
+    public function test_populateReferees()
+    {
+        // Setup
+        $season = Season::lookupById($this->defaultSeasonOrm->id);
+
+        $data = 'Approved,Last Seen,eAYSO Vol App,AYSO ID,Name,Years,Games,Badge,Phone,Email
+Y,2018,,,Thomas Aguirre,3,20,NEW,805-683-0953,tva15@aol.com
+Y,2018,,58017703,Cornelia Alsheimer-Barthel,12,96,R,805-455-0119,cornelia_alsheimer@hotmail.com';
+
+        // Run Test
+        $season->populateReferees($data, true);
+
+        // Validate Results
+        $referee = Referee::lookupByEmailAndName($season, 'tva15@aol.com','Thomas Aguirre');
+        $this->assertEquals('tva15@aol.com', $referee->email);
+        $this->assertEquals('Thomas Aguirre', $referee->name);
+        $this->assertEquals('805-683-0953', $referee->phone);
+        $this->assertEquals(RefereeOrm::UNKNOWN, $referee->badgeId);
+        $this->assertEquals(0, $referee->maxGamesPerDay);
+        $this->assertEquals('', $referee->specialInstructions);
+
+        $referee = Referee::lookupByEmailAndName($season, 'cornelia_alsheimer@hotmail.com','Cornelia Alsheimer-Barthel');
+        $this->assertEquals('cornelia_alsheimer@hotmail.com', $referee->email);
+        $this->assertEquals('Cornelia Alsheimer-Barthel', $referee->name);
+        $this->assertEquals('805-455-0119', $referee->phone);
+        $this->assertEquals(RefereeOrm::REGIONAL, $referee->badgeId);
+        $this->assertEquals(0, $referee->maxGamesPerDay);
+        $this->assertEquals('', $referee->specialInstructions);
     }
 
     public function validateSeason($season, $league, $expectedDefaults)

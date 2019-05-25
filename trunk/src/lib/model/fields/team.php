@@ -136,7 +136,7 @@ class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface 
     /**
      * @brief: Get Model_Fields_Team instance for the specified Team identifier
      *
-     * @param bigint $teamId: Unique Team identifier
+     * @param int $teamId: Unique Team identifier
      *
      * @return Model_Fields_Team
      */
@@ -151,8 +151,8 @@ class Model_Fields_Team extends Model_Fields_Base implements SaveModelInterface 
     /**
      * @brief: Get Model_Fields_Team instance for the specified Coach
      *
-     * @param bigint $coachId: Unique Coach identifier
-     * @param char $gender: Gender - B for Boys, G for Girls
+     * @param Model_Fields_Coach $coach
+     * @param string             $gender: Gender - B for Boys, G for Girls
      *
      * @return Model_Fields_Team or NULL if team not found
      */

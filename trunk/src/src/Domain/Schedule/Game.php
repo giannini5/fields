@@ -7,39 +7,53 @@ use DAG\Framework\Exception\Assertion;
 use DAG\Framework\Orm\NoResultsException;
 use DAG\Orm\Schedule\GameOrm;
 use DAG\Framework\Exception\Precondition;
+use DAG\Orm\Schedule\GameRefereeOrm;
 use DAG\Orm\Schedule\MoveGameException;
 
 
 /**
- * @property int        $id
- * @property Flight     $flight
- * @property Pool       $pool
- * @property GameTime   $gameTime
- * @property Team       $homeTeam
- * @property Team       $visitingTeam
- * @property int        $homeTeamScore
- * @property int        $visitingTeamScore
- * @property int        $homeTeamYellowCards
- * @property int        $visitingTeamYellowCards
- * @property int        $homeTeamRedCards
- * @property int        $visitingTeamRedCards
- * @property int        $notes
- * @property string     $title
- * @property int        $playInHomeGameId
- * @property int        $playInVisitingGameId
- * @property int        $playInByWin
- * @property int        $locked
+ * @property int            $id
+ * @property Schedule       $schedule
+ * @property Flight         $flight
+ * @property Pool           $pool
+ * @property GameDate       $gameDate
+ * @property GameTime       $gameTime
+ * @property Team           $homeTeam
+ * @property Team           $visitingTeam
+ * @property int            $homeTeamScore
+ * @property int            $visitingTeamScore
+ * @property int            $homeTeamYellowCards
+ * @property int            $visitingTeamYellowCards
+ * @property int            $homeTeamRedCards
+ * @property int            $visitingTeamRedCards
+ * @property int            $notes
+ * @property string         $title
+ * @property int            $playInHomeGameId
+ * @property int            $playInVisitingGameId
+ * @property int            $playInByWin
+ * @property int            $locked
+ * @property RefereeCrew    $refereeCrew
+ * @property bool           $areRefereesAssigned
+ * @property bool           $isCenterRefereeAssigned
+ * @property bool           $isAssistantReferee1Assigned
+ * @property bool           $isAssistantReferee2Assigned
  */
 class Game extends Domain
 {
     /** @var GameOrm */
     private $gameOrm;
 
+    /** @var Schedule */
+    private $schedule;
+
     /** @var Flight */
     private $flight;
 
     /** @var Pool */
     private $pool;
+
+    /** @var GameDate */
+    private $gameDate;
 
     /** @var GameTime */
     private $gameTime;
@@ -49,6 +63,9 @@ class Game extends Domain
 
     /** @var Team */
     private $visitingTeam;
+
+    /** @var RefereeCrew */
+    private $refereeCrew;
 
     /**
      * @param GameOrm   $gameOrm
@@ -62,6 +79,7 @@ class Game extends Domain
     {
         $this->gameOrm      = $gameOrm;
         $this->flight       = isset($flight) ? $flight : Flight::lookupById($gameOrm->flightId);
+        $this->schedule     = $this->flight->schedule;
 
         $this->pool = null;
         if (isset($pool)) {
@@ -85,6 +103,8 @@ class Game extends Domain
         }
 
         $this->gameTime     = isset($gameTime) ? $gameTime : GameTime::lookupById($gameOrm->gameTimeId, $this);
+        $this->gameDate     = $this->gameTime->gameDate;
+        $this->refereeCrew  = isset($gameOrm->refereeCrewId) ? RefereeCrew::lookupById($gameOrm->refereeCrewId) : null;
     }
 
     /**
@@ -117,8 +137,9 @@ class Game extends Domain
         $homeTeamId     = isset($homeTeam) ? $homeTeam->id : null;
         $visitingTeamId = isset($visitingTeam) ? $visitingTeam->id : null;
 
-        $gameOrm        = GameOrm::create($flight->id, $poolId, $gameTime->id, $homeTeamId, $visitingTeamId, $title,
-            $locked, $playInHomeGameId, $playInVisitingGameId, $playInByWin);
+        $gameOrm        = GameOrm::create($flight->schedule->id, $flight->id, $poolId, $gameTime->gameDate->id,
+            $gameTime->id, $homeTeamId, $visitingTeamId, $title, $locked, $playInHomeGameId, $playInVisitingGameId,
+            $playInByWin);
         $game           = new static($gameOrm, $flight, $pool, null, $homeTeam, $visitingTeam);
         $gameTime->game = $game;
 
@@ -171,6 +192,23 @@ class Game extends Domain
         }
 
         return $result;
+    }
+
+    /**
+     * @param Schedule $schedule
+     *
+     * @return Game[]
+     */
+    public static function lookupBySchedule($schedule)
+    {
+        $games = [];
+
+        $gameOrms = GameOrm::loadByScheduleId($schedule->id);
+        foreach ($gameOrms as $gameOrm) {
+            $games[] = new static($gameOrm);
+        }
+
+        return $games;
     }
 
     /**
@@ -254,6 +292,24 @@ class Game extends Domain
     }
 
     /**
+     * @param Team      $team
+     * @param GameDate  $gameDate
+     *
+     * @return Game[]
+     */
+    public static function lookupByTeamAndDay($team, $gameDate)
+    {
+        $games = [];
+
+        $gameOrms = GameOrm::loadByGameDateIdTeamId($gameDate->id, $team->id);
+        foreach ($gameOrms as $gameOrm) {
+            $games[] = new static($gameOrm, null, null);
+        }
+
+        return $games;
+    }
+
+    /**
      * @param Team  $team
      *
      * @return Game[]
@@ -312,6 +368,40 @@ class Game extends Domain
     }
 
     /**
+     * Get all games being played by specified schedule on specified day.
+     *
+     * @param Schedule  $schedule
+     * @param GameDate  $gameDate
+     * @param bool      $sortByTime
+     *
+     * @return Game[]
+     */
+    public static function lookupByScheduleDay($schedule, $gameDate, $sortByTime = false)
+    {
+        $gamesOnDay     = [];
+        $gamesByTime    = [];
+
+        $gameOrms = GameOrm::loadByScheduleIdGameDateId($schedule->id, $gameDate->id);
+        foreach ($gameOrms as $gameOrm) {
+            $game = new static($gameOrm);
+            if ($game->gameTime->gameDate->id == $gameDate->id) {
+                $gamesOnDay[]                               = $game;
+                $gamesByTime[$game->gameTime->startTime][]  = $game;
+            }
+        }
+
+        if ($sortByTime) {
+            $gamesOnDay = [];
+            ksort($gamesByTime);
+            foreach ($gamesByTime as $games) {
+                $gamesOnDay = array_merge($gamesOnDay, $games);
+            }
+        }
+
+        return $gamesOnDay;
+    }
+
+    /**
      * Swap the home and visiting teams
      */
     public function swapTeams()
@@ -352,15 +442,54 @@ class Game extends Domain
             case "notes":
                 return $this->gameOrm->{$propertyName};
 
+            case "schedule":
             case "flight":
             case "pool":
+            case "gameDate":
             case "gameTime":
             case "homeTeam":
             case "visitingTeam":
+            case "refereeCrew":
                 return $this->{$propertyName};
+
+            case "areRefereesAssigned":
+                $gameReferees   = GameReferee::lookupByGame($this);
+                $centerCount    = 0;
+                $arCount        = 0;
+                foreach ($gameReferees as $gameReferee) {
+                    $centerCount += $gameReferee->role == GameRefereeOrm::CENTER_ROLE ? 1 : 0;
+                    $arCount     += $gameReferee->role == GameRefereeOrm::ASSISTANT_ROLE_1 ? 1 : 0;
+                    $arCount     += $gameReferee->role == GameRefereeOrm::ASSISTANT_ROLE_2 ? 1 : 0;
+                }
+                return $centerCount >= 1 and $arCount >= 2;
+
+            case "isCenterRefereeAssigned":
+                $gameReferees   = GameReferee::lookupByGame($this);
+                $centerCount    = 0;
+                foreach ($gameReferees as $gameReferee) {
+                    $centerCount += $gameReferee->role == GameRefereeOrm::CENTER_ROLE ? 1 : 0;
+                }
+                return $centerCount >= 1;
+
+            case "isAssistantReferee1Assigned":
+                $gameReferees   = GameReferee::lookupByGame($this);
+                $arCount        = 0;
+                foreach ($gameReferees as $gameReferee) {
+                    $arCount     += $gameReferee->role == GameRefereeOrm::ASSISTANT_ROLE_1 ? 1 : 0;
+                }
+                return $arCount >= 1;
+
+            case "isAssistantReferee2Assigned":
+                $gameReferees   = GameReferee::lookupByGame($this);
+                $arCount        = 0;
+                foreach ($gameReferees as $gameReferee) {
+                    $arCount     += $gameReferee->role == GameRefereeOrm::ASSISTANT_ROLE_2 ? 1 : 0;
+                }
+                return $arCount >= 1;
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return false;
         }
     }
 
@@ -403,6 +532,12 @@ class Game extends Domain
                 $this->visitingTeam = $value;
                 break;
 
+            case "refereeCrew":
+                $this->gameOrm->refereeCrewId = isset($value) ? $value->id : null;
+                $this->gameOrm->save();
+                $this->refereeCrew = $value;
+                break;
+
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
         }
@@ -433,15 +568,19 @@ class Game extends Domain
             case "playInVisitingGameId":
                 return $this->gameOrm->{$propertyName} != 0;
 
+            case "schedule":
             case "flight":
             case "pool":
+            case "gameDate":
             case "gameTime":
             case "homeTeam":
             case "visitingTeam":
+            case "refereeCrew":
                 return isset($this->{$propertyName});
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return false;
         }
     }
 
@@ -478,10 +617,14 @@ class Game extends Domain
      * @param int       $preGameBufferMinute
      * @param int       $postGameBufferMinutes
      * @param Game      $overlappingGame (null if none found)
+     * @param bool      $includeThisGame - return this game as the overlapping game if this game is included
+     *                                     in the $games list (defaults to false)
+     * @param bool      $backToBackOkay - Defaults to false and games that are back-to-back are considered an overlap
      *
      * @return bool true if this game overlaps with one of the passed in games
      */
-    public function anyOverlap($games, &$overlappingGame, $preGameBufferMinute = 0, $postGameBufferMinutes = 0)
+    public function anyOverlap($games, &$overlappingGame, $preGameBufferMinute = 0, $postGameBufferMinutes = 0,
+                               $includeThisGame = false, $backToBackOkay = false)
     {
         $overlappingGame = null;
 
@@ -495,21 +638,30 @@ class Game extends Domain
         $thisEndTime = $this->gameTime->getEndTime($this->pool->schedule->division->gameDurationMinutes + $postGameBufferMinutes);
 
         foreach ($games as $game) {
-            if ($game->id == $this->id) {
+            if (!$includeThisGame and $game->id == $this->id) {
                 continue;
             }
 
             // Not sure why, but sometimes the gameTime is null???
             // Just skip these games if/when this happens
+            // Note: I think this was a bug from some direct database manipulation - should no longer happen!
+            /*
             if (!isset($game->gameTime)) {
                 continue;
             }
+            */
 
             $gameTime   = $game->gameTime;
             $startTime  = $gameTime->actualStartTime;
             $endTime    = $gameTime->getEndTime($game->pool->schedule->division->gameDurationMinutes);
 
-            if ($thisStartTime <= $endTime and $thisEndTime >= $startTime) {
+            if ($backToBackOkay) {
+                if ($thisStartTime < $endTime and $thisEndTime > $startTime) {
+                    $overlappingGame = $game;
+                    return true;
+                }
+            }
+            else if ($thisStartTime <= $endTime and $thisEndTime >= $startTime) {
                 $overlappingGame = $game;
                 return true;
             }

@@ -80,10 +80,10 @@ class Family extends Domain
     /**
      * Create Families from coaches and players - idempotent
      *
-     * @param Season                        $season
-     * @param CoachOrm | AssistantCoachOrm  $list1
-     * @param CoachOrm | AssistantCoachOrm  $list2
-     * @param bool                          $optimize
+     * @param Season                            $season
+     * @param CoachOrm[] | AssistantCoachOrm[]  $list1
+     * @param CoachOrm[] | AssistantCoachOrm[]  $list2
+     * @param bool                              $optimize
      */
     private static function createFamilies($season, $list1, $list2, $optimize = false)
     {
@@ -182,7 +182,7 @@ class Family extends Domain
     /**
      * @param Season $season
      *
-     * @return array Families
+     * @return Family[]
      */
     public static function lookupBySeason($season)
     {
@@ -219,6 +219,7 @@ class Family extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return 0;
         }
     }
 

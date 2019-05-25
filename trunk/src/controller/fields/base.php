@@ -1,5 +1,7 @@
 <?php
 
+use \DAG\Domain\Schedule\Coordinator;
+
 /**
  * Class Controller_Base
  *
@@ -8,16 +10,11 @@
  */
 abstract class Controller_Fields_Base extends Controller_Base
 {
-    const SESSION_FIELD_COOKIE = 'session';
-
     # Attributes constructed from League
     public $m_genders;
 
     # Attributes constructed from POST
-    public $m_name;
-    public $m_email;
     public $m_phone;
-    public $m_password;
     public $m_gender;
     public $m_divisionId;
     public $m_teamId;
@@ -34,9 +31,13 @@ abstract class Controller_Fields_Base extends Controller_Base
     public $m_filterTeamId;
 
     # Attributes constructed from session
+    /** @var Model_Fields_Coach */
     public $m_coach;
+    /** @var Model_Fields_Team  */
     public $m_team;
+    /** @var Model_Fields_Division  */
     public $m_division;
+    /** @var Model_Fields_Reservation[] */
     public $m_reservations;
 
     # Other attributes constructed from above based on controller
@@ -48,49 +49,24 @@ abstract class Controller_Fields_Base extends Controller_Base
     public function __construct()
     {
         $this->_reset();
-        parent::__construct(self::SESSION_FIELD_COOKIE);
+        parent::__construct(self::SESSION_FIELD_COOKIE, Coordinator::COACH_USER_TYPE);
 
         $this->m_genders = array();
 
         $this->_getGenders();
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $sessionId = $this->getPostAttribute(View_Base::SESSION_ID, NULL, false);
-            if ($sessionId != NULL) {
-                $this->_constructFromSessionId($sessionId);
-            } else {
-                $this->_init();
-            }
-
             $facilityId = $this->getPostAttribute(View_Base::FACILITY_ID, NULL, false);
             if ($facilityId != NULL) {
                 $this->m_facility = Model_Fields_Facility::LookupById($facilityId);
             }
-
-            $this->m_operation = $this->getPostAttribute(View_Base::SUBMIT, '');
-        } elseif (isset($_COOKIE[$this->m_cookieName])) {
-            $this->_constructFromSessionId($_COOKIE[$this->m_cookieName]);
         }
 
-        $this->setAuthentication();
-    }
-
-    /**
-     * @brief Sign out user
-     */
-    public function signOut()
-    {
-        precondition($this->m_coach != NULL, "Controller_Base::signOut called with a NULL coach");
-
-        // Delete session from the database
-        Model_Fields_Session::Delete($this->m_coach->id, Model_Fields_Session::COACH_USER_TYPE, $this->m_team->id);
-        $this->m_session = NULL;
-        $this->m_isAuthenticated = NULL;
-
-        // Delete cooking if it exists
-        if (isset($_COOKIE[$this->m_cookieName])) {
-            unset($_COOKIE[$this->m_cookieName]);
-            setcookie($this->m_cookieName, null, -1, '/');
+        if (isset($this->m_session) and $this->m_session->userType == Coordinator::COACH_USER_TYPE) {
+            $this->m_coach = Model_Fields_Coach::LookupById($this->m_session->userId);
+            $this->m_division = Model_Fields_Division::LookupById($this->m_coach->divisionId);
+            $this->m_team = Model_Fields_Team::LookupById($this->m_session->teamId);
+            $this->_getReservations();
         }
     }
 
@@ -117,38 +93,11 @@ abstract class Controller_Fields_Base extends Controller_Base
     }
 
     /**
-     * @brief Construct the controller from the session identifier
-     *
-     * @param $sessionId
-     */
-    private function _constructFromSessionId($sessionId) {
-        $this->m_session = Model_Fields_Session::LookupById($sessionId, FALSE);
-        if (isset($this->m_session) and $this->m_session->userType == Model_Fields_Session::COACH_USER_TYPE) {
-            $this->m_coach = Model_Fields_Coach::LookupById($this->m_session->userId);
-            $this->m_division = Model_Fields_Division::LookupById($this->m_coach->divisionId);
-            $this->m_team = Model_Fields_Team::LookupById($this->m_session->teamId);
-            $this->_getReservations();
-        }
-    }
-
-    /**
      * @brief Get list of genders for selector
      */
     private function _getGenders() {
         $this->m_genders['B'] = 'Boys';
         $this->m_genders['G'] = 'Girls';
-    }
-
-    /**
-     * @brief Initialize member variables from session
-     */
-    private function _init() {
-        if ($this->m_session != NULL) {
-            $this->m_coach = Model_Fields_Coach::LookupById($this->m_session->userId);
-            $this->m_division = Model_Fields_Division::LookupById($this->m_coach->divisionId);
-            $this->m_team = Model_Fields_Team::LookupById($this->m_session->teamId);
-            $this->_getReservations();
-        }
     }
 
     /**
@@ -184,10 +133,7 @@ abstract class Controller_Fields_Base extends Controller_Base
     protected function _reset() {
         parent::_reset();
 
-        $this->m_name = '';
-        $this->m_email = '';
         $this->m_phone = '';
-        $this->m_password = '';
         $this->m_divisionId = '';
         $this->m_gender = '';
         $this->m_fieldId = NULL;
@@ -255,11 +201,10 @@ abstract class Controller_Fields_Base extends Controller_Base
     }
 
     /**
-     * @brief Get list of reservations for team
-     *
-     * @param: $getFromScratch - If TRUE, then force get the reservations from the database
+     * @param bool $getFromScratch
+     * @return Model_Fields_Reservation[]
      */
-    public function getReservationsForTeam($getFromScratch = FALSE) {
+    public function getReservationsForTeam($getFromScratch = false) {
         if ($this->m_isAuthenticated) {
             if (count($this->m_reservations) == 0 or $getFromScratch) {
                 $this->_getReservations();

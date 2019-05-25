@@ -6,6 +6,15 @@
 class View_AdminReferee_Navigation extends View_Navigation
 {
     /**
+     * @param Controller_Base   $controller
+     * @param string            $pageName
+     */
+    public function __construct($controller, $pageName)
+    {
+        parent::__construct($controller, $pageName, true);
+    }
+
+    /**
      * @inheritdoc
      */
     public function displayBodyHeader($urlParams)
@@ -53,7 +62,17 @@ class View_AdminReferee_Navigation extends View_Navigation
         print '
                 <ul id="nav">'
             . ($this->pageName == View_Base::REFEREE_HOME_PAGE ?
-                '<li><div>REFEREE</div></li>' : '<li><a href="' . View_Base::REFEREE_HOME_PAGE . '">REFEREE</a></li>')
+                '<li><div>UPLOAD</div></li>' : '<li><a href="' . View_Base::REFEREE_HOME_PAGE . '">UPLOAD</a></li>')
+            . ($this->pageName == View_Base::REFEREE_TEAM_PAGE ?
+                '<li><div>TEAM</div></li>' : '<li><a href="' . View_Base::REFEREE_TEAM_PAGE . '">TEAM</a></li>')
+            . ($this->pageName == View_Base::REFEREE_REFEREES_PAGE ?
+                '<li><div>REFEREE</div></li>' : '<li><a href="' . View_Base::REFEREE_REFEREES_PAGE . '">REFEREE</a></li>')
+            . ($this->pageName == View_Base::REFEREE_PREFERENCES_PAGE ?
+                '<li><div>PREFERENCES</div></li>' : '<li><a href="' . View_Base::REFEREE_PREFERENCES_PAGE . '">PREFERENCES</a></li>')
+            . ($this->pageName == View_Base::REFEREE_SCHEDULE_PAGE ?
+                '<li><div>SCHEDULE</div></li>' : '<li><a href="' . View_Base::REFEREE_SCHEDULE_PAGE . '">SCHEDULE</a></li>')
+            . ($this->pageName == View_Base::REFEREE_PREVIEW_PAGE ?
+                '<li><div>PREVIEW</div></li>' : '<li><a href="' . View_Base::REFEREE_PREVIEW_PAGE . '">PREVIEW</a></li>')
             . '
                </ul>';
     }

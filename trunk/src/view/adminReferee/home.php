@@ -1,23 +1,19 @@
 <?php
 
-use \DAG\Domain\Schedule\Facility;
-use \DAG\Domain\Schedule\Division;
-use \DAG\Domain\Schedule\DivisionField;
-use \DAG\Domain\Schedule\GameDate;
-use \DAG\Domain\Schedule\GameTime;
-
 /**
- * @brief Show the Referee home page
+ * @brief Referee admin home page
  */
-class View_AdminReferee_Home extends View_AdminReferee_Base
-{
+class View_AdminReferee_Home extends View_AdminReferee_Base {
+    /** @var  Controller_AdminReferee_Base */
+    protected $m_controller;
+
     /**
-     * @brief Construct the View
+     * @brief Construct he View
      *
-     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
+     * @param Controller_AdminReferee_Base $controller
      */
-    public function __construct($controller)
-    {
+    public function __construct($controller) {
+        $this->m_controller = $controller;
         parent::__construct(self::REFEREE_HOME_PAGE, $controller);
     }
 
@@ -26,194 +22,164 @@ class View_AdminReferee_Home extends View_AdminReferee_Base
      */
     public function render()
     {
-        $sessionId              = $this->m_controller->getSessionId();
-        $messageString          = $this->m_controller->m_messageString;
-        $facilitySelectorData   = [];
-
-        if (isset($this->m_controller->m_season)) {
-            $facilities = Facility::lookupBySeason($this->m_controller->m_season);
-            foreach ($facilities as $facility) {
-                $facilitySelectorData[$facility->id] = $facility->name;
-            }
+        if ($this->m_controller->m_isAuthenticated) {
+            $this->renderHome();
         } else {
-            return;
+            $this->renderLogin();
         }
+    }
+
+    /**
+     * @brief Render instructions for how to administer practice fields
+     */
+    public function renderHome() {
+        $messageString  = $this->m_controller->m_messageString;
 
         if (!empty($messageString)) {
             print "
                 <p style='color: green' align='center'><strong>$messageString</strong></p><br>";
         }
 
-        /*
+        $this->renderLoadRefereesFromFile();
+        print "<br>";
+        $this->renderLoadRefereesByTeamFromFile();
+        print "<br>";
+        $this->renderGenerateRefereeCrews();
+    }
+
+    /**
+     * @brief Render HTML to load referees
+     */
+    public function renderLoadRefereesFromFile()
+    {
+        $sessionId = $this->m_controller->getSessionId();
+
         print "
-            <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
+            <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td valign='top' bgcolor='" . View_Base::VIEW_COLOR . "'>";
-
-        ksort($facilitySelectorData);
-        $this->_printSelectFacilityForm($sessionId, $facilitySelectorData);
-
-        print "
+                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Referees</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong><br>
+                    <p style='font-size: 12px'>
+                        Approved,Last Seen,eAYSO Vol App,AYSO ID,Name,Years,Games,Badge,Phone,Email<br>
+                        Y,2018,,58017703,Cornelia Alsheimer-Barthel,12,96,R,805-455-0119,cornelia_alsheimer@hotmail.com
+                    </p>
                     </td>
+                </tr>
+                <tr>
+                    <form enctype='multipart/form-data' method='POST' action='" . self::REFEREE_HOME_PAGE . $this->m_urlParams . "'>
+                        <td nowrap>Select csv file to upload:</td>
+                        <td>
+                            <input type='file' name='fileToUpload' id='fileToUpload'>
+                        </td>
+                        <td>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_REFEREE_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        </td>
+                    </form>
                 </tr>
             </table>
-            <br><br>";
-        */
-
-        // If a facility was selected then get all games sorted by day and time for display
-        $divisions  = Division::lookupBySeason($this->m_controller->m_season);
-        $gameDates  = GameDate::lookupBySeason($this->m_controller->m_season);
-
-        $divisionNames = [];
-        foreach ($divisions as $division) {
-            $divisionNames[$division->name] = 1;
-        }
-
-        foreach ($divisionNames as $divisionName => $count) {
-            $divisions = Division::lookupByName($this->m_controller->m_season, $divisionName);
-
-            $divisionFieldsById = [];
-            foreach ($divisions as $division) {
-                $divisionFields = DivisionField::lookupByDivision($division);
-                foreach ($divisionFields as $divisionField) {
-                    $divisionFieldsById[$divisionField->id] = $divisionField;
-                }
-            }
-
-            $fields     = [];
-            $fieldsById = [];
-            foreach ($divisionFieldsById as $divisionFieldId => $divisionField) {
-                $fields[] = $divisionField->field;
-                $fieldsById[$divisionField->field->id] = $divisionField->field;
-            }
-
-            foreach ($gameDates as $gameDate) {
-                $gameTimes = GameTime::lookupByGameDateAndFields($gameDate, $fields);
-
-                $gameTimesByDayByTimeByField = [];
-                foreach ($gameTimes as $gameTime) {
-                    $gameTimesByDayByTimeByField[$gameDate->day][$gameTime->startTime][$gameTime->field->id] = $gameTime;
-                }
-
-                foreach ($gameTimesByDayByTimeByField as $day => $gameTimesByTimeByField) {
-                    $this->printRefereeForm($divisionName, $day, $gameTimesByTimeByField, $fieldsById);
-                }
-            }
-        }
+            ";
     }
 
     /**
-     * @brief Print the form to select a facility for display.  Form includes the following
-     *        - Facility (or all)
-     *
-     * @param int $sessionId
-     * @param $facilitySelectorData
+     * @brief Render HTML to load referees
      */
-    private function _printSelectFacilityForm($sessionId, $facilitySelectorData)
+    public function renderLoadRefereesByTeamFromFile()
     {
-        $facilityName = $this->m_controller->m_facilityId == 0 ? '' : Facility::lookupById($this->m_controller->m_facilityId)->name;
+        $sessionId = $this->m_controller->getSessionId();
 
-        // Print the start of the form to select which facility to view
         print "
-            <table valign='top' align='center' border='0' cellpadding='5' cellspacing='0'>
+            <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <th nowrap colspan='2' align='left'>View Existing Field(s)</th>
-                </tr>
-            <form method='post' action='" . self::REFEREE_HOME_PAGE . $this->m_urlParams . "'>";
-
-        $this->displaySelector('Facility:', View_Base::FACILITY_ID, $this->m_controller->m_facilityId, $facilitySelectorData, $facilityName);
-
-        // Print View button and end form
-        print "
-                <tr>
-                    <td align='left'>
-                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::VIEW . "'>
-                        <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Referees By Team</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong><br>
+                    <p style='font-size: 12px'>
+                        Division,Team#,TeamID,Coach,Referee1,Referee2,Referee3,Referee4,Referee5,Referee6,Referee7,Referee8,Referee9,Referee10<br>
+                        B10U,1,B10U-01,Paul Atzberger,,,,,,,,,,<br>
+                        B10U,2,B10U-02,Peter Benelli,Ivan Lorkovic,,,,,,,,,<br>
+                        B10U,3,B10U-03,Dan Brennan,Ashutosh Chitnis,Bryan Bottorff,Brandon Smith,Jon Ohlgren,Josh Brennan,Dan Brennan,,,,<br>
+                    </p>
                     </td>
                 </tr>
-            </form>
-            </table>";
+                <tr>
+                    <form enctype='multipart/form-data' method='POST' action='" . self::REFEREE_HOME_PAGE . $this->m_urlParams . "'>
+                        <td nowrap>Select csv file to upload:</td>
+                        <td>
+                            <input type='file' name='fileToUpload' id='fileToUpload'>
+                        </td>
+                        <td>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_REFBYTEAM_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        </td>
+                    </form>
+                </tr>
+            </table>
+            ";
     }
 
     /**
-     * @brief Print the form to display games by field and time
-     *
-     * @param string $divisionName
-     * @param string $day
-     * @param array $gameTimesByTimeByField
-     * @param array $fieldsById
+     * @brief Render HTML to generate referee teams
      */
-    private function printRefereeForm($divisionName, $day, $gameTimesByTimeByField, $fieldsById)
+    public function renderGenerateRefereeCrews()
     {
-        print "
-            <p align='center'>Boys and Girls $divisionName for $day</p>
-            <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
-                <tr bgcolor='lightskyblue'>
-                    <th align='center'>Time/Field</th>";
-
-        foreach ($fieldsById as $fieldId => $field) {
-            $facilityName = $field->facility->name;
-            $fieldName = $field->name;
-            print "
-                    <th nowrap align='center'>$facilityName<br>$fieldName</th>";
-        }
+        $sessionId = $this->m_controller->getSessionId();
 
         print "
-                </tr>";
-
-        foreach ($gameTimesByTimeByField as $time => $gameTimesByField) {
-            $time = substr($time, 0, 5);
-            print "
+            <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td align='center' rowspan='3'>$time</td>";
+                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Generate Referee Crews</strong><br><strong style='font-size: 16px'>Notes</strong><br>
+                    <p style='font-size: 12px'>
+                        Referee crews consist of a center referee and two assistant referees that are allowed<br>
+                        to referee for a division (10U Girs for example) and are all representing the same team<br>
+                        for referee credits.  When you click the button below, existing referee teams are deleted<br>
+                        and new teams are generated based on imported referees, their preferences and team affiliations.
+                    </p>
+                    </td>
+                </tr>
+                <tr>
+                    <form enctype='multipart/form-data' method='POST' action='" . self::REFEREE_HOME_PAGE . $this->m_urlParams . "'>
+                        <td nowrap>&nbsp</td>
+                        <td nowrap>&nbsp</td>
+                        <td>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::GENERATE_REF_CREWS . "' name='" . View_Base::SUBMIT . "'>
+                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        </td>
+                    </form>
+                </tr>
+            </table>
+            ";
+    }
 
-            foreach ($fieldsById as $fieldId => $field) {
-                $entry = "&nbsp";
-                $bgcolor = '';
-                if (isset($gameTimesByField[$fieldId])) {
-                    $gameTime = $gameTimesByField[$fieldId];
-                    if (isset($gameTime->game)) {
-                        $game = $gameTime->game;
-                        $gender = $game->flight->schedule->division->gender;
-                        $bgcolor = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
-                        if ((isset($game->homeTeam))) {
-                            $entry = $game->homeTeam->nameId . " v " . $game->visitingTeam->nameId;
-                        } else if ($game->title != '') {
-                            $entry = $game->title;
-                        }
-                    }
-                }
+    /**
+     * @brief Render sign-in screen
+     */
+    public function renderLogin() {
+        print "
+            <table align='center' valign='top' border='1' cellpadding='5' cellspacing='0'>
+            <tr><td>
+            <table align='center' valign='top' border='0' cellpadding='5' cellspacing='0'>";
 
-                print "
-                    <td nowrap align='center' $bgcolor>$entry</td>";
-            }
-
-            print "
-                    </tr>";
-
-            print "
-                <tr>";
-
-            foreach ($fieldsById as $fieldId => $field) {
-                print "
-                    <td nowrap align='center'>&nbsp</td>";
-            }
-
-            print "
-                </tr>";
-            print "
-                <tr>";
-
-            foreach ($fieldsById as $fieldId => $field) {
-                print "
-                    <td nowrap align='center'>&nbsp</td>";
-            }
-
-            print "
-                </tr>";
-        }
+        // Login To an Existing Account Form
+        print "
+            <form method='post' action='" . self::REFEREE_HOME_PAGE . $this->m_urlParams . "'>";
 
         print "
-            </table><br><br>";
+                <tr>
+                    <td colspan='2' style='font-size:24px; color: darkblue'><b>Sign In</b></td>
+                </tr>";
+
+        $this->displayInput('Email Address:', 'text', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_EMAIL, 'email address', $this->m_controller->m_email);
+        $this->displayInput('Password:', 'password', Model_Fields_PracticeFieldCoordinatorDB::DB_COLUMN_PASSWORD, 'password', $this->m_controller->m_password);
+
+        print "
+                <tr>
+                    <td colspan='2' align='right'>
+                        <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
+                    </td>
+                    <td>&nbsp</td>
+                </tr>
+            </form>";
+
+        print "
+            </table>
+            </td></tr></table>";
     }
 }

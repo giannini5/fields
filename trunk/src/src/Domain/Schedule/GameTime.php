@@ -177,7 +177,7 @@ class GameTime extends Domain
     /**
      * @param GameDate      $gameDate
      *
-     * @return array        $gameTimes
+     * @return GameTime[]   $gameTimes
      */
     public static function lookupByGameDate($gameDate)
     {

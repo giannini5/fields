@@ -1,4 +1,4 @@
-create table coach (
+create table if not exists coach (
     id           bigint auto_increment,
     teamId       bigint not NULL,
     familyId     bigint default NULL,
@@ -8,5 +8,6 @@ create table coach (
     phone2       varchar(128) not NULL,
     PRIMARY KEY (id),
     unique index ux_teamName(teamId),
-    index ix_familyId(familyId)
+    index ix_familyId(familyId),
+    index ix_name(name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -5,6 +5,14 @@
 
 /**
  * Model_Fields_Coach class
+ *
+ * @property int    $id
+ * @property int    $seasonId
+ * @property int    $divisionId
+ * @property string $name
+ * @property string $email
+ * @property string $phone
+ * @property string $password
  */
 class Model_Fields_Coach extends Model_Fields_Base implements SaveModelInterface {
 
@@ -117,7 +125,7 @@ class Model_Fields_Coach extends Model_Fields_Base implements SaveModelInterface
     /**
      * @brief: Get Model_Fields_Coach instance for the specified Coach identifier
      *
-     * @param bigint $coachId: Unique Coach identifier
+     * @param int $coachId: Unique Coach identifier
      *
      * @return Model_Fields_Coach
      */

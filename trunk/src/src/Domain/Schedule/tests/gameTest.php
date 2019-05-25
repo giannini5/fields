@@ -162,6 +162,13 @@ class GameTest extends ORM_TestHelper
         $this->assertFalse($result, "Game with id " . $this->gamesToCleanup[0]->id . " found");
     }
 
+    public function test_lookupBySchedule()
+    {
+        $games = Game::lookupBySchedule($this->flight->schedule);
+        $this->assertTrue(count($games) == 1);
+        $this->validateGame($games[0]);
+    }
+
     public function test_lookupByFlight()
     {
         $games = Game::lookupByFlight($this->flight);
@@ -210,6 +217,16 @@ class GameTest extends ORM_TestHelper
         $this->validateGame($games[0]);
     }
 
+    public function test_lookupByScheduleGameDate()
+    {
+        $schedule   = Schedule::lookupById($this->defaultScheduleOrm->id);
+        $gameDate   = GameDate::lookupById($this->defaultGameDateOrm->id);
+
+        $games = Game::lookupByScheduleDay($schedule, $gameDate);
+        $this->assertTrue(count($games) == 1);
+        $this->validateGame($games[0]);
+    }
+
     public function test_set()
     {
         $game = Game::lookupById($this->gamesToCleanup[0]->id);
@@ -249,7 +266,9 @@ class GameTest extends ORM_TestHelper
         $this->assertTrue(isset($game->title), "title not set");
         $this->assertTrue(isset($game->homeTeam), "homeTeam not set");
         $this->assertTrue(isset($game->visitingTeam));
+        $this->assertTrue(isset($game->gameDate));
         $this->assertTrue(isset($game->gameTime));
+        $this->assertTrue(isset($game->schedule));
         $this->assertTrue(isset($game->flight));
         $this->assertTrue(isset($game->pool));
         $this->assertTrue(isset($game->locked));
@@ -263,6 +282,7 @@ class GameTest extends ORM_TestHelper
         $this->assertFalse(isset($game->playInHomeGameId), "playInHomeGameId is set");
         $this->assertFalse(isset($game->playInVisitingGameId), "playInVisitingGameId is set");
         $this->assertTrue(isset($game->playInByWin), "playInByWin is not set");
+        $this->assertFalse(isset($game->refereeCrew), "refereeCrew is set");
     }
 
     public function test_isForHomeTeam()
@@ -321,6 +341,25 @@ class GameTest extends ORM_TestHelper
         $this->validateGame($game);
     }
 
+    public function test_refereeCrew()
+    {
+        $game = Game::lookupById($this->gamesToCleanup[0]->id);
+        $this->assertFalse(isset($game->refereeCrew));
+
+        $refereeCrew = RefereeCrew::lookupById($this->defaultRefereeCrewOrm->id);
+        $game->refereeCrew = $refereeCrew;
+        $this->assertTrue(isset($game->refereeCrew));
+
+        $game2 = Game::lookupById($this->gamesToCleanup[0]->id);
+        $this->assertTrue(isset($game->refereeCrew));
+
+        $game2->refereeCrew = null;
+        $this->assertFalse(isset($game2->refereeCrew));
+
+        $game3 = Game::lookupById($this->gamesToCleanup[0]->id);
+        $this->assertFalse(isset($game3->refereeCrew));
+    }
+
     public function validateGame($game, $homeScore = NULL, $visitingScore = NULL, $homeYellows = 0, $visitingYellows = 0, $homeReds = 0, $visitingReds = 0, $notes = '')
     {
         $this->assertTrue($game->id > 0);
@@ -334,9 +373,9 @@ class GameTest extends ORM_TestHelper
         $this->assertEquals($homeReds,              $game->homeTeamRedCards);
         $this->assertEquals($visitingReds,          $game->visitingTeamRedCards);
         $this->assertEquals($notes,                 $game->notes);
-        $this->assertEquals(0,                      $game->playInHomeGameId);
-        $this->assertEquals(0,                      $game->playInVisitingGameId);
-        $this->assertEquals(0,                      $game->playInByWin);
+        $this->assertEquals(0,             $game->playInHomeGameId);
+        $this->assertEquals(0,             $game->playInVisitingGameId);
+        $this->assertEquals(0,             $game->playInByWin);
 
         // Only check gameTime object if no overrides
         if (!isset($homeScore) and !isset($visitingScore) and !isset($homeYellows) and !isset($visitingYellows) and !isset($homeReds) and !isset($visitingReds) and !isset($notes)) {

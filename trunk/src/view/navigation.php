@@ -12,14 +12,23 @@ abstract class View_Navigation
     /** @var string */
     protected $pageName;
 
+    /** @var string */
+    protected $redipsPath;
+
+    /** @var string */
+    protected $redipsScripPath;
+
     /**
      * @param Controller_Base   $controller
      * @param string            $pageName
+     * @param bool              $useRefereeRedips - defaults to false
      */
-    public function __construct($controller, $pageName)
+    public function __construct($controller, $pageName, $useRefereeRedips = false)
     {
-        $this->controller   = $controller;
-        $this->pageName     = $pageName;
+        $this->controller       = $controller;
+        $this->pageName         = $pageName;
+        $this->redipsPath       = $useRefereeRedips ? '../js/schedule_redips/style_ref.css' : '../js/schedule_redips/style.css';
+        $this->redipsScripPath  = $useRefereeRedips ? '../js/schedule_redips/script_ref.js' : '../js/schedule_redips/script.js';
     }
 
     /**
@@ -36,12 +45,12 @@ abstract class View_Navigation
                 <title>$title</title>
                 <script type='text/JavaScript' src='../js/scw.js'></script>
                 
-                <link rel='stylesheet' href='../js/schedule_redips/style.css' type='text/css' media='screen'/>
+                <link rel='stylesheet' href='$this->redipsPath' type='text/css' media='screen'/>
 		        <script type='text/javascript'>
 			        var redipsURL = '/javascript/drag-and-drop-example-3/';
 		        </script>
 		        <script type='text/javascript' src='../js/REDIPS_drag/redips-drag-min.js'></script>
-		        <script type='text/javascript' src='../js/schedule_redips/script.js'></script>";
+		        <script type='text/javascript' src='$this->redipsScripPath'></script>";
 
         $styles->render($collapsibleCounter);
 

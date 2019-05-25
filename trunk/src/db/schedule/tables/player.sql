@@ -1,4 +1,4 @@
-create table player (
+create table if not exists player (
     id              bigint auto_increment,
     teamId          bigint not NULL,
     familyId        bigint default NULL,

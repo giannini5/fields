@@ -1,4 +1,4 @@
-create table team (
+create table if not exists team (
     id              bigint auto_increment,
     divisionId      bigint not NULL,
     poolId          bigint default NULL,

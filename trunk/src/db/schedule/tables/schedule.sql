@@ -1,4 +1,4 @@
-create table schedule (
+create table if not exists schedule (
     id                    bigint auto_increment,
     divisionId            bigint not NULL,
     name                  varchar(60) not NULL,

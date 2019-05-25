@@ -1,5 +1,9 @@
 <?php
 
+use \DAG\Orm\Schedule\ScheduleCoordinatorOrm;
+use \DAG\Framework\Orm\NoResultsException;
+use \DAG\Domain\Schedule\Coordinator;
+
 /**
  * Class Controller_Base
  *
@@ -8,19 +12,39 @@
  */
 abstract class Controller_Base
 {
-    # Session Cookie name
+    const SESSION_ADMIN_COOKIE  = 'session_admin';
+    const SCHEDULE_ADMIN_COOKIE = 'schedule_admin';
+    const REFEREE_ADMIN_COOKIE  = 'referee_admin';
+    const SCORING_ADMIN_COOKIE  = 'scoring_admin';
+    const SESSION_FIELD_COOKIE  = 'session';
+    const REFEREE_COOKIE        = 'referee';
+
+    # Session data
+    /** @var  string */
     protected $m_cookieName;
+    /** @var string */
+    protected $m_userType;
+    /** @var  Model_Fields_Session */
+    protected $m_session;
+    /** @var Coordinator */
+    public $m_coordinator;
+    /** @var  string */
+    public $m_email;
+    /** @var  string */
+    public $m_password;
+
 
     # Attributes constructed from League
+    /** @var  \DAG\Domain\Schedule\League */
     public $m_league;
+    /** @var  \DAG\Domain\Schedule\Season */
     public $m_season;
+    /** @var \DAG\Domain\Schedule\Division[]|Model_Fields_Division[] */
     public $m_divisions = [];
 
     # Attributes constructed from POST
+    /** @var string */
     public $m_operation;
-
-    # Session to avoid login with each page load
-    protected $m_session;
 
     # Other attributes constructed from above based on controller
     public $m_missingAttributes;
@@ -38,9 +62,16 @@ abstract class Controller_Base
     # Popup or regular page
     public $m_isPopup = false;
 
-    public function __construct($cookieName, $populateDivisions = true)
+    /**
+     * Controller_Base constructor.
+     * @param string    $cookieName
+     * @param string    $userType
+     * @param bool      $populateDivisions
+     */
+    public function __construct($cookieName, $userType, $populateDivisions = true)
     {
         $this->m_cookieName = $cookieName;
+        $this->m_userType   = $userType;
 
         $this->_reset();
 
@@ -52,8 +83,114 @@ abstract class Controller_Base
         }
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
+            $sessionId = $this->getPostAttribute(View_Base::SESSION_ID, NULL, FALSE);
+            if ($sessionId != NULL) {
+                $this->_constructFromSessionId($sessionId);
+            } else {
+                $this->_init();
+            }
+
             $this->m_operation = $this->getPostAttribute(View_Base::SUBMIT, '', FALSE);
+        } elseif (isset($_COOKIE[$this->m_cookieName])) {
+            $this->_constructFromSessionId($_COOKIE[$this->m_cookieName]);
         }
+
+        $this->setAuthentication();
+    }
+
+    /**
+     * @brief Construct the controller from the session identifier
+     *
+     * @param $sessionId
+     */
+    private function _constructFromSessionId($sessionId) {
+        try {
+            $this->m_session = Model_Fields_Session::LookupById($sessionId, FALSE);
+            if (isset($this->m_session) and $this->m_session->userType == $this->m_userType) {
+                $this->m_coordinator = ScheduleCoordinatorOrm::loadById($this->m_session->userId);
+            }
+        } catch (NoResultsException $e) {
+            // I guess someone messed with the database.  Force login.
+            // TODO: delete the cookie
+            $this->m_session = null;
+        }
+    }
+
+    /**
+     * @brief Initialize member variables from session
+     */
+    private function _init() {
+        try {
+            if ($this->m_session != NULL) {
+                $this->m_coordinator = Coordinator::lookupById($this->m_session->userId);
+            }
+        } catch (NoResultsException $e) {
+            // I guess the database got reset
+            // TODO: remove the cookie
+            $this->m_session = NULL;
+        }
+    }
+
+    /**
+     * @brief Set isAuthenticated and update session as necessary
+     */
+    protected function setAuthentication() {
+        if ($this->m_coordinator != NULL) {
+            $this->_setAuthentication();
+        }
+    }
+
+    /**
+     * @brief Login to existing account
+     */
+    protected function _login() {
+        try {
+            if ($this->m_operation == View_Base::SUBMIT) {
+                $this->m_coordinator = Coordinator::lookupByEmail($this->m_league, $this->m_email);
+
+                if ($this->m_coordinator->password != $this->m_password) {
+                    $this->_reset();
+                    $this->m_password = "* Incorrect password - try again";
+                } else {
+                    $this->createSession($this->m_coordinator->id, $this->m_userType, 0);
+                }
+            }
+        } catch (NoResultsException $e) {
+            $this->_reset();
+            $this->m_email = "* Incorrect email - try again";
+        }
+    }
+
+    /**
+     * @brief Sign out user
+     */
+    public function signOut()
+    {
+        precondition($this->m_coordinator != NULL, "Controller_Base::signOut called with a NULL coordinator");
+
+        // Delete session from the database
+        Model_Fields_Session::Delete($this->m_coordinator->id, $this->m_userType, 0);
+        $this->m_session            = NULL;
+        $this->m_isAuthenticated    = NULL;
+
+        // Delete cooking if it exists
+        if (isset($_COOKIE[$this->m_cookieName])) {
+            unset($_COOKIE[$this->m_cookieName]);
+            setcookie($this->m_cookieName, null, -1, '/');
+        }
+    }
+
+    /**
+     * @brief Return the name of the coach or empty string if not authenticated
+     *
+     * @return string : Name of coach or empty string
+     */
+    public function getCoordinatorsName() {
+        if ($this->m_isAuthenticated) {
+            return $this->m_coordinator->name;
+        }
+
+        return '';
     }
 
     /**
@@ -255,6 +392,10 @@ abstract class Controller_Base
 
         $this->m_isAuthenticated    = FALSE;
         $this->m_errorString        = '';
+
+        $this->m_coordinator    = null;
+        $this->m_email          = null;
+        $this->m_password       = null;
     }
 
     /**
@@ -347,7 +488,7 @@ abstract class Controller_Base
     /**
      * @brief Return a comma separated list of days selected in the reservation.
      *
-     * @param $reservation
+     * @param Model_Fields_Reservation $reservation
      *
      * @return string : comma separated list of days string: "Monday, Tuesday, ..., Friday"
      */

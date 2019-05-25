@@ -2,6 +2,7 @@
 
 use \DAG\Domain\Schedule\League;
 use \DAG\Domain\Schedule\Season;
+use \DAG\Domain\Schedule\Coordinator;
 
 /**
  * Class Controller_Games_Base
@@ -13,11 +14,7 @@ abstract class Controller_Games_Base extends Controller_Base
 {
     public function __construct()
     {
-        parent::__construct(Controller_AdminSchedules_Base::SCHEDULE_ADMIN_COOKIE, false);
-
-        if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->m_operation = $this->getPostAttribute(View_Base::SUBMIT, '');
-        }
+        parent::__construct(Controller_Base::SCHEDULE_ADMIN_COOKIE, Coordinator::SCHEDULE_COORDINATOR_USER_TYPE, false);
     }
 
     /**

@@ -1,4 +1,4 @@
-create table gameTime (
+create table if not exists gameTime (
     id                bigint auto_increment,
     gameDateId        bigint not NULL,
     fieldId           bigint not NULL,

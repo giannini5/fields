@@ -6,6 +6,7 @@ use \DAG\Domain\Schedule\DivisionField;
 use \DAG\Domain\Schedule\Game;
 use \DAG\Domain\Schedule\Field;
 use \DAG\Orm\Schedule\ScheduleOrm;
+use \DAG\Domain\Schedule\Coordinator;
 
 /**
  * Class Controller_Api_Swap
@@ -22,7 +23,7 @@ class Controller_Api_Swap extends Controller_Api_Base
 
     public function __construct()
     {
-        parent::__construct();
+        parent::__construct(self::SCHEDULE_ADMIN_COOKIE, Coordinator::SCHEDULE_COORDINATOR_USER_TYPE);
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->gameTimeId1 = $this->getPostAttribute(

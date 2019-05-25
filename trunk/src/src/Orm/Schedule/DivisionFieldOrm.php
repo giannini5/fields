@@ -50,13 +50,15 @@ class DivisionFieldOrm extends PersistenceModel
     )
     {
         $result = self::getPersistenceDriver()->create(
-            [
-                self::FIELD_DIVISION_ID     => $divisionId,
-                self::FIELD_FIELD_ID        => $fieldId,
-            ],
-            function ($item) {
-                return $item !== null;
-            }
+            array_filter(
+                [
+                    self::FIELD_DIVISION_ID     => $divisionId,
+                    self::FIELD_FIELD_ID        => $fieldId,
+                ],
+                function ($item) {
+                    return $item !== null;
+                }
+            )
         );
 
         return new static($result);

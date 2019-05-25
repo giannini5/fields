@@ -70,7 +70,14 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     const VOLUNTEER_POINTS            = 'volunteerPoints';
     const SEED                        = 'seed';
     const COMBINE_LEAGUE_SCHEDULES    = 'combineLeagueSchedules';
-
+    const IS_CENTER                   = 'isCenter';
+    const IS_ASSISTANT                = 'isAssistant';
+    const IS_MENTOR                   = 'isMentor';
+    const REFEREE_ROLE                = 'refereeRole';
+    const BADGE_ID                    = 'badgeId';
+    const MAX_GAMES_PER_DAY           = 'maxGamesPerDay';
+    const SPECIAL_INSTRUCTIONS        = 'specialInstructions';
+    const DIVISION_NAME               = 'divisionName';
 
     protected static $defaultSeasonOrmAttributes =
         [
@@ -123,9 +130,10 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::PHONE2  => '',
         ];
 
+    const DEFAULT_DIVISION_NAME = 'UTestG';
     protected static $defaultDivisionOrmAttributes =
         [
-            self::NAME                      => 'UTestG',
+            self::NAME                      => self::DEFAULT_DIVISION_NAME,
             self::GENDER                    => 'Girls',
             self::MAX_PLAYERS_PER_TEAM      => 20,
             self::DISPLAY_ORDER             => 1,
@@ -233,6 +241,65 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::LOCKED                    => 0,
         ];
 
+    protected static $defaultRefereeOrmAttributes =
+        [
+            self::NAME                  => 'Ref Dave',
+            self::EMAIL                 => 'dave@giannini.com',
+            self::PHONE                 => '18052523944',
+            self::BADGE_ID              => RefereeOrm::NATIONAL,
+            self::MAX_GAMES_PER_DAY     => 1,
+            self::SPECIAL_INSTRUCTIONS  => "Hello Turf",
+        ];
+
+    protected static $defaultCenterRefereeOrmAttributes =
+        [
+            self::NAME                  => 'Ref DaveCenter',
+            self::EMAIL                 => 'daveCenter@giannini.com',
+            self::PHONE                 => '18052523944',
+            self::BADGE_ID              => RefereeOrm::NATIONAL,
+            self::MAX_GAMES_PER_DAY     => 1,
+            self::SPECIAL_INSTRUCTIONS  => "Hello Turf",
+        ];
+
+    protected static $defaultAssistantReferee1OrmAttributes =
+        [
+            self::NAME                  => 'Ref DaveAssistant1',
+            self::EMAIL                 => 'daveAssistant1@giannini.com',
+            self::PHONE                 => '18052523944',
+            self::BADGE_ID              => RefereeOrm::NATIONAL,
+            self::MAX_GAMES_PER_DAY     => 1,
+            self::SPECIAL_INSTRUCTIONS  => "Hello Turf",
+        ];
+
+    protected static $defaultAssistantReferee2OrmAttributes =
+        [
+            self::NAME                  => 'Ref DaveAssistant2',
+            self::EMAIL                 => 'daveAssistant2@giannini.com',
+            self::PHONE                 => '18052523944',
+            self::BADGE_ID              => RefereeOrm::NATIONAL,
+            self::MAX_GAMES_PER_DAY     => 1,
+            self::SPECIAL_INSTRUCTIONS  => "Hello Turf",
+        ];
+
+    protected static $defaultDivisionRefereeOrmAttributes =
+        [
+            self::IS_CENTER     => 0,
+            self::IS_ASSISTANT  => 1,
+            self::IS_MENTOR     => 1,
+        ];
+
+    protected static $defaultGameRefereeOrmAttributes =
+        [
+            self::REFEREE_ROLE  => GameRefereeOrm::CENTER_ROLE,
+        ];
+
+    protected static $defaultStandbyRefereeOrmAttributes =
+        [
+            self::REFEREE_ROLE  => GameRefereeOrm::CENTER_ROLE,
+            self::DIVISION_NAME => self::DEFAULT_DIVISION_NAME,
+            self::START_TIME    => '11:30:00',
+        ];
+
     public $defaultLeagueOrm;
     public $defaultSeasonOrm;
     public $defaultFacilityOrm;
@@ -249,10 +316,22 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     public $defaultCoachOrm;
     public $defaultAssistantCoachOrm;
     public $defaultPlayerOrm;
+    /** @var  GameTimeOrm */
     public $defaultGameTimeOrm;
+    /** @var  GameOrm */
     public $defaultGameOrm;
     public $defaultFamilyGameOrm;
     public $defaultScheduleCoordinatorOrm;
+    public $defaultRefereeOrm;
+    public $defaultTeamRefereeOrm;
+    public $defaultGameRefereeOrm;
+    public $defaultDivisionRefereeOrm;
+    public $defaultGameDateRefereeOrm;
+    public $defaultCenterRefereeOrm;
+    public $defaultAssistantReferee1Orm;
+    public $defaultAssistantReferee2Orm;
+    public $defaultRefereeCrewOrm;
+    public $defaultStandbyRefereeOrm;
 
     /**
      * Prime the database for unit testing
@@ -401,8 +480,10 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
             self::$defaultGameTimeOrmAttributes[self::GENDER_PREFERENCE]);
 
         $this->defaultGameOrm = GameOrm::create(
+            $this->defaultFlightOrm->scheduleId,
             $this->defaultFlightOrm->id,
             $this->defaultPoolOrm->id,
+            $this->defaultGameTimeOrm->gameDateId,
             $this->defaultGameTimeOrm->id,
             $this->defaultTeamOrm->id,
             $this->defaultVisitingTeamOrm->id,
@@ -412,6 +493,83 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         $this->defaultFamilyGameOrm = FamilyGameOrm::create(
             $this->defaultFamilyOrm->id,
             $this->defaultGameOrm->id);
+
+        $this->defaultRefereeOrm = RefereeOrm::create(
+            $this->defaultSeasonOrm->id,
+            $this->defaultFamilyOrm->id,
+            self::$defaultRefereeOrmAttributes[self::NAME],
+            self::$defaultRefereeOrmAttributes[self::EMAIL],
+            self::$defaultRefereeOrmAttributes[self::PHONE],
+            self::$defaultRefereeOrmAttributes[self::BADGE_ID],
+            self::$defaultRefereeOrmAttributes[self::MAX_GAMES_PER_DAY],
+            self::$defaultRefereeOrmAttributes[self::SPECIAL_INSTRUCTIONS]);
+
+        $this->defaultTeamRefereeOrm = TeamRefereeOrm::create(
+            $this->defaultTeamOrm->id,
+            $this->defaultRefereeOrm->id);
+
+        $this->defaultGameRefereeOrm = GameRefereeOrm::create(
+            $this->defaultGameOrm->id,
+            $this->defaultRefereeOrm->id,
+            self::$defaultGameRefereeOrmAttributes[self::REFEREE_ROLE]);
+
+        $this->defaultDivisionRefereeOrm = DivisionRefereeOrm::create(
+            $this->defaultDivisionOrm->id,
+            $this->defaultRefereeOrm->id,
+            self::$defaultDivisionRefereeOrmAttributes[self::IS_CENTER],
+            self::$defaultDivisionRefereeOrmAttributes[self::IS_ASSISTANT],
+            self::$defaultDivisionRefereeOrmAttributes[self::IS_MENTOR]);
+
+        $this->defaultGameDateRefereeOrm = GameDateRefereeOrm::create(
+            $this->defaultGameDateOrm->id,
+            $this->defaultRefereeOrm->id);
+
+        $this->defaultCenterRefereeOrm = RefereeOrm::create(
+            $this->defaultSeasonOrm->id,
+            $this->defaultFamilyOrm->id,
+            self::$defaultCenterRefereeOrmAttributes[self::NAME],
+            self::$defaultCenterRefereeOrmAttributes[self::EMAIL],
+            self::$defaultCenterRefereeOrmAttributes[self::PHONE],
+            self::$defaultCenterRefereeOrmAttributes[self::BADGE_ID],
+            self::$defaultCenterRefereeOrmAttributes[self::MAX_GAMES_PER_DAY],
+            self::$defaultCenterRefereeOrmAttributes[self::SPECIAL_INSTRUCTIONS]);
+
+        $this->defaultAssistantReferee1Orm = RefereeOrm::create(
+            $this->defaultSeasonOrm->id,
+            $this->defaultFamilyOrm->id,
+            self::$defaultAssistantReferee1OrmAttributes[self::NAME],
+            self::$defaultAssistantReferee1OrmAttributes[self::EMAIL],
+            self::$defaultAssistantReferee1OrmAttributes[self::PHONE],
+            self::$defaultAssistantReferee1OrmAttributes[self::BADGE_ID],
+            self::$defaultAssistantReferee1OrmAttributes[self::MAX_GAMES_PER_DAY],
+            self::$defaultAssistantReferee1OrmAttributes[self::SPECIAL_INSTRUCTIONS]);
+
+        $this->defaultAssistantReferee2Orm = RefereeOrm::create(
+            $this->defaultSeasonOrm->id,
+            $this->defaultFamilyOrm->id,
+            self::$defaultAssistantReferee2OrmAttributes[self::NAME],
+            self::$defaultAssistantReferee2OrmAttributes[self::EMAIL],
+            self::$defaultAssistantReferee2OrmAttributes[self::PHONE],
+            self::$defaultAssistantReferee2OrmAttributes[self::BADGE_ID],
+            self::$defaultAssistantReferee2OrmAttributes[self::MAX_GAMES_PER_DAY],
+            self::$defaultAssistantReferee2OrmAttributes[self::SPECIAL_INSTRUCTIONS]);
+
+        $this->defaultRefereeCrewOrm = RefereeCrewOrm::create(
+            $this->defaultCenterRefereeOrm->id,
+            $this->defaultAssistantReferee1Orm->id,
+            $this->defaultAssistantReferee2Orm->id,
+            $this->defaultDivisionOrm->id,
+            $this->defaultTeamOrm->id
+        );
+
+        $this->defaultStandbyRefereeOrm = StandbyRefereeOrm::create(
+            $this->defaultFacilityOrm->id,
+            $this->defaultGameDateOrm->id,
+            self::$defaultStandbyRefereeOrmAttributes[self::DIVISION_NAME],
+            self::$defaultStandbyRefereeOrmAttributes[self::START_TIME],
+            $this->defaultRefereeOrm->id,
+            self::$defaultStandbyRefereeOrmAttributes[self::REFEREE_ROLE]
+        );
     }
 
     /**
@@ -459,6 +617,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
      */
     protected function clearSeason($seasonOrm)
     {
+        $refereeOrms = RefereeOrm::loadBySeasonId($seasonOrm->id);
+        foreach ($refereeOrms as $refereeOrm) {
+            $this->clearReferee($refereeOrm);
+        }
+
         $facilityOrms = FacilityOrm::loadBySeasonId($seasonOrm->id);
         foreach ($facilityOrms as $facilityOrm) {
             $this->clearFacility($facilityOrm);
@@ -483,6 +646,36 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Cascading delete of everything below refereeOrm
+     *
+     * @param RefereeOrm $refereeOrm
+     */
+    protected function clearReferee($refereeOrm)
+    {
+        $teamReferees = TeamRefereeOrm::loadByRefereeId($refereeOrm->id);
+        foreach ($teamReferees as $teamReferee) {
+            $teamReferee->delete();
+        }
+
+        $gameReferees = GameRefereeOrm::loadByRefereeId($refereeOrm->id);
+        foreach ($gameReferees as $gameReferee) {
+            $gameReferee->delete();
+        }
+
+        $divisionReferees = DivisionRefereeOrm::loadByRefereeId($refereeOrm->id);
+        foreach ($divisionReferees as $divisionReferee) {
+            $divisionReferee->delete();
+        }
+
+        $gameDateReferees = GameDateRefereeOrm::loadByRefereeId($refereeOrm->id);
+        foreach ($gameDateReferees as $gameDateReferee) {
+            $gameDateReferee->delete();
+        }
+
+        $refereeOrm->delete();
+    }
+
+    /**
      * Cascading delete of everything below facilityOrm and then facilityOrm
      *
      * @param FacilityOrm $facilityOrm
@@ -492,6 +685,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
         $fieldOrms = FieldOrm::loadByFacilityId($facilityOrm->id);
         foreach ($fieldOrms as $fieldOrm) {
             $this->clearField($fieldOrm);
+        }
+
+        $standbyReferees = StandbyRefereeOrm::loadByFacilityId($facilityOrm->id);
+        foreach ($standbyReferees as $standbyReferee) {
+            $standbyReferee->delete();
         }
 
         $facilityOrm->delete();
@@ -544,6 +742,11 @@ abstract class ORM_TestHelper extends \PHPUnit_Framework_TestCase {
      */
     protected function clearDivision($divisionOrm)
     {
+        $refereeCrewOrms = RefereeCrewOrm::loadByDivisionId($divisionOrm->id);
+        foreach ($refereeCrewOrms as $refereeCrewOrm) {
+            $refereeCrewOrm->delete();
+        }
+
         $teamOrms = TeamOrm::loadByDivisionId($divisionOrm->id);
         foreach ($teamOrms as $teamOrm) {
             $this->clearTeam($teamOrm);

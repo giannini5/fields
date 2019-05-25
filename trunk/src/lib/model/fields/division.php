@@ -55,7 +55,6 @@ class Model_Fields_Division extends Model_Fields_Base implements SaveModelInterf
             $dataObj = $dbHandle->getByName(
                 NULL,
                 $this->{Model_Fields_DivisionDB::DB_COLUMN_NAME},
-                TRUE,
                 $this->{Model_Fields_DivisionDB::DB_COLUMN_LEAUGE_ID});
         }
 
@@ -132,7 +131,7 @@ class Model_Fields_Division extends Model_Fields_Base implements SaveModelInterf
     /**
      * @brief: Get Model_Fields_Division instance for the specified Division identifier
      *
-     * @param bigint $divisionId: Unique Division identifier
+     * @param int $divisionId: Unique Division identifier
      *
      * @return Model_Fields_Division
      */

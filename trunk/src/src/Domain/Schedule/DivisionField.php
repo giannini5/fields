@@ -38,8 +38,8 @@ class DivisionField extends Domain
     }
 
     /**
-     * @param Division $division (defaults to null)
-     * @param Field $field (defaults to null)
+     * @param Division $division
+     * @param Field $field
      * @param bool $ignoreIfAlreadyExists
      *
      * @return DivisionField
@@ -159,6 +159,7 @@ class DivisionField extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return false;
         }
     }
 

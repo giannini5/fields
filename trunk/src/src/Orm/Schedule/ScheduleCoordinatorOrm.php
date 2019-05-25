@@ -104,7 +104,7 @@ class ScheduleCoordinatorOrm extends PersistenceModel
      *
      * @param int $leagueId
      *
-     * @return array []   ScheduleCoordinatorOrms
+     * @return ScheduleCoordinatorOrm[]
      */
     public static function loadByLeagueId($leagueId)
     {
