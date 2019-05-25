@@ -5,6 +5,8 @@ use \DAG\Domain\Schedule\Family;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\GameDate;
 use \DAG\Domain\Schedule\Facility;
+use \DAG\Domain\Schedule\Referee;
+use \DAG\Orm\Schedule\RefereeOrm;
 
 /**
  * @brief: Abstract base class for all views.
@@ -58,6 +60,11 @@ abstract class View_Base {
 
     # Admin Referee pages
     const REFEREE_HOME_PAGE         = '/admin_referee_home';
+    const REFEREE_REFEREES_PAGE     = '/admin_referee_referees';
+    const REFEREE_PREFERENCES_PAGE  = '/admin_referee_preferences';
+    const REFEREE_SCHEDULE_PAGE     = '/admin_referee_schedule';
+    const REFEREE_PREVIEW_PAGE      = '/admin_referee_preview';
+    const REFEREE_TEAM_PAGE         = '/admin_referee_team';
 
     # Schedule Viewing Pages
     const SCHEDULE_HOME_PAGE        = '/schedule';
@@ -73,10 +80,20 @@ abstract class View_Base {
     const GAMES_PLAYER_STATS_PAGE   = '/games/playerStats';
     const GAMES_GAME_CARDS_PAGE     = '/games/gameCards';
 
-    # API
+    # Referees Viewing Pages
+    const REF_PREFERENCES_PAGE      = '/referee/preferences';
+    const REF_TEAMS_PAGE            = '/referee/teams';
+    const REF_ASSIGNMENTS_PAGE      = '/referee/assignments';
+    const REF_HELP_PAGE             = '/referee/help';
+
+    # API - Game Scheduling
     const API_SWAP                  = '/api/swap';
     const API_TOGGLE                = '/api/toggle';
     const API_TOGGLE_GAME_TIME      = '/api/toggleGameTime';
+
+    # API - Referee Assignments
+    const API_REF_ASSIGNMENT        = '/api/refAssign';
+    const API_REF_DELETE            = '/api/refDelete';
 
     # Operations
     const SUBMIT           = 'submit';
@@ -115,7 +132,10 @@ abstract class View_Base {
     const UPLOAD_PLAYER_FILE    = 'Upload Player File';
     const UPLOAD_FACILITY_FILE  = 'Upload Facility File';
     const UPLOAD_FIELD_FILE     = 'Upload Field File';
+    const UPLOAD_REFEREE_FILE   = 'Upload Referee File';
+    const UPLOAD_REFBYTEAM_FILE = 'Upload Referee By Team File';
     const FIELD_VIEW            = 'Field View';
+    const GENERATE_REF_CREWS    = 'Generate Referee Crews';
     const DIVISION_VIEW         = 'Division View';
     const TEAM_VIEW             = 'Team View';
     const FAMILY_VIEW           = 'Family View';
@@ -149,6 +169,8 @@ abstract class View_Base {
     const RESERVATION_ID            = 'reservationId';
     const FILTER_FACILITY_ID        = 'filterFacilityId';
     const FILTER_DIVISION_ID        = 'filterDivisionId';
+    const FILTER_DIVISION_NAME      = 'filterDivisionName';
+    const FILTER_REFEREE_ID         = 'filterRefereeId';
     const FILTER_LOCATION_ID        = 'filterGeographicAreaId';
     const FILTER_TEAM_ID            = 'filterTeamId';
     const SWAP_TEAM_ID1             = 'swapTeamId1';
@@ -218,6 +240,12 @@ abstract class View_Base {
     const HOME_TEAM_COLOR           = 'homeTeamColor';
     const VISITING_TEAM_NAME        = 'visitingTeamName';
     const VISITING_TEAM_COLOR       = 'visitingTeamColor';
+    const SPECIAL_INSTRUCTIONS      = 'specialInstructions';
+    const CELL_1_DATA               = 'cell1Data';
+    const CELL_2_DATA               = 'cell2Data';
+    const REFEREE_DISPLAY_TYPE      = 'refereeDisplayType';
+    const REFEREE_BY_NAME           = 'Individual Referees';
+    const REFEREE_BY_CREW           = 'Referee Crews';
 
     const PLAYER_BASE               = 'playerQ';
     const PLAYER_Q1                 = 'playerQ1';
@@ -282,6 +310,9 @@ abstract class View_Base {
     const TEAM_ID_COACH_AND_CITY    = 'teamIdWithCoachAndCity';
     const HOVER_TEXT                = 'hoverText';
     const SCORE                     = 'score';
+    const MAX_GAMES_PER_DAY         = 'maxGamesPerDay';
+    const DIVISIONS_CHECKED         = 'divisionsChecked';
+    const GAME_DATES_CHECKED        = 'GameDatesChecked';
 
     const EMAIL_ADDRESS             = 'emailAddress';
     const PHONE1                    = 'phone1';
@@ -289,6 +320,15 @@ abstract class View_Base {
     const SUBJECT                   = 'subject';
     const HELP_REQUEST              = 'helpRequest';
     const POPUP                     = 'popup';
+    const REFEREE_ID                = 'refereeId';
+    const REFEREE_BADGE             = 'refereeBadge';
+    const IS_CENTER                 = 'isCenter';
+    const IS_ASSISTANT              = 'isAssistant';
+    const IS_MENTOR                 = 'isMentor';
+    const CENTER                    = 'Center';
+    const ASSISTANT                 = 'Assistant';
+    const MENTOR                    = 'Mentor';
+    const PASSWORD                  = 'password';
 
     # Request Attributes
     const NEW_SELECTION = 'newSelection';
@@ -506,15 +546,15 @@ abstract class View_Base {
     /**
      * @brief: Display a multi-selector drop down.
      *
-     * @param: $selectorTitle       - Describes the data being selected
-     * @param: $selectorName        - Name for selector (used when processing POST)
-     * @param: $defaultSelections   - Array of default selections to pre-select
-     * @param: $selectorData        - Array of data identifier=>string where the identifier is the value selected
-     * @param: $size                - Size of the selector
-     * @param: $collapsible         - Collapsible java script class - defaults to NULL
-     * @param: int $colspan         - Number of columns to span
-     * @param: bool $newRow         - defaults to true
-     * @param: int $rowSpan         - defaults to 1
+     * @param string    $selectorTitle       - Describes the data being selected
+     * @param string    $selectorName        - Name for selector (used when processing POST)
+     * @param []        $defaultSelections   - Array of default selections to pre-select
+     * @param []        $selectorData        - Array of data identifier=>string where the identifier is the value selected
+     * @param int       $size                - Size of the selector
+     * @param string    $collapsible         - Collapsible java script class - defaults to NULL
+     * @param int       $colspan         - Number of columns to span
+     * @param bool      $newRow         - defaults to true
+     * @param int       $rowSpan         - defaults to 1
      */
     public function displayMultiSelector($selectorTitle, $selectorName, $defaultSelections, $selectorData, $size, $collapsible = NULL, $colspan = 1, $newRow = true, $rowSpan = 1) {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
@@ -549,15 +589,16 @@ abstract class View_Base {
     /**
      * @brief: Display a radio button selector
      *
-     * @param: $selectorTitle       - Describes the data being selected
-     * @param: $selectorName        - Name for selector (used when processing POST)
-     * @param: $selectorData        - Array of data identifier=>string where the identifier is the value selected
-     * @param: $currentSelection    - Current selection (if any) defaults to empty string
-     * @param: $collapsible         - Collapsible java script class - defaults to NULL
-     * @param: $colspan             - Number of columns to span
-     * @param: $newRow              - defaults to true
+     * @param string $selectorTitle       - Describes the data being selected
+     * @param string $selectorName        - Name for selector (used when processing POST)
+     * @param []     $selectorData        - Array of data identifier=>string where the identifier is the value selected
+     * @param string $currentSelection    - Current selection (if any) defaults to empty string
+     * @param string $collapsible         - Collapsible java script class - defaults to NULL
+     * @param int    $colspan             - Number of columns to span
+     * @param bool   $newRow              - defaults to true
+     * @param int    $rowspan             - defaults to 1
      */
-    public function displayRadioSelector($selectorTitle, $selectorName, $selectorData, $currentSelection = '', $collapsible = NULL, $colspan = 1, $newRow = true) {
+    public function displayRadioSelector($selectorTitle, $selectorName, $selectorData, $currentSelection = '', $collapsible = NULL, $colspan = 1, $newRow = true, $rowspan = 1) {
         $collapsibleClass = isset($collapsible) ? "class='$collapsible'" : '';
 
         if ($newRow) {
@@ -568,11 +609,11 @@ abstract class View_Base {
 
         if (!empty($selectorTitle)) {
             print "
-                <td nowrap align='left'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>";
+                <td nowrap align='left' rowspan='$rowspan'><font color='" . View_Base::AQUA . "'><b>$selectorTitle</b></font></td>";
         }
 
         print "
-                <td nowrap align='left' colspan='$colspan'>";
+                <td nowrap align='left' colspan='$colspan' rowspan='$rowspan'>";
 
         foreach ($selectorData as $identifier=>$data) {
             $checked = ($currentSelection == $data ? ' checked ' : '');
@@ -1008,14 +1049,76 @@ abstract class View_Base {
     /**
      * @brief Print the drop down list of divisions for filtering by facility
      *
-     * @param $filterDivisionId - Show selected division or the coaches division if the filter is 0
+     * @param string    $filterDivisionName         - Show selected division
+     * @param bool      $includeGender              - Default to false
+     * @param bool      $scoreTrackedDivisionsOnly  - Default to false
+     * @param bool      $allowAll                   - Default to true
+     * @parmm bool      $newRow                     - Default to true
      */
-    public function printDivisionSelector($filterDivisionId, $includeGender = false) {
+    public function printDivisionSelectorByName($filterDivisionName, $includeGender = false,
+                                                $scoreTrackedDivisionsOnly = false, $allowAll = true,
+                                                $newRow = true)
+    {
+        $name            = $includeGender ? View_Base::FILTER_DIVISION_ID : View_Base::FILTER_DIVISION_NAME;
+        $divisions       = Division::lookupBySeason($this->m_controller->m_season);
+        $divisionsByName = [];
+        foreach ($divisions as $division) {
+            if ($scoreTrackedDivisionsOnly and !$division->isScoringTracked) {
+                continue;
+            }
+
+            if ($includeGender) {
+                $divisionsByName[$division->nameWithGender] = $division->id;
+            } else {
+                $divisionsByName[$division->name] = $division->name;
+            }
+        }
+
+        $selectorHTML = '';
+
+        if ($allowAll) {
+            $value = $includeGender ? '0' : 'All';
+            $selectorHTML .= "<option value='$value'>All</option>";
+        }
+
+        foreach ($divisionsByName as $divisionName => $value) {
+
+            $selected       = ($divisionName == $filterDivisionName) ? ' selected ' : '';
+            $selectorHTML   .= "<option value='$value' $selected>$divisionName</option>";
+        }
+
+        if ($newRow) {
+            print "
+                <tr>";
+        }
+        print "
+                    <td style='color: #069'><strong>Division:&nbsp</strong></td>
+                    <td><select name='$name'>" . $selectorHTML . "</select></td>";
+        if ($newRow) {
+            print "
+                </tr>";
+        }
+    }
+
+    /**
+     * @brief Print the drop down list of divisions for filtering by facility
+     *        OLD MODEL database use only!!!
+     * @deprecated use printDivisionSelectorByName
+     *
+     * @param int   $filterDivisionId - Show selected division or the coaches division if the filter is 0
+     * @param bool  $includeGender
+     * @param bool  $scoreTrackedDivisionsOnly
+     */
+    public function printDivisionSelector($filterDivisionId, $includeGender = false, $scoreTrackedDivisionsOnly = false) {
         $selectorHTML = '';
         $selectorHTML .= "<option value='0' ";
         $selectorHTML .= ">All</option>";
 
         foreach ($this->m_controller->m_divisions as $division) {
+            if ($scoreTrackedDivisionsOnly and !$division->isScoringTracked) {
+                continue;
+            }
+
             $selected       = ($division->id == $filterDivisionId) ? ' selected ' : '';
             $divisionName   = $includeGender ?  $division->nameWithGender : $division->name;
             $selectorHTML   .= "<option value='$division->id' $selected>$divisionName</option>";
@@ -1026,6 +1129,67 @@ abstract class View_Base {
                     <td><font color='#069'><b>Division:&nbsp</b></font></td>
                     <td><select name='" . View_Base::FILTER_DIVISION_ID . "'>" . $selectorHTML . "</select></td>
                 </tr>";
+    }
+
+    /**
+     * @brief Print the drop down list of referees for filtering by referee
+     *
+     * @param $filterRefereeId - Show selected referees
+     */
+    public function printRefereeSelector($filterRefereeId) {
+        $selectorHTML = '';
+        $selectorHTML .= "<option value='0' ";
+        $selectorHTML .= ">All</option>";
+
+        $referees = Referee::lookupBySeason($this->m_controller->m_season);
+        usort($referees, "compareName");
+        foreach ($referees as $referee) {
+            $selected       = ($referee->id == $filterRefereeId) ? ' selected ' : '';
+            $refereeName    = $referee->name;
+            $selectorHTML   .= "<option value='$referee->id' $selected>$refereeName</option>";
+        }
+
+        print "
+                <tr>
+                    <td style='color: #069'><strong>Referee:&nbsp</strong></td>
+                    <td><select name='" . View_Base::FILTER_REFEREE_ID . "'>" . $selectorHTML . "</select></td>
+                </tr>";
+    }
+
+    /**
+     * @brief Print the drop down list of referee badges
+     *
+     * @param $badgeId      - Show selected badge
+     * @param $newRow       - defaults to true
+     * @param $includeLabel - defaults to false
+     */
+    public function printRefereeBadgeSelector($badgeId = -1, $newRow = true, $includeLabel = false) {
+        $selected = $badgeId == -1 ? ' selected ' : '';
+        $selectorHTML = '';
+        $selectorHTML .= "<option disabled value='0' $selected >Select Badge</option>";
+
+        foreach (RefereeOrm::$badgeLevels as $badgeLevelId => $badgeLevelName) {
+            $selected       = ($badgeLevelId == $badgeId) ? ' selected ' : '';
+            $selectorHTML   .= "<option value='$badgeLevelId' $selected>$badgeLevelName</option>";
+        }
+
+        if ($newRow) {
+            print "
+                <tr>";
+        }
+
+        if ($includeLabel) {
+            print "
+                    <td style='color: #069'><strong>Badge Level:&nbsp</strong></td>";
+        }
+
+        print "
+                    <td><select name='" . View_Base::REFEREE_BADGE . "'>" . $selectorHTML . "</select></td>";
+
+        if ($newRow) {
+            print "
+                </tr>";
+        }
     }
 
     /**
@@ -1084,9 +1248,10 @@ abstract class View_Base {
      * @param string    $description  - Description of the checkbox
      * @param bool      $isChecked    - True if box should be checked
      * @param int       $colspan      - Default to 1
-     * @param bool      $newRow
+     * @param bool      $newRow       - Defaults to true
+     * @param bool      $center       - Defaults to false
      */
-    public function printCheckboxSelector($checkboxName, $description, $isChecked, $colspan = 1, $newRow = true)
+    public function printCheckboxSelector($checkboxName, $description, $isChecked, $colspan = 1, $newRow = true, $center = false)
     {
         $checked = $isChecked ? 'checked' : '';
 
@@ -1095,8 +1260,9 @@ abstract class View_Base {
                 <tr>";
         }
 
+        $centerStyle = $center ? "style='text-align: center'" : "";
         print "
-                    <td colspan='$colspan'>
+                    <td colspan='$colspan' $centerStyle>
                         <input type='checkbox' name='$checkboxName' value='checked' $checked> $description
                     </td>";
 

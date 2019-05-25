@@ -1,4 +1,4 @@
-create table divisionField (
+create table if not exists divisionField (
     id           bigint auto_increment,
     divisionId   bigint not NULL,
     fieldId      bigint not NULL,

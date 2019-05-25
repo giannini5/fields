@@ -33,8 +33,6 @@ redips.init = function () {
 
     // set error handler for AJAX call
     rd.error.ajax = function (xhr) {
-        var el;
-
         // display error message
         window.alert('AJAX error: [' + xhr.status + '] ' + xhr.statusText);
 
@@ -60,6 +58,8 @@ redips.init = function () {
             // redips.drag.enableDrag(false, td);
             return false;
         }
+
+        redips.printMessage("hello world");
 
         // print message only if target and source table cell differ
 		if (rd.td.target !== rd.td.source) {

@@ -1,4 +1,4 @@
-create table field (
+create table if not exists field (
     id                  bigint auto_increment,
     facilityId          bigint not NULL,
     name                varchar(60) not NULL,

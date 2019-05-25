@@ -2,6 +2,7 @@
 
 use \DAG\Framework\Exception\Precondition;
 use \DAG\Domain\Schedule\GameTime;
+use \DAG\Domain\Schedule\Coordinator;
 
 /**
  * Class Controller_Api_ToggleGameTime
@@ -15,7 +16,7 @@ class Controller_Api_ToggleGameTime extends Controller_Api_Base
 
     public function __construct()
     {
-        parent::__construct();
+        parent::__construct(self::SCHEDULE_ADMIN_COOKIE, Coordinator::SCHEDULE_COORDINATOR_USER_TYPE);
 
         if (isset($_SERVER['REQUEST_METHOD']) and $_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->gameTimeId = $this->getPostAttribute(

@@ -1,4 +1,4 @@
-create table family (
+create table if not exists family (
     id           bigint auto_increment,
     seasonId     bigint not NULL,
     phone1       varchar(128) not NULL,

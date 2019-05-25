@@ -1,4 +1,4 @@
-create table flight (
+create table if not exists flight (
     id                        bigint auto_increment,
     scheduleId                bigint not NULL,
     name                      varchar(60) not NULL,

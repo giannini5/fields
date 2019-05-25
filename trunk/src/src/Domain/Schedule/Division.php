@@ -7,6 +7,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
 use DAG\Framework\Orm\NoResultsException;
 use DAG\Orm\Schedule\DivisionOrm;
 use DAG\Framework\Exception\Precondition;
+use DAG\Orm\Schedule\RefereeOrm;
 
 
 /**
@@ -162,7 +163,7 @@ class Division extends Domain
     /**
      * @param Season $season
      *
-     * @return array Divisions (sorted by gender, displayOrder)
+     * @return Division[] - (sorted by gender, displayOrder)
      */
     public static function lookupBySeason($season)
     {
@@ -221,6 +222,7 @@ class Division extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return false;
         }
     }
 
@@ -245,6 +247,101 @@ class Division extends Domain
             default:
                 Precondition::isTrue(false, "Set not supported for property: $propertyName");
         }
+    }
+
+    /**
+     * Populate game day referees for schedules
+     *
+     * @param GameDate  $gameDate
+     * @param string    $refereeType - See Schedule::$refereeTypes
+     */
+    public function populateGameDayReferees($gameDate, $refereeType)
+    {
+        $schedules = Schedule::lookupByDivision($this, true);
+
+        foreach ($schedules as $schedule) {
+            if ($gameDate->day >= $schedule->startDate and $gameDate->day <= $schedule->endDate) {
+                $schedule->populateGameDayReferees($gameDate, $refereeType);
+            }
+        }
+    }
+
+    /**
+     * Clear game day referees for schedules
+     *
+     * @param GameDate  $gameDate
+     */
+    public function clearGameDayReferees($gameDate)
+    {
+        $schedules = Schedule::lookupByDivision($this, true);
+
+        foreach ($schedules as $schedule) {
+            if ($gameDate->day >= $schedule->startDate and $gameDate->day <= $schedule->endDate) {
+                $schedule->clearGameDayReferees($gameDate);
+            }
+        }
+    }
+
+    /**
+     * @param string $badgeId - See RefereeOrm for badge identifiers
+     * @return bool
+     */
+    public function canCenter($badgeId)
+    {
+        switch ($badgeId) {
+            case RefereeOrm::UNKNOWN:
+            case RefereeOrm::REGIONAL:
+                return strpos($this->name, '10') !== false;
+            case RefereeOrm::INTERMEDIATE:
+                return strpos($this->name, '12') !== false;
+            case RefereeOrm::ADVANCED:
+                return strpos($this->name, '14') !== false;
+            case RefereeOrm::NATIONAL:
+                if (strpos($this->name, '16') !== false or
+                    strpos($this->name, '18') !== false or
+                    strpos($this->name, '19') !== false) {
+                    return true;
+                }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $badgeId - See RefereeOrm for badge identifiers
+     * @return bool
+     */
+    public function canAR($badgeId)
+    {
+        switch ($badgeId) {
+            case RefereeOrm::UNKNOWN:
+            case RefereeOrm::REGIONAL:
+                if (strpos($this->name, '10') !== false or
+                    strpos($this->name, '12') !== false) {
+                    return true;
+                }
+                break;
+            case RefereeOrm::INTERMEDIATE:
+                if (strpos($this->name, '12') !== false or
+                    strpos($this->name, '14') !== false) {
+                    return true;
+                }
+                break;
+            case RefereeOrm::ADVANCED:
+                if (strpos($this->name, '14') !== false or
+                    strpos($this->name, '16') !== false) {
+                    return true;
+                }
+                break;
+            case RefereeOrm::NATIONAL:
+                if (strpos($this->name, '16') !== false or
+                    strpos($this->name, '18') !== false or
+                    strpos($this->name, '19') !== false) {
+                    return true;
+                }
+        }
+
+        return false;
     }
 
     /**

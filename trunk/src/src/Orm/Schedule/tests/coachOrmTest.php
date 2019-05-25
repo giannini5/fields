@@ -64,6 +64,13 @@ class CoachOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($coachOrms[0], self::$defaultCoachOrmAttributes);
     }
 
+    public function test_loadByName()
+    {
+        $coachOrms = CoachOrm::loadByName($this->defaultCoachOrm->name);
+        $this->assertEquals(1, count($coachOrms));
+        $this->verifyExpectedAttributes($coachOrms[0], self::$defaultCoachOrmAttributes);
+    }
+
     private function verifyExpectedAttributes($coachOrm, $attributes)
     {
         $this->assertTrue($coachOrm->id > 0);

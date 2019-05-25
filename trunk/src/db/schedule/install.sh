@@ -37,7 +37,6 @@ shopt -s nullglob
 
 if [ $4 = "-c" ]; then
     createDatabase $1 $2 $3 "${database}"
-    installScript $1 $2 $3 $database "./tables/*.sql"
 elif [ $4 = "-u" ]; then
     echo "Skipping table creation"
     useDatabase $1 $2 $3 "${database}"
@@ -52,6 +51,7 @@ fi
 if [ $4 = "-t" ]; then
     echo "Sorry, no tests yet."
 else
+    installScript $1 $2 $3 $database "./tables/*.sql"
     installScript $1 $2 $3  $database "./upgrade/*.sql"
     #installScript $1 $2 $3  $database "./views/*.sql"
     installScript $1 $2 $3  $database "./routines/*.sql"

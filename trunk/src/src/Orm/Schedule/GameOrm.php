@@ -11,8 +11,10 @@ use DAG\Framework\Orm\DuplicateEntryException;
 
 /**
  * @property int    $id
+ * @property int    $scheduleId
  * @property int    $flightId
  * @property int    $poolId
+ * @property int    $gameDateId
  * @property int    $gameTimeId
  * @property int    $homeTeamId
  * @property int    $visitingTeamId
@@ -27,7 +29,8 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $playInHomeGameId
  * @property int    $playInVisitingGameId
  * @property int    $playInByWin
- * @property int    locked
+ * @property int    $locked
+ * @property int    $refereeCrewId
  */
 class GameOrm extends PersistenceModel
 {
@@ -40,8 +43,10 @@ class GameOrm extends PersistenceModel
     const TITLE_CHAMPIONSHIP                = 'Championship';
 
     const FIELD_ID                          = 'id';
+    const FIELD_SCHEDULE_ID                 = 'scheduleId';
     const FIELD_FLIGHT_ID                   = 'flightId';
     const FIELD_POOL_ID                     = 'poolId';
+    const FIELD_GAME_DATE_ID                = 'gameDateId';
     const FIELD_GAME_TIME_ID                = 'gameTimeId';
     const FIELD_HOME_TEAM_ID                = 'homeTeamId';
     const FIELD_VISITING_TEAM_ID            = 'visitingTeamId';
@@ -57,6 +62,7 @@ class GameOrm extends PersistenceModel
     const FIELD_PLAY_IN_VISITING_GAME_ID    = 'playInVisitingGameId';
     const FIELD_PLAY_IN_BY_WIN              = 'playInByWin';
     const FIELD_LOCKED                      = 'locked';
+    const FIELD_REFEREE_CREW_ID             = 'refereeCrewId';
 
     public static $titles = [
         self::TITLE_PLAYOFF,
@@ -78,8 +84,10 @@ class GameOrm extends PersistenceModel
 
     protected static $fields = [
         self::FIELD_ID                          => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_SCHEDULE_ID                 => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_FLIGHT_ID                   => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_POOL_ID                     => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::FIELD_GAME_DATE_ID                => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_GAME_TIME_ID                => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_HOME_TEAM_ID                => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_VISITING_TEAM_ID            => [FV::INT,    [FV::NO_CONSTRAINTS], null],
@@ -95,6 +103,7 @@ class GameOrm extends PersistenceModel
         self::FIELD_PLAY_IN_VISITING_GAME_ID    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_PLAY_IN_BY_WIN              => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_LOCKED                      => [FV::INT,    [FV::NO_CONSTRAINTS]],
+        self::FIELD_REFEREE_CREW_ID             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
     ];
 
     protected static $config = [
@@ -109,7 +118,9 @@ class GameOrm extends PersistenceModel
      * Create a GameOrm
      *
      * @param int       $poolId
+     * @param int       $scheduleId
      * @param int       $flightId
+     * @param int       $gameDateId
      * @param int       $gameTimeId
      * @param int       $homeTeamId
      * @param int       $visitingTeamId
@@ -123,8 +134,10 @@ class GameOrm extends PersistenceModel
      * @throws DuplicateEntryException
      */
     public static function create(
+        $scheduleId,
         $flightId,
         $poolId,
+        $gameDateId,
         $gameTimeId,
         $homeTeamId,
         $visitingTeamId,
@@ -142,8 +155,10 @@ class GameOrm extends PersistenceModel
         $result = self::getPersistenceDriver()->create(
             array_filter(
                 [
+                    self::FIELD_SCHEDULE_ID                 => $scheduleId,
                     self::FIELD_FLIGHT_ID                   => $flightId,
                     self::FIELD_POOL_ID                     => $poolId,
+                    self::FIELD_GAME_DATE_ID                => $gameDateId,
                     self::FIELD_GAME_TIME_ID                => $gameTimeId,
                     self::FIELD_HOME_TEAM_ID                => $homeTeamId,
                     self::FIELD_VISITING_TEAM_ID            => $visitingTeamId,
@@ -219,6 +234,51 @@ class GameOrm extends PersistenceModel
     }
 
     /**
+     * Get GameOrms for a flightId
+     *
+     * @param int $scheduleId
+     *
+     * @return GameOrm[]
+     */
+    public static function loadByScheduleId($scheduleId)
+    {
+        $results = self::getPersistenceDriver()->getMany(
+            [
+                self::FIELD_SCHEDULE_ID => $scheduleId
+            ]);
+
+        $gameOrms = [];
+        foreach ($results as $result) {
+            $gameOrms[] = new static($result);
+        }
+
+        return $gameOrms;
+    }
+
+    /**
+     * Get GameOrms for a flightId
+     *
+     * @param int $scheduleId
+     *
+     * @return GameOrm[]
+     */
+    public static function loadByScheduleIdGameDateId($scheduleId, $gameDateId)
+    {
+        $results = self::getPersistenceDriver()->getMany(
+            [
+                self::FIELD_SCHEDULE_ID     => $scheduleId,
+                self::FIELD_GAME_DATE_ID    => $gameDateId,
+            ]);
+
+        $gameOrms = [];
+        foreach ($results as $result) {
+            $gameOrms[] = new static($result);
+        }
+
+        return $gameOrms;
+    }
+
+    /**
      * Get GameOrms for a flightId and title
      *
      * @param int       $flightId
@@ -276,6 +336,30 @@ class GameOrm extends PersistenceModel
         $results = self::getPersistenceDriver()->getManyFromCustomMySqlQuery(
             [],
             "where " . self::FIELD_HOME_TEAM_ID . " = $teamId or " . self::FIELD_VISITING_TEAM_ID . " = $teamId");
+
+        $gameOrms = [];
+        foreach ($results as $result) {
+            $gameOrms[] = new static($result);
+        }
+
+        return $gameOrms;
+    }
+
+    /**
+     * Load a GameOrms by gameDateId and teamId
+     *
+     * @param int $gameDateId
+     * @param int $teamId
+     *
+     * @return array []   GameOrms
+     */
+    public static function loadByGameDateIdTeamId($gameDateId, $teamId)
+    {
+        $results = self::getPersistenceDriver()->getManyFromCustomMySqlQuery(
+            [],
+            "where 
+                (" . self::FIELD_GAME_DATE_ID . " = $gameDateId and " . self::FIELD_HOME_TEAM_ID . " = $teamId) 
+                or (" . self::FIELD_GAME_DATE_ID . " = $gameDateId and " . self::FIELD_VISITING_TEAM_ID . " = $teamId)");
 
         $gameOrms = [];
         foreach ($results as $result) {

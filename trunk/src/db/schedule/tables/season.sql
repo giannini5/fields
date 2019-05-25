@@ -1,4 +1,4 @@
-CREATE TABLE `season` (
+CREATE TABLE if not exists `season` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `leagueId` bigint(20) NOT NULL,
   `name` varchar(60) NOT NULL,

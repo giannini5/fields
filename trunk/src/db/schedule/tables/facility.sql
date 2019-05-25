@@ -1,4 +1,4 @@
-create table facility (
+create table if not exists facility (
     id           bigint auto_increment,
     seasonId     bigint not NULL,
     name         varchar(60) not NULL,

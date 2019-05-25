@@ -310,7 +310,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
         ksort($gameTimesByDateByFieldByTime);
 \DAG\Framework\Utils\TimeUtils::time_elapsed("GameTimesByDateByFieldByTime population/sort");
 
-        $redipsDarkCell = "class='redips-mark  dark'";
+        $redipsDarkCell = "class='redips-mark dark'";
         $divisionScheduleName = $schedule->division->nameWithGender . ": " . $schedule->name;
         print "
             <div id='message' style='vertical-align: middle; font-size: large; color: yellow'><strong>$divisionScheduleName</strong></div>
@@ -421,7 +421,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
         if (!empty($label)) {
             print "
-                    <td nowrap><font color='" . View_Base::AQUA . "'><b>$label:&nbsp</b></font></td>";
+                    <td nowrap style='<color: " . View_Base::AQUA . "'><strong>$label:&nbsp</strong></td>";
         }
 
         // Print medal round data
@@ -485,7 +485,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
         if (!empty($label)) {
             print "
-                    <strong style='font-color: " . View_Base::AQUA . "'>$label:&nbsp</strong>";
+                    <strong style='color: " . View_Base::AQUA . "'>$label:&nbsp</strong>";
         }
 
         // Print medal round data
@@ -1152,6 +1152,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
 
                     foreach ($defaultGameTimes as $defaultGameTime) {
                         $game                   = null;
+                        /** @var GameTime */
                         $gameTime               = null;
                         $cellId                 = '';
                         $actualStartTimeHTML    = '';

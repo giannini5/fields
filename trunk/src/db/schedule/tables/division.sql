@@ -1,4 +1,4 @@
-create table division (
+create table if not exists division (
     id                      bigint auto_increment,
     seasonId                bigint not NULL,
     name                    varchar(60) not NULL,

@@ -1,4 +1,4 @@
-create table playerGameStats (
+create table if not exists playerGameStats (
   gameId                  bigint not NULL,
   teamId                  bigint not NULL,
   playerId                bigint default NULL,

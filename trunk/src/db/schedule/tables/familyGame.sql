@@ -1,4 +1,4 @@
-create table familyGame (
+create table if not exists familyGame (
     id        bigint auto_increment,
     familyId  bigint not NULL,
     gameId    bigint not NULL,

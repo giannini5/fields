@@ -152,7 +152,7 @@ class Facility extends Domain
     /**
      * @param Season $season
      *
-     * @return array Facilities
+     * @return Facility[]
      */
     public static function lookupBySeason($season)
     {
@@ -192,6 +192,7 @@ class Facility extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return 0;
         }
     }
 

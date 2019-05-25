@@ -4,6 +4,7 @@ namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
 use DAG\Orm\Schedule\GameOrm;
+use DAG\Orm\Schedule\GameRefereeOrm;
 use DAG\Orm\Schedule\GameTimeOrm;
 use DAG\Orm\Schedule\ScheduleOrm;
 use DAG\Framework\Exception\Precondition;
@@ -157,13 +158,13 @@ class Schedule extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return false;
         }
     }
 
     /**
      * @param $propertyName
      * @param $value
-     * @return int|string
      */
     public function __set($propertyName, $value)
     {
@@ -209,7 +210,6 @@ class Schedule extends Domain
 
             default:
                 Precondition::isTrue(false, "Set not allowed for property: $propertyName");
-
         }
     }
 
@@ -644,6 +644,8 @@ class Schedule extends Domain
         $gender                 = $this->division->gender;
         $gameTimesByDayAndTime  = [];
         $timeBetweenGames       = 60 * 60 * 3; // three hours in seconds
+        $lastGameTime           = null;
+
         foreach ($divisionFields as $divisionField) {
             $fields[] = $divisionField->field;
         }
@@ -681,7 +683,11 @@ class Schedule extends Domain
                 // At most two games on Saturday
                 // Remaining games on Sunday
                 // Medal round on Sunday
-                $minStartTime = '05:00:00';
+                $minStartTime       = '05:00:00';
+                $teamIdsWithGame    = [];
+                /** @var GameTime $lastGameTime */
+                $gameTimesByTime    = [];
+
                 for ($gameNumber = 1; $gameNumber < $maxIterations; $gameNumber++) {
                     Assertion::isTrue($gameDateIndex < count($gameDates), "Ran out of games dates - need to add more dates or write code to allow more than two games per day");
 
@@ -703,11 +709,13 @@ class Schedule extends Domain
                             $gameDateIndex          += 1;
                             $currentGamesPerDay     = 0;
                             $minStartTime           = '05:00:00';
+                            /** @var GameTime $firstGameTime */
                             $firstGameTime          = null;
 
                             $gameDate           = $gameDates[$gameDateIndex];
                             $gameTimesByTime    = $gameTimesByDayAndTime[$gameDate->day];
                             ksort($gameTimesByTime);
+                            /** @var GameTime $lastGameTime */
                             $lastGameTime       = null;
                             $teamIdsWithGame    = [];
                         }
@@ -805,6 +813,7 @@ class Schedule extends Domain
             // Semi-final game if any
             $semiFinalGames = [];
             if ($flight->includeSemiFinalGames) {
+                $gameTime = null;
                 for ($i = 1; $i <= 2; $i++) {
                     $gameTime = $this->findGameTime($gameTimesByTime, $minStartTime, $gender);
                     Assertion::isTrue(isset($gameTime), 'Unable to find game time for Semi-Final Game $i');
@@ -1496,6 +1505,189 @@ class Schedule extends Domain
         Assertion::isTrue($numberOfTeams == $computedTeamCount, "Error: computed teams in pools only adds up to $computedTeamCount and should add up to $numberOfTeams");
 
         return $flightData;
+    }
+
+    /**
+     * Populate game day referees
+     *
+     * @param GameDate  $gameDate
+     * @param string    $refereeType - All, Team or Non-Team
+     */
+    public function populateGameDayReferees($gameDate, $refereeType = Referee::ALL_REFEREES)
+    {
+        // Get games ordered by time
+        $games = Game::lookupByScheduleDay($this, $gameDate, true);
+
+        switch ($refereeType) {
+            case Referee::TEAM_REFEREE:
+                $this->assignTeamRefereesToGames($games, $gameDate);
+                break;
+
+            case Referee::NON_TEAM_REFEREE:
+            case Referee::ALL_REFEREES:
+                $this->assignRefereesToGames($refereeType, $games, $gameDate);
+                break;
+
+            default:
+                Precondition::isTrue(false, "Unrecognized refereeType: $refereeType");
+        }
+    }
+
+    /**
+     * Clear game day referees
+     *
+     * @param GameDate  $gameDate
+     */
+    public function clearGameDayReferees($gameDate)
+    {
+        $games = Game::lookupByScheduleDay($this, $gameDate);
+        foreach ($games as $game) {
+            $gameReferees = GameReferee::lookupByGame($game);
+            foreach ($gameReferees as $gameReferee) {
+                $gameReferee->delete();
+            }
+            $game->refereeCrew = null;
+        }
+
+    }
+
+    /**
+     * @param Game[]    $games       - Games that need referee assignments
+     * @param GameDate  $gameDate    - Date of games to be assigned
+     */
+    private function assignTeamRefereesToGames($games, $gameDate)
+    {
+        $teams = Team::lookupByDivision($this->division);
+
+        // TODO: For each team, get team referees and
+        // TODO:     Get games for teams ordered by game time
+        // TODO:     Assign team referees to game before team's game (or right after if coach or first game of day) just one game
+        foreach ($teams as $team) {
+            $teamReferees = TeamReferee::lookupByTeam($team);
+            $gamesForTeam = Game::lookupByTeamAndDay($team, $gameDate);
+
+            foreach ($teamReferees as $teamReferee) {
+                $this->assignRefereeToAGame($teamReferee->referee, $games, $gameDate, $gamesForTeam);
+            }
+        }
+    }
+
+    /**
+     * @param string    $refereeType - Type of Referee (ALL, TEAM, NON-TEAM)
+     * @param Game[]    $games       - Games that need referee assignments
+     * @param GameDate  $gameDate    - Date of games to be assigned
+     */
+    private function assignRefereesToGames($refereeType, $games, $gameDate)
+    {
+        $referees = Referee::lookupByDivisionAndType($this->division, $refereeType);
+
+        foreach ($referees as $referee) {
+            $this->assignRefereeToAGame($referee, $games, $gameDate, []);
+        }
+    }
+
+    /**
+     * Find first game that qualifies (if any), assign referee and return
+     *
+     * @param Referee  $referee      - Referee
+     * @param Game[]   $games        - Games that need referee assignments
+     * @param GameDate $gameDate     - Date of games to be assigned
+     * @param Game[]   $gamesForTeam - Games associated with referee's team
+     */
+    private function assignRefereeToAGame($referee, $games, $gameDate, $gamesForTeam)
+    {
+        // Return if referee cannot ref division
+        /** @var DivisionReferee $divisionReferee */
+        $divisionReferee = null;
+        if (!DivisionReferee::findByDivisionAndReferee($this->division, $referee, $divisionReferee)) {
+            return;
+        }
+
+        // TODO Return if referee cannot ref that day
+
+        // Return if referee cannot ref any more games
+        $gameReferees = GameReferee::lookupByReferee($referee);
+        if (count($gameReferees) >= $referee->maxGamesPerDay) {
+            return;
+        }
+
+        foreach ($games as $game) {
+            // Add local variables because these are expensive to compute
+            $isAssistantReferee1Assigned    = $game->isAssistantReferee1Assigned;
+            $isAssistantReferee2Assigned    = $game->isAssistantReferee2Assigned;
+            $isCenterRefereeAssigned        = $game->isCenterRefereeAssigned;
+
+            // Skip games that do not need any referees
+            if ($isAssistantReferee1Assigned and $isAssistantReferee2Assigned and $isCenterRefereeAssigned) {
+                continue;
+            }
+
+            // Skip game if referee not qualified for open assignment for game
+            if (($isCenterRefereeAssigned or !$divisionReferee->isCenter) and
+                (($isAssistantReferee1Assigned and $isAssistantReferee2Assigned) or !$divisionReferee->isAssistant)) {
+                continue;
+            }
+
+            // Skip game if referee already assigned a game "around" that time
+            if (GameReferee::isAlreadyAssignedGame($game, $gameReferees)) {
+                continue;
+            }
+
+            // Skip game if referee's team already playing a game "around" that time
+            if ($game->anyOverlap($gamesForTeam, $overlappingGame, 0, 0, true, true)) {
+                continue;
+            }
+
+            // Skip game if referee is also a coach and has a game "around" that time
+            $games = $this->getGamesAsCoach($referee, $gameDate);
+            if ($game->anyOverlap($games, $overlappingGame, 0, 0, true, true)) {
+                continue;
+            }
+
+            // TODO Skip game if referee is with a team in the same pool
+
+            // TODO Skip game if referee already has games and this is not a back-to-back game
+
+            // Assign referee to game and return
+            $this->assignRefereeToGame($divisionReferee, $game, !$isCenterRefereeAssigned, !$isAssistantReferee1Assigned, !$isAssistantReferee2Assigned);
+            return;
+        }
+    }
+
+    /**
+     * @param Referee   $referee
+     * @param GameDate  $gameDate
+     * @return Game[]   Games referee has as a coach
+     */
+    private function getGamesAsCoach($referee, $gameDate)
+    {
+        $games   = [];
+        $coaches = Coach::lookupByReferee($referee);
+
+        foreach ($coaches as $coach) {
+            $coachGames = Game::lookupByTeamAndDay($coach->team, $gameDate);
+            $games = array_merge($games, $coachGames);
+        }
+
+        return $games;
+    }
+
+    /**
+     * @param DivisionReferee   $divisionReferee
+     * @param Game              $game
+     * @param bool              $isCenterNeeded
+     * @param bool              $isAssistant1Needed
+     * @param bool              $isAssistant2Needed
+     */
+    private function assignRefereeToGame($divisionReferee, $game, $isCenterNeeded, $isAssistant1Needed, $isAssistant2Needed)
+    {
+        if ($isCenterNeeded and $divisionReferee->isCenter) {
+            GameReferee::create($game, $divisionReferee->referee, GameRefereeOrm::CENTER_ROLE);
+        } elseif ($isAssistant1Needed and $divisionReferee->isAssistant) {
+            GameReferee::create($game, $divisionReferee->referee, GameRefereeOrm::ASSISTANT_ROLE_1);
+        } elseif ($isAssistant2Needed and $divisionReferee->isAssistant) {
+            GameReferee::create($game, $divisionReferee->referee, GameRefereeOrm::ASSISTANT_ROLE_2);
+        }
     }
 
     /**

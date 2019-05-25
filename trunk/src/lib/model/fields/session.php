@@ -5,6 +5,12 @@
 
 /**
  * Model_Fields_Session class
+ *
+ * @property int    $id
+ * @property string $creationDate
+ * @property int    $userId
+ * @property string $userType
+ * @property int    $teamId
  */
 class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterface {
 
@@ -18,11 +24,11 @@ class Model_Fields_Session extends Model_Fields_Base implements SaveModelInterfa
     /**
      * @brief: Constructor
      *
-     * @param $id - unique identifier
-     * @param $creationDate - Date the session was created
-     * @param int $userId - ID of user
-     * @param int $userType - Type of the user
-     * @param int $teamId - Team identifier
+     * @param int       $id - unique identifier
+     * @param string    $creationDate - Date the session was created
+     * @param int       $userId - ID of user
+     * @param string    $userType - Type of the user
+     * @param int       $teamId - Team identifier
      */
     public function __construct($id = NULL, $creationDate = NULL, $userId = NULL, $userType = NULL, $teamId = NULL) {
         parent::__construct('Model_Fields_SessionDB', Model_Base::AUTO_DECLARE_CLASS_VARIABLE_ON);

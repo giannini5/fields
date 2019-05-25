@@ -1,4 +1,4 @@
-create table pool (
+create table if not exists pool (
     id                    bigint auto_increment,
     flightId              bigint not NULL,
     scheduleId            bigint not NULL,

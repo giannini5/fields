@@ -1,4 +1,4 @@
-create table scheduleCoordinator (
+create table if not exists scheduleCoordinator (
     id          bigint auto_increment,
     leagueId    bigint not NULL,
     email       varchar(128) not NULL,

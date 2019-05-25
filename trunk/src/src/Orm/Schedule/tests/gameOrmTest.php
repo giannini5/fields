@@ -37,6 +37,20 @@ class GameOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($gameOrm, self::$defaultGameOrmAttributes);
     }
 
+    public function test_loadByScheduleId()
+    {
+        $gameOrms = GameOrm::loadByScheduleId($this->defaultFlightOrm->scheduleId);
+        $this->assertEquals(1, count($gameOrms));
+        $this->verifyExpectedAttributes($gameOrms[0], self::$defaultGameOrmAttributes);
+    }
+
+    public function test_loadByScheduleIdGameDateId()
+    {
+        $gameOrms = GameOrm::loadByScheduleIdGameDateId($this->defaultScheduleOrm->id, $this->defaultGameDateOrm->id);
+        $this->assertEquals(1, count($gameOrms));
+        $this->verifyExpectedAttributes($gameOrms[0], self::$defaultGameOrmAttributes);
+    }
+
     public function test_loadByFlightId()
     {
         $gameOrms = GameOrm::loadByFlightId($this->defaultFlightOrm->id);
@@ -69,6 +83,17 @@ class GameOrmTest extends ORM_TestHelper
         $this->verifyExpectedAttributes($gameOrms[0], self::$defaultGameOrmAttributes);
     }
 
+    public function test_loadByGameDateIdTeamId()
+    {
+        $gameOrms = GameOrm::loadByGameDateIdTeamId($this->defaultGameDateOrm->id, $this->defaultTeamOrm->id);
+        $this->assertEquals(1, count($gameOrms));
+        $this->verifyExpectedAttributes($gameOrms[0], self::$defaultGameOrmAttributes);
+
+        $gameOrms = GameOrm::loadByGameDateIdTeamId($this->defaultGameDateOrm->id, $this->defaultVisitingTeamOrm->id);
+        $this->assertEquals(1, count($gameOrms));
+        $this->verifyExpectedAttributes($gameOrms[0], self::$defaultGameOrmAttributes);
+    }
+
     public function test_findByPlayInGameIdFalse()
     {
         $gameOrm    = null;
@@ -90,8 +115,10 @@ class GameOrmTest extends ORM_TestHelper
         $this->defaultGameOrm->delete();
 
         $gameOrm = GameOrm::create(
+            $this->defaultFlightOrm->scheduleId,
             $this->defaultFlightOrm->id,
             $this->defaultPoolOrm->id,
+            $this->defaultGameTimeOrm->gameDateId,
             $this->defaultGameTimeOrm->id,
             $this->defaultTeamOrm->id,
             $this->defaultVisitingTeamOrm->id,
@@ -124,8 +151,10 @@ class GameOrmTest extends ORM_TestHelper
         $this->defaultGameOrm->delete();
 
         $gameOrm = GameOrm::create(
+            $this->defaultFlightOrm->scheduleId,
             $this->defaultFlightOrm->id,
             $this->defaultPoolOrm->id,
+            $this->defaultGameTimeOrm->gameDateId,
             $this->defaultGameTimeOrm->id,
             $this->defaultTeamOrm->id,
             $this->defaultVisitingTeamOrm->id,
@@ -136,6 +165,7 @@ class GameOrmTest extends ORM_TestHelper
             $playInByWin
         );
 
+        /** @var GameOrm $foundGameOrm */
         $foundGameOrm   = null;
         $result         = GameOrm::findByPlayInGameId($homeGameId, $playInByWin, $foundGameOrm);
 
@@ -146,11 +176,26 @@ class GameOrmTest extends ORM_TestHelper
         $this->assertTrue($foundGameOrm->playInVisitingGameId == $visitingGameId, "Invalid visiting gameId");
     }
 
+    public function test_refereeCrewId()
+    {
+        $gameOrm = GameOrm::loadById($this->defaultGameOrm->id);
+        $this->assertNull($gameOrm->refereeCrewId);
+
+        $gameOrm->refereeCrewId = $this->defaultRefereeCrewOrm->id;
+        $gameOrm->save();
+        $this->assertEquals($this->defaultRefereeCrewOrm->id, $gameOrm->refereeCrewId);
+
+        $gameOrm2 = GameOrm::loadById($this->defaultGameOrm->id);
+        $this->assertEquals($this->defaultRefereeCrewOrm->id, $gameOrm2->refereeCrewId);
+    }
+
     private function verifyExpectedAttributes($gameOrm, $gameOrmAttributes)
     {
         $this->assertTrue($gameOrm->id > 0);
+        $this->assertEquals($this->defaultFlightOrm->scheduleId,                $gameOrm->scheduleId);
         $this->assertEquals($this->defaultFlightOrm->id,                        $gameOrm->flightId);
         $this->assertEquals($this->defaultPoolOrm->id,                          $gameOrm->poolId);
+        $this->assertEquals($this->defaultGameDateOrm->id,                      $gameOrm->gameDateId);
         $this->assertEquals($this->defaultGameTimeOrm->id,                      $gameOrm->gameTimeId);
         $this->assertEquals($this->defaultTeamOrm->id,                          $gameOrm->homeTeamId);
         $this->assertEquals($this->defaultVisitingTeamOrm->id,                  $gameOrm->visitingTeamId);

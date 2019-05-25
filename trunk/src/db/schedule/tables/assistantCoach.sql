@@ -1,4 +1,4 @@
-CREATE TABLE `assistantCoach` (
+CREATE TABLE if not exists `assistantCoach` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `teamId` bigint(20) NOT NULL,
   `familyId` bigint(20) DEFAULT NULL,

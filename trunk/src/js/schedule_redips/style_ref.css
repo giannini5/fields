@@ -1,0 +1,119 @@
+body{
+    font-family: arial;
+    margin: 0px; /* for IE6 / IE7 */
+}
+
+.boxed {
+    margin-right: 		25px;
+    margin-left:  		25px;
+    border-style: 		solid;
+    border-width:		6px;
+    border-color: 		darkblue;
+    background-color: 	lightblue;
+    min-width: 			1500px;
+}
+
+/* drag objects (DIV inside table cells) */
+.redips-drag {
+    cursor: move;
+    margin: auto;
+    z-index: 10;
+    color: #0f11af;
+    text-align: left;
+    background-color: lightgreen;
+    font-size: 10pt; /* needed for cloned object */
+    /* opacity: 0.7; */
+    filter: alpha(opacity=70);
+    /* without width, IE6/7 will not apply filter/opacity to the element ?! */
+    /* IE needs element layout */
+    width: 90px;
+    height: 20px;
+    line-height: 20px;
+    /* border */
+    border: 1px #555;
+    /* round corners */
+    border-radius: 8px;
+    -moz-border-radius: 8px; /* FF */
+}
+
+/* tables */
+div#redips-drag table {
+    border-collapse: separate;
+    background-color: white;
+}
+
+/* table cells */
+div#redips-drag td {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    height:       32px;
+    font-size:    10pt;
+    padding: 	  2px;
+}
+
+/* overwrite for collapsible tables */
+div#redips-drag #viewTable table {
+    background-color: 	lightblue;
+    vertical-align: 	top;
+}
+/* set all borders to 0px */
+div#redips-drag #viewTable td {
+    border-style: 		none;
+    text-align:   		left;
+    background-color: 	lightblue;
+    vertical-align:		top;
+}
+
+/* overwrite for button tables */
+div#redips-drag #buttonTable table {
+    background-color: lightblue;
+}
+/* set all borders to 0px */
+div#redips-drag #buttonTable td {
+    border-style: 		none;
+    text-align:   		center;
+    background-color: 	lightblue;
+}
+
+/* message line */
+#message {
+    color: white;
+    /* background-color: green; */
+    font-size: large;
+    text-align: center;
+    margin-top: 0px;
+}
+
+
+/* dark cells (first column and table header) */
+.dark{
+    color: #444;
+}
+
+/* last row and last column without border */
+.noborder {
+    border-width: 0px;
+}
+
+/* blank cells (upper left corner) */
+.blank {
+    background-color: white;
+}
+
+/* trash cell */
+.redips-trash {
+    color: white;
+    background-color: CornflowerBlue;
+    text-align: center;
+    font-size: 12pt;
+}
+
+table#frame-table {
+    border: 0 solid #CCC;
+    border-collapse: collapse;
+}
+
+td#frame-table {
+    border: none;
+}

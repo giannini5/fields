@@ -91,7 +91,7 @@ class Coach extends Domain
     }
 
     /**
-     * @param Team      $team
+     * @param Team $team
      *
      * @return Coach
      */
@@ -119,7 +119,7 @@ class Coach extends Domain
     }
 
     /**
-     * @param Family      $family
+     * @param Family $family
      *
      * @return Coach[]
      */
@@ -130,6 +130,23 @@ class Coach extends Domain
         $coachOrms = CoachOrm::loadByFamilyId($family->id);
         foreach ($coachOrms as $coachOrm) {
             $coaches[] = new static($coachOrm, null, $family);
+        }
+
+        return $coaches;
+    }
+
+    /**
+     * @param Referee $referee
+     *
+     * @return Coach[]
+     */
+    public static function lookupByReferee($referee)
+    {
+        $coaches = [];
+
+        $coachOrms = CoachOrm::loadByName($referee->name);
+        foreach ($coachOrms as $coachOrm) {
+            $coaches[] = new static($coachOrm);
         }
 
         return $coaches;
@@ -192,6 +209,7 @@ class Coach extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return false;
         }
     }
 
@@ -256,14 +274,18 @@ class Coach extends Domain
     {
         switch ($propertyName) {
             case "family":
+            case "team":
+                return isset($this->{$propertyName});
+
             case "name":
             case "email":
             case "phone1":
             case "phone2":
-                return isset($this->family);
+                return isset($this->coachOrm->{$propertyName});
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return false;
         }
     }
 

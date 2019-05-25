@@ -11,7 +11,7 @@ use \DAG\Domain\Schedule\Family;
 /**
  * Class Controller_AdminSchedules_Team
  *
- * @brief Select a field to administer or create a new team
+ * @brief Select a team to administer or create a new team
  */
 class Controller_AdminSchedules_Team extends Controller_AdminSchedules_Base {
 

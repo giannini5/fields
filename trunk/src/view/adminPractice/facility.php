@@ -7,7 +7,7 @@ class View_AdminPractice_Facility extends View_AdminPractice_Base {
     /**
      * @brief Construct the View
      *
-     * @param $controller - Controller that contains data used when rendering this view.
+     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller) {
         parent::__construct(self::ADMIN_FACILITY_PAGE, $controller);
@@ -47,25 +47,16 @@ class View_AdminPractice_Facility extends View_AdminPractice_Base {
             <form method='post' action='" . self::ADMIN_FACILITY_PAGE . $this->m_urlParams . "'>
             <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <th align='center'colspan='12'>Update Existing Facilities</th>
+                    <th align='center' colspan='8'>Update Existing Facilities</th>
                 </tr>
                 <tr>
-                    <th rowspan='2'>Name</th>
-                    <th colspan='4'>Address</th>
-                    <th colspan='3'>Contact</th>
-                    <th rowspan='2'>Image</th>
-                    <th rowspan='2' title='AYSO sign-up approves request; disable if coach needs facilities approval'>Pre-Approved</th>
-                    <th rowspan='2'>Locations</th>
-                    <th rowspan='2'>Enabled</th>
-                </tr>
-                <tr>
-                    <th>Address</th>
-                    <th>City</th>
-                    <th>State</th>
-                    <th>Zip</th>
                     <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Contact</th>
+                    <th>Image</th>
+                    <th title='AYSO sign-up approves request; disable if coach needs facilities approval'>Pre-Approved</th>
+                    <th>Locations</th>
+                    <th>Enabled</th>
                 </tr>";
 
         foreach ($facilities as $facility) {
@@ -75,7 +66,7 @@ class View_AdminPractice_Facility extends View_AdminPractice_Base {
         // Print Submit button and end form
         print "
                 <tr>
-                    <td colspan='12' align='left'>
+                    <td colspan='7' align='left'>
                         <input style='background-color: lightgreen' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::UPDATE . "'>
                         <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                     </td>
@@ -110,7 +101,7 @@ class View_AdminPractice_Facility extends View_AdminPractice_Base {
         print "
             <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <th align='center'colspan='12'>Create New Facility</th>
+                    <th align='center' colspan='12'>Create New Facility</th>
                 </tr>
                 <tr>
                     <th rowspan='2'>Name</th>
@@ -183,40 +174,53 @@ class View_AdminPractice_Facility extends View_AdminPractice_Base {
                 <tr>";
 
         $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_NAME . "]";
-        $this->displayInput('', 'text', $name, 'Facility Name', '', $facility->name, null, 1, false, 135, false);
+        $this->displayInput('', 'text', $name, 'Facility Name', '', $facility->name, null, 1, false, 145, false, false, 'left', 4);
 
         $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_ADDRESS1 . "]";
-        $this->displayInput('', 'text', $name, 'Facility Address1', '', $facility->address1, null, 1, false, 135, false);
-
-        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_CITY . "]";
-        $this->displayInput('', 'text', $name, 'Facility City', '', $facility->city, null, 1, false, 90, false);
-
-        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_STATE . "]";
-        $this->displayInput('', 'text', $name, 'Facility State', '', $facility->state, null, 1, false, 40, false);
-
-        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_POSTAL_CODE . "]";
-        $this->displayInput('', 'text', $name, 'Facility Zip Code', '', $facility->postalCode, null, 1, false, 40, false);
+        $this->displayInput('', 'text', $name, 'Facility Address1', '', $facility->address1, null, 1, false, 145, false);
 
         $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_CONTACT_NAME . "]";
         $this->displayInput('', 'text', $name, 'Facility Contact Name', '', $facility->contactName, null, 1, false, 135, false);
 
+        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_IMAGE . "]";
+        $this->displayInput('', 'text', $name, 'Facility Image', '', $facility->image, null, 1, false, 145, false, false, 'left', 4);
+
+        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_PRE_APPROVED . "]";
+        $this->displayRadioSelector('', $name, array(0=>'No', 1=>'Yes'), $facility->preApproved ? 'Yes' : 'No', null, 1, false, 4);
+
+        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . View_Base::LOCATION_IDS . "]";
+        $this->displayMultiSelector('', $name, $currentLocations, $locationData, 8, null, 1, false, 4);
+
+        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_ENABLED . "]";
+        $this->displayRadioSelector('', $name, array(0=>'No', 1=>'Yes'), $facility->enabled ? 'Yes' : 'No', null, 1, false, 4);
+
+        print "
+                </tr>
+                <tr>";
+        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_CITY . "]";
+        $this->displayInput('', 'text', $name, 'Facility City', '', $facility->city, null, 1, false, 90, false);
+
         $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_CONTACT_EMAIL . "]";
         $this->displayInput('', 'text', $name, 'Facility Contact Email', '', $facility->contactEmail, null, 1, false, 135, false);
 
+        print "
+                </tr>
+                <tr>";
+
+        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_STATE . "]";
+        $this->displayInput('', 'text', $name, 'Facility State', '', $facility->state, null, 1, false, 40, false);
+
         $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_CONTACT_PHONE . "]";
-        $this->displayInput('', 'text', $name, 'Facility Contact Phone', '', $facility->contactPhone, null, 1, false, 135, false);
+        $this->displayInput('', 'text', $name, 'Facility Contact Phone', '', $facility->contactPhone, null, 1, false, 135, false, false);
 
-        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_IMAGE . "]";
-        $this->displayInput('', 'text', $name, 'Facility Image', '', $facility->image, null, 1, false, 135, false);
+        print "
+                </tr>
+                <tr>";
 
-        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_PRE_APPROVED . "]";
-        $this->displayRadioSelector('', $name, array(0=>'No', 1=>'Yes'), $facility->preApproved ? 'Yes' : 'No', null, 1, false);
+        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_POSTAL_CODE . "]";
+        $this->displayInput('', 'text', $name, 'Facility Zip Code', '', $facility->postalCode, null, 1, false, 40, false);
 
-        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . View_Base::LOCATION_IDS . "]";
-        $this->displayMultiSelector('', $name, $currentLocations, $locationData, 8, null, 1, false);
-
-        $name = View_Base::FACILITY_UPDATE_DATA . "[$facility->id][" . Model_Fields_FacilityDB::DB_COLUMN_ENABLED . "]";
-        $this->displayRadioSelector('', $name, array(0=>'No', 1=>'Yes'), $facility->enabled ? 'Yes' : 'No', null, 1, false);
+        print "<td></td>";
 
         print "
                 </tr>";

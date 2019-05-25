@@ -153,6 +153,26 @@ class Web_Index
                 $this->m_controller = new Controller_AdminReferee_Home();
                 break;
 
+            case View_Base::REFEREE_TEAM_PAGE:
+                $this->m_controller = new Controller_AdminReferee_Team();
+                break;
+
+            case View_Base::REFEREE_REFEREES_PAGE:
+                $this->m_controller = new Controller_AdminReferee_Referee();
+                break;
+
+            case View_Base::REFEREE_PREFERENCES_PAGE:
+                $this->m_controller = new Controller_AdminReferee_Preferences();
+                break;
+
+            case View_Base::REFEREE_SCHEDULE_PAGE:
+                $this->m_controller = new Controller_AdminReferee_Schedule();
+                break;
+
+            case View_Base::REFEREE_PREVIEW_PAGE:
+                $this->m_controller = new Controller_AdminReferee_Preview();
+                break;
+
             case View_Base::SCORING_ENTER_SCORES_PAGE:
                 $this->m_controller = new Controller_AdminScoring_Home();
                 break;
@@ -207,6 +227,18 @@ class Web_Index
 
             case View_Base::API_TOGGLE_GAME_TIME:
                 $this->m_controller = new Controller_Api_ToggleGameTime();
+                break;
+
+            case View_Base::API_REF_ASSIGNMENT:
+                $this->m_controller = new Controller_Api_RefAssign();
+                break;
+
+            case View_Base::API_REF_DELETE:
+                $this->m_controller = new Controller_Api_RefDelete();
+                break;
+
+            case View_Base::REF_PREFERENCES_PAGE:
+                $this->m_controller = new Controller_Referees_Preferences();
                 break;
 
             default:

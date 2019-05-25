@@ -78,7 +78,7 @@ class GameDate extends Domain
      * @param string    $dayFilter defaults to ALL_DAYS
      * @param Schedule  $limitBySchedule defaults to null
      *
-     * @return array GameDates
+     * @return GameDate[]
      */
     public static function lookupBySeason($season, $dayFilter = self::ALL_DAYS, $limitBySchedule = null)
     {
@@ -139,6 +139,7 @@ class GameDate extends Domain
 
             default:
                 Precondition::isTrue(false, "Unrecognized property: $propertyName");
+                return 0;
         }
     }
 
