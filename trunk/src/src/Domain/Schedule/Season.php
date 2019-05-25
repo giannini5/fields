@@ -335,8 +335,8 @@ class Season extends Domain
                 $teamIdAttributes   = explode("-", $teamId);
                 $teamNumber         = $teamIdAttributes[count($teamIdAttributes) - 1];
                 unset($teamIdAttributes[count($teamIdAttributes) - 1]);
-                $teamId             = implode("-", $teamIdAttributes);
-                $teamId             = sprintf("%s-%02d", $teamId, $teamNumber);
+                // $teamId             = implode("-", $teamIdAttributes);
+                // $teamId             = sprintf("%s-%02d", $teamId, $teamNumber);
 
                 if (empty($teamName)) {
                     $teamName = $teamId;
