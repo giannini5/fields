@@ -51,7 +51,7 @@ class Controller_AdminPractice_Home extends Controller_AdminPractice_Base {
     /**
      * @brief Login to existing account and then transition to show reservation page
      */
-    private function _login() {
+    protected function _login() {
         $this->m_coordinator = Model_Fields_PracticeFieldCoordinator::LookupByEmail($this->m_league, $this->m_email, FALSE);
 
         // Verify coordinator found, then verify password, then create session
