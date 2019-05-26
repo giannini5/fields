@@ -11,7 +11,7 @@ class View_Games_Navigation extends View_Navigation
     public function displayBodyHeader($urlParams)
     {
         $headerImage    = "/images/aysoLogo.jpeg";
-        $splashImage    = "/images/logo-splash.png";
+        $splashImage    = "/images/splash-2018-5_1.jpg";
         $seasonTitle    = isset($this->controller->m_season) ? $this->controller->m_season->name : 'No Season Enabled';
         $headerTitle    = "<font color='darkblue'>AYSO Region 122:<br></font><font color='red'>Game Schedules<br>$seasonTitle</font>";
 
