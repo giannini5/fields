@@ -5,16 +5,14 @@ use \DAG\Domain\Schedule\DivisionReferee;
 use \DAG\Domain\Schedule\GameDate;
 use \DAG\Domain\Schedule\DivisionField;
 use \DAG\Domain\Schedule\GameTime;
+use \DAG\Domain\Schedule\GameReferee;
+use \DAG\Domain\Schedule\RefereeCrew;
+use \DAG\Domain\Schedule\StandbyReferee;
 
 /**
- * @brief Preview referee schedule for a specified day
+ * @brief Schedule referees for a specified day
  */
 class View_AdminReferee_Preview extends View_AdminReferee_Base {
-    const TITLE_ROW     = 'title';
-    const CENTER_ROW    = 'C';
-    const AR_ROW        = 'AR';
-    const MENTOR_ROW    = 'Mentor';
-
     /** @var  Controller_AdminReferee_Preview */
     protected $m_controller;
 
@@ -33,9 +31,9 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
      */
     public function render()
     {
-        $filterDivisionName = $this->m_controller->m_filterDivisionName;
-        $filterGameDateId   = $this->m_controller->m_filterGameDateId;
-        $sessionId          = $this->m_controller->getSessionId();
+        $filterDivisionName         = $this->m_controller->m_filterDivisionName;
+        $filterGameDateId           = $this->m_controller->m_filterGameDateId;
+        $sessionId                  = $this->m_controller->getSessionId();
 
         $messageString  = $this->m_controller->m_messageString;
         if (!empty($messageString)) {
@@ -47,19 +45,11 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
 
         if ($filterDivisionName != '' and $filterGameDateId != 0) {
             $gameDates[] = GameDate::lookupById($filterGameDateId);
-
-            if ($filterDivisionName == 'All') {
-                $divisions   = Division::lookupBySeason($this->m_controller->m_season);
-            } else {
-                $divisions   = Division::lookupByName($this->m_controller->m_season, $filterDivisionName);
-            }
+            $divisions   = Division::lookupByName($this->m_controller->m_season, $filterDivisionName);
 
             $divisionReferees   = [];
             $divisionNames      = [];
             foreach ($divisions as $division) {
-                if (!$division->isScoringTracked) {
-                    continue;
-                }
                 $divisionReferees               = array_merge($divisionReferees, DivisionReferee::lookupByDivision($division));
                 $divisionNames[$division->name] = $division;
             }
@@ -72,18 +62,22 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
                 $divisions = Division::lookupByName($this->m_controller->m_season, $divisionName);
 
                 $divisionFieldsById = [];
+                $divisionReferees   = [];
+                $divisionCrews     = [];
                 foreach ($divisions as $division) {
-                    $divisionFields = DivisionField::lookupByDivision($division);
+                    $divisionFields     = DivisionField::lookupByDivision($division);
+                    $divisionReferees   = array_merge($divisionReferees, DivisionReferee::lookupByDivision($division));
+                    $divisionCrews     = array_merge($divisionCrews, RefereeCrew::lookupByDivision($division));
                     foreach ($divisionFields as $divisionField) {
                         $divisionFieldsById[$divisionField->id] = $divisionField;
                     }
                 }
 
-                $fields     = [];
-                $fieldsById = [];
+                $fields                 = [];
+                $facilityByFieldsById   = [];
                 foreach ($divisionFieldsById as $divisionFieldId => $divisionField) {
                     $fields[] = $divisionField->field;
-                    $fieldsById[$divisionField->field->id] = $divisionField->field;
+                    $facilityByFieldsById[$divisionField->field->facility->id][$divisionField->field->id] = $divisionField->field;
                 }
 
                 foreach ($gameDates as $gameDate) {
@@ -91,11 +85,14 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
 
                     $gameTimesByDayByTimeByField = [];
                     foreach ($gameTimes as $gameTime) {
-                        $gameTimesByDayByTimeByField[$gameDate->day][$gameTime->startTime][$gameTime->field->id] = $gameTime;
+                        if (isset($gameTime->game)) {
+                            $gameTimesByDayByTimeByField[$gameDate->day][$gameTime->startTime][$gameTime->field->id] = $gameTime;
+                        }
                     }
 
                     foreach ($gameTimesByDayByTimeByField as $day => $gameTimesByTimeByField) {
-                        $this->printRefereeSchedule($divisionName, $day, $gameTimesByTimeByField, $fieldsById);
+                        $this->printRefereeForm($divisionName, $gameDate, $gameTimesByTimeByField, $facilityByFieldsById,
+                            $divisionReferees);
                     }
                 }
             }
@@ -103,9 +100,9 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
     }
 
     /**
-     * @param int   $filterDivisionName
-     * @param int   $filterGameDateId
-     * @param int   $sessionId
+     * @param int       $filterDivisionName
+     * @param int       $filterGameDateId
+     * @param int       $sessionId
      */
     private function printSelectors($filterDivisionName, $filterGameDateId, $sessionId)
     {
@@ -113,7 +110,7 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
 
         print "
             <table valign='top' align='center' width='625' border='1' cellpadding='5' cellspacing='0'>
-                <tr><td bgcolor='" . View_Base::VIEW_COLOR . "'>";
+                    </td><td bgcolor='" . View_Base::VIEW_COLOR . "'>";
 
         $this->printViewSelector($currentDay, $filterDivisionName, $sessionId);
 
@@ -126,7 +123,6 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
     /**
      * @param string    $currentDay
      * @param int       $filterDivisionName
-     * @param int       $filterGameDateId
      * @param int       $sessionId
      */
     private function printViewSelector($currentDay, $filterDivisionName, $sessionId)
@@ -135,7 +131,7 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
                     <table valign='top' align='center' width='300' border='0' cellpadding='5' cellspacing='0'>
                         <form method='post' action='" . self::REFEREE_PREVIEW_PAGE . $this->m_urlParams . "'>";
 
-        $this->printDivisionSelectorByName($filterDivisionName, false, true, true);
+        $this->printDivisionSelectorByName($filterDivisionName, false, true, false);
         $gameDateSelector = $this->getGameDateSelector();
         $this->displaySelector('GameDate', View_Base::GAME_DATE_ID,
             '', $gameDateSelector, $currentDay);
@@ -155,28 +151,57 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
     /**
      * @brief Print the form to display games by field and time
      *
-     * @param string $divisionName
-     * @param string $day
-     * @param array $gameTimesByTimeByField
-     * @param array $fieldsById
+     * @param string            $divisionName
+     * @param GameDate          $gameDate
+     * @param array             $gameTimesByTimeByField
+     * @param array             $facilityByFieldsById
+     * @param DivisionReferee[] $divisionReferees
      */
-    private function printRefereeSchedule($divisionName, $day, $gameTimesByTimeByField, $fieldsById)
+    private function printRefereeForm($divisionName, $gameDate, $gameTimesByTimeByField, $facilityByFieldsById, $divisionReferees)
+    {
+        // Get unique list of referees ordered by name
+        $refereesByName = [];
+        foreach ($divisionReferees as $divisionReferee) {
+            $refereesByName[$divisionReferee->referee->shortName] = $divisionReferee->referee;
+        }
+        ksort($refereesByName);
+
+        print "
+                <p align='center'>Boys and Girls $divisionName for $gameDate->day</p>";
+
+        print "
+				<table id='frame-table' align='center'><tr><td valign='top' style='border: none'>";
+
+        $this->printRefereeScheduleTable($facilityByFieldsById, $gameTimesByTimeByField);
+
+        print "
+                </td></tr></table>";
+    }
+
+    /**
+     * @param array     $facilityByFieldsById
+     * @param array     $gameTimesByTimeByField
+     */
+    private function printRefereeScheduleTable($facilityByFieldsById, $gameTimesByTimeByField)
     {
         print "
-                <p align='center'>Boys and Girls $divisionName for $day</p>
-                <table valign='top' align='center' width='400' border='1' cellpadding='5' cellspacing='0'>
-                    <tr bgcolor='lightskyblue'>
-                        <th align='center'>Time/Field</th>";
+                <table id='frame-table' border='1' valign='top' align='right' width='auto'>
+                <tbody>
+                    <tr bgcolor='white'>
+                        <th colspan='2''>&nbsp</th>";
 
-        foreach ($fieldsById as $fieldId => $field) {
-            $facilityName = $field->facility->name;
-            $fieldName = $field->name;
-            print "
+        foreach ($facilityByFieldsById as $facilityId => $fieldsById) {
+            foreach ($fieldsById as $fieldId => $field) {
+                $facilityName = $field->facility->name;
+                $fieldName = $field->name;
+                print "
                         <th nowrap align='center'>$facilityName<br>$fieldName</th>";
-        }
+            }
 
-        print "
+            // One stand-by for each facility
+            print "
                         <th nowrap align='center'>Stand-By</th>";
+        }
 
         print "
                     </tr>";
@@ -185,96 +210,147 @@ class View_AdminReferee_Preview extends View_AdminReferee_Base {
             $time = substr($time, 0, 5);
 
             // Print Game Title Row
-            $this->printRefereeRow($time, $fieldsById, $gameTimesByField, self::TITLE_ROW);
+            $this->printRefereeRow($time, $facilityByFieldsById, $gameTimesByField, Controller_Api_RefAssign::TITLE_ROW);
 
             // Print Center Referee Row
-            $this->printRefereeRow(NULL, $fieldsById, $gameTimesByField, self::CENTER_ROW);
+            $this->printRefereeRow(NULL, $facilityByFieldsById, $gameTimesByField, Controller_Api_RefAssign::CENTER_ROW);
 
             // Print AR1 Row
-            $this->printRefereeRow(NULL, $fieldsById, $gameTimesByField, self::AR_ROW);
+            $this->printRefereeRow(NULL, $facilityByFieldsById, $gameTimesByField, Controller_Api_RefAssign::AR1_ROW);
 
             // Print AR2 Row
-            $this->printRefereeRow(NULL, $fieldsById, $gameTimesByField, self::AR_ROW);
+            $this->printRefereeRow(NULL, $facilityByFieldsById, $gameTimesByField, Controller_Api_RefAssign::AR2_ROW);
 
             // Print Mentor Row
-            $this->printRefereeRow(NULL, $fieldsById, $gameTimesByField, self::MENTOR_ROW);
+            $this->printRefereeRow(NULL, $facilityByFieldsById, $gameTimesByField, Controller_Api_RefAssign::MENTOR_ROW);
         }
 
         print "
-                </table><br><br>";
+                </tbody>
+                </table>";
     }
 
     /**
      * @param string    $time - NULL if cell should be skipped
-     * @param array     $fieldsById
+     * @param array     $facilityByFieldsById
      * @param array     $gameTimesByField
      * @param string    $rowType - self const values
      */
-    private function printRefereeRow($time, $fieldsById, $gameTimesByField, $rowType)
+    private function printRefereeRow($time, $facilityByFieldsById, $gameTimesByField, $rowType)
     {
         print "
                     <tr>";
 
         if (isset($time)) {
             print "
-                        <td align='center' rowspan='5'>$time</td>";
+                        <td align='center' rowspan='5'><strong>$time</strong></td>";
         }
 
-        foreach ($fieldsById as $fieldId => $field) {
-            $entry = "&nbsp";
-            $bgcolor = '';
-            if (isset($gameTimesByField[$fieldId])) {
-                $gameTime = $gameTimesByField[$fieldId];
-                if (isset($gameTime->game)) {
-                    $game = $gameTime->game;
-                    $gender = $game->flight->schedule->division->gender;
-                    $bgcolor = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
+        $entry = substr($rowType, 0, 1);
+        $entry = $rowType == Controller_Api_RefAssign::TITLE_ROW ? "Role" : $entry;
+        print "
+                        <td align='center'><strong>$entry</strong></td>";
 
-                    switch ($rowType) {
-                        case self::TITLE_ROW:
-                            if ((isset($game->homeTeam))) {
-                                $entry = $game->homeTeam->nameId . " v " . $game->visitingTeam->nameId;
-                            } else if ($game->title != '') {
-                                $entry = $game->title;
-                            }
-                            break;
+        foreach ($facilityByFieldsById as $facilityId => $fieldsById) {
+            $facility       = null;
+            $gameDate       = null;
+            $gameTime       = null;
+            $divisionName   = null;
+            foreach ($fieldsById as $fieldId => $field) {
+                $entry              = "&nbsp";
+                $bgcolor            = '';
+                $title              = '';
+                $facility           = isset($facility) ? $facility : $field->facility;
 
-                        case self::CENTER_ROW:
-                        case self::AR_ROW:
-                            $entry = "$rowType:&nbsp";
-                            break;
+                if (isset($gameTimesByField[$fieldId])) {
+                    $gameTime = $gameTimesByField[$fieldId];
+                    $gameDate = isset($gameDate) ? $gameDate : $gameTime->gameDate;
 
-                        case self::MENTOR_ROW:
-                        default:
-                            $entry = "&nbsp";
-                            break;
+                    if (isset($gameTime->game)) {
+                        $game               = $gameTime->game;
+                        $gender             = $game->flight->schedule->division->gender;
+                        $bgcolor            = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
+                        $gameReferees       = GameReferee::lookupByGame($game);
+                        $refereeName        = "&nbsp";
+                        $title              = "GameId:$game->id";
+                        $divisionName       = isset($divisionName) ? $divisionName : $game->schedule->division->name;
+
+                        $refereesByRole = [];
+                        foreach ($gameReferees as $gameReferee) {
+                            $refereesByRole[$gameReferee->role][] = $gameReferee->referee;
+                        }
+
+                        switch ($rowType) {
+                            case Controller_Api_RefAssign::TITLE_ROW:
+                                if ((isset($game->homeTeam))) {
+                                    $entry = $game->homeTeam->nameId . " v " . $game->visitingTeam->nameId;
+                                } else if ($game->title != '') {
+                                    $entry = $game->title;
+                                }
+                                break;
+
+                            case Controller_Api_RefAssign::CENTER_ROW:
+                            case Controller_Api_RefAssign::AR1_ROW:
+                            case Controller_Api_RefAssign::AR2_ROW:
+                            case Controller_Api_RefAssign::MENTOR_ROW:
+                                $role = GameReferee::getRoleFromRowType($rowType);
+                                if (isset($refereesByRole[$role])) {
+                                    $refereeName = $refereesByRole[$role][0]->shortName;
+                                }
+                                $entry = "$refereeName";
+                                break;
+
+                            default:
+                                $entry              = "&nbsp";
+                                break;
+                        }
                     }
                 }
+
+                print "
+                        <td nowrap align='left' title='$title' $bgcolor>$entry</td>";
+            }
+
+            // Standby cells
+            $bgcolor            = "bgcolor='#FEDDDF'";
+            $standbyReferees    = [];
+            $refereeName        = "&nbsp";
+            $entry              = "&nbsp";
+
+            if ($rowType != Controller_Api_RefAssign::TITLE_ROW and
+                isset($facility) and isset($divisionName) and isset($gameTime)) {
+                $standbyReferees = StandbyReferee::lookupByStartTime(
+                    $facility,
+                    $gameDate,
+                    $divisionName,
+                    $gameTime->startTime);
+            }
+
+            switch ($rowType) {
+                case Controller_Api_RefAssign::TITLE_ROW:
+                    $entry = 'Stand-By';
+                    break;
+
+                case Controller_Api_RefAssign::CENTER_ROW:
+                case Controller_Api_RefAssign::AR1_ROW:
+                case Controller_Api_RefAssign::AR2_ROW:
+                case Controller_Api_RefAssign::MENTOR_ROW:
+                    $role = GameReferee::getRoleFromRowType($rowType);
+                    foreach ($standbyReferees as $standbyReferee) {
+                        if ($standbyReferee->role == $role) {
+                            $refereeName = $standbyReferee->referee->shortName;
+                        }
+                        $entry .= "$refereeName";
+                    }
+                    break;
+                default:
+                    $entry = "&nbsp";
+                    break;
             }
 
             print "
                         <td nowrap align='left' $bgcolor>$entry</td>";
         }
-
-        // Standby cells
-        $bgcolor = "bgcolor='#FEDDDF'";
-        switch ($rowType) {
-            case self::TITLE_ROW:
-                $entry = 'Stand-By';
-                break;
-
-            case self::CENTER_ROW:
-            case self::AR_ROW:
-                $entry = "$rowType:&nbsp";
-                break;
-
-            case self::MENTOR_ROW:
-            default:
-                $entry = "&nbsp";
-                break;
-        }
-        print "
-                        <td nowrap align='left' $bgcolor>$entry</td>";
 
         print "
                     </tr>";
