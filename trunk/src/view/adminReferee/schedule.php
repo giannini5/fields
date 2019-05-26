@@ -87,7 +87,7 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
                     $gameTimesByDayByTimeByField = [];
                     foreach ($gameTimes as $gameTime) {
                         if (isset($gameTime->game)) {
-                            $gameTimesByDayByTimeByField[$gameDate->day][$gameTime->startTime][$gameTime->field->id] = $gameTime;
+                            $gameTimesByDayByTimeByField[$gameDate->day][$gameTime->actualStartTime][$gameTime->field->id] = $gameTime;
                         }
                     }
 
