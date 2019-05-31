@@ -11,6 +11,7 @@ use \DAG\Domain\Schedule\Player;
 use \DAG\Domain\Schedule\PlayerGameStats;
 use \DAG\Orm\Schedule\PlayerOrm;
 use \DAG\Framework\Exception\Assertion;
+use \DAG\Orm\Schedule\ScheduleOrm;
 
 /**
  * @brief Show the Schedule page and get the user to select a schedule to administer or create a new schedule.
@@ -22,7 +23,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
     /**
      * @brief Construct the View
      *
-     * @param Controller_Base $controller - Controller that contains data used when rendering this view.
+     * @param Controller_AdminScoring_Home $controller - Controller that contains data used when rendering this view.
      */
     public function __construct($controller)
     {
@@ -163,12 +164,13 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
     }
 
     /**
-     * @param int       $sessionId
-     * @param Game      $game
-     * @param string    $scoringType
-     * @param Coach     $coachFilter (defaults to null)
-     * @param Division  $divisionFilter (defaults to null)
-     * @param GameDate  $gameDateFilter (defaults to null)
+     * @param int $sessionId
+     * @param Game $game
+     * @param string $scoringType
+     * @param Coach $coachFilter (defaults to null)
+     * @param Division $divisionFilter (defaults to null)
+     * @param GameDate $gameDateFilter (defaults to null)
+     * @throws AssertionException
      */
     private function printUpdateGameForm($sessionId, $game, $scoringType, $coachFilter = null, $divisionFilter = null, $gameDateFilter = null)
     {
@@ -176,7 +178,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
 
         // Force quick scoring -
         // if ($this->m_controller->m_quickScoring or !isset($game->homeTeam) or $game->title != '') {
-        if (!isset($game->homeTeam) or $game->title != '') {
+        if (!isset($game->homeTeam) or $game->title != '' or $game->flight->schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT) {
             $this->printQuickUpdateGameForm($sessionId, $game, $scoringType, $coachFilter, $divisionFilter, $gameDateFilter);
             return;
         }
@@ -313,8 +315,9 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
     }
 
     /**
-     * @param Game      $game
-     * @param bool      $isHomeTeam
+     * @param Game $game
+     * @param bool $isHomeTeam
+     * @throws AssertionException
      */
     private function printGameCard($game, $isHomeTeam)
     {
@@ -345,7 +348,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         print "
                     <table border='0' style='table-layout: fixed; width: 5.0in'>
                         <tr>
-                            <td align='left'><img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
+                            <td align='left'><alt img src='/images/aysoLogoBlackAndWhite.png' height='30px' width='30px'></td>
                             <td align='center' nowrap><strong style='font-size: larger'>REGION 122 GAME CARD</strong></td>
                             <td align='right'><strong style='font-size: larger'>$homeOrVisitor</strong></td>
                         </tr>
