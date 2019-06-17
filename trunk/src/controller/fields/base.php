@@ -117,17 +117,6 @@ abstract class Controller_Fields_Base extends Controller_Base
     }
 
     /**
-     * @brief Set isAuthenticated and update session as necessary
-     */
-    protected function setAuthentication() {
-        if ($this->m_coach != NULL &&
-            $this->m_division != NULL &&
-            $this->m_team != NULL) {
-            $this->_setAuthentication();
-        }
-    }
-
-    /**
      * @brief Reset attributes to default values
      */
     protected function _reset() {
