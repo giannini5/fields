@@ -106,7 +106,9 @@ abstract class Controller_Base
     private function _constructFromSessionId($sessionId) {
         try {
             $this->m_session = Model_Fields_Session::LookupById($sessionId, FALSE);
-            if (isset($this->m_session) and $this->m_session->userType == $this->m_userType) {
+            if ($this->m_userType != Coordinator::COACH_USER_TYPE
+                and isset($this->m_session)
+                and $this->m_session->userType == $this->m_userType) {
                 $this->m_coordinator = ScheduleCoordinatorOrm::loadById($this->m_session->userId);
             }
         } catch (NoResultsException $e) {
@@ -121,7 +123,7 @@ abstract class Controller_Base
      */
     private function _init() {
         try {
-            if ($this->m_session != NULL) {
+            if ($this->m_userType != Coordinator::COACH_USER_TYPE and $this->m_session != NULL) {
                 $this->m_coordinator = Coordinator::lookupById($this->m_session->userId);
             }
         } catch (NoResultsException $e) {
@@ -135,7 +137,7 @@ abstract class Controller_Base
      * @brief Set isAuthenticated and update session as necessary
      */
     protected function setAuthentication() {
-        if ($this->m_coordinator != NULL) {
+        if ($this->m_userType == Coordinator::COACH_USER_TYPE or $this->m_coordinator != NULL) {
             $this->_setAuthentication();
         }
     }
@@ -186,7 +188,7 @@ abstract class Controller_Base
      * @return string : Name of coach or empty string
      */
     public function getCoordinatorsName() {
-        if ($this->m_isAuthenticated) {
+        if ($this->m_isAuthenticated and $this->m_coordinator != null) {
             return $this->m_coordinator->name;
         }
 
