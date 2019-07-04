@@ -264,8 +264,8 @@ class View_Fields_SelectField extends View_Fields_Base {
                 <tr>
                     <td align='left'colspan='$maxColumns'>
                         <font color='red' size='3'>
-                        After you complete your selection below you will receive a confirmation email with additional instructions to fill out a form, pay a fee
-                        and get final approval from the $facility->name field manager.
+                        After you complete your selection below you will receive an email with additional instructions to fill out a form, pay a fee
+                        and request approval from the $facility->name field manager (this practice location is not pre-approved for use by AYSO).
                         </font>
                     </td>
                 </tr>";
