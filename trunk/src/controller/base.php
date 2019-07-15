@@ -168,10 +168,11 @@ abstract class Controller_Base
      */
     public function signOut()
     {
-        precondition($this->m_coordinator != NULL, "Controller_Base::signOut called with a NULL coordinator");
+        if ($this->m_userType != Coordinator::COACH_USER_TYPE) {
+            Model_Fields_Session::Delete($this->m_coordinator->id, $this->m_userType, 0);
+        }
 
         // Delete session from the database
-        Model_Fields_Session::Delete($this->m_coordinator->id, $this->m_userType, 0);
         $this->m_session            = NULL;
         $this->m_isAuthenticated    = NULL;
 
