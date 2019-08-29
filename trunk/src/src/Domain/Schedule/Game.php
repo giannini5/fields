@@ -645,13 +645,11 @@ class Game extends Domain
             // Not sure why, but sometimes the gameTime is null???
             // Just skip these games if/when this happens
             // Note: I think this was a bug from some direct database manipulation - should no longer happen!
-            /*
-            if (!isset($game->gameTime)) {
+            $gameTime = $game->gameTime;
+            if (!isset($gameTime)) {
                 continue;
             }
-            */
 
-            $gameTime   = $game->gameTime;
             $startTime  = $gameTime->actualStartTime;
             $endTime    = $gameTime->getEndTime($game->pool->schedule->division->gameDurationMinutes);
 
