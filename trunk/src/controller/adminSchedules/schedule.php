@@ -15,6 +15,7 @@ use \DAG\Domain\Schedule\Field;
 use \DAG\Domain\Schedule\Flight;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\GameDate;
+use \DAG\Orm\Schedule\GameOrm;
 
 class NotEnoughGameTimesException extends DAG_Exception
 {
@@ -1201,6 +1202,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         }
 
         // Create game
+        $this->m_gameTitle = $this->m_gameTitle == GameOrm::TITLE_NORMAL ? "" : $this->m_gameTitle;
         $game = Game::create(
             $flight,
             $pool,

@@ -35,6 +35,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
 class GameOrm extends PersistenceModel
 {
     const TITLE_NONE                        = '';
+    const TITLE_NORMAL                      = 'Normal';
     const TITLE_PLAYOFF                     = 'Playoff';
     const TITLE_QUARTER_FINAL               = 'Quarter-Final';
     const TITLE_5TH_6TH                     = '5th/6th';
