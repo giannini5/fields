@@ -1009,6 +1009,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
         $this->displayInput('Actual Start Time', 'text', View_Base::ACTUAL_START_TIME, '', '', null, null);
 
         $gameTitlesSelector[GameOrm::TITLE_NONE]            = GameOrm::TITLE_NONE;
+        $gameTitlesSelector[GameOrm::TITLE_NORMAL]          = GameOrm::TITLE_NORMAL;
         $gameTitlesSelector[GameOrm::TITLE_PLAYOFF]         = GameOrm::TITLE_PLAYOFF;
         $gameTitlesSelector[GameOrm::TITLE_QUARTER_FINAL]   = GameOrm::TITLE_QUARTER_FINAL;
         $gameTitlesSelector[GameOrm::TITLE_5TH_6TH]         = GameOrm::TITLE_5TH_6TH;
