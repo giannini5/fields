@@ -303,7 +303,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                     if ($gameTime->game->flight->schedule->id == $schedule->id) {
                         $gamesExist = true;
                     }
-                    $gameIds[]  = $gameTime->game->id;
+                    $gameIds[$gameTime->game->id]  = $gameTime->game->id;
                 }
             }
         }
