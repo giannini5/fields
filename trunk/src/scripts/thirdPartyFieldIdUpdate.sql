@@ -11,18 +11,25 @@ from
         s.id = c.seasonId
         and s.name = '2018 - League';
 
+set @from_season_name = '2018 - League';
+set @to_season_name = '2019 - League';
 select
-    concat("update field set thirdPartyFieldId = ", f2.thirdPartyFieldId, " where id = ", f.id, ";")
+    concat("update field set thirdPartyFieldId = ", ff.thirdPartyFieldId, " where id = ", tf.id, ";")
 from
-    field as f
-    join facility as c on
-        c.id = f.facilityId
-    join facility as c2 on
-        c2.name = c.name
-    join field as f2 on
-        f2.facilityId = c2.id
-        and f2.name = f.name
-        and f2.thirdPartyFieldId != 0
+    season as ts
+    join field as tf on
+        tf.thirdPartyFieldId = 0
+    join facility as tc on
+        tc.id = tf.facilityId
+        and tc.seasonId = ts.id
+    join facility as fc on
+        fc.name = tc.name
+    join field as ff on
+        ff.facilityId = fc.id
+        and ff.name = tf.name
+        and ff.thirdPartyFieldId != 0
+    join season as fs on
+        fs.id = fc.seasonId
+        and fs.name = @from_season_name
 where
-    f.thirdPartyFieldId = 0;
-
+    ts.name = @to_season_name;

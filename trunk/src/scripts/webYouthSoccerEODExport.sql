@@ -2,14 +2,14 @@
 -- End of Day Game slots for Girsh
 --
 use schedule;
-set @seasonName = "2018 - League";
-set @startDay   = '2018-11-10';
-set @endDay     = '2018-11-11';
+set @seasonName = "2019 - League";
+set @startDay   = '2019-09-07';
+set @endDay     = '2019-11-10';
 
 select
     date_format(d.day, "%c/%e/%Y") as Date,
-    "18:00" as startTime,
-    "18:10" as endTime,
+    "18:30" as startTime,
+    "18:45" as endTime,
     l.thirdPartyFieldId,
     '122-U5G-50' as homeTeam,
     '122-U5G-51' as visitingTeam
@@ -28,6 +28,6 @@ from
         and d.day <= @endDay
 where
     f.name like "%UCSB%"
-    -- or f.name like "%Girsh%"
+    or f.name like "%Girsh%"
 group by 1, 2, 3, 4, 5, 6
-into outfile "/Users/dag/webYouth/2018/vat/schedule_lastGameOfDay.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2019/lastGameOfDay.txt" LINES TERMINATED BY '\n';

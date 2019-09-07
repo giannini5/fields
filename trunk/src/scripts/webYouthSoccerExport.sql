@@ -4,9 +4,9 @@ use schedule;
 --
 -- Dump schedules for import into Web Youth Soccer
 --
-set @seasonName         = "2018 - League";
-set @division           = "12U";
-set @startDate          = "2018-11-10";
+set @seasonName         = "2019 - League";
+set @division           = "5U";
+set @startDate          = "2019-09-07";
 set @tempHomeTeam       = "50";
 set @tempVisitingTeam   = "51";
 set @outputFile         = "NEEDS TO BE UPDATED AT END OF SCRIPT BELOW";
@@ -32,9 +32,11 @@ from (
         f.thirdPartyFieldId,
         case when h.nameId is null then @tempHomeTeam 
              when right(h.nameId, 2) between "01" and "09" then right(h.nameId, 1)
+             when right(h.nameId, 2) between "-1" and "-9" then right(h.nameId, 1)
              else right(h.nameId, 2) end as homeTeamNumber,
         case when v.nameId is null then @tempVisitingTeam
              when right(v.nameId, 2) between "01" and "09" then right(v.nameId, 1)
+             when right(v.nameId, 2) between "-1" and "-9" then right(v.nameId, 1)
              else right(v.nameId, 2) end as visitingTeamNumber,
         concat("U", left(i.name, length(i.name) - 1),
             case when i.gender = 'Boys' then 'B' else 'G' end) as division,
@@ -65,4 +67,4 @@ from (
     order by
         d.id, t.id
     ) as data
-into outfile "/Users/dag/webYouth/2018/vat/schedule_12U.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2019/5U.txt" LINES TERMINATED BY '\n';

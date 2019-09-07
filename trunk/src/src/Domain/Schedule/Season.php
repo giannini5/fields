@@ -616,7 +616,8 @@ class Season extends Domain
 
                 if (isset($division)) {
                     $teamIdPrefix = $this->getTeamIdPrefixFromDivision($division);
-                    $teamId = sprintf('%s-%02d', $teamIdPrefix, $fields[2]);
+                    $teamId = sprintf('%s-%d', $teamIdPrefix, $fields[2]);
+                    # $teamId = sprintf('%s-%02d', $teamIdPrefix, $fields[2]);
                     $team = Team::lookupByNameId($division, $teamId);
                     if (isset($team)) {
                         Player::create($team, null, $playerName, '', $fields[6], true);
