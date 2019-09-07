@@ -2,9 +2,9 @@
 -- Stand By Game Slots
 --
 use schedule;
-set @seasonName     = "2018 - League";
-set @startDate      = '2018-11-10';
-set @endDate        = '2018-11-11';
+set @seasonName     = "2019 - League";
+set @startDate      = '2019-09-07';
+set @endDate        = '2019-11-10';
 set @homeTeamId     = 80;
 set @visitingTeamId = 81;
 
@@ -72,4 +72,4 @@ from (
     order by 1, 2
 ) as data
 group by 1, 2, 3, 4, 5, 6
-into outfile "/Users/dag/webYouth/2018/vat/schedule_standBy2.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2019/standBy.txt" LINES TERMINATED BY '\n';

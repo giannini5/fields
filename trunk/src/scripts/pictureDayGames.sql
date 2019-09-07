@@ -2,9 +2,10 @@
 -- Dump data for picture day
 --
 use schedule;
-set @seasonName = "2018 - League";
+set @seasonName = "2019 - League";
+# set @divisions = '14U,12U,10U';
 set @divisions = '5U,6U,7U,8U,10U';
-set @gameDate = "2018-09-22";
+set @gameDate = "2019-09-21";
 
 select
     date_format(d.day, "%c/%e/%Y") as Date,
