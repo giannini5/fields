@@ -286,25 +286,24 @@ on duplicate key
 select
     data.teamId,
     data.coachName,
-    data.secondHalfGamesRefereed,
+    -- data.secondHalfGamesRefereed,
     data.totalGamesRefereed,
+    data.gamesNeededForRefereeBonus
     -- 11 - data.secondHalfGamesRefereed,
     -- 18 - data.totalGamesRefereed,
-    case when 18 - data.totalGamesRefereed > 11 - data.secondHalfGamesRefereed then
-        (case when 11 - data.secondHalfGamesRefereed > 0 then 11 - data.secondHalfGamesRefereed else 0 end)
-        else
-        (case when 18 - data.totalGamesRefereed > 0 then 18 - data.totalGamesRefereed else 0 end) end as gamesNeededToQualifyForVAT
+    -- case when 18 - data.totalGamesRefereed > 11 - data.secondHalfGamesRefereed then
+    --     (case when 11 - data.secondHalfGamesRefereed > 0 then 11 - data.secondHalfGamesRefereed else 0 end)
+    --     else
+    --    (case when 18 - data.totalGamesRefereed > 0 then 18 - data.totalGamesRefereed else 0 end) end as gamesNeededToQualifyForVAT
 from
 (
 select
     t.teamId,
     t.coachName,
-    sum(ifnull(g2.gameCount, 0)) as secondHalfGamesRefereed,
-    sum(ifnull(g.gameCount, 0)) as totalGamesRefereed
-    /*
-    case when 5 - sum(ifnull(gameCount, 0)) > 0 then
-        5 - sum(ifnull(gameCount, 0)) else 0 end as gamesNeededForRefereeBonus,
-    */
+    -- sum(ifnull(g2.gameCount, 0)) as secondHalfGamesRefereed,
+    sum(ifnull(g.gameCount, 0)) as totalGamesRefereed,
+    case when 6 - sum(ifnull(g.gameCount, 0)) > 0 then
+        6 - sum(ifnull(g.gameCount, 0)) else 0 end as gamesNeededForRefereeBonus
 from
     team as t
     left outer join gamesByTeam as g on

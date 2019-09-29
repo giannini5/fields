@@ -377,9 +377,10 @@ class View_Games_Standings extends View_Games_Base
                 print "
                     <table bgcolor='white' valign='top' align='center' width='850' border='1' cellpadding='5' cellspacing='0'>
                         <tr bgcolor='lightskyblue'>
-                            <th colspan='12'>Flight $flightName: $poolName</th>
+                            <th colspan='13'>Flight $flightName: $poolName</th>
                         </tr>
                         <tr bgcolor='lightskyblue'>
+                            <th>Team Id</th>
                             <th>Team</th>
                             <th>Coach</th>
                             <th>Wins</th>
@@ -404,6 +405,7 @@ class View_Games_Standings extends View_Games_Base
                         and isset($flightTeams[$flightName]) and in_array($teamId, $flightTeams[$flightName])) {
                         $stats              = $teamStats[$teamId];
                         $teamName           = $teams[$teamId]->name;
+                        $teamNameId         = $teams[$teamId]->nameId;
                         $wins               = $stats[self::WINS];
                         $losses             = $stats[self::LOSSES];
                         $ties               = $stats[self::TIES];
@@ -419,6 +421,7 @@ class View_Games_Standings extends View_Games_Base
 
                         print "
                             <tr>
+                                <td nowrap>$teamNameId</td>
                                 <td nowrap>$teamName</td>
                                 <td nowrap>$coachName</td>
                                 <td align='right'>$wins</td>
