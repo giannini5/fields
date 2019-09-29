@@ -14,5 +14,5 @@ from
     join coach as c on
         c.teamId = t.id
 where
-    s.name = '2018 - League'
+    s.name = '2019 - League'
 order by 1, 2;
