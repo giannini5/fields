@@ -16,6 +16,7 @@ use \DAG\Domain\Schedule\Flight;
 use \DAG\Domain\Schedule\Coach;
 use \DAG\Domain\Schedule\GameDate;
 use \DAG\Orm\Schedule\GameOrm;
+use \DAG\Orm\Schedule\ScheduleOrm;
 
 class NotEnoughGameTimesException extends DAG_Exception
 {
@@ -635,8 +636,10 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         // Populate pools
         $schedule->populatePools();
 
-        // Populating games
-        $schedule->populateGames();
+        // Populating games (do not populate for bracket since seeding needs to be applied)
+        if ($this->m_scheduleType != ScheduleOrm::SCHEDULE_TYPE_BRACKET) {
+            $schedule->populateGames();
+        }
 
         return $schedule;
     }

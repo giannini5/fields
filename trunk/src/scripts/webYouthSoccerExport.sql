@@ -5,8 +5,8 @@ use schedule;
 -- Dump schedules for import into Web Youth Soccer
 --
 set @seasonName         = "2019 - League";
-set @division           = "5U";
-set @startDate          = "2019-09-07";
+set @division           = "12U";
+set @startDate          = "2019-10-05";
 set @tempHomeTeam       = "50";
 set @tempVisitingTeam   = "51";
 set @outputFile         = "NEEDS TO BE UPDATED AT END OF SCRIPT BELOW";
@@ -67,4 +67,4 @@ from (
     order by
         d.id, t.id
     ) as data
-into outfile "/Users/dag/webYouth/2019/5U.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/webYouth/2019/12U_2.txt" LINES TERMINATED BY '\n';
