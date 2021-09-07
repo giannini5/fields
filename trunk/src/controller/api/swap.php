@@ -68,14 +68,13 @@ class Controller_Api_Swap extends Controller_Api_Base
         }
 
         // Verify moving in same day (okay to swap across days in tournament play)
-        // TODO: Undo this change and add this check back in place
-//        if ((isset($schedule1) and $schedule1->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT)
-//            or (isset($schedule2) and $schedule2->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT)) {
-//            if (!$this->gameDaysMatch($gameTime1, $gameTime2, $errorMessage)) {
-//                print $errorMessage;
-//                return;
-//            }
-//        }
+        if ((isset($schedule1) and $schedule1->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT)
+            or (isset($schedule2) and $schedule2->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT)) {
+            if (!$this->gameDaysMatch($gameTime1, $gameTime2, $errorMessage)) {
+                print $errorMessage;
+                return;
+            }
+        }
 
         // Verify neither game is locked
         $game1 = isset($gameTime1->game) ? $gameTime1->game : null;
