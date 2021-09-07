@@ -2,9 +2,9 @@
 -- Stand By Game Slots
 --
 use schedule;
-set @seasonName     = "2019 - League";
-set @startDate      = '2019-09-07';
-set @endDate        = '2019-11-10';
+set @seasonName     = "2021 - League";
+set @startDate      = '2021-09-11';
+set @endDate        = '2021-10-30';
 set @homeTeamId     = 80;
 set @visitingTeamId = 81;
 
@@ -65,11 +65,12 @@ from (
         join division as i on
             i.id = c.divisionId
             and i.scoringTracked = 1
-    -- where
+    where
+        i.name in ('14U', '12U', '10U')
         -- i.name = '14U' and f.name like '%Storke%'
         -- !(i.name = '14U' and f.name like '%Storke%')
     group by 1, 2, 3, 4, 5, 6, 7
     order by 1, 2
 ) as data
 group by 1, 2, 3, 4, 5, 6
-into outfile "/Users/dag/webYouth/2019/standBy.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/Desktop/ayso/2021/league_standBy.txt" LINES TERMINATED BY '\n';
