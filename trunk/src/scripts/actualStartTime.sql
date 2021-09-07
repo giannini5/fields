@@ -34,7 +34,7 @@ set
                            when @division = '14U' and startTime = '09:45:00' then '10:00:00'
                            when @division = '14U' and startTime = '11:30:00' then '12:00:00'
                            when @division = '14U' and startTime = '13:15:00' then '14:00:00'
-                           when @division = '14U' and startTime = '15:00:00' then '17:00:00'
+                           when @division = '14U' and startTime = '15:00:00' then '16:15:00'
                            end
 where
     id in (
@@ -48,5 +48,4 @@ where
             d.id = s.divisionId
             and d.name = @division
             )
-    -- and startTime = @currentStartTime
     and gameDateId in (@gameDate1, @gameDate2);

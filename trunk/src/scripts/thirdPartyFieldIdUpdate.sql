@@ -9,10 +9,10 @@ from
         on f.facilityId = c.id
     join season as s on
         s.id = c.seasonId
-        and s.name = '2018 - League';
+        and s.name = '2021 - League';
 
-set @from_season_name = '2018 - League';
-set @to_season_name = '2019 - League';
+set @from_season_name = '2019 - League';
+set @to_season_name = '2021 - League';
 select
     concat("update field set thirdPartyFieldId = ", ff.thirdPartyFieldId, " where id = ", tf.id, ";")
 from
