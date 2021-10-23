@@ -876,12 +876,16 @@ class Schedule extends Domain
                 //          8  teams then 4 games
                 //          9  teams then 1 game  (top 7 teams get a bye), then 4 games
                 //         10  teams then 2 games (top 6 teams get a bye), then 4 games
-                Assertion::isTrue($numberOfTeams >= 6 and $numberOfTeams <= 10,
-                    "Invalid pool size, only 6 to 10 teams supported at this time.  $numberOfTeams entered.");
+                //         11  teams then 3 games (top 5 teams get a bye), then 4 games
+                //         12  teams then 4 games (top 4 teams get a bye), then 4 games
+                Assertion::isTrue($numberOfTeams >= 6 and $numberOfTeams <= 12,
+                    "Invalid pool size, only 6 to 12 teams supported at this time.  $numberOfTeams entered.");
 
                 // Schedule pre-tournament game (if any)
                 $playoff1Teams  = [];
                 $playoff2Teams  = [];
+                $playoff3Teams  = [];
+                $playoff4Teams  = [];
                 $q1Teams        = [];
                 $q2Teams        = [];
                 $q3Teams        = [];
@@ -952,6 +956,8 @@ class Schedule extends Domain
                         $playoff1Teams[] = $teams[8];
                         $playoff2Teams[] = $teams[6]; // Seat 7 plays 10
                         $playoff2Teams[] = $teams[9];
+                        $playoff3Teams[] = $teams[6]; // Seat 7 plays 10
+                        $playoff3Teams[] = $teams[9];
 
                         $q1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams game 1
 
@@ -964,13 +970,51 @@ class Schedule extends Domain
                         $q4Teams[] = $teams[5];
                         break;
 
+                    case 11:
+                        $playoff1Teams[] = $teams[7]; // Seat 8 plays 9
+                        $playoff1Teams[] = $teams[8];
+                        $playoff2Teams[] = $teams[6]; // Seat 7 plays 10
+                        $playoff2Teams[] = $teams[9];
+                        $playoff3Teams[] = $teams[5]; // Seat 6 plays 11
+                        $playoff3Teams[] = $teams[10];
+
+                        $q1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams game 1
+
+                        $q2Teams[] = $teams[3]; // Seat 4 plays 5
+                        $q2Teams[] = $teams[4];
+
+                        $q3Teams[] = $teams[1]; // Seat 2 plays winner of $playoffTeams game 2
+
+                        $q4Teams[] = $teams[2]; // Seat 3 plays winner of $playoffTeams game 3
+                        break;
+
+                    case 12:
+                        $playoff1Teams[] = $teams[7]; // Seat 8 plays 9
+                        $playoff1Teams[] = $teams[8];
+                        $playoff2Teams[] = $teams[6]; // Seat 7 plays 10
+                        $playoff2Teams[] = $teams[9];
+                        $playoff3Teams[] = $teams[5]; // Seat 6 plays 11
+                        $playoff3Teams[] = $teams[10];
+                        $playoff4Teams[] = $teams[4]; // Seat 5 plays 12
+                        $playoff4Teams[] = $teams[11];
+
+                        $q1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams game 1
+
+                        $q2Teams[] = $teams[3]; // Seat 4 plays winner of $playoffTeams game 4
+
+                        $q3Teams[] = $teams[1]; // Seat 2 plays winner of $playoffTeams game 2
+
+                        $q4Teams[] = $teams[2]; // Seat 3 plays winner of $playoffTeams game 3
+                        break;
+
                     default:
                         Assertion::isTrue(false, "Invalid poolSize: $numberOfTeams");
                 }
 
-                // Only two games dates allowed at this time for bracket play
+                // Only two games dates used (first and last) when scheduling bracket play
+                // Scheduler must move games across day boundaries to use more dates
                 $gameDates = GameDate::lookupBySeason($this->division->season, GameDate::ALL_DAYS, $this);
-                Assertion::isTrue(count($gameDates) == 2, "Only 2 gamesDates allowed at this time");
+                Assertion::isTrue(count($gameDates) >= 2, "At least 2 gamesDates required at this time");
 
                 // Get the fields allowed for the division
                 $divisionFields = DivisionField::lookupByDivision($this->division);
@@ -997,31 +1041,40 @@ class Schedule extends Domain
 
                 $p1Game = $this->createBracketGame($pool, $gameTimesByTime, $playoff1Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
                 $p2Game = $this->createBracketGame($pool, $gameTimesByTime, $playoff2Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
+                $p3Game = $this->createBracketGame($pool, $gameTimesByTime, $playoff3Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
+                $p4Game = $this->createBracketGame($pool, $gameTimesByTime, $playoff4Teams, GameOrm::TITLE_PLAYOFF, $minStartTime);
 
                 // Create Quarter Final Games (in reverse order to give more time from playoff games
                 if (count($teams) == 9) {
-                    Assertion::isTrue(isset($p1Game), "Playoff game not found for pool of size 9");
+                    Assertion::isTrue(isset($p1Game), "Playoff game 1 not found for pool of size 9");
                     $minStartTime = date("H:i:s", strtotime($p1Game->gameTime->startTime) + $minutesBetweenGames);
                 } else if (count($teams) == 10) {
-                    Assertion::isTrue(isset($p2Game), "Playoff game not found for pool of size 10");
+                    Assertion::isTrue(isset($p2Game), "Playoff game 2 not found for pool of size 10");
                     $minStartTime = date("H:i:s", strtotime($p2Game->gameTime->startTime) + $minutesBetweenGames);
+                } else if (count($teams) == 11) {
+                    Assertion::isTrue(isset($p3Game), "Playoff game 3 not found for pool of size 11");
+                    $minStartTime = date("H:i:s", strtotime($p3Game->gameTime->startTime) + $minutesBetweenGames);
+                } else if (count($teams) == 12) {
+                    Assertion::isTrue(isset($p4Game), "Playoff game 4 not found for pool of size 12");
+                    $minStartTime = date("H:i:s", strtotime($p4Game->gameTime->startTime) + $minutesBetweenGames);
                 }
 
                 $q1Game = null;
                 if ($numberOfTeams >= 8) {
                     $q1Game = $this->createBracketGame($pool, $gameTimesByTime, $q1Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $p1Game);
                 }
-                $q2Game = $this->createBracketGame($pool, $gameTimesByTime, $q2Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
+                $q2Game = $this->createBracketGame($pool, $gameTimesByTime, $q2Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $p4Game);
 
                 $q3Game = null;
                 if ($numberOfTeams >= 7) {
                     $q3Game = $this->createBracketGame($pool, $gameTimesByTime, $q3Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $p2Game);
                 }
-                $q4Game = $this->createBracketGame($pool, $gameTimesByTime, $q4Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime);
+                $q4Game = $this->createBracketGame($pool, $gameTimesByTime, $q4Teams, GameOrm::TITLE_QUARTER_FINAL, $minStartTime, null, $p3Game);
 
-                // Create Semi-Final Games
+                // Create Semi-Final Games - use the last game date only for games, scheduler can manually move around
+                // across game days to fix
                 $minStartTime       = '05:00:00';
-                $gameTimesByTime    = $gameTimesByDayAndTime[$gameDates[1]->day];
+                $gameTimesByTime    = $gameTimesByDayAndTime[$gameDates[count($gameDates) - 1]->day];
                 ksort($gameTimesByTime);
 
                 $s1Game = $this->createBracketGame($pool, $gameTimesByTime, $s1Teams, GameOrm::TITLE_SEMI_FINAL, $minStartTime, $q1Game, $q2Game);

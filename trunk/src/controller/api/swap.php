@@ -67,9 +67,11 @@ class Controller_Api_Swap extends Controller_Api_Base
             return;
         }
 
-        // Verify moving in same day (okay to swap across days in tournament play)
-        if ((isset($schedule1) and $schedule1->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT)
-            or (isset($schedule2) and $schedule2->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT)) {
+        // Verify moving in same day (okay to swap across days in tournament play and bracket play)
+        if ((isset($schedule1) and ($schedule1->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT
+                and $schedule1->scheduleType != ScheduleOrm::SCHEDULE_TYPE_BRACKET))
+            or (isset($schedule2) and ($schedule2->scheduleType != ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT
+                and $schedule2->scheduleType != ScheduleOrm::SCHEDULE_TYPE_BRACKET))) {
             if (!$this->gameDaysMatch($gameTime1, $gameTime2, $errorMessage)) {
                 print $errorMessage;
                 return;

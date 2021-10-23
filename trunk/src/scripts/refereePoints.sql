@@ -21,6 +21,7 @@ load data infile "/tmp/refereeCounts.csv"
     lines terminated by '\r'
     ignore 1 lines;
 
+-- select * from rawRefereesByTeam where teamId = 'B10U-02';
 drop table if exists rawRefereesByTeam;
 create table rawRefereesByTeam
 (
@@ -65,8 +66,8 @@ create table rawRefereesByTeam
 load data infile "/tmp/refereesByTeam.csv"
     into table rawRefereesByTeam
     fields terminated by ','
-    lines terminated by '\r'
-    ignore 1 lines;
+    lines terminated by '\r';
+    -- ignore 1 lines;
 
 drop table if exists team;
 create table team
@@ -92,6 +93,7 @@ create table refereeByTeam
     primary key (teamId, refereeName)
 );
 
+-- select * from refereeByTeam where teamId = 'B10U-02';
 insert into refereeByTeam
     select
         teamId,
@@ -174,6 +176,7 @@ create table refereeTeamCount
     primary key (refereeName)
 );
 
+-- select * from refereeTeamCount where refereeName like '%Dod%';
 insert into refereeTeamCount (refereeName, teamCount)
     select
         refereeName,
@@ -192,6 +195,8 @@ create table refereeGameCount
     
     primary key (refereeName)
 );
+
+-- select * from refereeGameCount where refereeName like '%Dod%';
 
 insert into refereeGameCount (refereeName, games)
     select
@@ -212,6 +217,8 @@ create table gamesByTeam
     
     primary key (teamId, gameDate)
 );
+
+-- select * from gamesByTeam where teamId = 'B10U-02';
 
 -- game:             for each referee, number of games ref'd that day and maxGamesAllowed
 -- team:             basic team info
@@ -288,13 +295,14 @@ select
     data.coachName,
     data.secondHalfGamesRefereed,
     data.totalGamesRefereed,
-    -- data.gamesNeededForRefereeBonus
-    -- 12 - data.secondHalfGamesRefereed,
-    -- 18 - data.totalGamesRefereed,
-    case when 18 - data.totalGamesRefereed > 12 - data.secondHalfGamesRefereed then
+--     data.gamesNeededForRefereeBonus,
+--     12 - data.secondHalfGamesRefereed,
+--     16 - data.totalGamesRefereed,
+--     case when data.totalGamesRefereed > 16 then 0 else 16 - data.totalGamesRefereed end as gamesNeededToQualifyForVAT
+       case when 16 - data.totalGamesRefereed > 12 - data.secondHalfGamesRefereed then
          (case when 12 - data.secondHalfGamesRefereed > 0 then 12 - data.secondHalfGamesRefereed else 0 end)
          else
-         (case when 18 - data.totalGamesRefereed > 0 then 18 - data.totalGamesRefereed else 0 end) end as gamesNeededToQualifyForVAT
+         (case when 16 - data.totalGamesRefereed > 0 then 16 - data.totalGamesRefereed else 0 end) end as gamesNeededToQualifyForVAT
 from
 (
 select
@@ -311,7 +319,7 @@ from
     left outer join gamesByTeam as g2 on
         g2.teamId = t.teamId
         and g2.gameDate = g.gameDate
-        and g2.gameDate >= '2019-10-05'
+        and g2.gameDate >= '2021-10-02'
 group by
     1, 2
 ) as data
