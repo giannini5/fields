@@ -956,8 +956,6 @@ class Schedule extends Domain
                         $playoff1Teams[] = $teams[8];
                         $playoff2Teams[] = $teams[6]; // Seat 7 plays 10
                         $playoff2Teams[] = $teams[9];
-                        $playoff3Teams[] = $teams[6]; // Seat 7 plays 10
-                        $playoff3Teams[] = $teams[9];
 
                         $q1Teams[] = $teams[0]; // Seat 1 plays winner of $playoffTeams game 1
 
