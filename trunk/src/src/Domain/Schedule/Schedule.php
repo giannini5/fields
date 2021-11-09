@@ -573,24 +573,8 @@ class Schedule extends Domain
                         Assertion::isTrue(isset($visitingTeam), "Major bug, visitingTeam did not get set - See Dave");
 
                         // Create the game
-                        $game = Game::create($flight, $pool, $gameTime, $homeTeam, $visitingTeam);
+                        $this->createGame($season, $flight, $pool, $gameTime, $homeTeam, $visitingTeam);
                         $anyGamesAddedForThisDate = true;
-
-                        // Create the familyGame to help find game overlaps for a family
-                        $coach = Coach::lookupByTeam($homeTeam);
-                        $family = null;
-                        if (Family::findByPhone($season, $coach->phone1, $family)) {
-                            FamilyGame::create($family, $game, true);
-                        } else if (Family::findByPhone($season, $coach->phone2, $family)) {
-                            FamilyGame::create($family, $game, true);
-                        }
-                        $family = null;
-                        $coach = Coach::lookupByTeam($visitingTeam);
-                        if (Family::findByPhone($season, $coach->phone1, $family)) {
-                            FamilyGame::create($family, $game, true);
-                        } else if (Family::findByPhone($season, $coach->phone2, $family)) {
-                            FamilyGame::create($family, $game, true);
-                        }
 
                         // Adjust the game number based on pool type.  ODD pools play an extra game each round
                         if ($poolType == TeamPolygon::ROUND_ROBIN_ODD and $gameNumber % count($teams) == 0) {
@@ -1087,6 +1071,63 @@ class Schedule extends Domain
     }
 
     /**
+     * Create the game and the family game to help us later find coaching overlaps
+     *
+     * @param $season
+     * @param $flight
+     * @param $pool
+     * @param $gameTime
+     * @param $homeTeam
+     * @param $visitingTeam
+     * @param $title                - optional
+     * @param $locked               - optional
+     * @param $playInHomeGameId     - optional
+     * @param $playInVisitingGameId - optional
+     * @param $playInByWin          - optional
+     *
+     * @return Game
+     * @throws
+     */
+    private function createGame($season, $flight, $pool, $gameTime, $homeTeam, $visitingTeam,
+                                $title='', $locked=0, $playInHomeGameId=0, $playInVisitingGameId=0, $playInByWin=0)
+    {
+        // Create the game
+        $game = Game::create($flight, $pool, $gameTime, $homeTeam, $visitingTeam,
+            $title, $locked, $playInHomeGameId, $playInVisitingGameId, $playInByWin);
+
+        // Create the familyGame to help find game overlaps for a family
+        if ($homeTeam)
+        {
+            $this->createFamilyGame($season, $homeTeam, $game);
+        }
+        if ($visitingTeam)
+        {
+            $this->createFamilyGame($season, $visitingTeam, $game);
+        }
+
+        return $game;
+    }
+
+    /**
+     * Create FamilyGame to help find coaching overlaps
+     *
+     * @param $season
+     * @param $team
+     * @param $game
+     * @throws \DAG\Framework\Orm\DuplicateEntryException
+     */
+    private function createFamilyGame($season, $team, $game)
+    {
+        $coach = Coach::lookupByTeam($team);
+        $family = null;
+        if (Family::findByPhone($season, $coach->phone1, $family)) {
+            FamilyGame::create($family, $game, true);
+        } else if (Family::findByPhone($season, $coach->phone2, $family)) {
+            FamilyGame::create($family, $game, true);
+        }
+    }
+
+    /**
      * Create a bracket game
      *
      * @param Pool          $pool
@@ -1100,7 +1141,7 @@ class Schedule extends Domain
      *
      * @return Game | null
      *
-     * @throws \AssertionException
+     * @throws
      */
     private function createBracketGame($pool, $gameTimesByTime, $teams, $gameTitle, $minStartTime, $homePlayInGame = null, $visitingPlayInGame = null, $playInByWin = 1)
     {
@@ -1122,7 +1163,11 @@ class Schedule extends Domain
         $playInVisitingGameId   = isset($visitingPlayInGame) ? $visitingPlayInGame->id : 0;
         $homeTeam               = isset($teams[0]) ? $teams[0] : null;
         $visitingTeam           = isset($teams[1]) ? $teams[1] : null;
-        $game                   = Game::create($pool->flight, $pool, $gameTime, $homeTeam, $visitingTeam, $gameTitle, 0, $playInHomeGameId, $playInVisitingGameId, $playInByWin);
+        $season                 = $pool->flight->schedule->division->season;
+        $flight                 = $pool->flight;
+
+        $game = $this->createGame($season, $flight, $pool, $gameTime, $homeTeam, $visitingTeam,
+            $gameTitle, 0, $playInHomeGameId, $playInVisitingGameId, $playInByWin);
 
         return $game;
     }
@@ -1163,7 +1208,7 @@ class Schedule extends Domain
             }
         }
 
-        // Unable to find regardless of gender so fine first available time in reverse order
+        // Unable to find regardless of gender so find first available time in reverse order
         if ($tryEarlierTime) {
             $gameTimesByTimeReversed = array_reverse($gameTimesByTime);
             foreach ($gameTimesByTimeReversed as $time => $gameTimes) {

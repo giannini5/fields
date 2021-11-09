@@ -3,8 +3,8 @@
 --
 use schedule;
 set @seasonName     = "2021 - League";
-set @startDate      = '2021-09-11';
-set @endDate        = '2021-10-30';
+set @startDate      = '2021-11-06';
+set @endDate        = '2021-11-14';
 set @homeTeamId     = 80;
 set @visitingTeamId = 81;
 
@@ -73,4 +73,4 @@ from (
     order by 1, 2
 ) as data
 group by 1, 2, 3, 4, 5, 6
-into outfile "/Users/dag/Desktop/ayso/2021/league_standBy.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/Desktop/ayso/2021/vat_standBy.txt" LINES TERMINATED BY '\n';
