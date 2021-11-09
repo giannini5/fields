@@ -9,11 +9,11 @@
     <bookmark url="file://$PROJECT_DIR$/view/adminSchedules/schedule.php" line="522" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="Fixed player import">
+    <list default="true" id="4cd84c68-69b8-4f8a-bb51-c13dd593b24e" name="Default" comment="Fixed 10 team bracket play bug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/controller/api/swap.php" beforeDir="false" afterPath="$PROJECT_DIR$/controller/api/swap.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/refereePoints.sql" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/refereePoints.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/webYouthSoccerEODExport.sql" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/webYouthSoccerEODExport.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/webYouthSoccerExport.sql" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/webYouthSoccerExport.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/webYouthSoccerStandByExport.sql" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/webYouthSoccerStandByExport.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Domain/Schedule/Schedule.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Domain/Schedule/Schedule.php" afterDir="false" />
     </list>
     <ignored path="src.iws" />
@@ -52,19 +52,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/Schedule.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="1074" column="42" selection-start-line="1074" selection-start-column="42" selection-end-line="1074" selection-end-column="42" />
+            <state relative-caret-position="-213">
+              <caret line="1129" column="7" lean-forward="true" selection-start-line="1129" selection-start-column="7" selection-end-line="1129" selection-end-column="7" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/controller/api/swap.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="284">
+            <state relative-caret-position="514">
               <caret line="75" selection-start-line="75" selection-end-line="75" />
             </state>
           </provider>
@@ -102,8 +102,8 @@
       <find>_printDeleteGameForm</find>
       <find>populatePlayers</find>
       <find>moveGame</find>
-      <find>getBracketPoolSizes</find>
       <find>gameDaysMatch</find>
+      <find>getBracketPoolSizes</find>
     </findStrings>
     <replaceStrings>
       <replace>Controller_AdminScoring</replace>
@@ -198,8 +198,8 @@
         <option value="$PROJECT_DIR$/controller/adminSchedules/schedule.php" />
         <option value="$PROJECT_DIR$/src/Domain/Schedule/Season.php" />
         <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/src/Domain/Schedule/Schedule.php" />
         <option value="$PROJECT_DIR$/controller/api/swap.php" />
+        <option value="$PROJECT_DIR$/src/Domain/Schedule/Schedule.php" />
       </list>
     </option>
   </component>
@@ -632,21 +632,7 @@
       <workItem from="1569764714399" duration="1638000" />
       <workItem from="1572719055065" duration="1341000" />
       <workItem from="1573306357966" duration="782000" />
-      <workItem from="1630979383086" duration="12493000" />
-    </task>
-    <task id="LOCAL-00093" summary="Removed acordian from practice field administration.">
-      <created>1531518208019</created>
-      <option name="number" value="00093" />
-      <option name="presentableId" value="LOCAL-00093" />
-      <option name="project" value="LOCAL" />
-      <updated>1531518208020</updated>
-    </task>
-    <task id="LOCAL-00094" summary="Spelling/grammar update">
-      <created>1531520233674</created>
-      <option name="number" value="00094" />
-      <option name="presentableId" value="LOCAL-00094" />
-      <option name="project" value="LOCAL" />
-      <updated>1531520233674</updated>
+      <workItem from="1630979383086" duration="16258000" />
     </task>
     <task id="LOCAL-00095" summary="Spelling/grammar update">
       <created>1531520479890</created>
@@ -977,7 +963,21 @@
       <option name="project" value="LOCAL" />
       <updated>1631037321497</updated>
     </task>
-    <option name="localTasksCounter" value="142" />
+    <task id="LOCAL-00142" summary="Fixed player import">
+      <created>1635006064852</created>
+      <option name="number" value="00142" />
+      <option name="presentableId" value="LOCAL-00142" />
+      <option name="project" value="LOCAL" />
+      <updated>1635006064852</updated>
+    </task>
+    <task id="LOCAL-00143" summary="Fixed 10 team bracket play bug">
+      <created>1635855896545</created>
+      <option name="number" value="00143" />
+      <option name="presentableId" value="LOCAL-00143" />
+      <option name="project" value="LOCAL" />
+      <updated>1635855896546</updated>
+    </task>
+    <option name="localTasksCounter" value="144" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1013,7 +1013,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1011856000" />
+    <option name="totallyTimeSpent" value="1015621000" />
   </component>
   <component name="TodoView" selected-index="4">
     <todo-panel id="selected-file">
@@ -1025,7 +1025,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="805" extended-state="6" />
+    <frame x="0" y="23" width="1440" height="789" extended-state="6" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.48433048" visible="true" weight="0.19027181" />
       <window_info id="Structure" order="1" weight="0.25178826" />
@@ -1123,7 +1123,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fix family View" />
     <MESSAGE value="Fix Home/Visitor swap for games in different schedule" />
     <MESSAGE value="Game Card Updates" />
     <MESSAGE value="Added goal differential" />
@@ -1148,7 +1147,8 @@
     <MESSAGE value="Relax moving games across day boundaries check ... temp change." />
     <MESSAGE value="Added back cross day game move restriction" />
     <MESSAGE value="Fixed player import" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed player import" />
+    <MESSAGE value="Fixed 10 team bracket play bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed 10 team bracket play bug" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1752,17 +1752,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/Schedule.php">
+    <entry file="file://$PROJECT_DIR$/controller/api/swap.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="1074" column="42" selection-start-line="1074" selection-start-column="42" selection-end-line="1074" selection-end-column="42" />
+        <state relative-caret-position="514">
+          <caret line="75" selection-start-line="75" selection-end-line="75" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/controller/api/swap.php">
+    <entry file="file://$PROJECT_DIR$/src/Domain/Schedule/Schedule.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="284">
-          <caret line="75" selection-start-line="75" selection-end-line="75" />
+        <state relative-caret-position="-213">
+          <caret line="1129" column="7" lean-forward="true" selection-start-line="1129" selection-start-column="7" selection-end-line="1129" selection-end-column="7" />
         </state>
       </provider>
     </entry>

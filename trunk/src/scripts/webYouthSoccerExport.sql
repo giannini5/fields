@@ -1,5 +1,8 @@
 use schedule;
--- select * from facility;
+-- select * from field where name in ('Field 06', 'Field 07');
+-- update field set thirdPartyFieldId = 271 where id = 285;
+-- update field set thirdPartyFieldId = 881 where id = 286;
+-- -- -- select * from facility;
 -- select * from field where facilityId = 1;
 --
 -- Dump schedules for import into Web Youth Soccer
@@ -7,7 +10,7 @@ use schedule;
 use schedule;
 set @seasonName         = "2021 - League";
 set @division           = "14U";
-set @startDate          = "2021-09-11";
+set @startDate          = "2021-11-06";
 set @tempHomeTeam       = "50";
 set @tempVisitingTeam   = "51";
 set @outputFile         = "NEEDS TO BE UPDATED AT END OF SCRIPT BELOW";
@@ -68,4 +71,4 @@ from (
     order by
         d.id, t.id
     ) as data
-into outfile "/Users/dag/Desktop/ayso/2021/league_14U.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/Desktop/ayso/2021/vat_14U.txt" LINES TERMINATED BY '\n';
