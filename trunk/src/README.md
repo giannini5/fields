@@ -5,6 +5,12 @@ $ cd trunk/src/scripts/
 $ sudo ./install.sh -u
 ```
 
+# log into database
+```$xslt
+$ mysql -u sbuser -p mysql
+# See alias for password
+```
+
 # crate PDF(s) for printing Game Cards
 ## Setup
 - Create Game Card Layout
