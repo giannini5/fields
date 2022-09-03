@@ -7,10 +7,9 @@ use schedule;
 --
 -- Dump schedules for import into Web Youth Soccer
 --
-use schedule;
-set @seasonName         = "2021 - League";
+set @seasonName         = "2022 - League";
 set @division           = "14U";
-set @startDate          = "2021-11-06";
+set @startDate          = "2022-09-10";
 set @tempHomeTeam       = "50";
 set @tempVisitingTeam   = "51";
 set @outputFile         = "NEEDS TO BE UPDATED AT END OF SCRIPT BELOW";
@@ -71,4 +70,4 @@ from (
     order by
         d.id, t.id
     ) as data
-into outfile "/Users/dag/Desktop/ayso/2021/vat_14U.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/Desktop/ayso/2022/league_14U.txt" LINES TERMINATED BY '\n';

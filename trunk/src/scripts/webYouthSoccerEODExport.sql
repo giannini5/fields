@@ -2,9 +2,9 @@
 -- End of Day Game slots for Girsh
 --
 use schedule;
-set @seasonName = "2021 - League";
-set @startDay   = '2021-11-07';
-set @endDay     = '2021-11-14';
+set @seasonName = "2022 - League";
+set @startDay   = '2022-09-10';
+set @endDay     = '2022-10-29';
 
 select
     date_format(d.day, "%c/%e/%Y") as Date,
@@ -30,4 +30,4 @@ where
     f.name like "%UCSB%"
     or f.name like "%Girsh%"
 group by 1, 2, 3, 4, 5, 6
-into outfile "/Users/dag/Desktop/ayso/2021/vat_lastGameOfDay.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/Desktop/ayso/2022/league_lastGameOfDay.txt" LINES TERMINATED BY '\n';
