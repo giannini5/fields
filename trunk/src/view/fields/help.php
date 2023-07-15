@@ -35,29 +35,37 @@ class View_Fields_Help extends View_Fields_Base {
             <table valign='top' align=center border='1' cellpadding='5' cellspacing='5'>
             <tr><td>
                 <table valign='top' align=center border='0' cellpadding='5' cellspacing='5'>
-                    <form method='post' action='" . self::HELP_PAGE . $this->m_urlParams . "'>
                         <tr>
                             <td>
-                                <p>Email: <input style='text-align:left' type='text' name='$emailAddress' autofocus=1 required=1 size=30 maxlength=60 placeholder='Email Address' $optionalValue></p>
+                                <p>Send an email to ayso122.fields@gmail.com for support</p>
                             </td>
                         </tr>
-                        <tr>
-                            <td>
-                                <p>Subject: <input style='text-align:left' type='text' name='$subject' required=1 size=60 maxlength=70 placeholder='Email Subject'></p>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan=2>
-                                <textarea name='$helpRequest' maxlength=2048 required=0 wrap='hard' rows='4' cols='70' placeholder='Help request'></textarea>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
-                            </td>
-                        </tr>
-                    </form>
                 </table>
             </td></tr></table>";
     }
+
+    // OLD
+//                    <form method='post' action='" . self::HELP_PAGE . $this->m_urlParams . "'>
+//                        <tr>
+//                            <td>
+//                                <p>Email: <input style='text-align:left' type='text' name='$emailAddress' autofocus=1 required=1 size=30 maxlength=60 placeholder='Email Address' $optionalValue></p>
+//                            </td>
+//                        </tr>
+//                        <tr>
+//                            <td>
+//                                <p>Subject: <input style='text-align:left' type='text' name='$subject' required=1 size=60 maxlength=70 placeholder='Email Subject'></p>
+//                            </td>
+//                        </tr>
+//                        <tr>
+//                            <td colspan=2>
+//                                <textarea name='$helpRequest' maxlength=2048 required=0 wrap='hard' rows='4' cols='70' placeholder='Help request'></textarea>
+//                            </td>
+//                        </tr>
+//                        <tr>
+//                            <td>
+//                                <input style='background-color: yellow' name='" . View_Base::SUBMIT . "' type='submit' value='" . View_Base::SUBMIT . "'>
+//                            </td>
+//                        </tr>
+//                    </form>
+
 }

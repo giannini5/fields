@@ -835,7 +835,7 @@ class Schedule extends Domain
     {
         Precondition::isTrue($this->scheduleType == ScheduleOrm::SCHEDULE_TYPE_BRACKET, "Invalid scheduleType: $this->scheduleType");
 
-        // Each flight contains pools of size 4 to 9.  Bracket play crowns a champion in each pool.  No cross-pool play
+        // Each flight contains pools of size 4 to 12.  Bracket play crowns a champion in each pool.  No cross-pool play
         // Create games for entire bracket and populate teams in PLAYOFF game (if necessary) and QUARTER_FINAL games
         // SEMI_FINAL and CHAMPIONSHIP games are populated with teams as scores are entered for earlier games
 
