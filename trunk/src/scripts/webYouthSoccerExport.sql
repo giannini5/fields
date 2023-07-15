@@ -9,7 +9,7 @@ use schedule;
 --
 set @seasonName         = "2022 - League";
 set @division           = "14U";
-set @startDate          = "2022-09-10";
+set @startDate          = "2022-11-05";
 set @tempHomeTeam       = "50";
 set @tempVisitingTeam   = "51";
 set @outputFile         = "NEEDS TO BE UPDATED AT END OF SCRIPT BELOW";
@@ -70,4 +70,4 @@ from (
     order by
         d.id, t.id
     ) as data
-into outfile "/Users/dag/Desktop/ayso/2022/league_14U.txt" LINES TERMINATED BY '\n';
+into outfile "/Users/dag/Desktop/ayso/2022/vat_14U.txt" LINES TERMINATED BY '\n';

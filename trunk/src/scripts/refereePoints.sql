@@ -298,11 +298,11 @@ select
 --     data.gamesNeededForRefereeBonus,
 --     12 - data.secondHalfGamesRefereed,
 --     16 - data.totalGamesRefereed,
---     case when data.totalGamesRefereed > 16 then 0 else 16 - data.totalGamesRefereed end as gamesNeededToQualifyForVAT
-       case when 16 - data.totalGamesRefereed > 12 - data.secondHalfGamesRefereed then
-         (case when 12 - data.secondHalfGamesRefereed > 0 then 12 - data.secondHalfGamesRefereed else 0 end)
-         else
-         (case when 16 - data.totalGamesRefereed > 0 then 16 - data.totalGamesRefereed else 0 end) end as gamesNeededToQualifyForVAT
+       case when data.totalGamesRefereed > 18 then 0 else 18 - data.totalGamesRefereed end as gamesNeededToQualifyForVAT
+--        case when 18 - data.totalGamesRefereed > 12 - data.secondHalfGamesRefereed then
+--          (case when 12 - data.secondHalfGamesRefereed > 0 then 12 - data.secondHalfGamesRefereed else 0 end)
+--          else
+--          (case when 18 - data.totalGamesRefereed > 0 then 18 - data.totalGamesRefereed else 0 end) end as gamesNeededToQualifyForVAT
 from
 (
 select
@@ -310,8 +310,8 @@ select
     t.coachName,
     sum(ifnull(g2.gameCount, 0)) as secondHalfGamesRefereed,
     sum(ifnull(g.gameCount, 0)) as totalGamesRefereed,
-    case when 5 - sum(ifnull(g.gameCount, 0)) > 0 then
-        5 - sum(ifnull(g.gameCount, 0)) else 0 end as gamesNeededForRefereeBonus
+    case when 18 - sum(ifnull(g.gameCount, 0)) > 0 then
+        18 - sum(ifnull(g.gameCount, 0)) else 0 end as gamesNeededForRefereeBonus
 from
     team as t
     left outer join gamesByTeam as g on
@@ -319,7 +319,7 @@ from
     left outer join gamesByTeam as g2 on
         g2.teamId = t.teamId
         and g2.gameDate = g.gameDate
-        and g2.gameDate >= '2021-10-02'
+        and g2.gameDate >= '2022-10-09'
 group by
     1, 2
 ) as data
