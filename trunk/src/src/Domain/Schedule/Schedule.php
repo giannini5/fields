@@ -1246,6 +1246,9 @@ class Schedule extends Domain
             case '6U':
             case '7U':
             case '8U':
+            case '10U':
+            case '12U':
+            case '14U':
             case '5U-2013':
             case '6U-2012':
             case '7U-2011':
