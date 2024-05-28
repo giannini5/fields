@@ -6,6 +6,7 @@
 /**
  * Data_Object is the generic object for the data.
  */
+#[AllowDynamicProperties]
 class DataObject extends DAG_Object
 {
     /**

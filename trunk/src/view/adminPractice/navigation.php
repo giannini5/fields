@@ -15,14 +15,14 @@ class View_AdminPractice_Navigation extends View_Navigation
         $nextPage           = View_Base::ADMIN_HOME_PAGE;
         $headerImage        = "/images/aysoLogo.jpeg";
         $name               = isset($this->controller->m_coordinator) ? $this->controller->m_coordinator->name : '';
-        $headerTitle        = "<font color='darkblue'>AYSO Region 122:<br></font><font color='red'>Practice Field Administration</font>";
+        $headerTitle        = "<font color='darkblue'>" . LEAGUE_NAME . ":<br></font><font color='red'>Practice Field Administration</font>";
 
         print "
                 <table valign='top' border='0' style='width: 100%;' cellpadding='10' cellspacing=''>
                     <tr>
                         <td width='50'><img src='$headerImage' alt='Organization Icon' width='75' height='75'></td>
                         <td align='left'><h1>$headerTitle</h1><br></td>
-                        <form method='post' action='${nextPage}$urlParams'>
+                        <form method='post' action='{$nextPage}$urlParams'>
                             <td nowrap width='100' align='left'>";
 
         if ($this->controller->m_isAuthenticated) {

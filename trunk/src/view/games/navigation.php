@@ -13,7 +13,7 @@ class View_Games_Navigation extends View_Navigation
         $headerImage    = "/images/aysoLogo.jpeg";
         $splashImage    = "/images/splash-2018-5_1.jpg";
         $seasonTitle    = isset($this->controller->m_season) ? $this->controller->m_season->name : 'No Season Enabled';
-        $headerTitle    = "<font color='darkblue'>AYSO Region 122:<br></font><font color='red'>Game Schedules<br>$seasonTitle</font>";
+        $headerTitle    = "<font color='darkblue'>" . LEAGUE_NAME . ":<br></font><font color='red'>Game Schedules<br>$seasonTitle</font>";
 
         print "
                 <table valign='top' border='0' style='width: 100%;' cellpadding='10' cellspacing=''>

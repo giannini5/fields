@@ -272,7 +272,7 @@ class View_AdminScoring_ScoreSheet extends View_AdminScoring_Base
             <p style='page-break-before: always;'>&nbsp;</p>
             <table valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
                 <thead>
-                    <tr style='background-color: lightskyblue; color: black; -webkit-print-color-adjust: exact${beginningStyle}'>
+                    <tr style='background-color: lightskyblue; color: black; -webkit-print-color-adjust: exact{$beginningStyle}'>
                         <th colspan='9'>$facility->name ($gameDate->day)</th>
                     <tr style='background-color: lightskyblue; color: black;  font-size: medium; -webkit-print-color-adjust: exact; height: .5in'>
                         <th>Start</th>

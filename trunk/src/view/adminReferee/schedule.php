@@ -345,7 +345,7 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
 
         $columnCount = 0;
         foreach ($refereesByName as $name => $referee) {
-            // $redipsDragStart    = "<div id='${rowType}_${gameId}_0'>";
+            // $redipsDragStart    = "<div id='{$rowType}_{$gameId}_0'>";
             if ($columnCount >= $maxRefereesPerRow) {
                 print "
                     </tr>
@@ -551,8 +551,8 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
                         $bgcolor            = $gender == 'Boys' ? "bgcolor='lightblue'" : "bgcolor='lightyellow'";
                         $gameReferees       = GameReferee::lookupByGame($game);
                         $gameId             = $game->id;
-                        $cellId             = "id='${rowType}_${gameId}_0'";
-                        $redipsDragStart    = "<div id='div${rowType}_${gameId}_0'>";
+                        $cellId             = "id='{$rowType}_{$gameId}_0'";
+                        $redipsDragStart    = "<div id='div{$rowType}_{$gameId}_0'>";
                         $redipsDragEnd      = "</div>";
                         $refereeName        = '';
                         $title              = "GameId:$game->id";
@@ -583,8 +583,8 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
                                 if (isset($refereesByRole[$role])) {
                                     $refereeName        = $refereesByRole[$role][0]->shortName;
                                     $refereeId          = $refereesByRole[$role][0]->id;
-                                    $cellId             = "id='${rowType}_${gameId}_${refereeId}'";
-                                    $redipsDragStart    = "<div id='div${rowType}_${gameId}_${refereeId}' class='redips-drag'>";
+                                    $cellId             = "id='{$rowType}_{$gameId}_{$refereeId}'";
+                                    $redipsDragStart    = "<div id='div{$rowType}_{$gameId}_{$refereeId}' class='redips-drag'>";
                                 }
                                 $entry = "$refereeName";
                                 break;
@@ -599,7 +599,7 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
                 }
 
                 print "
-                        <td $cellId nowrap align='left' title='$title' $bgcolor $redipsClass>${$data}${redipsDragStart}${entry}${redipsDragEnd}</td>";
+                        <td $cellId nowrap align='left' title='$title' $bgcolor $redipsClass>{$$data}{$redipsDragStart}{$entry}{$redipsDragEnd}</td>";
             }
 
             // Standby cells
@@ -635,16 +635,16 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
                 case Controller_Api_RefAssign::AR2_ROW:
                 case Controller_Api_RefAssign::MENTOR_ROW:
                     $redipsClass    = '';
-                    $cellId         = "id='standby_${rowType}_${facilityId}_{$gameDateId}_${divisionName}_${startTime}_0'";
+                    $cellId         = "id='standby_{$rowType}_{$facilityId}_{$gameDateId}_{$divisionName}_{$startTime}_0'";
                     $role           = GameReferee::getRoleFromRowType($rowType);
                     foreach ($standbyReferees as $standbyReferee) {
                         if ($standbyReferee->role == $role) {
                             $refereeName        = $standbyReferee->referee->shortName;
                             $refereeId          = $standbyReferee->referee->id;
-                            $redipsDragStart    = "<div id='div_standby_${rowType}_${facilityId}_{$gameDateId}_${divisionName}_${startTime}_${refereeId}' class='redips-drag'>";
+                            $redipsDragStart    = "<div id='div_standby_{$rowType}_{$facilityId}_{$gameDateId}_{$divisionName}_{$startTime}_{$refereeId}' class='redips-drag'>";
                             $redipsDragEnd      = "</div>";
                         }
-                        $entry .= "${redipsDragStart}${refereeName}${redipsDragEnd}";
+                        $entry .= "{$redipsDragStart}{$refereeName}{$redipsDragEnd}";
                     }
                     break;
                 default:
@@ -697,8 +697,8 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
                         $refereeCrew        = isset($game->refereeCrew) ? $game->refereeCrew : null;
                         $gameReferees       = isset($game->refereeCrew) ? null : GameReferee::lookupByGame($game);
                         $gameId             = $game->id;
-                        $cellId             = "id='${rowType}_${gameId}_0_crew'";
-                        $redipsDragStart    = "<div id='div${rowType}_${gameId}_0_crew'>";
+                        $cellId             = "id='{$rowType}_{$gameId}_0_crew'";
+                        $redipsDragStart    = "<div id='div{$rowType}_{$gameId}_0_crew'>";
                         $redipsDragEnd      = "</div>";
                         $refereeCrewName    = '';
                         $title              = "GameId:$game->id";
@@ -719,8 +719,8 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
                                 if (isset($refereeCrew)) {
                                     $refereeCrewName   = $refereeCrew->name;
                                     $refereeCrewId     = $refereeCrew->id;
-                                    $cellId             = "id='${rowType}_${gameId}_${refereeCrewId}_crew'";
-                                    $redipsDragStart    = "<div id='div${rowType}_${gameId}_${refereeCrewId}_crew' class='redips-drag'>";
+                                    $cellId             = "id='{$rowType}_{$gameId}_{$refereeCrewId}_crew'";
+                                    $redipsDragStart    = "<div id='div{$rowType}_{$gameId}_{$refereeCrewId}_crew' class='redips-drag'>";
                                 } else if (count($gameReferees) > 0) {
                                     $redipsDragStart    = "";
                                     $redipsDragEnd      = "";
@@ -744,7 +744,7 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
                 }
 
                 print "
-                        <td $cellId nowrap align='left' title='$title' $bgcolor $redipsClass>${$data}${redipsDragStart}${entry}${redipsDragEnd}</td>";
+                        <td $cellId nowrap align='left' title='$title' $bgcolor $redipsClass>{$$data}{$redipsDragStart}{$entry}{$redipsDragEnd}</td>";
             }
 
             // Standby cells
@@ -768,7 +768,7 @@ class View_AdminReferee_Schedule extends View_AdminReferee_Base {
                     break;
             }
             print "
-                        <td nowrap align='left' $bgcolor $redipsClass>${redipsDragStart}${entry}${redipsDragEnd}</td>";
+                        <td nowrap align='left' $bgcolor $redipsClass>{$redipsDragStart}{$entry}{$redipsDragEnd}</td>";
         }
 
         print "

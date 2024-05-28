@@ -3,6 +3,7 @@
 /**
  * @brief: Navigation display for Practice Fields
  */
+#[AllowDynamicProperties]
 class View_Fields_Navigation extends View_Navigation
 {
     /**
@@ -18,7 +19,7 @@ class View_Fields_Navigation extends View_Navigation
         $divisionName       = $this->controller->getDivisionName();
         $gender             = $this->controller->getGender();
         $coachInfo          = $coachName != '' ? "<font color='black'>$coachName<br>Team: $divisionName-$gender</font>" : '';
-        $headerTitle        = "<font color='darkblue'>AYSO Region 122:<br></font>Practice Field Reservations";
+        $headerTitle        = "<font color='darkblue'>" . LEAGUE_NAME . ":<br></font>Practice Field Reservations";
         $showLoginButton    = ($headerButton == View_Base::CREATE_ACCOUNT
             and !$this->controller->m_isAuthenticated
             and ($this->pageName == View_Base::WELCOME_PAGE or $this->pageName == View_Base::SHOW_RESERVATION_PAGE)
@@ -34,7 +35,7 @@ class View_Fields_Navigation extends View_Navigation
 
         if (!$hideButtons and $showLoginButton) {
             print "
-                        <form method='post' action='${nextPage}$urlParams'>
+                        <form method='post' action='{$nextPage}$urlParams'>
                             <td colspan='3' nowrap width='100' align='right'>
                                 $coachInfo<br>
                                 <input style='background-color: yellow' name=" . View_Base::SUBMIT . " type='submit' value='" . View_Base::SIGN_IN . "'>
@@ -44,7 +45,7 @@ class View_Fields_Navigation extends View_Navigation
 
         if (!$hideButtons) {
             print "
-                        <form method='post' action='${nextPage}$urlParams'>
+                        <form method='post' action='{$nextPage}$urlParams'>
                             <td nowrap width='100' align='right'>
                                 $coachInfo<br>
                                 <input style='background-color: yellow' name=" . View_Base::SUBMIT . " type='submit' value='$headerButton'>";

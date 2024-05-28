@@ -103,7 +103,7 @@ class Controller_Api_RefAssign extends Controller_Api_Base
     {
         if ($fromCellData[0] == 'standby' and $toCellData[0] == 'standby') {
             // Swap of standby's
-            // ${rowType}_${facilityId}_{$gameDateId}_${divisionName}_${startTime}_${refereeId}
+            // {$rowType}_{$facilityId}_{$gameDateId}_{$divisionName}_{$startTime}_{$refereeId}
             $this->moveStandby(
                 $fromCellData[2],
                 $fromCellData[3],

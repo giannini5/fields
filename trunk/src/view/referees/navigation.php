@@ -15,7 +15,7 @@ class View_Referees_Navigation extends View_Navigation
         $headerImage        = "/images/aysoLogo.jpeg";
         $referee            = $this->controller->referee;
         $refereeInfo        = isset($referee) ? "<font color='black'>$referee->name</font>" : '';
-        $headerTitle        = "<font color='darkblue'>AYSO Region 122:<br></font>Referees";
+        $headerTitle        = "<font color='darkblue'>" . LEAGUE_NAME . ":<br></font>Referees";
         $showSingOutButton  = $this->controller->m_isAuthenticated;
 
         print "
@@ -26,7 +26,7 @@ class View_Referees_Navigation extends View_Navigation
 
         if ($showSingOutButton) {
             print "
-                        <form method='post' action='${nextPage}$urlParams'>
+                        <form method='post' action='{$nextPage}$urlParams'>
                             <td colspan='3' nowrap width='100' align='right'>
                                 $refereeInfo<br>
                                 <input style='background-color: yellow' name=" . View_Base::SUBMIT . " type='submit' value='" . View_Base::SIGN_OUT . "'>

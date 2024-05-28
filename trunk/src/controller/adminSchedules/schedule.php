@@ -1169,7 +1169,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
         $teamName               = $team->name . " - " . $coach->shortName;
         $totalGames             = $gamesMoved + $gamesNotMoved;
         $this->m_errorString    = '';
-        $this->m_messageString  = "Team ${teamName}: $gamesMoved of $totalGames have been altered.";
+        $this->m_messageString  = "Team {$teamName}: $gamesMoved of $totalGames have been altered.";
     }
 
     /**
@@ -1226,7 +1226,7 @@ class Controller_AdminSchedules_Schedule extends Controller_AdminSchedules_Base 
             $homeTeamName           = $homeTeam->name . " - " . $coach->shortName;
             $coach                  = Coach::lookupByTeam($visitingTeam);
             $visitingTeamName       = $visitingTeam->name . " - " . $coach->shortName;
-            $this->m_messageString  = "Game $game->id added between ${homeTeamName} and ${visitingTeamName}.";
+            $this->m_messageString  = "Game $game->id added between {$homeTeamName} and {$visitingTeamName}.";
         }
     }
 
