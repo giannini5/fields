@@ -9,7 +9,6 @@ use DAG\Orm\Schedule\DivisionOrm;
 use DAG\Framework\Exception\Precondition;
 use DAG\Orm\Schedule\RefereeOrm;
 
-
 /**
  * @property int    $id
  * @property Season $season
@@ -161,6 +160,20 @@ class Division extends Domain
     }
 
     /**
+     * @param Division $a
+     * @param Division $b
+     * @return int - -1, 0, 1 based on how $a gender compares with $b
+     */
+    public static function compare($a, $b)
+    {
+        if ($a->displayOrder == $b->displayOrder) {
+            return strcmp($a->gender, $b->gender);
+        }
+
+        return $a->displayOrder - $b->displayOrder;
+    }
+
+    /**
      * @param Season $season
      *
      * @return Division[] - (sorted by gender, displayOrder)
@@ -174,23 +187,9 @@ class Division extends Domain
             $divisions[] = new static($divisionOrm, $season);
         }
 
-        usort($divisions, "static::compare");
+        usort($divisions, [Division::class, "compare"]);
 
         return $divisions;
-    }
-
-    /**
-     * @param Division $a
-     * @param Division $b
-     * @return int - -1, 0, 1 based on how $a gender compares with $b
-     */
-    public static function compare($a, $b)
-    {
-        if ($a->displayOrder == $b->displayOrder) {
-            return strcmp($a->gender, $b->gender);
-        }
-
-        return $a->displayOrder - $b->displayOrder;
     }
 
     /**

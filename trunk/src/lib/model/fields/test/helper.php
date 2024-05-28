@@ -11,7 +11,7 @@ class Model_TestHelpers extends PHPUnit_Framework_TestCase {
     public $m_field;
     public $m_location;
 
-    public $m_leagueName = 'Test AYSO Region 122';
+    public $m_leagueName = 'Test ' . LEAGUE_NAME;
     public $m_seasonName = 'Test 2015';
     public $m_beginReservationDate = '2015-01-02 00:00:00';
     public $m_divisionName = 'U10';

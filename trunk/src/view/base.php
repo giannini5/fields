@@ -15,6 +15,7 @@ use \DAG\Orm\Schedule\RefereeOrm;
  *          - Operation values are added here (example: Login)
  *          - Abstract methods must be implemented by child classes
  */
+#[AllowDynamicProperties]
 abstract class View_Base {
     # Practice field Administration Pages
     const ADMIN_LOGIN_PAGE        = '/admin_practice_login';
@@ -561,7 +562,10 @@ abstract class View_Base {
 
         $dropDownHTML = '';
         foreach ($selectorData as $identifier => $data) {
-            $selected = in_array($identifier, $defaultSelections) ? ' selected ' : '';
+            $selected = '';
+            if (is_array($defaultSelections)) {
+                $selected = in_array($identifier, $defaultSelections) ? ' selected ' : '';
+            }
             $dropDownHTML .= "<option style='font-size: 8px' value='$identifier'$selected>$data</option>";
         }
 
@@ -753,8 +757,8 @@ abstract class View_Base {
         $defaultEndTime='19:00:00',
         $collapsible = NULL,
         $colspan = 1,
-        $startTimeLabel,
-        $endTimeLabel)
+        $startTimeLabel='Start Not Set',
+        $endTimeLabel='End Not Set')
     {
         $startTimeSectionHTML = '';
         $endTimeSectionHTML = '';

@@ -18,7 +18,7 @@ class View_AdminSchedules_Navigation extends View_Navigation
         $name               = isset($this->controller->m_coordinator) ? $this->controller->m_coordinator->name : '';
 
         $seasonTitle        = isset($this->controller->m_season) ? $this->controller->m_season->name : 'No Season Enabled';
-        $headerTitle        = "<font color='darkblue'>AYSO Region 122:<br></font><font color='red'>Game Scheduling Administration<br>$seasonTitle</font>";
+        $headerTitle        = "<font color='darkblue'>" . LEAGUE_NAME . ":<br></font><font color='red'>Game Scheduling Administration<br>$seasonTitle</font>";
 
         print "
                 <table valign='top' border='0' style='width: 100%;' cellpadding='10' cellspacing=''>
@@ -26,7 +26,7 @@ class View_AdminSchedules_Navigation extends View_Navigation
                         <td width='50'><img src='$headerImage' alt='Organization Icon' width='75' height='75'></td>
                         <td align='left'><h1>$headerTitle</h1><br></td>
                         <td width='50'><img src='$splashImage' alt='Organization Icon' width='75' height='75'></td>
-                        <form method='post' action='${nextPage}$urlParams'>
+                        <form method='post' action='{$nextPage}$urlParams'>
                             <td nowrap width='100' align='left'>";
 
         if ($this->controller->m_isAuthenticated) {

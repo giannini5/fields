@@ -57,7 +57,7 @@ abstract class Controller_AdminSchedules_Base extends Controller_Base
      * @brief Get league
      */
     protected function _getLeague() {
-        $this->m_league = League::LookupByName('AYSO Region 122');
+        $this->m_league = League::LookupByName(LEAGUE_NAME);
     }
 
     /**

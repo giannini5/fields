@@ -8,6 +8,7 @@
 // Define path to the base path directory
 defined('SRC_LIB') || define('SRC_LIB', realpath(dirname(__FILE__)) . '/');
 defined('SRC') || define('SRC', SRC_LIB . '../');
+defined('SRC_ROOT') || define('SRC_ROOT', SRC);
 
 // Set the include path to be
 // lib

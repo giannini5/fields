@@ -46,8 +46,8 @@ class View_Referees_Preferences extends View_Referees_Base {
                     <td colspan='2' style='font-size:24px'><font color='darkblue'><b>Sign In</b></font></td>
                 </tr>";
 
-        $this->displayInput('Email Address:', 'text', View_Base::EMAIL_ADDRESS, 'email address');
-        $this->displayInput('Password:', 'text', View_Base::PASSWORD, 'password');
+        $this->displayInput('Email Address:', 'text', View_Base::EMAIL_ADDRESS, 'email address', '');
+        $this->displayInput('Password:', 'text', View_Base::PASSWORD, 'password', '');
 
         print "
                 <tr>

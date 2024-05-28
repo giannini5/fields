@@ -200,7 +200,7 @@ abstract class Controller_Base
      * @brief Get league
      */
     protected function _getLeague() {
-        $this->m_league = Model_Fields_League::LookupByName('AYSO Region 122');
+        $this->m_league = Model_Fields_League::LookupByName(LEAGUE_NAME);
     }
 
     /**

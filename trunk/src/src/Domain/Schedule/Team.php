@@ -142,7 +142,7 @@ class Team extends Domain
             $teams[] = new static($teamOrm, null, $pool);
         }
 
-        usort($teams, "static::compare");
+        usort($teams, [Team::class, "compare"]);
 
         return $teams;
     }

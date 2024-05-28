@@ -8,6 +8,7 @@
  *
  * All class that requires setter/getters should inherit from this class
  */
+#[AllowDynamicProperties]
 abstract class DAG_Object
 {
     /**

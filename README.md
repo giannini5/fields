@@ -17,6 +17,7 @@ brew services stop httpd
 To enable PHP in Apache add the following to /opt/homebrew/etc/httpd/httpd.conf and restart Apache:
 ```
     LoadModule php_module /opt/homebrew/opt/php@8.2/lib/httpd/modules/libphp.so
+    LoadModule rewrite_module lib/httpd/modules/mod_rewrite.so
 
     <FilesMatch \.php$>
         SetHandler application/x-httpd-php
@@ -54,3 +55,35 @@ To start php@8.2 now and restart at login:
 ```
   brew services start php@8.2
 ```
+
+# Configure databse
+For first time configuration:
+1. Create config.php file in `<path to repo>/fields/trunk/src/lib`
+2. Run database install script
+```
+cd <path to repo>/fields/trunk/src/db
+./install.sh -c
+```
+3. Run `mysql` command and add the league:
+```
+use fields;
+insert into league (name) values ('<name of league>');
+use schedule;
+insert into league (name) values ('<name of league>');
+```
+4. Run `mysql` command and add the administrators:
+```
+use schedule;
+insert into scheduleCoordinator (leagueId, email, name, password) values (1, 'dave@giannini5.com', 'David Giannini', 'dag');
+use fields;
+insert into practiceFieldCoordinator (leagueId, email, name, password) values (1, 'dave@giannini5.com', 'David Giannini', 'dag');
+```
+
+
+# Upgrade database
+```
+cd <path to repo>/fields/trunk/src/db
+./install.sh -u
+```
+
+# TODO: Add example http conf files for development and production

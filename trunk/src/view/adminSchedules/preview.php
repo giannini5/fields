@@ -643,6 +643,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                     $fieldName          = $facility->name . ": " . $field->name;
                     $homeCoach          = isset($game->homeTeam) ? Coach::lookupByTeam($game->homeTeam) : null;
                     $visitingCoach      = isset($game->visitingTeam) ? Coach::lookupByTeam($game->visitingTeam) : null;
+                    $overlappingGame    = Null;
 
                     if (isset($game->homeTeam)) {
                         $homeTeamName   = $game->homeTeam->nameId . ": " . $homeCoach->lastName;
@@ -656,7 +657,7 @@ class View_AdminSchedules_Preview extends View_AdminSchedules_Base {
                     }
 
                     $startTime          = $game->gameTime->actualStartTime;
-                    $overlapBgColor     = $game->anyOverlap($games) ? "bgcolor='red'" : "";
+                    $overlapBgColor     = $game->anyOverlap($games, $overlappingGame) ? "bgcolor='red'" : "";
 
                     $homeTeamStyle      = '';
                     $visitingTeamStyle  = '';

@@ -761,13 +761,13 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
             <table id='buttonTable' valign='top' align='center' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td colspan='$colspan' $redipsDarkCell>
-                        ${startSpan}Schedule: ${endSpan}$schedule->name&nbsp&nbsp&nbsp&nbsp
-                        ${startSpan}Start: ${endSpan}$schedule->startDate&nbsp&nbsp&nbsp&nbsp
-                        ${startSpan}End: ${endSpan}$schedule->endDate&nbsp&nbsp&nbsp&nbsp
-                        ${startSpan}First Game Time: ${endSpan}$firstGameOfDay&nbsp&nbsp&nbsp&nbsp
-                        ${startSpan}Last Game Time: ${endSpan}$lastGameOfDay&nbsp&nbsp&nbsp&nbsp
-                        ${startSpan}Games Per Team: ${endSpan}$schedule->gamesPerTeam&nbsp&nbsp&nbsp&nbsp
-                        ${startSpan}Game Days: ${endSpan}$gameDays
+                        {$startSpan}Schedule: {$endSpan}$schedule->name&nbsp&nbsp&nbsp&nbsp
+                        {$startSpan}Start: {$endSpan}$schedule->startDate&nbsp&nbsp&nbsp&nbsp
+                        {$startSpan}End: {$endSpan}$schedule->endDate&nbsp&nbsp&nbsp&nbsp
+                        {$startSpan}First Game Time: {$endSpan}$firstGameOfDay&nbsp&nbsp&nbsp&nbsp
+                        {$startSpan}Last Game Time: {$endSpan}$lastGameOfDay&nbsp&nbsp&nbsp&nbsp
+                        {$startSpan}Games Per Team: {$endSpan}$schedule->gamesPerTeam&nbsp&nbsp&nbsp&nbsp
+                        {$startSpan}Game Days: {$endSpan}$gameDays
                     </td>
                 </tr>
                 <tr>";
@@ -1251,7 +1251,7 @@ class View_AdminSchedules_Schedule extends View_AdminSchedules_Base {
                                     $actualStartTimeHTML
                                     $lockButtonHTML
                                     <br>
-                                    ${redipsDragStart}$gameData${redipsDragEnd}
+                                    {$redipsDragStart}$gameData{$redipsDragEnd}
                                 </td>";
                     }
 
