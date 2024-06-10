@@ -39,13 +39,15 @@ function createConfigFile( )
 {
     configFile="../lib/config.php"
     m4ConfigFile="../lib/config.m4"
-    m4DefinesFile="../lib/defines-$USER.m4"
-    m4DefaultDefinesFile="../lib/defines.m4"
+    # m4DefinesFile="../lib/defines-$USER.m4"
+    # m4DefinesFile="../lib/defines-$USER.m4"
+    m4templateDefinesFile="../lib/defines_template.m4"
+    m4DefinesFile="../lib/defines.m4"
 
     rm -f $configFile
     if [ ! -f "$m4DefinesFile" ]; then
-        echo "WARNING: M4 Defines file is missing: $m4DefinesFile, using $m4DefaultDefinesFile instead."
-        m4DefinesFile=$m4DefaultDefinesFile
+        echo "ERROR: M4 Defines file is missing: $m4DefinesFile.  Please create from $m4templateDefinesFile"
+        exit 1
     fi
 
     m4 $m4DefinesFile $m4ConfigFile | sed 's/M4_PHP_DEFINE/define/g' > $configFile
@@ -83,10 +85,12 @@ function installWeb()
     cp $srcRoot/.htaccess $documentRoot
     exitOnError $? "Problem trying to cp $srcRoot/.htaccess $documentRoot"
 
-    chown -R apache:apache $documentRoot
+    # chown -R apache:apache $documentRoot
+    chown -R www-data:www-data $documentRoot
     exitOnError $? "Problem trying to chown -R apache:apache $documentRoot"
 
-    chown -R apache:apache $documentRoot/.htaccess
+    # chown -R apache:apache $documentRoot/.htaccess
+    chown -R www-data:www-data $documentRoot
     exitOnError $? "Problem trying to chown -R apache:apache $documentRoot/.htaccess"
 }
 
@@ -109,7 +113,8 @@ echo "----------------------------------------------"
 
 createConfigFile
 upgradeDatabase
-installWeb ../../src /var/www/sb.webyouthsoccer.com/html
+# installWeb ../../src /var/www/sb.webyouthsoccer.com/html
+installWeb ../../src /var/www/remo.apeeldata.com/html
 
 echo ""
 echo "Done. All is well."

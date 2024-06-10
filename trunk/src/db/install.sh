@@ -18,14 +18,22 @@ function showUsage( )
 function sourceConfgiFile( )
 {
     configFile="./helpers/config.sh"
-    m4ConfigFile="./helpers/config.m4"
-    m4DefinesFile="./helpers/defines-$USER.m4"
-    m4DefaultDefinesFile="./helpers/defines.m4"
+    # m4ConfigFile="./helpers/config.m4"
+    # m4DefinesFile="./helpers/defines-$USER.m4"
+    m4templateDefinesFile="./helpers/defines_template.m4"
+    m4DefinesFile="./helpers/defines.m4"
+
+    configFile="../lib/config.php"
+    m4ConfigFile="../lib/config.m4"
+    # m4DefinesFile="../lib/defines-$USER.m4"
+    # m4DefinesFile="../lib/defines-$USER.m4"
+    m4templateDefinesFile="../lib/defines_template.m4"
+    m4DefinesFile="../lib/defines.m4"
 
     rm -f $configFile
     if [ ! -f "$m4DefinesFile" ]; then
-        echo "WARNING: M4 Defines file is missing: $m4DefinesFile, using $m4DefaultDefinesFile instead."
-        m4DefinesFile=$m4DefaultDefinesFile
+        echo "ERROR: M4 Defines file is missing: $m4DefinesFile.  Please create from $m4templateDefinesFile"
+        exit 1
     fi
 
     m4 $m4DefinesFile $m4ConfigFile > $configFile

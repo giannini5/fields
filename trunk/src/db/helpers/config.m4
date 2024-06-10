@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 export AYSO_HOSTNAME='M4_AYSO_HOSTNAME'
 export AYSO_USERNAME='M4_AYSO_USERNAME'
