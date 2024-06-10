@@ -16,7 +16,7 @@ define(`M4_DB_DEFAULT_PORT', `3306')dnl
 define(`M4_DB_DEFAULT_PERSISTENT', `0')dnl
 define(`M4_DB_DEFAULT_TIMEOUT', `200')dnl
 
-define(`M4_DB_LEAGUE_NAME', `AYSO Region 122')dnl
+define(`M4_LEAGUE_NAME', `AYSO Region 122')dnl
 
 define(`M4_EMAIL_USER', `tbd')dnl
 define(`M4_EMAIL_NAME', `tbd')dnl
