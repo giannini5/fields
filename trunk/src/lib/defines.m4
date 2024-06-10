@@ -15,3 +15,9 @@ define(`M4_DB_PERSISTANT', `0')dnl
 define(`M4_DB_DEFAULT_PORT', `3306')dnl
 define(`M4_DB_DEFAULT_PERSISTENT', `0')dnl
 define(`M4_DB_DEFAULT_TIMEOUT', `200')dnl
+
+define(`M4_EMAIL_USER', `tbd')dnl
+define(`M4_EMAIL_NAME', `tbd')dnl
+define(`M4_EMAIL_PASSWORD', `tbd')dnl
+define(`M4_EMAIL_HOST', `tbd')dnl
+define(`M4_EMAIL_PORT', `tbd')dnl
