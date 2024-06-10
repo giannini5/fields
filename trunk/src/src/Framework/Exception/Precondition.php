@@ -1,6 +1,7 @@
 <?php
 
 namespace DAG\Framework\Exception;
+use DAG\Framework\Exception\PreconditionException;
 
 /**
  * Contains methods for verifying preconditions.
@@ -383,6 +384,6 @@ class Precondition
     {
         $backtrace = debug_backtrace();
         $lastCall = $backtrace[1];
-        throw new \PreconditionException($message, $lastCall['file'], $lastCall['line'], -1, '500 Internal Server Error');
+        throw new PreconditionException($message, $lastCall['file'], $lastCall['line'], -1, '500 Internal Server Error');
     }
 }

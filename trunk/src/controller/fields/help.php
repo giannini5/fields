@@ -1,4 +1,6 @@
 <?php
+use DAG\Framework\Email;
+
 
 /**
  * Class Controller_Help
@@ -47,14 +49,7 @@ class Controller_Fields_Help extends Controller_Fields_Base {
 
     public function sendHelpRequestEmail()
     {
-        $headers = "From: region122@webyouthsoccer.com\r\n";
-        $headers .= "Reply-To: $this->m_emailAddress\r\n";
-        $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
-        $headers .= "MIME-Version: 1.0\r\n";
-        $headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-
-        mail('ayso122.fields@gmail.com', $this->m_subject, $this->m_helpRequest, $headers);
-
-        return;
+        $email = new Email();
+        $email->send($this->m_subject, $this->m_helpRequest, $this->m_emailAddress, null, 'dave@giannini5.com');
     }
 }

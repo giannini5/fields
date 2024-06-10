@@ -1,4 +1,5 @@
 <?php
+use DAG\Framework\Email;
 
 /**
  * Class Controller_SelectFacility
@@ -297,6 +298,9 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             <html>
                 <body>
                     <p>
+                        Confirmation email has been sent to {$toAddress}
+                    </p>
+                    <p>
                         Hey $coachName ($divisionName-$gender),
                         <br>
                         <br>
@@ -349,14 +353,13 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
                 </body>
             </html>";
 
-//        $result = mail($toAddress, $subject, $message, $headers);
-//        $resultString = $result ? "." : "";
-        $resultString = "";
+        $email = new Email();
+        $email->send($subject, $message, $toAddress, $coachName, null, EMAIL_USER);
+
         if ($preApproved) {
-//            $this->m_reservationConfirmationMessage = "Confirmation email has been sent to {$toAddress}$resultString";
             $this->m_reservationConfirmationMessage = $message;
         } else {
-            $this->m_reservationConfirmationMessage .= "<font color='red'>Your reservation requires school approval.  See email that was sent to $toAddress for next steps$resultString</font>";
+            $this->m_reservationConfirmationMessage .= "<font color='red'>Your reservation requires school approval.  See email that was sent to $toAddress for next steps</font>";
         }
     }
 
@@ -369,10 +372,10 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
     private function getImageURL($image) {
         $imageURL = $image;
 
-        $result = strpos($image, 'http://');
-        if (is_bool($result)) {
-//            $imageURL = $_SERVER['HTTP_HOST'] . "/image?image=$image";
-            $imageURL = "/image?image=$image";
+        // Add http or https as configure by host if not specified by image resource
+        // TODO: Move all images to S3
+        if (is_bool(strpos($image, 'http://')) && is_bool(strpos($image, 'https://'))) {
+           $imageURL = $_SERVER['HTTPS_HOST'] . "/image?image=$image";
         }
 
         return $imageURL;

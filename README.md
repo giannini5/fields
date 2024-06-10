@@ -6,6 +6,8 @@ Grasslands in the midwest that need trimming after a thunderstorm.
 - See [Apache in macOS M1](https://dev.to/hte305/how-to-install-apache-in-macos-m1-montery-12xx-2k51)
 - See [Installing MariaDB Server on macOS](https://mariadb.com/kb/en/installing-mariadb-on-macos-using-homebrew/)
 - See [How to Create a New User and Grant Permissions in MySQL](https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql)
+- See [Composer Getting Started](https://getcomposer.org/doc/00-intro.md) and [Composer Download](https://getcomposer.org/doc/00-intro.md)
+- See [PHPMailer Guide](https://mailtrap.io/blog/phpmailer/)
 
 # To start/stop apache
 ```
