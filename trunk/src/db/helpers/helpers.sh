@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 export MYSQL_OUTPUT_FILE='/tmp/mysql_output.txt'
 rm -f $MYSQL_OUTPUT_FILE
@@ -36,7 +36,7 @@ function createDatabase( )
     statement+="$4"
     statement+=";"
 
-    mysql --host=$1 --user=$2 --password=$3 --execute="{$statement}" 1> $MYSQL_OUTPUT_FILE 2>&1
+    mysql --host=$1 --user=$2 --password=$3 --execute="$statement" 1> $MYSQL_OUTPUT_FILE 2>&1
     displayMysqlOutputExitOnError $?
 }
 
@@ -46,7 +46,7 @@ function useDatabase( )
     statement+="$4"
     statement+=";"
 
-    mysql --host=$1 --user=$2 --password=$3 --execute="{$statement}" 1> $MYSQL_OUTPUT_FILE 2>&1
+    mysql --host=$1 --user=$2 --password=$3 --execute="$statement" 1> $MYSQL_OUTPUT_FILE 2>&1
     displayMysqlOutputExitOnError $?
 }
 
