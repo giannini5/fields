@@ -5,6 +5,7 @@
  *
  * @brief Get user to create an account or login to an existing account.
  */
+#[AllowDynamicProperties]
 class Controller_Fields_CreateAccount extends Controller_Fields_Base {
     public function __construct() {
         parent::__construct();

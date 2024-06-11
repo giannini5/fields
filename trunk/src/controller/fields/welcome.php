@@ -5,6 +5,7 @@
  *
  * @brief Get user to create an account or login to an existing account.
  */
+#[AllowDynamicProperties]
 class Controller_Fields_Welcome extends Controller_Fields_Base {
     const DIVISION_NAME = 'divisionName';
 

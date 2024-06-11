@@ -10,6 +10,7 @@ use \DAG\Domain\Schedule\Coordinator;
  * @brief Encapsulates everything that is common for the various controllers.
  *        Derived classes must implement all abstract method.
  */
+#[AllowDynamicProperties]
 abstract class Controller_Base
 {
     const SESSION_ADMIN_COOKIE  = 'session_admin';

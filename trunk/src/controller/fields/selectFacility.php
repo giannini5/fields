@@ -298,9 +298,6 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             <html>
                 <body>
                     <p>
-                        Confirmation email has been sent to {$toAddress}
-                    </p>
-                    <p>
                         Hey $coachName ($divisionName-$gender),
                         <br>
                         <br>
@@ -356,8 +353,17 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         $email = new Email();
         $email->send($subject, $message, $toAddress, $coachName, null, EMAIL_USER);
 
+        $confirm_message = "
+        <html>
+            <body>
+                <p>
+                    Confirmation email has been sent to {$toAddress}
+                </p>
+            </body>
+        </html>";
+
         if ($preApproved) {
-            $this->m_reservationConfirmationMessage = $message;
+            $this->m_reservationConfirmationMessage = $confirm_message;
         } else {
             $this->m_reservationConfirmationMessage .= "<font color='red'>Your reservation requires school approval.  See email that was sent to $toAddress for next steps</font>";
         }
@@ -375,7 +381,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
         // Add http or https as configure by host if not specified by image resource
         // TODO: Move all images to S3
         if (is_bool(strpos($image, 'http://')) && is_bool(strpos($image, 'https://'))) {
-           $imageURL = $_SERVER['HTTPS_HOST'] . "/image?image=$image";
+           $imageURL = $_SERVER['HTTP_ORIGIN'] . "/image?image=$image";
         }
 
         return $imageURL;

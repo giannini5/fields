@@ -8,6 +8,7 @@ use \DAG\Domain\Schedule\Coordinator;
  * @brief Encapsulates everything that is common for the various controllers.
  *        Derived classes must implement all abstract method.
  */
+#[AllowDynamicProperties]
 abstract class Controller_Fields_Base extends Controller_Base
 {
     # Attributes constructed from League
