@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 echo ""
 echo "*********************************"
@@ -36,13 +36,13 @@ fi
 shopt -s nullglob
 
 if [ $4 = "-c" ]; then
-    createDatabase $1 $2 $3 "{$database}"
+    createDatabase $1 $2 $3 "${database}"
 elif [ $4 = "-u" ]; then
     echo "Skipping table creation"
-    useDatabase $1 $2 $3 "{$database}"
+    useDatabase $1 $2 $3 "${database}"
 elif [ $4 = "-t" ]; then
     echo "Running tests ..."
-    useDatabase $1 $2 $3 "{$database}"
+    useDatabase $1 $2 $3 "${database}"
 else
     showUsageDw
     exit 1
