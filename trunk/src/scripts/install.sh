@@ -71,11 +71,11 @@ function installWeb()
 
     # Backup current
     if [ -d "$documentRoot" ]; then
-        rm -rf {$documentRoot}_backup
-        exitOnError $? "Problem trying to delete backup web: {$documentRoot}_backup"
+        rm -rf ${documentRoot}_backup
+        exitOnError $? "Problem trying to delete backup web: ${documentRoot}_backup"
 
-        mv $documentRoot {$documentRoot}_backup
-        exitOnError $? "Problem trying mv $documentRoot to {$documentRoot}_backup"
+        mv $documentRoot ${documentRoot}_backup
+        exitOnError $? "Problem trying mv $documentRoot to ${documentRoot}_backup"
     fi
 
     # Install new web and update permissions
