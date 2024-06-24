@@ -16,12 +16,14 @@ class Email {
     public function __construct() {
     }
 
-    public function send($subject, $body, $to, $to_friendly, $cc=null, $bcc=null) {
+    public function send($subject, $body, $from, $from_friendly, $to, $to_friendly, $cc=null, $bcc=null) {
         /**
          * Send an email w/ optional CC and BCC
          *
          * @param string $subject
          * @param string $body
+         * @param string $from
+         * @param string $from_friendly
          * @param string $to
          * @param string $to_friendly
          * @param string | null $cc
@@ -37,7 +39,7 @@ class Email {
         $mail->Port = EMAIL_PORT;
 
         // Sender and recipient settings
-        $mail->setFrom(EMAIL_USER, EMAIL_NAME);
+        $mail->setFrom($from, $from_friendly);
         $mail->addAddress($to, $to_friendly);
 
         // CC and BCC

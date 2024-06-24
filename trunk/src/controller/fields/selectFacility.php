@@ -351,7 +351,7 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             </html>";
 
         $email = new Email();
-        $email->send($subject, $message, $toAddress, $coachName, null, EMAIL_USER);
+        $email->send($subject, $message, EMAIL_USER, EMAIL_NAME, $toAddress, $coachName, null, EMAIL_USER);
 
         $confirm_message = "
         <html>
