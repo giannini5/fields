@@ -50,6 +50,6 @@ class Controller_Fields_Help extends Controller_Fields_Base {
     public function sendHelpRequestEmail()
     {
         $email = new Email();
-        $email->send($this->m_subject, $this->m_helpRequest, $this->m_emailAddress, null, 'dave@giannini5.com');
+        $email->send($this->m_subject, $this->m_helpRequest, EMAIL_USER, EMAIL_NAME, EMAIL_USER, EMAIL_NAME, $this->m_emailAddress);
     }
 }
