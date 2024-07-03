@@ -1,0 +1,5 @@
+resource "aws_key_pair" "aysodata" {
+  key_name = "aysodata_${terraform.workspace}"
+  # Using aysodata_rsa key
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCmIMqGHcKZI3jnMmBok9alxEYdRFAi/MVW3Bp6OJhEcGtFocOd9uLdDOZYsiSo1maz90nqyakSZ9/sZwn9WeMS6EVO+N7MoLrrXgugaPMDaK//tJ+fMx/0sRXEwkeFtQAM2QLu5BOUhkpsy1dyzTu94Wjrv12itbTELt2MVsXlJeAZyV5NpWnzgShpY6INDwfztWa+dy+gVrp2vHrbJ3/OXdbECEOtDFxweyK/k3XkO60n6QxcAsbL1xMDWD+JrGmhlZGa7RGy29BjgtfG7xrbksBDAd5B8VV0OYmFULPAPTRoLuY+TW9iU0MmTVebQusz1YbAt0SgkJk6AgoUgf89cHWM4SmvFSp+oXHqXXAlEOQSORspysHuPR+IFatAQbrG3tpTmlY2AjQ+IChNn6g3SJZoq+ic5xpFjGiOgTYtMIrbflLaX3Ob+QGmYNq+mm1fP5lshm87Jj7y3iPqq+my8gd/AjFyb43rAQILjk7Mle3iEFh0es2kVXu8SHZt1xS7Wnkja1++L+X7QJ/kDwu+DH/fJOO835oz/8uc/diCvtVIPBWzvIkCXRJ7jbXSvceD63pp7/jH1EGw52/Tw5LairaxNT4cOl0y1/UGjaMbVGzkrmAlJlP0/uDY8fXM+fRkFaRAWFkU2qfBkOpIXcl9nbrWWEd/UO90o8ZGvX54gQ== dave.giannini@US-H43Q5JTVFQ"
+}
