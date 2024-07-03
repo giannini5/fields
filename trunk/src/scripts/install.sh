@@ -114,7 +114,9 @@ echo "----------------------------------------------"
 createConfigFile
 upgradeDatabase
 # installWeb ../../src /var/www/sb.webyouthsoccer.com/html
-installWeb ../../src /var/www/remo.apeeldata.com/html
+# installWeb ../../src /var/www/remo.apeeldata.com/html
+mkdir -p /var/www/region122.aysodata.com
+installWeb ../../src /var/www/region122.aysodata.com/html
 
 echo ""
 echo "Done. All is well."
