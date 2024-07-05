@@ -41,6 +41,9 @@ ssh and run the following
     See [Apache2 for Debian 12](https://reintech.io/blog/installing-apache-on-debian-12-step-by-step-guide)
 3. Install PHP
     See [PHP 8.2 for Debian 12](https://tecadmin.net/how-to-install-php-on-debian-12/)
+```bash
+    $ sudo apt install php8.2-mysql
+```
 4. Install M4
     See [MR for Debian 12](https://debian.pkgs.org/12/debian-main-amd64/m4_1.4.19-3_amd64.deb.html)
 3. Configure apache

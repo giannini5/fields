@@ -65,9 +65,9 @@ class View_Fields_Welcome extends View_Fields_Base {
                         </tr>';
 
         foreach ($this->m_controller->m_divisions as $division) {
-            $maxPractices = $division->maxMinutesPerWeek / $division->maxMinutesPerPractice;
+            $maxPractices = $division->maxMinutesPerPractice > 0 ? $division->maxMinutesPerWeek / $division->maxMinutesPerPractice : 0;
             $maxHoursPerPractice = $division->maxMinutesPerPractice / 60;
-            $hours = $maxHoursPerPractice > 1 ? 'hours' : 'hour';
+            $hours = ($maxHoursPerPractice == 0 || $maxHoursPerPractice) > 1 ? 'hours' : 'hour';
 
             print "
                         <tr>
