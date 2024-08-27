@@ -36,6 +36,10 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
                 $this->m_operation = View_Base::UPLOAD_REFEREE_FILE;
             } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_REFBYTEAM_FILE)) {
                 $this->m_operation = View_Base::UPLOAD_REFBYTEAM_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_INLEAGUE_FILE)) {
+                $this->m_operation = View_Base::UPLOAD_INLEAGUE_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_INLEAGUE_FIELD_FILE)) {
+                $this->m_operation = View_Base::UPLOAD_INLEAGUE_FIELD_FILE;
             }
         }
     }
@@ -95,6 +99,27 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
                 }
                 break;
 
+            case View_Base::UPLOAD_INLEAGUE_FILE:
+                $fileName = $this->_getFileName();
+                if (isset($this->m_season)) {
+                    $this->m_season->populateInLeagueDivisions($fileName);
+                    Family::createFromCoaches($this->m_season);
+                    $this->m_messageString = 'Operation Complete, Check out the DIVISION, TEAM and FAMILY Tabs to confirm data is correct';
+                } else {
+                    $this->m_errorString = 'Unable to find an enabled Season.  Click on SEASON tab first to create/enable a Season';
+                }
+                break;
+
+            case View_Base::UPLOAD_INLEAGUE_FIELD_FILE:
+                $fileName = $this->_getFileName();
+                if (isset($this->m_season)) {
+                    $this->m_season->populateInLeagueFields($fileName);
+                    $this->m_messageString = 'Operation Complete, Check out the FACILITY and FIELD Tab to confirm data is correct';
+                } else {
+                    $this->m_errorString = 'Unable to find an enabled Season.  Click on SEASON tab first to create/enable a Season';
+                }
+                break;
+
             case View_Base::SIGN_IN:
             default:
                 break;
@@ -127,4 +152,14 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
 
         return $fileData;
     }
+
+    /**
+     * @return string $fileName
+     */
+    private function _getFileName()
+    {
+        $fileName = $_FILES["fileToUpload"]["tmp_name"];
+        return $fileName;
+    }
+
 }

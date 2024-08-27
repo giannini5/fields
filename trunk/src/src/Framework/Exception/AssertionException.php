@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AssertionException is fired from the assertion function.
  *
@@ -7,7 +8,7 @@
  * @param int     $lineNumber   Line number in file where assertion is being checked
  * @param int     $code         Error code to be included in AssertionException (defaults to -1)
  */
-class AssertionException extends DAGException
+class AssertionException extends \DAGException
 {
     public function __construct($message, $fileName, $lineNumber, $code = -1) {
         parent::__construct($message, $code, null);

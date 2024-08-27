@@ -793,6 +793,179 @@ class Season extends Domain
     }
 
     /**
+     * Populate Divisions, Teams, Coaches, Assistant Coaches
+     *
+     * @param string $fielName - Expected format:
+     *      Team,First Name,Last Name,Title,Vol Comment,Street,City,State,Zip,Email,Home Phone,Cell Phone,Risk Status,Risk Status Expiration,Safe Haven,Concussion,SafeSport,Certifications
+     *      Multi line data where fields are comma separated.  Example:
+     *      B10-01,Paul,Singer,Head Coach,I want to be head coach. Last year I was Ryan Sparres assistant coach.,5679 Stinson Way,Goleta,CA,93117,pauldsinger@gmail.com,,510-757-3932,Green,12/6/24,Yes,Yes,No,Concussion Awareness, Fingerprinting Certificate, Sudden Cardiac Arrest, AYSOs Safe Haven, Intermediate (14U) Coach and 12U Coach
+     *
+     *      where:
+     *          CoachType is "Head Coach" (skip for other types of coaches)
+     *
+     * @param bool  $ignoreHeaderRow - defaults to true
+     */
+    public function populateInLeagueDivisions($fileName, $ignoreHeaderRow = true )
+    {
+        $processedLines = 0;
+        $line = '';
+        try {
+            if (($handle = fopen($fileName, "r")) !== FALSE) {
+                while (($line = fgetcsv($handle, 3000, ",")) !== FALSE) {
+                    // Skip header line
+                    $processedLines += 1;
+                    if ($processedLines == 1 and $ignoreHeaderRow) {
+                        continue;
+                    }
+
+                    // Skip blank lines
+                    if ($line == '') {
+                        continue;
+                    }
+
+                    $count = count($line);
+                    Assertion::isTrue($count == 18, "Invalid line: $line, count: $count");
+
+                    // Get TeamId
+                    $teamName   = '';
+                    $teamId     = $line[0];
+
+                    // Get Division Name
+                    $divisionName = substr($teamId, 0, strpos($teamId, '-'));
+                    $divisionName = ltrim($divisionName, 'BG');
+                    $divisionName .= 'U';
+
+                    // Other attributes
+                    $region                 = '122';
+                    $city                   = 'Santa Barbara';
+                    $gender                 = $teamId[0] == 'B' ? "Boys" : "Girls";
+                    $coachType              = $line[3];
+                    $coachName              = $line[1] . ' ' . $line[2];
+                    $coachPhone             = $line[10];
+                    $coachCell              = $line[11];
+                    $coachEmail             = $line[9];
+                    $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
+                    $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
+                    $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
+                    $teamName               = empty($teamName) ? $teamId : $teamName;
+
+                    // Do not store the same phone number a second time for a  coach
+                    $coachPhone = ($coachPhone == $coachCell) ? '' : $coachPhone;
+
+                    // Skip row if not for a Head Coach
+                    if ($coachType != 'Head Coach') {
+                        continue;
+                    }
+
+                    print("<p>divisionName:$divisionName, gender:$gender, division:$divisionName, teamName/Id: $teamName ($teamId), coachType:$coachType, coach:$coachName, email:$coachEmail, phone:$coachPhone, cell:$coachCell</p>");
+
+                    // Create division, team and coach
+                    $division   = Division::create($this, $divisionName, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder, true);
+                    $team       = Team::create($division, null, $teamName, $teamId, $region, $city, true);
+                    Coach::create($team, null, $coachName, $coachEmail, $coachPhone, $coachCell, true);
+                }
+                fclose($handle);
+            }
+        } catch (\Exception $e) {
+            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
+        }
+    }
+
+    /**
+     * Populate Facilities, Fields and DivisionFields
+     *
+     * @param string $fileName - Expected file format:
+     *      Field,Active,Favored Divisions,Competitions, Street, City, Zip
+     *      Exampple: Girsh Park, Field 01, 7U (Girsh01_7U),Yes,B7,G7,Fall League,Girsh Park 7050 Phelps Rd,Goleta,93117
+     *
+     *      Multi line data where fields are comma separated
+     *
+     *      where:
+     *          Field           - Facility Name, ..., (Field Name)
+     *          FieldName       - Name of the field
+     *          Enabled         - Yes if enabled; not Yes if disabled
+     *          DivisionList    - List of divisions that can use the facility, , between division names
+     *
+     * @param bool  $ignoreHeaderRow - defaults to true
+     */
+    public function populateInLeagueFields($fileName, $ignoreHeaderRow = true)
+    {
+        $processedLines = 0;
+        $line = '';
+        try {
+            if (($handle = fopen($fileName, "r")) !== FALSE) {
+                while (($line = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    // Skip header line
+                    $processedLines += 1;
+                    if ($processedLines == 1 and $ignoreHeaderRow) {
+                        continue;
+                    }
+
+                    // Skip blank lines
+                    if ($line == '') {
+                        continue;
+                    }
+
+                    $count = count($line);
+                    Assertion::isTrue($count == 7, "Invalid line: $line, count: $count");
+
+                    // Get facilityName
+                    $offset = strpos($line[0], ',', 0);
+                    $facilityName = $line[0];
+                    if (!is_bool($offset)) {
+                        $facilityName = substr($line[0], 0, $offset);
+                    }
+
+                    // Get fieldName
+                    $startOffset = strpos($line[0], '(', 0);
+                    $endOffset = strpos($line[0], ')', 0);
+                    Assertion::isTrue(!is_bool($startOffset), "Invalid Field Format, missing (: $line[0]");
+                    Assertion::isTrue(!is_bool($endOffset), "Invalid Field Format, missing ): $line[0]");
+                    $fieldName = substr($line[0], $startOffset + 1, $endOffset - ($startOffset + 1));
+
+                    // Get enabled
+                    $enabled = $line[1] == 'Yes' ? 1 : 0;
+
+                    // Get Division List
+                    $divisionList = $line[2];
+
+                    // Facility address
+                    $address = $line[4];
+                    $city = $line[5];
+                    $state = 'California';
+                    $zipCode = $line[6];
+                    $country = 'United States';
+
+                    echo "<p> Facility: $facilityName, Field: $fieldName, Enabled: $enabled, Divisions: $divisionList<br /></p>\n";
+
+                    // Get or Create Facility
+                    $facility = Facility::create($this, $facilityName, $address, '', $city, $state, $zipCode, $country, '', '', '', '', $enabled, true);
+
+                    // Get or Creaet the Field
+                    $field = Field::create($facility, $fieldName, $enabled, true);
+
+                    // Create DivisionFields
+                    $divisionNames  = explode(",", $divisionList);
+                    foreach ($divisionNames as $divisionName) {
+                        $divisionName = ltrim($divisionName, 'BG');
+                        $divisionName .= 'U';
+                        $divisions = Division::lookupByName($this, $divisionName);
+                        foreach ($divisions as $division) {
+                            DivisionField::create($division, $field, true);
+                        }
+                    }
+
+                    // Create GameTimes
+                    $this->createGameTimes($field, false);
+                }
+                fclose($handle);
+            }
+        } catch (\Exception $e) {
+            throw new \Exception("Error: Invalid line in uploaded file: '$line'<br>, caused by: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Populate Referees
      *
      * @param string $data - Expected format:

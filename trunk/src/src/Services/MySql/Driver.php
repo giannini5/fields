@@ -110,53 +110,61 @@ class Driver
     {
         Precondition::isNonEmpty($sql, 'sql required');
 
-        $this->prepareForActivity();
-        $this->lastActivityTime = time();
+        try {
+            $this->prepareForActivity();
+            $this->lastActivityTime = time();
 
-        $allData = array();
+            $allData = array();
 
-        if ($this->mysqli->multi_query($sql)) {
-            $this->numberOfRowsAffected = $this->mysqli->affected_rows;
-            // Loop through queries
-            do {
-                $result = $this->mysqli->store_result();
+            if ($this->mysqli->multi_query($sql)) {
+                $this->numberOfRowsAffected = $this->mysqli->affected_rows;
+                // Loop through queries
+                do {
+                    $result = $this->mysqli->store_result();
 
-                if (!$result && $this->mysqli->errno) {
-                    break;
-                } elseif (false !== $result) {
-                    // Loop through result rows
-                    $data = array();
-                    for ($index = 0; $index < $result->num_rows; $index++) {
-                        $data[$index] = $result->fetch_assoc();
+                    if (!$result && $this->mysqli->errno) {
+                        break;
+                    } elseif (false !== $result) {
+                        // Loop through result rows
+                        $data = array();
+                        for ($index = 0; $index < $result->num_rows; $index++) {
+                            $data[$index] = $result->fetch_assoc();
+                        }
+                        $result->close();
+
+                        if ($multi) {
+                            array_push($allData, $data);
+                        } else {
+                            $allData = array_merge($allData, $data);
+                        }
+                    } elseif (false === $result) {
+                        if ($multi) {
+                            array_push($allData, null);
+                        }
                     }
-                    $result->close();
 
-                    if ($multi) {
-                        array_push($allData, $data);
-                    } else {
-                        $allData = array_merge($allData, $data);
-                    }
-                } elseif (false === $result) {
-                    if ($multi) {
-                        array_push($allData, null);
-                    }
-                }
+                    $moreResults = $this->mysqli->more_results();
+                } while ($moreResults and $this->mysqli->next_result());
+            }
 
-                $moreResults = $this->mysqli->more_results();
-            } while ($moreResults and $this->mysqli->next_result());
+            // Error could be from multi_query(), store_result(), or next_result()
+            // Error codes: https://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
+            if ($this->mysqli->errno == 1062) {
+                throw new DuplicateKeyException(
+                    'Duplicate key ' . $this->mysqli->errno . ' ' . $this->mysqli->error . ' ' . $sql
+                );
+            } elseif ($this->mysqli->errno) {
+                throw new QueryException('Query error ' . $this->mysqli->errno . ' ' . $this->mysqli->error . ' ' . $sql);
+            }
+
+            return (0 < count($allData)) ? $allData : null;
+        } catch (\mysqli_sql_exception $e) {
+            $message = $e->getMessage();
+            if (str_contains($message, 'Duplicate')) {
+                throw new DuplicateKeyException('Duplicate key, sql:$sql, error:$message', -1, $e);
+            }
+            throw $e;
         }
-
-        // Error could be from multi_query(), store_result(), or next_result()
-        // Error codes: https://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
-        if ($this->mysqli->errno == 1062) {
-            throw new DuplicateKeyException(
-                'Duplicate key ' . $this->mysqli->errno . ' ' . $this->mysqli->error . ' ' . $sql
-            );
-        } elseif ($this->mysqli->errno) {
-            throw new QueryException('Query error ' . $this->mysqli->errno . ' ' . $this->mysqli->error . ' ' . $sql);
-        }
-
-        return (0 < count($allData)) ? $allData : null;
     }
 
     /**

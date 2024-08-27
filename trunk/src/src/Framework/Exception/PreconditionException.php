@@ -8,7 +8,7 @@
  * @param int     $lineNumber   Line number in file where precondition is being checked
  * @param int     $code         Error code to be included in PreconditionException (defaults to -1)
  */
-class PreconditionException extends DAGException
+class PreconditionException extends \DAGException
 {
     public function __construct($message, $fileName, $lineNumber, $code = -1)
     {

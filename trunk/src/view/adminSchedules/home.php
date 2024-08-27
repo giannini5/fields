@@ -53,6 +53,12 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
                 <li>Verify schedules correctly published</li>
             </ol>";
 
+        print "<br>--------------- inLeague Imports ---------------<br>";
+        $this->renderLoadInLeagueCoachesFromFile();
+        print "<br>";
+        $this->renderLoadInLeagueFieldsFromFile();
+
+        print "<br>--------------- WebYouthSoccer Imports ---------------<br>";
         $this->renderLoadCoachesFromFile();
         print "<br>";
         $this->renderLoadPlayersFromFile();
@@ -60,6 +66,75 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         $this->renderLoadFacilitiesFromFile();
         print "<br>";
         $this->renderLoadFieldsFromFile();
+    }
+
+    /**
+     * @brief Render HTML to load teams, coaches and assistant coaches from a file
+     */
+    public function renderLoadInLeagueCoachesFromFile()
+    {
+        $sessionId = $this->m_controller->getSessionId();
+
+        print "
+            <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Divisions, Teams, Coaches and Assistant Coaches</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong>
+                    <br><p style='font-size: 12px'>
+                        Team,First Name,Last Name,Title,Vol Comment,Street,City,State,Zip,Email,Home Phone,Cell Phone,Risk Status,Risk Status Expiration,Safe Haven,Concussion,SafeSport,Certifications<br>
+                        'B10-01','Paul','Singer','Head Coach','I want to be head coach. Last year I was Ryan Sparre's assistant coach.','5679 Stinson Way','Goleta','CA','93117',<br>
+                        'pauldsinger@gmail.com','','510-757-3932','Green','12/6/24','Yes','Yes','No',<br>
+                        'Concussion Awareness, Fingerprinting Certificate, Sudden Cardiac Arrest, AYSOs Safe Haven, Intermediate (14U) Coach and 12U Coach'
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
+                        <td nowrap>Select csv file to upload:</td>
+                        <td>
+                            <input type='file' name='fileToUpload' id='fileToUpload'>
+                        </td>
+                        <td>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        </td>
+                    </form>
+                </tr>
+            </table>
+            ";
+    }
+
+    /**
+     * @brief Render HTML to load fields
+     */
+    public function renderLoadInLeagueFieldsFromFile()
+    {
+        $sessionId = $this->m_controller->getSessionId();
+
+        print "
+            <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Fields</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong><br>
+                    <p style='font-size: 12px'>
+                        Field,Active,Favored Divisions,Competitions, Street, City, Zip<br>
+                        'Girsh Park, Field 01, 7U (Girsh01_7U)','Yes','B7,G7','Fall League','Girsh Park 7050 Phelps Rd','Goleta','93117'<br>
+                        'Girsh Park, Field 02, 6U (Girsh02_6U)','Yes','B6,G6','Fall League','Girsh Park 7050 Phelps Rd','Goleta','93117'
+                    </p>
+                    </td>
+                </tr>
+                <tr>
+                    <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
+                        <td nowrap>Select csv file to upload:</td>
+                        <td>
+                            <input type='file' name='fileToUpload' id='fileToUpload'>
+                        </td>
+                        <td>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_FIELD_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        </td>
+                    </form>
+                </tr>
+            </table>
+            ";
     }
 
     /**
