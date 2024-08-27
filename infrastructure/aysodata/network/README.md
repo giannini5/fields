@@ -21,4 +21,7 @@
 $ terraform init
 $ terraform workspace select prod
 $ terraform apply
+# Problems with terraform apply?  Try this and then run the ap:
+$ export GODEBUG=asyncpreemptoff=1
 ```
+More info here: https://stackoverflow.com/questions/70007818/terraform-the-plugin-encountered-an-error-and-failed-to-respond-to-the-plugin

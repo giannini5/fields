@@ -11,6 +11,7 @@ variable "allowed_ips" {
   default = [
     "216.194.106.31/32",  # Dave's Office
     "149.20.194.135/32",  # Dave's Office
+    "47.146.67.168/32",   # Dave's Home
   ]
 }
 
