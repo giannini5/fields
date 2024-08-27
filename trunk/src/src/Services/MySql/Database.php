@@ -131,11 +131,11 @@ class Database
 
         $this->lastRunQuery = $sql;
         $resultSet = $this->driver->query($sql, $multi);
-        
+
         if (!is_null($resultSet) && $transpose) {
             $this->transpose($resultSet, $multi, 0, $resultSet);
         }
-        
+
         return $resultSet;
     }
 

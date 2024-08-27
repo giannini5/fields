@@ -9,7 +9,7 @@ use DAG\Framework\Services;
  * and provide a constructor which calls this parent constructor.
  *
  */
-class DAGException extends Exception
+class DAGException extends \Exception
 {
     protected $debugBacktrace;
 
@@ -18,9 +18,9 @@ class DAGException extends Exception
      *
      * @param string     $message        - the exception message, to be displayed
      * @param integer    $code           - a unique error code for the exception
-     * @param Exception  $previous       - the previous exception, for nesting
+     * @param \Exception  $previous       - the previous exception, for nesting
      */
-    public function __construct($message = '', $code = -1, Exception $previous = null) {
+    public function __construct($message = '', $code = -1, \Exception $previous = null) {
         parent::__construct($message, $code, $previous);
         $this->debugBacktrace = debug_backtrace();
     }
