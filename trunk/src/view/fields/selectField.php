@@ -246,7 +246,7 @@ class View_Fields_SelectField extends View_Fields_Base {
      * @param $facility   - Facility that contains the fields
      */
     private function _printFacilityInfo($maxColumns, $facility) {
-        $result = strpos($facility->image, 'http://');
+        $result = strpos($facility->image, 'https://');
         $image = is_bool($result) ? 'images/' . $facility->image : $facility->image;
 
         print "
