@@ -540,7 +540,7 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         $title          = isset($game->title) ? $game->title . " VS:" : "VS:";
         print "
                         <tr style='height: 25px'>
-                            <td colspan='5' rowspan='$remainingRows' valign='top' style='border: none;'><strong>$title</strong> $fullOpposingTeamName</td> 
+                            <td colspan='5' rowspan='$remainingRows' valign='top' style='border: none;'><strong>$game->notes $title</strong> $fullOpposingTeamName</td> 
                             <td colspan='3' rowspan='$remainingRows' valign='top' align='right' style='border: none;'>$refereeNote</td>
                         </tr>";
 

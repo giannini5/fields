@@ -53,12 +53,18 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
                 <li>Verify schedules correctly published</li>
             </ol>";
 
-        print "<br>--------------- inLeague Imports ---------------<br>";
+        print "<br><strong style='font-size: 16px'>--------------- inLeague Imports ---------------<br></strong>";
+        $this->renderLoadInLeagueTeamsFromFile();
+        print "<br>";
         $this->renderLoadInLeagueCoachesFromFile();
         print "<br>";
         $this->renderLoadInLeagueFieldsFromFile();
+        print "<br>";
+        $this->renderLoadInLeagueGamesFromFile();
+        print "<br>";
+        $this->renderLoadInLeaguePlayersFromFile();
 
-        print "<br>--------------- WebYouthSoccer Imports ---------------<br>";
+        print "<br><strong style='font-size: 16px'>--------------- WebYouthSoccer Imports ---------------<br></strong>";
         $this->renderLoadCoachesFromFile();
         print "<br>";
         $this->renderLoadPlayersFromFile();
@@ -69,21 +75,22 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
     }
 
     /**
-     * @brief Render HTML to load teams, coaches and assistant coaches from a file
+     * @brief Render HTML to load divisions and teams from a file
      */
-    public function renderLoadInLeagueCoachesFromFile()
+    public function renderLoadInLeagueTeamsFromFile()
     {
         $sessionId = $this->m_controller->getSessionId();
 
         print "
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Divisions, Teams, Coaches and Assistant Coaches</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong>
+                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Divisions and Teams</strong><br>
+                    <strong style='font-size: 12px'>inLeague: Go to Classic, Reports, Report Center, My Custom Reports, 2024 Teams</strong><br><br>
+                    <strong style='font-size: 16px'>Sample CSV file format</strong>
                     <br><p style='font-size: 12px'>
-                        Team,First Name,Last Name,Title,Vol Comment,Street,City,State,Zip,Email,Home Phone,Cell Phone,Risk Status,Risk Status Expiration,Safe Haven,Concussion,SafeSport,Certifications<br>
-                        'B10-01','Paul','Singer','Head Coach','I want to be head coach. Last year I was Ryan Sparre's assistant coach.','5679 Stinson Way','Goleta','CA','93117',<br>
-                        'pauldsinger@gmail.com','','510-757-3932','Green','12/6/24','Yes','Yes','No',<br>
-                        'Concussion Awareness, Fingerprinting Certificate, Sudden Cardiac Arrest, AYSOs Safe Haven, Intermediate (14U) Coach and 12U Coach'
+                        UserID,<blank>,Team Designation,Team Letter/Number,Division, Had/Co-Coaches,Head/Co-Coach Emails
+                        '26D65666-3E58-41A9-9994-8E822D9BA483','','B12-13','13','B12','Kelly Griffin, Jesse Mccue','griffin.ke@gmail.com, marqueeconstructioninc@gmail.com'<br>
+                        '1CCEFB68-5081-4CC2-8322-10885013D0E9','','B8-10 -Foothill Elementary-','10 -Foothill Elementary-','B8','Chris Link','cjlink@ucla.edu'<br>
                         </p>
                     </td>
                 </tr>
@@ -104,6 +111,113 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
     }
 
     /**
+     * @brief Render HTML to update coaches from a file
+     */
+    public function renderLoadInLeagueCoachesFromFile()
+    {
+        $sessionId = $this->m_controller->getSessionId();
+
+        print "
+            <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Coach Updates</strong><br>
+                    <strong style='font-size: 12px'>inLeague: Go to Classic, Reports, Report Center, My Custom Reports, 2024 Coaches</strong><br><br>
+                    <strong style='font-size: 16px'>Sample CSV file format</strong><br>
+                    <p style='font-size: 12px'>
+                        UserID,<blank>,First Name,Last Name,Email Address,Home Phone,Work Phone,Cell Phone,Secondary Email,Tertiary Email,Coaching Assignments<br>
+                        '01254A3E-F36B-1410-8752-00FFFFFFFFFF','','Brandon','Friesen','brandon.friesen@ucsb.edu','','','805-698-8184','','','B10U'<br>
+                        '128B503E-F36B-1410-8752-00FFFFFFFFFF','','Martin','Cabello','mcabello44@yahoo.com','','','805-252-4922','','','G8U B14U'<br>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
+                        <td nowrap>Select csv file to upload:</td>
+                        <td>
+                            <input type='file' name='fileToUpload' id='fileToUpload'>
+                        </td>
+                        <td>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_COACH_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        </td>
+                    </form>
+                </tr>
+            </table>
+            ";
+    }
+
+    /**
+     * @brief Render HTML to update games from a file
+     */
+    public function renderLoadInLeagueGamesFromFile()
+    {
+        $sessionId = $this->m_controller->getSessionId();
+
+        print "
+            <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Games</strong><br>
+                    <strong style='font-size: 12px'>inLeague: Go to Classic, Reports, Report Center, My Custom Reports, 2024 Games</strong><br><br>
+                    <strong style='font-size: 16px'>Sample CSV file format</strong><br>
+                    <p style='font-size: 12px'>
+                        GameID,<blank>,Division,Game Date,Game Time,Field,HomeTeam,Visiting Team,Game Number<br>
+                        '00FD573E-F36B-1410-8753-00FFFFFFFFFF','','B8','Sat, Nov 9, 2024','2:00 PM','Girsh14_8U','B8-23 - Peabody Charter -','B8-22 - Harding Elementary -','1441'<br>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
+                        <td nowrap>Select csv file to upload:</td>
+                        <td>
+                            <input type='file' name='fileToUpload' id='fileToUpload'>
+                        </td>
+                        <td>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_GAME_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        </td>
+                    </form>
+                </tr>
+            </table>
+            ";
+    }
+
+    /**
+     * @brief Render HTML to update games from a file
+     */
+    public function renderLoadInLeaguePlayersFromFile()
+    {
+        $sessionId = $this->m_controller->getSessionId();
+
+        print "
+            <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
+                <tr>
+                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Players</strong><br>
+                    <strong style='font-size: 12px'>inLeague: Go to Classic, Reports, Report Center, My Custom Reports, 2024 Players</strong><br><br>
+                    <strong style='font-size: 16px'>Sample CSV file format</strong><br>
+                    <p style='font-size: 12px'>
+                        RegistrationID,<blank>,First Name,Last Name,Gender,Division,Home Phone,Cell Phone,Teams<br>
+                        '0007533E-F36B-1410-8752-00FFFFFFFFFF','','Alida','Babcock','G','G10','','336-782-6862','G10-09'<br>
+                        '0032513E-F36B-1410-8752-00FFFFFFFFFF','','Quinn','Shaefer','B','B14','','805-680-0788','B14-B14-04'<br>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
+                        <td nowrap>Select csv file to upload:</td>
+                        <td>
+                            <input type='file' name='fileToUpload' id='fileToUpload'>
+                        </td>
+                        <td>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_PLAYER_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
+                        </td>
+                    </form>
+                </tr>
+            </table>
+            ";
+    }
+
+    /**
      * @brief Render HTML to load fields
      */
     public function renderLoadInLeagueFieldsFromFile()
@@ -113,7 +227,9 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         print "
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Fields</strong><br><strong style='font-size: 16px'>Sample CSV file format</strong><br>
+                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Fields</strong><br>
+                    <strong style='font-size: 12px'>inLeague: Go to Classic, Games, Playing Fields and download CSV</strong><br><br>
+                    <strong style='font-size: 16px'>Sample CSV file format</strong><br>
                     <p style='font-size: 12px'>
                         Field,Active,Favored Divisions,Competitions, Street, City, Zip<br>
                         'Girsh Park, Field 01, 7U (Girsh01_7U)','Yes','B7,G7','Fall League','Girsh Park 7050 Phelps Rd','Goleta','93117'<br>

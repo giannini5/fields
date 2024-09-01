@@ -1088,7 +1088,7 @@ class Schedule extends Domain
      * @return Game
      * @throws
      */
-    private function createGame($season, $flight, $pool, $gameTime, $homeTeam, $visitingTeam,
+    public function createGame($season, $flight, $pool, $gameTime, $homeTeam, $visitingTeam,
                                 $title='', $locked=0, $playInHomeGameId=0, $playInVisitingGameId=0, $playInByWin=0)
     {
         // Create the game
