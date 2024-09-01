@@ -136,20 +136,30 @@ class Coach extends Domain
     }
 
     /**
+     * @param string $name
+     *
+     * @return Coach[]
+     */
+    public static function findByName($name)
+    {
+        $coaches = [];
+
+        $coachOrms = CoachOrm::loadByName($name);
+        foreach ($coachOrms as $coachOrm) {
+            $coaches[] = new static($coachOrm);
+        }
+
+        return $coaches;
+    }
+
+    /**
      * @param Referee $referee
      *
      * @return Coach[]
      */
     public static function lookupByReferee($referee)
     {
-        $coaches = [];
-
-        $coachOrms = CoachOrm::loadByName($referee->name);
-        foreach ($coachOrms as $coachOrm) {
-            $coaches[] = new static($coachOrm);
-        }
-
-        return $coaches;
+        return Coach::findByName($referee->name);
     }
 
     /**

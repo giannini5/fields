@@ -137,6 +137,9 @@ abstract class View_Base {
     const UPLOAD_REFBYTEAM_FILE = 'Upload Referee By Team File';
     const UPLOAD_INLEAGUE_FIELD_FILE = 'Upload inLeague Field File';
     const UPLOAD_INLEAGUE_FILE  = 'Upload inLeague File';
+    const UPLOAD_INLEAGUE_COACH_FILE = 'Upload inLeague Coach File';
+    const UPLOAD_INLEAGUE_GAME_FILE = 'Upload inLeague Game File';
+    const UPLOAD_INLEAGUE_PLAYER_FILE = 'Upload inLeague Player File';
     const FIELD_VIEW            = 'Field View';
     const GENERATE_REF_CREWS    = 'Generate Referee Crews';
     const DIVISION_VIEW         = 'Division View';

@@ -115,7 +115,7 @@ class Field extends Domain
             $fields[] = new static($fieldOrm, $facility);
         }
 
-        usort($fields, "static::compare");
+        usort($fields, [Field::class, "compare"]);
 
         return $fields;
     }
