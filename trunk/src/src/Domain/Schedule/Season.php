@@ -1127,6 +1127,7 @@ class Season extends Domain
                         }
                     }
                     assertion(!is_null($gameTime), "Unable to find gimeTime for: $line[4] on field $field->name");
+                    assertion($gameTime->startTime == $gameTimeStr, "Unable to find matching start time for $gameTimeStr with inLeague id $line[8]");
 
                     $homeTeamId = explode(' ', $line[6])[0];
                     if (substr($homeTeamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
@@ -1194,6 +1195,7 @@ class Season extends Domain
                 fclose($handle);
             }
         } catch (\Exception $e) {
+            print $e;
             throw new \Exception("Error: Invalid line in uploaded file: '$line'<br>, caused by: " . $e->getMessage());
         }
     }

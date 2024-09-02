@@ -150,6 +150,12 @@ class GameOrm extends PersistenceModel
     ) {
         // Verify GameTimeOrm exists and a game has not been assigned
         $gameTimeOrm = GameTimeOrm::loadById($gameTimeId);
+        if (isset($gameTimeOrm->gameId) and $gameTimeOrm->id == $gameTimeId) {
+            $gameOrm = GameOrm::loadByGameTimeId($gameTimeId);
+            Assertion::isTrue(!isset($gameOrm->homeTeamId) or $gameOrm->homeTeamId == $homeTeamId, "Re-loading game $gameOrm->id with new homeTeamId $homeTeamId");
+            Assertion::isTrue(!isset($gameOrm->visitingTeamId) or $gameOrm->visitingTeamId == $visitingTeamId, "Re-loading game $gameOrm->id with new visitingTeamId $visitingTeamId");
+            return $gameOrm;
+        }
         Assertion::isTrue(!isset($gameTimeOrm->gameId), "GameTime $gameTimeId already has a game assignment.  Cannot double book.");
 
         // Create the GameOrm
@@ -199,20 +205,6 @@ class GameOrm extends PersistenceModel
     }
 
     /**
-     * Load a GameOrm by gameTimeId
-     *
-     * @param int $gameTimeId
-     *
-     * @return GameOrm
-     */
-    public static function loadByGameTimeId($gameTimeId)
-    {
-        $result = self::getPersistenceDriver()->getOne([self::FIELD_GAME_TIME_ID => $gameTimeId]);
-
-        return new static($result);
-    }
-
-    /**
      * Get GameOrms for a flightId
      *
      * @param $flightId
@@ -232,6 +224,20 @@ class GameOrm extends PersistenceModel
         }
 
         return $gameOrms;
+    }
+
+    /**
+     * Load a GameOrm by gameTimeId
+     *
+     * @param int $gameTimeId
+     *
+     * @return GameOrm
+     */
+    public static function loadByGameTimeId($gameTimeId)
+    {
+        $result = self::getPersistenceDriver()->getOne([self::FIELD_GAME_TIME_ID => $gameTimeId]);
+
+        return new static($result);
     }
 
     /**
