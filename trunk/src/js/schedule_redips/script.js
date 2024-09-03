@@ -11,7 +11,7 @@ redips.disableDrag = false;
 
 // configuration
 redips.configuration = function () {
-    redips.ajaxSave     = "http://" + window.location.host;
+    redips.ajaxSave     = "https://" + window.location.host;
     redips.request      = null;
 };
 
