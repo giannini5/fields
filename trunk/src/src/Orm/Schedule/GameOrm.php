@@ -152,8 +152,8 @@ class GameOrm extends PersistenceModel
         $gameTimeOrm = GameTimeOrm::loadById($gameTimeId);
         if (isset($gameTimeOrm->gameId) and $gameTimeOrm->id == $gameTimeId) {
             $gameOrm = GameOrm::loadByGameTimeId($gameTimeId);
-            Assertion::isTrue(!isset($gameOrm->homeTeamId) or $gameOrm->homeTeamId == $homeTeamId, "Re-loading game $gameOrm->id with new homeTeamId $homeTeamId");
-            Assertion::isTrue(!isset($gameOrm->visitingTeamId) or $gameOrm->visitingTeamId == $visitingTeamId, "Re-loading game $gameOrm->id with new visitingTeamId $visitingTeamId");
+            $gameOrm->homeTeamId = $homeTeamId;
+            $gameOrm->visitingTeamId = $visitingTeamId;
             return $gameOrm;
         }
         Assertion::isTrue(!isset($gameTimeOrm->gameId), "GameTime $gameTimeId already has a game assignment.  Cannot double book.");
