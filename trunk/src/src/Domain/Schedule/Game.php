@@ -839,6 +839,9 @@ class Game extends Domain
                     $this->removePlayerStats($playerGameStats);
 
                     // Set Player Goals
+                    if ($stats[\View_Base::PLAYER_GOALS] < 0) {
+                        $stats[\View_Base::PLAYER_GOALS] = 0;
+                    }
                     Assertion::isTrue($stats[\View_Base::PLAYER_GOALS] >= 0, "Invalid goals for player: $player->name: " . $stats[\View_Base::PLAYER_GOALS]);
                     $playerGameStats->goals = empty($stats[\View_Base::PLAYER_GOALS]) ? 0 : (int) $stats[\View_Base::PLAYER_GOALS];
 
