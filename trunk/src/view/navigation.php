@@ -44,13 +44,14 @@ abstract class View_Navigation
             <head>
                 <title>$title</title>
                 <script type='text/JavaScript' src='../js/scw.js'></script>
-                
+
                 <link rel='stylesheet' href='$this->redipsPath' type='text/css' media='screen'/>
 		        <script type='text/javascript'>
 			        var redipsURL = '/javascript/drag-and-drop-example-3/';
 		        </script>
 		        <script type='text/javascript' src='../js/REDIPS_drag/redips-drag-min.js'></script>
-		        <script type='text/javascript' src='$this->redipsScripPath'></script>";
+		        <script type='text/javascript' src='$this->redipsScripPath'></script>
+                <script type='text/javascript' src='../js/no_scroll_number.js'></script>";
 
         $styles->render($collapsibleCounter);
 
