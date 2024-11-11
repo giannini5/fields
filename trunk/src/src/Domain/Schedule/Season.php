@@ -1042,7 +1042,7 @@ class Season extends Domain
                     }
 
                     $count = count($line);
-                    Assertion::isTrue($count == 9, "Invalid line: $line, count: $count");
+                    Assertion::isTrue($count == 9 or $count == 10, "Invalid line: $line, count: $count");
 
                     // Get game data
                     $divisionName = ltrim($line[2], 'BG');
@@ -1114,6 +1114,12 @@ class Season extends Domain
                     $new_time = \DateTime::createFromFormat('h:i A', $line[4]);
                     $gameTimeStr = $new_time->format('H:i:s');
 
+                    $actualTimeStr = null;
+                    if ($count == 10) {
+                        $new_time = \DateTime::createFromFormat('h:i A', $line[9]);
+                        $actualTimeStr = $new_time->format('H:i:s');
+                    }
+
                     // $gameTimeStr = $gameTimeAttributes[0];
                     // if ($gameTimeAttributes[1] == 'PM') {
                     //     $gameTimeAttributes = explode(':', $gameTimeAttributes[0]);
@@ -1139,10 +1145,10 @@ class Season extends Domain
                         $visitingTeamId = substr_replace($visitingTeamId, 'B14-', 0, strlen('B14-B14-'));
                     }
 
-                    $divisionName = $homeTeamId == '(TBD)' ? explode('-', $visitingTeamId)[0] : explode('-', $homeTeamId)[0];
-                    $gender = $divisionName[0] == 'B' ? 'Boys' : 'Girls';
-                    $divisionName = ltrim($divisionName, 'BG');
-                    $divisionName .= 'U';
+                    // $divisionName = $homeTeamId == '(TBD)' ? explode('-', $visitingTeamId)[0] : explode('-', $homeTeamId)[0];
+                    $gender = $line[2][0] == 'B' ? 'Boys' : 'Girls';
+                    // $divisionName = ltrim($divisionName, 'BG');
+                    // $divisionName .= 'U';
                     $division = Division::lookupByNameAndGender($this, $divisionName, $gender);
 
                     $homeTeam = $homeTeamId == '(TBD)' ? null : Team::lookupByNameId($division, $homeTeamId);
@@ -1191,6 +1197,10 @@ class Season extends Domain
 
                     // Set the inLeague game id in the notes field
                     $game->notes = "inLeague_Game#:$line[8]";
+
+                    if (!is_null($actualTimeStr)) {
+                        $gameTime->actualStartTime = $actualTimeStr;
+                    }
                 }
                 fclose($handle);
             }
