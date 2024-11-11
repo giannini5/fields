@@ -427,7 +427,7 @@ class Schedule extends Domain
                 $pools[]    = $pool;
 
                 // Add Teams to pool
-                while ($numberOfPoolTeams > 0 and $teamIndex <= $numberOfTeams) {
+                while ($numberOfPoolTeams > 0 and $teamIndex < $numberOfTeams) {
                     $team               = $teams[$teamIndex++];
                     $team->pool         = $pool;
                     $numberOfPoolTeams -= 1;
@@ -1498,6 +1498,9 @@ class Schedule extends Domain
     public function getBracketPoolSizes($numberOfTeams)
     {
         $flightData          = [];
+
+        // Forces all teams to be placed into one pool.  Added to support inLeague data population
+        return $flightData = [1 => [100]];
 
         switch ($numberOfTeams) {
             case 4:
