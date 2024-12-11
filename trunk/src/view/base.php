@@ -320,6 +320,7 @@ abstract class View_Base {
     const DIVISIONS_CHECKED         = 'divisionsChecked';
     const GAME_DATES_CHECKED        = 'GameDatesChecked';
 
+    const ROBOT                     = 'robot';
     const EMAIL_ADDRESS             = 'emailAddress';
     const PHONE1                    = 'phone1';
     const PHONE2                    = 'phone2';
