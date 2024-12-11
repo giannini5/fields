@@ -12,6 +12,7 @@ class Controller_Fields_Help extends Controller_Fields_Base {
     public $m_subject;
     public $m_helpRequest;
     public $m_headerMessage;
+    public $m_robot;
 
 
     public function __construct() {
@@ -31,6 +32,10 @@ class Controller_Fields_Help extends Controller_Fields_Base {
                     View_Base::HELP_REQUEST,
                     'Uh, no body to this email.  Good stuff must be in the subject...'
                 );
+                $this->m_robot = $this->getPostAttribute(
+                    View_Base::ROBOT,
+                    0
+                );
             }
         }
     }
@@ -40,8 +45,13 @@ class Controller_Fields_Help extends Controller_Fields_Base {
      */
     public function process() {
         if ($this->m_operation == View_Base::SUBMIT) {
-            $this->sendHelpRequestEmail();
-            $this->m_headerMessage = "Email sent.  Expect a response within 24 hours.";
+            if ($this->m_robot == 30) {
+                $this->sendHelpRequestEmail();
+                $this->m_headerMessage = "Email sent.  Expect a response within 24 hours.";
+            }
+            else {
+                $this->m_headerMessage = "Sorry, I think you are a robot - no email sent";
+            }
         }
         $view = new View_Fields_Help($this);
         $view->displayPage();

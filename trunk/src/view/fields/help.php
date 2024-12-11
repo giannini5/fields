@@ -18,6 +18,7 @@ class View_Fields_Help extends View_Fields_Base {
      * @brief Render data for display on the page.
      */
     public function renderPage() {
+        $robot = View_Base::ROBOT;
         $emailAddress = View_Base::EMAIL_ADDRESS;
         $subject      = View_Base::SUBJECT;
         $helpRequest  = View_Base::HELP_REQUEST;
@@ -61,6 +62,11 @@ class View_Fields_Help extends View_Fields_Base {
                     <tr>
                         <td colspan=2>
                             <textarea name='$helpRequest' maxlength=2048 required=0 wrap='hard' rows='4' cols='70' placeholder='Help request'></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>Are you a robot?: <input style='text-align:left' type='text' name='$robot' autofocus=1 required=1 size=30 maxlength=60 placeholder='Answer with 24+6=' $optionalValue></p>
                         </td>
                     </tr>
                     <tr>
