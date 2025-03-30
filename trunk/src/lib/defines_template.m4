@@ -23,3 +23,8 @@ define(`M4_EMAIL_NAME', `tbd')dnl
 define(`M4_EMAIL_PASSWORD', `tbd')dnl
 define(`M4_EMAIL_HOST', `tbd')dnl
 define(`M4_EMAIL_PORT', `tbd')dnl
+
+define(`M4_IN_LEAGUE_TOKEN', `tbd')dnl
+define(`M4_IN_LEAGUE_SEASON_NAME', `tbd')dnl
+define(`M4_IN_LEAGUE_COMPETITION_NAME', `Fall League')dnl
+define(`M4_IN_LEAGUE_BASE_URL', `https://ayso122.inleague.org')dnl
