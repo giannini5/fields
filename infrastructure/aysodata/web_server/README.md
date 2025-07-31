@@ -37,6 +37,7 @@ ssh and run the following
 
 1. Install MariaDB
     See [MariaDb for Debian 10 - works for 12 too](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-debian-10)
+    Configure dag user with password
 2. Install Apache2
     See [Apache2 for Debian 12](https://reintech.io/blog/installing-apache-on-debian-12-step-by-step-guide)
 3. Install PHP
@@ -48,10 +49,9 @@ ssh and run the following
     See [MR for Debian 12](https://debian.pkgs.org/12/debian-main-amd64/m4_1.4.19-3_amd64.deb.html)
 3. Configure apache
 ```bash
-$ cd /etc/apache2/modes-enabled
+$ cd /etc/apache2/mods-enabled
 $ sudo cp ../mods-available/rewrite.load .
 $ # enable Listen on port 8080 in ports.conf
-$ # copy in ./etc/region122.aysodata.com.conf to /etc/apache2/sites-enabled
 ```
 4. Install software
 ```bash
@@ -60,6 +60,7 @@ $ cd /usr/local/src
 $ sudo chmod 777 .
 $ git clone https://github.com/giannini5/fields.git
 $ git config --global --add safe.directory /usr/local/src/fields
+$ cp /usr/local/src/fields/infrastructure/aysodata/web_server/etc/region122.aysodata.com.conf /etc/apache2/sites-enabled
 ```
 5. Configure software
 ```bash
@@ -68,5 +69,5 @@ $ # create defines.m4 from defines_template.m4
 $ cd /usr/local/src/fields/trunk/src/db/helpers
 $ # create defines.m4 from defines_template.m4
 $ cd /usr/local/src/fields/trunk/src/scripts
-$ sudo ./upgrade.sh -u
+$ sudo ./install.sh -u
 4. Verify
