@@ -1155,7 +1155,7 @@ class Season extends Domain
                     $dashCount = substr_count($visitingTeamId, '-');
                     if ($dashCount > 1) {
                         $parts = explode('-', $visitingTeamId);
-                        $homeTeamId = $parts[0] . '-' . $parts[1];
+                        $visitingTeamId = $parts[0] . '-' . $parts[1];
                     }
 
                     // $divisionName = $homeTeamId == '(TBD)' ? explode('-', $visitingTeamId)[0] : explode('-', $homeTeamId)[0];
