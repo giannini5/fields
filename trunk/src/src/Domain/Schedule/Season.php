@@ -1136,13 +1136,26 @@ class Season extends Domain
                     assertion($gameTime->startTime == $gameTimeStr, "Unable to find matching start time for $gameTimeStr with inLeague id $line[8]");
 
                     $homeTeamId = explode(' ', $line[6])[0];
+
                     if (substr($homeTeamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
                         $homeTeamId = substr_replace($homeTeamId, 'B14-', 0, strlen('B14-B14-'));
+                    }
+                    // If $homeTeamId has more than one '-' character, keep everything before the second '-'
+                    $dashCount = substr_count($homeTeamId, '-');
+                    if ($dashCount > 1) {
+                        $parts = explode('-', $homeTeamId);
+                        $homeTeamId = $parts[0] . '-' . $parts[1];
                     }
 
                     $visitingTeamId = explode(' ', $line[7])[0];
                     if (substr($visitingTeamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
                         $visitingTeamId = substr_replace($visitingTeamId, 'B14-', 0, strlen('B14-B14-'));
+                    }
+                    // If $visitingTeamId has more than one '-' character, keep everything before the second '-'
+                    $dashCount = substr_count($visitingTeamId, '-');
+                    if ($dashCount > 1) {
+                        $parts = explode('-', $visitingTeamId);
+                        $homeTeamId = $parts[0] . '-' . $parts[1];
                     }
 
                     // $divisionName = $homeTeamId == '(TBD)' ? explode('-', $visitingTeamId)[0] : explode('-', $homeTeamId)[0];
