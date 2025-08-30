@@ -74,14 +74,14 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
             $this->signOut();
         } else if ($this->m_missingAttributes == 0) {
             switch ($this->displayType) {
-                case self::DIVISION_BY_DAY:
-                    $region = new Region();
-                    $divisions = $region->getDivisionsForGameCards($this->divisionName, $this->gender);
-                    $games = $region->getGames($divisions, $this->gameDate->day);
-                    break;
                 case self::FACILITY_BY_DAY:
                 case self::MEDAL_BY_DAY:
                     $this->m_errorString = 'FACILITY_BY_DAY and MEDAL_BY_DAY are no longer supported';
+                    break;
+                case self::DIVISION_BY_DAY:
+                    // $region = new Region();
+                    // $divisions = $region->getDivisionsForGameCards($this->divisionName, $this->gender);
+                    // $games = $region->getGames($divisions, $this->gameDate->day);
                     break;
 
                 default:
