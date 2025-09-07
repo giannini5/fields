@@ -824,29 +824,28 @@ class Season extends Domain
                     }
 
                     $count = count($line);
-                    Assertion::isTrue($count == 7, "Invalid line: $line, count: $count");
+                    Assertion::isTrue($count == 8, "Invalid line: $line, count: $count");
 
                     // Get Division
                     // Example: B12 changed to 12U
-                    $divisionName = ltrim($line[4], 'BG');
+                    $divisionName = ltrim($line[5], 'BG');
                     $divisionName .= 'U';
 
                     // Get TeamId
                     // Example: B8-10 -Foothill Elementary- shouuld be B8-10
-                    $teamName   = '';
-                    $teamId     = explode(' ', $line[2])[0];
-                    if (substr($teamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
-                        $teamId     = substr_replace($teamId, 'B14-', 0, strlen('B14-B14-'));
-                    }
+                    // $teamId       = explode(' ', $line[2])[0];
+                    $teamIdStrLength = strlen($line[5]) + 3;
+                    $teamId          = substr($line[2], 0, $teamIdStrLength);
+                    $teamName        = str_replace($teamId, '', $line[4]);
 
                     // Other attributes
                     $region                 = '122';
                     $city                   = 'Santa Barbara';
                     $gender                 = $teamId[0] == 'B' ? "Boys" : "Girls";
-                    $coachName              = explode(',', $line[5])[0];
+                    $coachName              = explode(',', $line[6])[0];
                     $coachPhone             = '';
                     $coachCell              = '';
-                    $coachEmail             = explode(',', $line[6])[0];
+                    $coachEmail             = explode(',', $line[7])[0];
                     $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
                     $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
                     $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
@@ -1259,10 +1258,8 @@ class Season extends Domain
                     $divisionName = ltrim($line[5], 'BG');
                     $divisionName .= 'U';
                     $gender = $line[5][0] == 'B' ? 'Boys' : 'Girls';
-                    $teamId = explode(' ', $line[8])[0];
-                    if (substr($teamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
-                        $teamId = substr_replace($teamId, 'B14-', 0, strlen('B14-B14-'));
-                    }
+                    // $teamId = explode(separator: ' ', $line[8])[0];
+                    $teamId = substr($line[8], 0, 6);
                     if ($teamId == '') {
                         // Not yet assigned to a team, skip import
                         continue;
@@ -1281,8 +1278,16 @@ class Season extends Domain
 
                     $homePhone = $line[6];
                     $cellPhone = $line[7];
+                    $elements = explode('(', $line[8], 2);
+                    if (count($elements) == 2) {
+                        $uniformNumber = strlen($elements[1]) > 1 ? intval(rtrim($elements[1], ')')) : NULL;
+                    } else {
+                        $uniformNumber = NULL;
+                    }
+                    // $uniformNumber = strlen($line[9]) > 0 ? intval($line[9]) : NULL;
 
-                    Player::create($team, null, $name, '', $cellPhone == '' ? $homePhone : $cellPhone, true);
+                    Player::create($team, null, $name, '',
+                        $cellPhone == '' ? $homePhone : $cellPhone, true, $uniformNumber);
                 }
                 fclose($handle);
             }

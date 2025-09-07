@@ -68,15 +68,22 @@ class Player extends Domain
         $name,
         $email,
         $phone,
-        $ignore = false)
+        $ignore = false,
+        $number = null,
+        )
     {
         try {
             $familyId = isset($family) ? $family->id : null;
-            $playerOrm = PlayerOrm::create($team->id, $familyId, $name, $email, $phone);
+            $playerOrm = PlayerOrm::create($team->id, $familyId, $name, $email, $phone, $number);
             return new static($playerOrm, $team, $family);
         } catch (DuplicateEntryException $e) {
             if ($ignore) {
-                return static::lookupByName($team, $name);
+                // Update player
+                $player = static::lookupByName($team, $name);
+                if (isset($number)) {
+                    $player->number = $number;
+                }
+                return $player;
             } else {
                 throw $e;
             }
@@ -104,7 +111,7 @@ class Player extends Domain
     public static function lookupByName($team, $name)
     {
         $playerOrm = PlayerOrm::loadByName($team->id, $name);
-        return new static($playerOrm);
+        return new static(playerOrm: $playerOrm);
     }
 
     /**
