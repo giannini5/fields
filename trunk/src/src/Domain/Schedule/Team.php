@@ -4,6 +4,7 @@ namespace DAG\Domain\Schedule;
 
 use DAG\Domain\Domain;
 use DAG\Framework\Orm\DuplicateEntryException;
+use DAG\Framework\Orm\NoResultsException;
 use DAG\Orm\Schedule\TeamOrm;
 use DAG\Framework\Exception\Precondition;
 
@@ -76,14 +77,13 @@ class Team extends Domain
         $poolId = isset($pool) ? $pool->id : null;
 
         try {
+                // Update team name
+                $team = static::lookupByNameId($division, $nameId);
+                $team->name = $name;
+                return $team;
+        } catch (NoResultsException $e) {
             $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints, $seed, $color);
             return new static($teamOrm, $division, $pool);
-        } catch (DuplicateEntryException $e) {
-            if ($ignore) {
-                return static::lookupByNameId($division, $nameId);
-            } else {
-                throw $e;
-            }
         }
     }
 
