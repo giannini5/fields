@@ -20,6 +20,7 @@ create table if not exists game (
     playInByWin             tinyint not NULL default 0,
     locked                  tinyint not NULL default 0,
     refereeCrewId           bigint default NULL,
+    thirdPartyGameId        varchar(64) default NULL,
 
     PRIMARY KEY (id),
     unique key ux_gameTimeTeamFlight(flightId, gameTimeId, homeTeamId, visitingTeamId),
@@ -33,5 +34,6 @@ create table if not exists game (
     key ix_playInVisitingByWin(playInByWin, playInVisitingGameId),
     key ix_title(title),
     key ix_dateHomeTeamId(gameDateId, homeTeamId),
-    key ix_dateVisitingTeamId(gameDateId, visitingTeamId)
+    key ix_dateVisitingTeamId(gameDateId, visitingTeamId),
+    key ix_thirdPartyGameId(thirdPartyGameId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
