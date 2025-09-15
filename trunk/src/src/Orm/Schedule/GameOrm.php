@@ -30,6 +30,7 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property int    $playInVisitingGameId
  * @property int    $playInByWin
  * @property int    $locked
+ * @property string $thirdPartyGameId
  * @property int    $refereeCrewId
  */
 class GameOrm extends PersistenceModel
@@ -64,6 +65,7 @@ class GameOrm extends PersistenceModel
     const FIELD_PLAY_IN_BY_WIN              = 'playInByWin';
     const FIELD_LOCKED                      = 'locked';
     const FIELD_REFEREE_CREW_ID             = 'refereeCrewId';
+    const THIRD_PARTY_GAME_ID               = 'thirdPartyGameId';
 
     public static $titles = [
         self::TITLE_PLAYOFF,
@@ -105,6 +107,7 @@ class GameOrm extends PersistenceModel
         self::FIELD_PLAY_IN_BY_WIN              => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_LOCKED                      => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_REFEREE_CREW_ID             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
+        self::THIRD_PARTY_GAME_ID               => [FV::STRING, [FV::NO_CONSTRAINTS], null],
     ];
 
     protected static $config = [
@@ -146,7 +149,8 @@ class GameOrm extends PersistenceModel
         $locked = 0,
         $playInHomeGameId = 0,
         $playInVisitingGameId = 0,
-        $playInByWin = 0
+        $playInByWin = 0,
+        $thirdPartyGameId = null
     ) {
         // Verify GameTimeOrm exists and a game has not been assigned
         $gameTimeOrm = GameTimeOrm::loadById($gameTimeId);
@@ -174,6 +178,7 @@ class GameOrm extends PersistenceModel
                     self::FIELD_PLAY_IN_VISITING_GAME_ID    => $playInVisitingGameId,
                     self::FIELD_PLAY_IN_BY_WIN              => $playInByWin,
                     self::FIELD_LOCKED                      => $locked,
+                    self::THIRD_PARTY_GAME_ID               => $thirdPartyGameId,
                 ],
                 function ($item) {
                     return $item !== null;
@@ -200,6 +205,20 @@ class GameOrm extends PersistenceModel
     public static function loadById($id)
     {
         $result = self::getPersistenceDriver()->getOne([self::FIELD_ID => $id]);
+
+        return new static($result);
+    }
+
+    /**
+     * Load a GameOrm by thirdPartyGameId
+     *
+     * @param string $thirdPartyGameId
+     *
+     * @return GameOrm
+     */
+    public static function loadByThirdPartyGameId($thirdPartyGameId)
+    {
+        $result = self::getPersistenceDriver()->getOne([self::THIRD_PARTY_GAME_ID => $thirdPartyGameId]);
 
         return new static($result);
     }

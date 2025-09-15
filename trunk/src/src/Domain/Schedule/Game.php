@@ -37,6 +37,7 @@ use DAG\Orm\Schedule\MoveGameException;
  * @property bool           $isCenterRefereeAssigned
  * @property bool           $isAssistantReferee1Assigned
  * @property bool           $isAssistantReferee2Assigned
+ * @property string         $thirdPartyGameId
  */
 class Game extends Domain
 {
@@ -131,7 +132,8 @@ class Game extends Domain
         $locked = 0,
         $playInHomeGameId = 0,
         $playInVisitingGameId = 0,
-        $playInByWin = 0
+        $playInByWin = 0,
+        $thirdPartyGameId = null
     ) {
         $poolId         = isset($pool) ? $pool->id : null;
         $homeTeamId     = isset($homeTeam) ? $homeTeam->id : null;
@@ -139,7 +141,7 @@ class Game extends Domain
 
         $gameOrm        = GameOrm::create($flight->schedule->id, $flight->id, $poolId, $gameTime->gameDate->id,
             $gameTime->id, $homeTeamId, $visitingTeamId, $title, $locked, $playInHomeGameId, $playInVisitingGameId,
-            $playInByWin);
+            $playInByWin, $thirdPartyGameId);
         $game           = new static($gameOrm, $flight, $pool, null, $homeTeam, $visitingTeam);
         $gameTime->game = $game;
 
@@ -440,6 +442,7 @@ class Game extends Domain
             case "homeTeamRedCards":
             case "visitingTeamRedCards":
             case "notes":
+            case "thirdPartyGameId":
                 return $this->gameOrm->{$propertyName};
 
             case "schedule":
@@ -510,6 +513,7 @@ class Game extends Domain
             case "homeTeamRedCards":
             case "visitingTeamRedCards":
             case "notes":
+            case "thirdPartyGameId":
                 $this->gameOrm->{$propertyName} = $value;
                 $this->gameOrm->save();
                 break;
@@ -562,6 +566,7 @@ class Game extends Domain
             case "homeTeamRedCards":
             case "visitingTeamRedCards":
             case "notes":
+            case "thirdPartyGameId":
                 return isset($this->gameOrm->{$propertyName});
 
             case "playInHomeGameId":

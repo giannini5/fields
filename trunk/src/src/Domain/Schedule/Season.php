@@ -1041,7 +1041,7 @@ class Season extends Domain
                     }
 
                     $count = count($line);
-                    Assertion::isTrue($count == 9 or $count == 10, "Invalid line: $line, count: $count");
+                    Assertion::isTrue($count == 11 or $count == 12, "Invalid line: $line, count: $count");
 
                     // Get game data
                     $divisionName = ltrim($line[2], 'BG');
@@ -1207,9 +1207,20 @@ class Season extends Domain
                     // Use schedule to createGame (family games also created)
                     $game = $schedule->createGame($this, $flight, $pool, $gameTime, $homeTeam, $visitingTeam);
 
-                    // Set the inLeague game id in the notes field
-                    $game->notes = "inLeague_Game#:$line[8]";
+                    // Set the inLeague game id
+                    $inLeagueGameId = $line[10];
+                    $game->notes = "inLeague_Game#:$inLeagueGameId";
+                    $game->thirdPartyGameId = $inLeagueGameId;
 
+                    // Set the score if available
+                    $homeScore = $line[8];
+                    $visitingScore = $line[9];
+                    if (is_numeric($homeScore) and is_numeric($visitingScore)) {
+                        $game->homeTeamScore =  intval($homeScore);
+                        $game->visitingTeamScore = intval($visitingScore);
+                    }
+
+                    // Set the actual start time if available
                     if (!is_null($actualTimeStr)) {
                         $gameTime->actualStartTime = $actualTimeStr;
                     }
