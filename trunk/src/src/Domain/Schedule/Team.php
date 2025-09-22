@@ -77,9 +77,10 @@ class Team extends Domain
         $poolId = isset($pool) ? $pool->id : null;
 
         try {
-                // Update team name
+                // Update team name and color
                 $team = static::lookupByNameId($division, $nameId);
                 $team->name = $name;
+                $team->color = $color;
                 return $team;
         } catch (NoResultsException $e) {
             $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints, $seed, $color);

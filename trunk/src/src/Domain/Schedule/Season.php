@@ -824,7 +824,7 @@ class Season extends Domain
                     }
 
                     $count = count($line);
-                    Assertion::isTrue($count == 8, "Invalid line: $line, count: $count");
+                    Assertion::isTrue($count == 9, "Invalid line: $line, count: $count");
 
                     // Get Division
                     // Example: B12 changed to 12U
@@ -837,6 +837,7 @@ class Season extends Domain
                     $teamIdStrLength = strlen($line[5]) + 3;
                     $teamId          = substr($line[2], 0, $teamIdStrLength);
                     $teamName        = str_replace($teamId, '', $line[4]);
+                    $teamColor       = $line[7];
 
                     // Other attributes
                     $region                 = '122';
@@ -845,7 +846,7 @@ class Season extends Domain
                     $coachName              = explode(',', $line[6])[0];
                     $coachPhone             = '';
                     $coachCell              = '';
-                    $coachEmail             = explode(',', $line[7])[0];
+                    $coachEmail             = explode(',', $line[8])[0];
                     $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
                     $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
                     $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
@@ -858,7 +859,7 @@ class Season extends Domain
 
                     // Create division, team and coach
                     $division   = Division::create($this, $divisionName, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder, true);
-                    $team       = Team::create($division, null, $teamName, $teamId, $region, $city, true);
+                    $team       = Team::create($division, null, $teamName, $teamId, $region, $city, true, 0, 0, $teamColor);
                     Coach::create($team, null, $coachName, $coachEmail, $coachPhone, $coachCell, true);
                 }
                 fclose($handle);
