@@ -400,7 +400,7 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
                             </tr>";
 
         $playerCount = 0;
-        Assertion::isTrue(count($players) < 18, "Count of players on a team cannot exceed 18. Team has " . count($players) . " players");
+        Assertion::isTrue(count($players) < 25, "Count of players on a team cannot exceed 18. Team has " . count($players) . " players");
         foreach ($players as $player) {
             $this->printPlayerRow($game, $team, $player);
             $playerCount += 1;
