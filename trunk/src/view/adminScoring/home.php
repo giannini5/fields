@@ -177,8 +177,8 @@ class View_AdminScoring_Home extends View_AdminScoring_Base
         // Print message and return if game does not have a team
 
         // Force quick scoring -
-        // if ($this->m_controller->m_quickScoring or !isset($game->homeTeam) or $game->title != '') {
-        if (!isset($game->homeTeam) or $game->title != '' or $game->flight->schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT) {
+        if ($this->m_controller->m_quickScoring or !isset($game->homeTeam) or $game->title != '') {
+        // if (!isset($game->homeTeam) or $game->title != '' or $game->flight->schedule->scheduleType == ScheduleOrm::SCHEDULE_TYPE_TOURNAMENT) {
             $this->printQuickUpdateGameForm($sessionId, $game, $scoringType, $coachFilter, $divisionFilter, $gameDateFilter);
             return;
         }
