@@ -1115,8 +1115,8 @@ class Season extends Domain
                     $gameTimeStr = $new_time->format('H:i:s');
 
                     $actualTimeStr = null;
-                    if ($count == 10) {
-                        $new_time = \DateTime::createFromFormat('h:i A', $line[9]);
+                    if ($count == 12 and $line[11] != '') {
+                        $new_time = \DateTime::createFromFormat('h:i A', $line[11]);
                         $actualTimeStr = $new_time->format('H:i:s');
                     }
 
