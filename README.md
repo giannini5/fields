@@ -9,6 +9,7 @@ Grasslands in the midwest that need trimming after a thunderstorm.
 - See [Composer Getting Started](https://getcomposer.org/doc/00-intro.md) and [Composer Download](https://getcomposer.org/doc/00-intro.md)
 - See [PHPMailer Guide](https://mailtrap.io/blog/phpmailer/)
 - See [Xdebug](https://dev.to/scriptmint/installing-xdebug-3-on-macos-and-debug-in-vs-code-3l5h)
+- Install VSCode extensions to support PHP (PHP, PHP Profiler, )
 
 # Additional PHP setup
 The php.ini and php-fpm.ini file can be found in:
@@ -27,6 +28,14 @@ For compilers to find php@8.2 you may need to set in your ~/.zprofile:
 
 To start php@8.2 now and restart at login:
   brew services start php@8.2
+
+Add XDebug to php.ini file (be sure to verify location of the xdebug.so file):
+```
+[XDebug]
+zend_extension="/usr/local/Cellar/php@8.2/8.2.28_1/pecl/20220829/xdebug.so"
+xdebug.mode=debug
+xdebug.start_with_request=yes
+```
 
 # To start/stop apache
 ```
