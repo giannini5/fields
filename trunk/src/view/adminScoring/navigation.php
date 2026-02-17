@@ -58,6 +58,8 @@ class View_AdminScoring_Navigation extends View_Navigation
                 '<li><div>VOLUNTEER POINTS</div></li>' : '<li><a href="' . View_Base::SCORING_VOLUNTEER_POINTS_PAGE . '">VOLUNTEER POINTS</a></li>')
             . ($this->pageName == View_Base::SCORING_GAME_CARDS_PAGE ?
                 '<li><div>GAME CARDS</div></li>' : '<li><a href="' . View_Base::SCORING_GAME_CARDS_PAGE . '">GAME CARDS</a></li>')
+            . ($this->pageName == View_Base::ADMIN_REF_MATCH_CARDS_PAGE ?
+                '<li><div>MATCH CARDS</div></li>' : '<li><a href="' . View_Base::ADMIN_REF_MATCH_CARDS_PAGE . '">MATCH CARDS</a></li>')
             . ($this->pageName == View_Base::SCORING_SCORE_SHEET_PAGE ?
                 '<li><div>SCORE SHEET</div></li>' : '<li><a href="' . View_Base::SCORING_SCORE_SHEET_PAGE . '">SCORE SHEET</a></li>')
             . ($this->pageName == View_Base::SCORING_PLAYER_STATS_PAGE ?

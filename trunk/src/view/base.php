@@ -59,6 +59,9 @@ abstract class View_Base {
     const SCORING_PLAYER_STATS_PAGE     = '/admin_scoring/playerStats';
     const SCORING_TEAM_STATS_PAGE       = '/admin_scoring/teamStats';
 
+    # Admin Referee Match Card Pages
+    const ADMIN_REF_MATCH_CARDS_PAGE = '/admin_ref_match_cards';
+
     # Admin Referee pages
     const REFEREE_HOME_PAGE         = '/admin_referee_home';
     const REFEREE_REFEREES_PAGE     = '/admin_referee_referees';
