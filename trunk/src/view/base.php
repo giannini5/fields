@@ -1481,12 +1481,15 @@ abstract class View_Base {
     /**
      * Get facility selector
      *
+     * @param bool $includeAll - if true then All is an option otherwise All is not allowed
      * @return array - id => facilityName
      */
-    public function getFacilitySelector()
+    public function getFacilitySelector($includeAll=true)
     {
         $facilitySelectorData       = [];
-        $facilitySelectorData[0]    = 'All';
+        if ($includeAll) {
+            $facilitySelectorData[0]    = 'All';
+        }
 
         if (isset($this->m_controller->m_season)) {
             $facilities = Facility::lookupBySeason($this->m_controller->m_season);
