@@ -83,7 +83,7 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
      */
     private function printMatchCardsByFacilityAndDay($sessionId, $gameDateSelector)
     {
-        $facilitySelector       = $this->getFacilitySelector();
+        $facilitySelector       = $this->getFacilitySelector(false);
         $facility               = isset($this->m_controller->facilityId) ? Facility::lookupById($this->m_controller->facilityId) : null;
         $selectedFacilityName   = isset($facility) ? $facility->name : '';
         $gameDay                = isset($this->m_controller->gameDate) ? $this->m_controller->gameDate->day : '';
