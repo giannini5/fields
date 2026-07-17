@@ -1014,6 +1014,42 @@ class Season extends Domain
     }
 
     /**
+     * Get game time from string
+     *
+     * @param string $gameTimeStr - Expected format: h:i A
+     * @param GameDate $gameDate - GameDate domain object
+     * @param Field $field - Field domain object
+     * @return GameTime | null
+     */
+    private function getGameTimeFromString($gameTimeStr, $gameDate, $field)
+    {
+        $gameTime = null;
+        $seconds = substr($gameTimeStr, -2);
+        $minutes = substr($gameTimeStr, -5, 2);
+        $hours = substr($gameTimeStr, -8, 2);
+        $gameTimes = GameTime::lookupByGameDateAndField($gameDate, $field);
+
+        // Iterate up to 60 minutes to find a matching game time
+        for ($i = 0; $i < 60; $i++) {
+            $increment = $i == 0 ? 0 : 1;
+            if ($minutes + $increment >= 60) {
+                $minutes = 0;
+                $hours = $hours + 1;
+            } else {
+                $minutes = $minutes + $increment;
+            }
+            $gameTimeStr = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+
+            foreach ($gameTimes as $gameTime) {
+                if ($gameTime->startTime == $gameTimeStr) {
+                    return $gameTime;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Populate Games and FamilyGames
      *
      * @param string $fileName - Expected file format:
@@ -1042,55 +1078,18 @@ class Season extends Domain
                     }
 
                     $count = count($line);
-                    Assertion::isTrue($count == 11 or $count == 12, "Invalid line: $line, count: $count");
+                    Assertion::isTrue($count == 9, "Invalid line: $line, count: $count");
 
                     // Get game data
-                    $divisionName = ltrim($line[2], 'BG');
+                    $divisionName = ltrim($line[0], 'BG');
                     $divisionName .= 'U';
-                    $gameDateStr = $line[3];
-                    $gameDateAttributes = explode(' ', $gameDateStr);
-                    $month = $gameDateAttributes[1];
-                    switch ($month) {
-                        case 'Jan':
-                            $month = '01';
-                            break;
-                        case 'Feb':
-                            $month = '02';
-                            break;
-                        case 'Mar':
-                            $month = '03';
-                            break;
-                        case 'Apr':
-                            $month = '04';
-                            break;
-                        case 'May':
-                            $month = '05';
-                            break;
-                        case 'Jun':
-                            $month = '06';
-                            break;
-                        case 'Jul':
-                            $month = '07';
-                            break;
-                        case 'Aug':
-                            $month = '08';
-                            break;
-                        case 'Sep':
-                            $month = '09';
-                            break;
-                        case 'Oct':
-                            $month = '10';
-                            break;
-                        case 'Nov':
-                            $month = '11';
-                            break;
-                        case 'Dec':
-                            $month = '12';
-                            break;
-                        default:
-                            throw new \Exception("Invalid month field: $month");
-                    }
-                    $gameDateStr = $gameDateAttributes[3] . '-' . $month . '-' . rtrim($gameDateAttributes[2], ",");
+                    $gameDateStr = $line[1];
+                    $gameDateAttributes = explode('/', $gameDateStr);
+                    Assertion::isTrue(count($gameDateAttributes) == 3, "Invalid game date format: $gameDateStr");
+                    $month = $gameDateAttributes[0];
+                    $day = $gameDateAttributes[1];
+                    $year = $gameDateAttributes[2];
+                    $gameDateStr = sprintf('%d-%02d-%02d', $year, $month, $day);
                     if ($gameDateStr == '2024-06-29') {
                         continue;
                     }
@@ -1101,41 +1100,40 @@ class Season extends Domain
                     foreach ($facilities as $facility) {
                         $fields = Field::lookupByFacility($facility);
                         foreach ($fields as $field) {
-                            if ($field->name == $line[5]) {
+                            if ($field->name == $line[3]) {
                                 break;
                             }
                         }
-                        if (!is_null($field) and $field->name == $line[5]) {
+                        if (!is_null($field) and $field->name == $line[3]) {
                             break;
                         }
                     }
-                    assertion(!is_null($field), "Unable to find field for: $line[5]");
+                    assertion(!is_null($field), "Unable to find field for: $line[3]");
 
-                    $new_time = \DateTime::createFromFormat('h:i A', $line[4]);
+                    $new_time = \DateTime::createFromFormat('h:i A', $line[2]);
                     $gameTimeStr = $new_time->format('H:i:s');
 
-                    $actualTimeStr = null;
-                    if ($count == 12 and $line[11] != '') {
-                        $new_time = \DateTime::createFromFormat('h:i A', $line[11]);
-                        $actualTimeStr = $new_time->format('H:i:s');
-                    }
+                    // Get the closest game time in the future to the game time string
+                    $gameTime = $this->getGameTimeFromString($gameTimeStr, $gameDate, $field);
+                    assertion(!is_null($gameTime), "Unable to find gimeTime for: $line[2] on field $field->name");
 
-                    // $gameTimeStr = $gameTimeAttributes[0];
-                    // if ($gameTimeAttributes[1] == 'PM') {
-                    //     $gameTimeAttributes = explode(':', $gameTimeAttributes[0]);
-                    //     $gameTimeStr = 12 + $gameTimeAttributes[0] . ':' . '$gameTimeAttributes[1]';
-                    // }
-                    $gameTimes = GameTime::lookupByGameDateAndField($gameDate, $field);
-                    $gameTime = null;
-                    foreach ($gameTimes as $gameTime) {
-                        if ($gameTime->startTime == $gameTimeStr) {
-                            break;
+                    // If the game time is not matching then set the actual game time
+                    $actualTimeStr = $gameTime->startTime == $gameTimeStr ? null : $gameTimeStr;
+
+                    // Set the inLeague game id
+                    $inLeagueGameId = $line[8];
+
+                    // If a game already exists in the new gameTime then remove it from the gameTime and delete the game if it is not the same game
+                    if (!is_null($gameTime->game)) {
+                        $oldGame = $gameTime->game;
+                        if ($oldGame->thirdPartyGameId != $inLeagueGameId) {
+                            $oldGame->delete();
                         }
+                        $gameTime->game = null;
+                        $gameTime->actualStartTime = null;
                     }
-                    assertion(!is_null($gameTime), "Unable to find gimeTime for: $line[4] on field $field->name");
-                    assertion($gameTime->startTime == $gameTimeStr, "Unable to find matching start time for $gameTimeStr with inLeague id $line[8]");
 
-                    $homeTeamId = explode(' ', $line[6])[0];
+                    $homeTeamId = explode(' ', $line[4])[0];
 
                     if (substr($homeTeamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
                         $homeTeamId = substr_replace($homeTeamId, 'B14-', 0, strlen('B14-B14-'));
@@ -1147,7 +1145,7 @@ class Season extends Domain
                         $homeTeamId = $parts[0] . '-' . $parts[1];
                     }
 
-                    $visitingTeamId = explode(' ', $line[7])[0];
+                    $visitingTeamId = explode(' ', $line[5])[0];
                     if (substr($visitingTeamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
                         $visitingTeamId = substr_replace($visitingTeamId, 'B14-', 0, strlen('B14-B14-'));
                     }
@@ -1159,15 +1157,13 @@ class Season extends Domain
                     }
 
                     // $divisionName = $homeTeamId == '(TBD)' ? explode('-', $visitingTeamId)[0] : explode('-', $homeTeamId)[0];
-                    $gender = $line[2][0] == 'B' ? 'Boys' : 'Girls';
-                    // $divisionName = ltrim($divisionName, 'BG');
-                    // $divisionName .= 'U';
+                    $gender = $line[0][0] == 'B' ? 'Boys' : 'Girls';
                     $division = Division::lookupByNameAndGender($this, $divisionName, $gender);
 
                     $homeTeam = $homeTeamId == '(TBD)' ? null : Team::lookupByNameId($division, $homeTeamId);
                     $visitingTeam = $visitingTeamId == '(TBD)' ? null : Team::lookupByNameId($division, $visitingTeamId);
 
-                    print("<p>date:$gameDate->day, time:($gameTime->startTime, $line[4]), field:$field->name, home:$homeTeamId, visit:$visitingTeamId</p>");
+                    print("<p>date:$gameDate->day, time:($gameTime->startTime, $line[2]), field:$field->name, home:$homeTeamId, visit:$visitingTeamId</p>");
 
                     // Find or create schedule
                     $schedules = Schedule::lookupByDivision($division);
@@ -1205,17 +1201,13 @@ class Season extends Domain
                         $pool = Pool::create($flight, $schedule, 'A');
                     }
 
-                    // Use schedule to createGame (family games also created)
-                    $game = $schedule->createGame($this, $flight, $pool, $gameTime, $homeTeam, $visitingTeam);
-
-                    // Set the inLeague game id
-                    $inLeagueGameId = $line[10];
+                    // Use schedule to createOrUpdateGame (family games also created)
+                    $game = $schedule->createOrUpdateGame($this, $flight, $pool, $gameTime, $homeTeam, $visitingTeam, thirdPartyGameId:$inLeagueGameId);
                     $game->notes = "inLeague_Game#:$inLeagueGameId";
-                    $game->thirdPartyGameId = $inLeagueGameId;
 
                     // Set the score if available
-                    $homeScore = $line[8];
-                    $visitingScore = $line[9];
+                    $homeScore = $line[6];
+                    $visitingScore = $line[7];
                     if (is_numeric($homeScore) and is_numeric($visitingScore)) {
                         $game->homeTeamScore =  intval($homeScore);
                         $game->visitingTeamScore = intval($visitingScore);
@@ -1224,6 +1216,8 @@ class Season extends Domain
                     // Set the actual start time if available
                     if (!is_null($actualTimeStr)) {
                         $gameTime->actualStartTime = $actualTimeStr;
+                    } else {
+                        $gameTime->actualStartTime = null;
                     }
                 }
                 fclose($handle);

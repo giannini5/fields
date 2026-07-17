@@ -91,7 +91,18 @@ class api {
      * @return {} json_data
      */
     public function games($competitionID, $divisionGuids, $startDate, $endDate) {
-        return $this->execute('/api/v1/games?competitionID=' . $competitionID . '?divids=' . $divisionGuids . '&startdate=' . $startDate . '&enddate=' . $endDate);
+        return $this->execute('/api/v1/games/' . $competitionID . '?divids=' . $divisionGuids . '&startdate=' . $startDate . '&enddate=' . $endDate);
+    }
+
+    /**
+     * roster
+     * @brief
+     *      Get roster for a team
+     * @param string teamID - inLeague teamID
+     * @return {} json_data
+     */
+    public function roster($teamID) {
+        return $this->execute('/api/v1/roster/' . $teamID);
     }
 
     /**

@@ -4,11 +4,11 @@ use \DAG\Domain\Schedule\GameDate;
 use DAG\inLeague\Region;
 
 /**
- * Class Controller_AdminScoring_GameCards
+ * Class Controller_AdminScoring_MatchCards
  *
- * @brief Controller for printing game cards
+ * @brief Controller for printing match cards
  */
-class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
+class Controller_AdminScoring_MatchCards extends Controller_AdminScoring_Base
 {
     const DIVISION_BY_DAY   = 'divisionByDay';
     const FACILITY_BY_DAY   = 'facilityByDay';
@@ -74,30 +74,12 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
             $this->signOut();
         } else if ($this->m_missingAttributes == 0) {
             switch ($this->displayType) {
-                case self::FACILITY_BY_DAY:
-                case self::MEDAL_BY_DAY:
-                    $this->m_errorString = 'FACILITY_BY_DAY and MEDAL_BY_DAY are no longer supported';
-                    break;
                 case self::DIVISION_BY_DAY:
-                    $region = new Region();
-                    $divisions = $region->getDivisionsForGameCards($this->divisionName, $this->gender);
-                    $gameDay = $this->gameDate->day;
-                    $nextDay = new DateTime($gameDay);
-                    $nextDay = $nextDay->modify('+1 day');
-                    $inLeagueGames = $region->getGames($divisions, $gameDay, $nextDay->format('Y-m-d'));
-                    // $roster = $region->getRoster('B706E1AD-FBCC-43EC-A010-A38F0447C7A8');
-                    // $games[0]['visitorTeamDesignation'] - just left 6 characters
-                    // $games[0]['homeTeamDesignation'] - just left 6 characters
-                    // gameDate: Month DD, YYYY HH:MM:SS
-                    // gameNum
-                    // visitorGoals
-                    // homeGoals
-                    foreach ($inLeagueGames as $inLeagueGame) {
-                        $gameDate = new DateTime($game['gameDate']);
-                        $gameDateStr = $gameDate->format('F j, Y g:i A');
-                        echo "Game {$game['gameNum']}: {$game['visitorTeamDesignation']} vs {$game['homeTeamDesignation']} at {$gameDateStr}\n";
-                    }
+                case self::MEDAL_BY_DAY:
+                    $this->m_errorString = 'DIVISION_BY_DAY & MEDAL_BY_DAY are no longer supported';
+                    break;
 
+                case self::FACILITY_BY_DAY:
                     break;
 
                 default:
@@ -106,7 +88,7 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
             }
         }
 
-        $view = new View_AdminScoring_GameCards($this);
+        $view = new View_AdminScoring_MatchCards($this);
         $view->displayPage();
     }
 }

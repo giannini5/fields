@@ -46,7 +46,8 @@ sudo apachectl <start | stop | restart>
 ```
 
 # Configure PHP w/ Apache
-To enable PHP in Apache add the following to httpd.conf (found here: /usr/local/etc/httpd) and restart Apache:
+To enable PHP in Apache add the following to httpd.conf (found here: /usr/local/etc/httpd) and restart Apache
+(NOTE: some configurations have the files in /opt/homebrew/etc/httpd)
     LoadModule php_module /usr/local/opt/php@8.2/lib/httpd/modules/libphp.so
 
 Uncomment the following line:
