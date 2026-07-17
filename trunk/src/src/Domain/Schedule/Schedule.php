@@ -1109,6 +1109,71 @@ class Schedule extends Domain
     }
 
     /**
+     * Create or update the game and the family game to help us later find coaching overlaps
+     *
+     * @param $season
+     * @param $flight
+     * @param $pool
+     * @param $gameTime
+     * @param $homeTeam
+     * @param $visitingTeam
+     * @param $title                - optional
+     * @param $locked               - optional
+     * @param $playInHomeGameId     - optional
+     * @param $playInVisitingGameId - optional
+     * @param $playInByWin          - optional
+     * @param $thirdPartyGameId     - optional
+     *
+     * @return Game
+     * @throws
+     */
+    public function createOrUpdateGame($season, $flight, $pool, $gameTime, $homeTeam, $visitingTeam,
+                                $title='', $locked=0, $playInHomeGameId=0, $playInVisitingGameId=0, $playInByWin=0, $thirdPartyGameId=null)
+    {
+        // Look up the game by thirdPartyGameId
+        $game = Game::lookupByThirdPartyGameId($thirdPartyGameId);
+        if ($game) {
+            Assertion::isTrue(is_null($game->gameTime->game) or $game->gameTime->game === $game, "Game is not associated with its gameTime");
+            Assertion::isTrue($game->flight->id == $flight->id, "Flight mismatch");
+            Assertion::isTrue($game->pool->id == $pool->id, "Pool mismatch");
+
+            // Set the game's current gameTime game to null
+            $game->gameTime->game = null;
+            $game->gameTime->actualStartTime = null;
+
+            // Update the game
+            $game->gameDate = $gameTime->gameDate;
+            $game->gameTime = $gameTime;
+            $game->homeTeam = $homeTeam;
+            $game->visitingTeam = $visitingTeam;
+            $game->title = $title;
+            $game->locked = $locked;
+            $game->playInHomeGameId = $playInHomeGameId;
+            $game->playInVisitingGameId = $playInVisitingGameId;
+            $game->playInByWin = $playInByWin;
+
+            // Update the gameTime
+            $gameTime->game = $game;
+        } else {
+            // Create the game
+            $game = Game::create($flight, $pool, $gameTime, $homeTeam, $visitingTeam,
+            $title, $locked, $playInHomeGameId, $playInVisitingGameId, $playInByWin, $thirdPartyGameId);
+        }
+
+        // Create the familyGame to help find game overlaps for a family
+        if ($homeTeam)
+        {
+            $this->createFamilyGame($season, $homeTeam, $game);
+        }
+        if ($visitingTeam)
+        {
+            $this->createFamilyGame($season, $visitingTeam, $game);
+        }
+
+        return $game;
+    }
+
+    /**
      * Create FamilyGame to help find coaching overlaps
      *
      * @param $season

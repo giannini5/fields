@@ -161,6 +161,21 @@ class Game extends Domain
     }
 
     /**
+     * @param string    $thirdPartyGameId
+     * @param GameTime  $gameTime defaults to null
+     *
+     * @return Game | null
+     */
+    public static function lookupByThirdPartyGameId($thirdPartyGameId, $gameTime = null)
+    {
+        $gameOrm = GameOrm::loadByThirdPartyGameId($thirdPartyGameId);
+        if ($gameOrm) {
+            return new static($gameOrm, null, null, $gameTime);
+        }
+        return null;
+    }
+
+    /**
      * @param int       $gameId
      * @param Game      $foundGame - null if not found
      *
@@ -514,8 +529,16 @@ class Game extends Domain
             case "visitingTeamRedCards":
             case "notes":
             case "thirdPartyGameId":
+            case "playInHomeGameId":
+            case "playInVisitingGameId":
                 $this->gameOrm->{$propertyName} = $value;
                 $this->gameOrm->save();
+                break;
+
+            case "gameDate":
+                $this->gameOrm->gameDateId = $value->id;
+                $this->gameOrm->save();
+                $this->gameDate = $value;
                 break;
 
             case "gameTime":

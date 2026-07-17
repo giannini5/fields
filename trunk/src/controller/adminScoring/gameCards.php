@@ -79,9 +79,25 @@ class Controller_AdminScoring_GameCards extends Controller_AdminScoring_Base
                     $this->m_errorString = 'FACILITY_BY_DAY and MEDAL_BY_DAY are no longer supported';
                     break;
                 case self::DIVISION_BY_DAY:
-                    // $region = new Region();
-                    // $divisions = $region->getDivisionsForGameCards($this->divisionName, $this->gender);
-                    // $games = $region->getGames($divisions, $this->gameDate->day);
+                    $region = new Region();
+                    $divisions = $region->getDivisionsForGameCards($this->divisionName, $this->gender);
+                    $gameDay = $this->gameDate->day;
+                    $nextDay = new DateTime($gameDay);
+                    $nextDay = $nextDay->modify('+1 day');
+                    $inLeagueGames = $region->getGames($divisions, $gameDay, $nextDay->format('Y-m-d'));
+                    // $roster = $region->getRoster('B706E1AD-FBCC-43EC-A010-A38F0447C7A8');
+                    // $games[0]['visitorTeamDesignation'] - just left 6 characters
+                    // $games[0]['homeTeamDesignation'] - just left 6 characters
+                    // gameDate: Month DD, YYYY HH:MM:SS
+                    // gameNum
+                    // visitorGoals
+                    // homeGoals
+                    foreach ($inLeagueGames as $inLeagueGame) {
+                        $gameDate = new DateTime($game['gameDate']);
+                        $gameDateStr = $gameDate->format('F j, Y g:i A');
+                        echo "Game {$game['gameNum']}: {$game['visitorTeamDesignation']} vs {$game['homeTeamDesignation']} at {$gameDateStr}\n";
+                    }
+
                     break;
 
                 default:

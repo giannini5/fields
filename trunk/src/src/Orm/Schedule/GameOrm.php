@@ -218,9 +218,17 @@ class GameOrm extends PersistenceModel
      */
     public static function loadByThirdPartyGameId($thirdPartyGameId)
     {
-        $result = self::getPersistenceDriver()->getOne([self::THIRD_PARTY_GAME_ID => $thirdPartyGameId]);
+        $results = self::getPersistenceDriver()->getMany(
+            [
+                self::THIRD_PARTY_GAME_ID => $thirdPartyGameId
+            ]);
 
-        return new static($result);
+        if (count($results) == 0) {
+            return null;
+        }
+
+        Assertion::isTrue(count($results) == 1, "Invalid count of games found in loadByThirdPartyGameId for $thirdPartyGameId");
+        return new static($results[0]);
     }
 
     /**
