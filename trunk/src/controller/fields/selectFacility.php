@@ -184,23 +184,23 @@ class Controller_Fields_SelectFacility extends Controller_Fields_Base {
             return FALSE;
         }
 
-        // 5a. Total time for reservation for team is within limit allowed per practice
-        $currentReservationMinutesPerPractice = ($diff->h * 60 + $diff->i);
-        if ($currentReservationMinutesPerPractice > $this->m_team->m_division->maxMinutesPerPractice) {
-            $hoursPerPractice = $this->m_team->m_division->maxMinutesPerPractice / 60;
-            $this->m_createReservationError = "ERROR 5a:<br>You can practice at most $hoursPerPractice hour(s) per practice.";
-            $this->m_createReservationError .= "<br>Please try again.";
-            return FALSE;
-        }
+        // // 5a. Total time for reservation for team is within limit allowed per practice
+        // $currentReservationMinutesPerPractice = ($diff->h * 60 + $diff->i);
+        // if ($currentReservationMinutesPerPractice > $this->m_team->m_division->maxMinutesPerPractice) {
+        //     $hoursPerPractice = $this->m_team->m_division->maxMinutesPerPractice / 60;
+        //     $this->m_createReservationError = "ERROR 5a:<br>You can practice at most $hoursPerPractice hour(s) per practice.";
+        //     $this->m_createReservationError .= "<br>Please try again.";
+        //     return FALSE;
+        // }
 
-        // 5b. Total time for all reservations for team is within limit allowed
-        $currentReservationMinutesPerWeek = $currentReservationMinutesPerPractice * $daysSelected;
-        if (!$this->_isUnderTimeLimit($currentReservationMinutesPerWeek)) {
-            $hoursPerWeek = $this->m_team->m_division->maxMinutesPerWeek / 60;
-            $this->m_createReservationError = "ERROR 5b:<br>You can practice at most $hoursPerWeek hour(s) per week.  Click on Reservations tab to cancel existing reservation or create a shorter reservation.";
-            $this->m_createReservationError .= "<br>Please try again.";
-            return FALSE;
-        }
+        // // 5b. Total time for all reservations for team is within limit allowed
+        // $currentReservationMinutesPerWeek = $currentReservationMinutesPerPractice * $daysSelected;
+        // if (!$this->_isUnderTimeLimit($currentReservationMinutesPerWeek)) {
+        //     $hoursPerWeek = $this->m_team->m_division->maxMinutesPerWeek / 60;
+        //     $this->m_createReservationError = "ERROR 5b:<br>You can practice at most $hoursPerWeek hour(s) per week.  Click on Reservations tab to cancel existing reservation or create a shorter reservation.";
+        //     $this->m_createReservationError .= "<br>Please try again.";
+        //     return FALSE;
+        // }
 
         // 6. Reservation does not overlap with another team's reservation
         $overlapReservation = Model_Fields_Reservation::getOverlapping($this->m_season, $this->m_field, $this->m_startTime, $this->m_endTime, $daysSelectedString);
