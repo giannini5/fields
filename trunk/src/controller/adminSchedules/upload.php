@@ -36,16 +36,16 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
                 $this->m_operation = View_Base::UPLOAD_REFEREE_FILE;
             } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_REFBYTEAM_FILE)) {
                 $this->m_operation = View_Base::UPLOAD_REFBYTEAM_FILE;
-            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_INLEAGUE_FILE)) {
-                $this->m_operation = View_Base::UPLOAD_INLEAGUE_FILE;
-            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_INLEAGUE_COACH_FILE)) {
-                $this->m_operation = View_Base::UPLOAD_INLEAGUE_COACH_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::SYNC_DIVISIONS_TEAMS)) {
+                $this->m_operation = View_Base::SYNC_DIVISIONS_TEAMS;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::SYNC_COACHES)) {
+                $this->m_operation = View_Base::SYNC_COACHES;
             } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_INLEAGUE_GAME_FILE)) {
                 $this->m_operation = View_Base::UPLOAD_INLEAGUE_GAME_FILE;
             } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_INLEAGUE_PLAYER_FILE)) {
                 $this->m_operation = View_Base::UPLOAD_INLEAGUE_PLAYER_FILE;
-            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_INLEAGUE_FIELD_FILE)) {
-                $this->m_operation = View_Base::UPLOAD_INLEAGUE_FIELD_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::SYNC_FIELDS)) {
+                $this->m_operation = View_Base::SYNC_FIELDS;
             }
         }
     }
@@ -105,20 +105,18 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
                 }
                 break;
 
-            case View_Base::UPLOAD_INLEAGUE_FILE:
-                $fileName = $this->_getFileName();
+            case View_Base::SYNC_DIVISIONS_TEAMS:
                 if (isset($this->m_season)) {
-                    $this->m_season->populateInLeagueDivisions($fileName);
+                    $this->m_season->populateInLeagueDivisions();
                     $this->m_messageString = 'Operation Complete, Check out the DIVISION and TEAM Tabs to confirm data is correct';
                 } else {
                     $this->m_errorString = 'Unable to find an enabled Season.  Click on SEASON tab first to create/enable a Season';
                 }
                 break;
 
-            case View_Base::UPLOAD_INLEAGUE_COACH_FILE:
-                $fileName = $this->_getFileName();
+            case View_Base::SYNC_COACHES:
                 if (isset($this->m_season)) {
-                    $this->m_season->populateInLeagueCoaches($fileName);
+                    $this->m_season->populateInLeagueCoaches();
                     Family::createFromCoaches($this->m_season);
                     $this->m_messageString = 'Operation Complete, Check out the TEAM and FAMILY Tabs to confirm data is correct';
                 } else {
@@ -126,10 +124,9 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
                 }
                 break;
 
-            case View_Base::UPLOAD_INLEAGUE_FIELD_FILE:
-                $fileName = $this->_getFileName();
+            case View_Base::SYNC_FIELDS:
                 if (isset($this->m_season)) {
-                    $this->m_season->populateInLeagueFields($fileName);
+                    $this->m_season->populateInLeagueFields();
                     $this->m_messageString = 'Operation Complete, Check out the FACILITY and FIELD Tab to confirm data is correct';
                 } else {
                     $this->m_errorString = 'Unable to find an enabled Season.  Click on SEASON tab first to create/enable a Season';

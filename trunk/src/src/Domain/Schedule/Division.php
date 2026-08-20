@@ -89,6 +89,28 @@ class Division extends Domain
     }
 
     /**
+     * @param Season $season
+     * @param string $name
+     * @param string $gender
+     * @param int $maxPlayersPerTeam
+     * @param int $gameDurationMinutes
+     * @param string $displayOrder
+     * @return Division
+     */
+    public static function createOrUpdate($season, $name, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder)
+    {
+        $found = static::findByNameAndGender($season, $name, $gender, $division);
+        if ($found) {
+            $division->maxPlayersPerTeam = $maxPlayersPerTeam;
+            $division->gameDurationMinutes = $gameDurationMinutes;
+            $division->displayOrder = $displayOrder;
+        } else {
+            $division = static::create($season, $name, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder, $ignore);
+        }
+        return $division;
+    }
+
+    /**
      * @param int $divisionId
      *
      * @return Division

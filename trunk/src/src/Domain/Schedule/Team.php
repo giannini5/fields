@@ -77,15 +77,41 @@ class Team extends Domain
         $poolId = isset($pool) ? $pool->id : null;
 
         try {
-                // Update team name and color
-                $team = static::lookupByNameId($division, $nameId);
-                $team->name = $name;
-                $team->color = $color;
-                return $team;
+            // Update team name and color
+            $team = static::lookupByNameId($division, $nameId);
+            $team->name = $name;
+            $team->color = $color;
+            return $team;
         } catch (NoResultsException $e) {
             $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints, $seed, $color);
             return new static($teamOrm, $division, $pool);
         }
+    }
+
+    /**
+     * @param Division $division
+     * @param Pool $pool
+     * @param string $name
+     * @param string $nameId
+     * @param string $region
+     * @param string $city
+     * @return Team
+     */
+    public static function createOrUpdate($division, $pool, $name, $nameId, $region, $city)
+    {
+        $team = null;
+
+        $found = static::findByDivisionAndTeamId($division, $nameId, $team);
+        if ($found) {
+            $team->name = $name;
+            $team->region = $region;
+            $team->city = $city;
+        }
+        else {
+            $team = static::create($division, $pool, $name, $nameId, $region, $city);
+        }
+
+        return $team;
     }
 
     /**
@@ -146,6 +172,27 @@ class Team extends Domain
         usort($teams, [Team::class, "compare"]);
 
         return $teams;
+    }
+
+    /**
+     * @param Division $division
+     * @param string $teamId
+     * @param Team $team (output parameter)
+     * @return bool
+     */
+    public static function findByDivisionAndTeamId($division, $teamId, &$team)
+    {
+        Precondition::isNonEmpty($teamId, 'teamId should not be empty');
+
+        $team = null;
+
+        try {
+            $teamOrm = TeamOrm::loadByDivisionIdAndNameId($division->id, $teamId);
+            $team = new static($teamOrm, $division);
+            return true;
+        } catch (NoResultsException $e) {
+            return false;
+        }
     }
 
     /**
