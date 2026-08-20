@@ -80,6 +80,31 @@ class Coach extends Domain
     }
 
     /**
+     * @param Team      $team
+     * @param string    $name
+     * @param string    $email
+     *
+     * @return Coach
+     */
+    public static function createOrUpdate(
+        $team,
+        $name,
+        $email)
+    {
+        $coach = null;
+
+        $found = Coach::findCoachForTeam($team, $coach);
+        if ($found) {
+            $coach->name = $name;
+            $coach->email = $email;
+        } else {
+            $coach = Coach::create($team, null, $name, $email, '', '');
+        }
+
+        return $coach;
+    }
+
+    /**
      * @param int $coachId
      *
      * @return Coach

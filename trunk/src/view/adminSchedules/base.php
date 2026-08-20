@@ -46,10 +46,12 @@ abstract class View_AdminSchedules_Base extends View_Base {
         }
 
         foreach ($teams as $team) {
-            $coach      = Coach::lookupByTeam($team);
-            $selected   = ($team->id == $filterTeamId) ? ' selected ' : '';
-            $teamName   = $team->nameId . " - " . $coach->shortName;
-            $selectorHTML .= "<option value='$team->id' $selected>$teamName</option>";
+            $found = Coach::findCoachForTeam($team, $coach);
+            if ($found) {
+                $selected   = ($team->id == $filterTeamId) ? ' selected ' : '';
+                $teamName   = $team->nameId . " - " . $coach->shortName;
+                $selectorHTML .= "<option value='$team->id' $selected>$teamName</option>";
+            }
         }
 
         print "

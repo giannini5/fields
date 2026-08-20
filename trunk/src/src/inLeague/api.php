@@ -37,6 +37,10 @@ class api {
         // Returns the data/output as a string instead of raw data
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+        // Allow the request up to 60 seconds (PHP's default max_execution_time is 30)
+        set_time_limit(60);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+
         //Set your auth headers
         curl_setopt($ch, CURLOPT_HTTPHEADER,
         [
@@ -78,6 +82,37 @@ class api {
      */
     public function divisions($seasonuid) {
         return $this->execute('/api/v1/divisions?seasonuid=' . $seasonuid);
+    }
+
+    /**
+     * activeTeams
+     * @brief
+     *      Get active teams (have at least one player and/or game assigned)
+     * @return {} json_data
+     */
+    public function activeTeams($page=1, $maxRows=50) {
+        return $this->execute('/api/v1/activeTeams?page=' . $page . '&max_rows=' . $maxRows);
+    }
+
+    /**
+     * coachVolunteers
+     * @brief
+     *      Get coach volunteers
+     * @param string $seasonUID - inLeague seasonUID
+     * @return {} json_data
+     */
+    public function coachVolunteers($seasonUID, $page=1, $maxRows=50) {
+        return $this->execute("/api/v1/volunteers/season/{$seasonUID}?coaches=true&refs=false&page=" . $page . "&max_rows=" . $maxRows);
+    }
+
+    /**
+     * playingFields
+     * @brief
+     *      Get playing fields
+     * @return {} json_data
+     */
+    public function playingFields($page=1, $maxRows=50) {
+        return $this->execute('/api/v1/playingFields?page=' . $page . '&max_rows=' . $maxRows);
     }
 
     /**

@@ -84,24 +84,14 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         print "
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Divisions and Teams</strong><br>
-                    <strong style='font-size: 12px'>inLeague: Go to Classic, Reports, Report Center, My Custom Reports, 2024 Teams</strong><br><br>
-                    <strong style='font-size: 16px'>Sample CSV file format</strong>
-                    <br><p style='font-size: 12px'>
-                        UserID,<blank>,Team Designation,Team Letter/Number,Division, Had/Co-Coaches,Head/Co-Coach Emails
-                        '26D65666-3E58-41A9-9994-8E822D9BA483','','B12-13','13','B12','Kelly Griffin, Jesse Mccue','griffin.ke@gmail.com, marqueeconstructioninc@gmail.com'<br>
-                        '1CCEFB68-5081-4CC2-8322-10885013D0E9','','B8-10 -Foothill Elementary-','10 -Foothill Elementary-','B8','Chris Link','cjlink@ucla.edu'<br>
-                        </p>
+                    <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Divisions, Teams, Coaches and Players</strong><br>
+                    <strong style='font-size: 12px'>inLeague: Uses API to create or update divisions, teams, coaches and players<br><br>
                     </td>
                 </tr>
                 <tr>
                     <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
-                        <td nowrap>Select csv file to upload:</td>
                         <td>
-                            <input type='file' name='fileToUpload' id='fileToUpload'>
-                        </td>
-                        <td>
-                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::SYNC_DIVISIONS_TEAMS . "' name='" . View_Base::SUBMIT . "'>
                             <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                         </td>
                     </form>
@@ -121,23 +111,13 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Coach Updates</strong><br>
-                    <strong style='font-size: 12px'>inLeague: Go to Classic, Reports, Report Center, My Custom Reports, 2024 Coaches</strong><br><br>
-                    <strong style='font-size: 16px'>Sample CSV file format</strong><br>
-                    <p style='font-size: 12px'>
-                        UserID,<blank>,First Name,Last Name,Email Address,Home Phone,Work Phone,Cell Phone,Secondary Email,Tertiary Email,Coaching Assignments<br>
-                        '01254A3E-F36B-1410-8752-00FFFFFFFFFF','','Brandon','Friesen','brandon.friesen@ucsb.edu','','','805-698-8184','','','B10U'<br>
-                        '128B503E-F36B-1410-8752-00FFFFFFFFFF','','Martin','Cabello','mcabello44@yahoo.com','','','805-252-4922','','','G8U B14U'<br>
-                        </p>
+                    <strong style='font-size: 12px'>inLeague: Uses API to update coaches</strong><br><br>
                     </td>
                 </tr>
                 <tr>
                     <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
-                        <td nowrap>Select csv file to upload:</td>
                         <td>
-                            <input type='file' name='fileToUpload' id='fileToUpload'>
-                        </td>
-                        <td>
-                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_COACH_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::SYNC_COACHES . "' name='" . View_Base::SUBMIT . "'>
                             <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                         </td>
                     </form>
@@ -228,23 +208,13 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Fields</strong><br>
-                    <strong style='font-size: 12px'>inLeague: Go to Classic, Games, Playing Fields and download CSV</strong><br><br>
-                    <strong style='font-size: 16px'>Sample CSV file format</strong><br>
-                    <p style='font-size: 12px'>
-                        Field,Active,Favored Divisions,Competitions, Street, City, Zip<br>
-                        'Girsh Park, Field 01, 7U (Girsh01_7U)','Yes','B7,G7','Fall League','Girsh Park 7050 Phelps Rd','Goleta','93117'<br>
-                        'Girsh Park, Field 02, 6U (Girsh02_6U)','Yes','B6,G6','Fall League','Girsh Park 7050 Phelps Rd','Goleta','93117'
-                    </p>
+                    <strong style='font-size: 12px'>inLeague: Uses API to create or update fields</strong><br><br>
                     </td>
                 </tr>
                 <tr>
                     <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
-                        <td nowrap>Select csv file to upload:</td>
                         <td>
-                            <input type='file' name='fileToUpload' id='fileToUpload'>
-                        </td>
-                        <td>
-                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_FIELD_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::SYNC_FIELDS . "' name='" . View_Base::SUBMIT . "'>
                             <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                         </td>
                     </form>

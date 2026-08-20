@@ -8,8 +8,7 @@ use DAG\Orm\Schedule\RefereeOrm;
 use DAG\Orm\Schedule\SeasonOrm;
 use DAG\Orm\Schedule\ScheduleOrm;
 use DAG\Framework\Exception\Precondition;
-use DAG_Exception;
-
+use DAG\inLeague\Region;
 
 /**
  * @property int    $id
@@ -795,221 +794,139 @@ class Season extends Domain
     }
 
     /**
-     * Populate Divisions, Teams, Coaches
-     *
-     * @param string $fielName - Expected format:
-     *      UserID,<blank>,Team Designation,Team Letter/Number,Division, Had/Co-Coaches,Head/Co-Coach Emails
-     *      Examples:
-     *          "26D65666-3E58-41A9-9994-8E822D9BA483","","B12-13","13","B12","Kelly Griffin, Jesse Mccue","griffin.ke@gmail.com, marqueeconstructioninc@gmail.com"
-     *          "1CCEFB68-5081-4CC2-8322-10885013D0E9","","B8-10 -Foothill Elementary-","10 -Foothill Elementary-","B8","Chris Link","cjlink@ucla.edu"
-     *
-     * @param bool  $ignoreHeaderRow - defaults to true
+     * Populate Divisions, Teams and Coaches from inLeague
      */
-    public function populateInLeagueDivisions($fileName, $ignoreHeaderRow = true )
+    public function populateInLeagueDivisions()
     {
-        $processedLines = 0;
-        $line = '';
-        try {
-            if (($handle = fopen($fileName, "r")) !== FALSE) {
-                while (($line = fgetcsv($handle, 3000, ",")) !== FALSE) {
-                    // Skip header line
-                    $processedLines += 1;
-                    if ($processedLines == 1 and $ignoreHeaderRow) {
-                        continue;
-                    }
+        $regionAPI = new Region(false);
+        $activeTeams = $regionAPI->getActiveTeams();
+        foreach ($activeTeams as $activeTeam) {
+            $divisionName = ltrim($activeTeam->division, 'BG') . 'U';
+            $result = explode('-', $activeTeam->team);
+            $teamId          = sprintf('%s-%02d', $result[0], $result[1]);
+            $teamName        = $activeTeam->teamName;
+            $teamUUID        = $activeTeam->teamID;
 
-                    // Skip blank lines
-                    if ($line == '') {
-                        continue;
-                    }
-
-                    $count = count($line);
-                    Assertion::isTrue($count == 9, "Invalid line: $line, count: $count");
-
-                    // Get Division
-                    // Example: B12 changed to 12U
-                    $divisionName = ltrim($line[5], 'BG');
-                    $divisionName .= 'U';
-
-                    // Get TeamId
-                    // Example: B8-10 -Foothill Elementary- shouuld be B8-10
-                    // $teamId       = explode(' ', $line[2])[0];
-                    $teamIdStrLength = strlen($line[5]) + 3;
-                    $teamId          = substr($line[2], 0, $teamIdStrLength);
-                    $teamName        = str_replace($teamId, '', $line[4]);
-                    $teamColor       = $line[7];
-
-                    // Other attributes
-                    $region                 = '122';
-                    $city                   = 'Santa Barbara';
-                    $gender                 = $teamId[0] == 'B' ? "Boys" : "Girls";
-                    $coachName              = explode(',', $line[6])[0];
-                    $coachPhone             = '';
-                    $coachCell              = '';
-                    $coachEmail             = explode(',', $line[8])[0];
-                    $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
-                    $gameDurationMinutes    = $this->getGameDurationMinutes($divisionName);
-                    $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
-                    $teamName               = empty($teamName) ? $teamId : $teamName;
-
-                    // Do not store the same phone number a second time for a  coach
-                    $coachPhone = ($coachPhone == $coachCell) ? '' : $coachPhone;
-
-                    print("<p>divisionName:$divisionName, gender:$gender, division:$divisionName, teamName/Id: $teamName ($teamId), coach:$coachName, email:$coachEmail, phone:$coachPhone, cell:$coachCell</p>");
-
-                    // Create division, team and coach
-                    $division   = Division::create($this, $divisionName, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder, true);
-                    $team       = Team::create($division, null, $teamName, $teamId, $region, $city, true, 0, 0, $teamColor);
-                    Coach::create($team, null, $coachName, $coachEmail, $coachPhone, $coachCell, true);
-                }
-                fclose($handle);
+            if (count($activeTeam->coaches) > 0) {
+                $coachFirstName = $activeTeam->coaches[0]->firstName;
+                $coachLastName = $activeTeam->coaches[0]->lastName;
+                $coachName = $coachFirstName . ' ' . $coachLastName;
+                $coachEmail = $activeTeam->coaches[0]->email;
             }
-        } catch (\Exception $e) {
-            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
+
+            // Other attributes
+            $region                 = '122';
+            $city                   = 'Santa Barbara';
+            $gender                 = $activeTeam->division[0] == 'B' ? "Boys" : "Girls";
+            $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
+            $gameDurationMinutes    = 30; // $this->getGameDurationMinutes($divisionName);
+            $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
+            // print("<p>divisionName:$divisionName, gender:$gender, teamName/Id: $teamName ($teamId), coach:$coachName, email:$coachEmail</p>");
+
+            // Create or update division, team and coach
+            $division   = Division::createOrUpdate($this, $divisionName, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder);
+            $team       = Team::createOrUpdate($division, null, $teamName, $teamId, $region, $city);
+            Coach::createOrUpdate($team, $coachName, $coachEmail);
+
+            // Populate players for 10U, 12U, 14U, 16U and 19U teams
+            if ($divisionName == '10U' or $divisionName == '12U' or $divisionName == '14U' or $divisionName == '16U' or $divisionName == '19U') {
+                $players = $regionAPI->getRoster($teamUUID);
+                print("<p>divisionName: $divisionName, team: $teamId, player count: " . count($players) . "</p>");
+                foreach ($players as $player) {
+                    $playerName = $player->firstName . ' ' . $player->lastName;
+                    $uniformNumber = $player->uniform === '' ? null : (int)$player->uniform;
+                    Player::create($team, null, $playerName, '', '', true, $uniformNumber);
+                }
+            }
         }
     }
 
     /**
-     * Populate or Update inLeague Coaches
-     *
-     * @param string $fielName - Expected format:
-     *      UserID,<blank>,First Name,Last Name,Email Address,Home Phone,Work Phone,Cell Phone,Secondary Email,Tertiary Email,Coaching Assignments
-     *      Examples:
-     *          "01254A3E-F36B-1410-8752-00FFFFFFFFFF","","Brandon","Friesen","brandon.friesen@ucsb.edu","","","805-698-8184","","","B10U"
-     *          "128B503E-F36B-1410-8752-00FFFFFFFFFF","","Martin","Cabello","mcabello44@yahoo.com","","","805-252-4922","","","G8U B14U"
-     *
-     * @param bool  $ignoreHeaderRow - defaults to true
+     * Update inLeague Coaches
      */
-    public function populateInLeagueCoaches($fileName, $ignoreHeaderRow = true )
+    public function populateInLeagueCoaches()
     {
-        $processedLines = 0;
-        $line = '';
-        try {
-            if (($handle = fopen($fileName, "r")) !== FALSE) {
-                while (($line = fgetcsv($handle, 3000, ",")) !== FALSE) {
-                    // Skip header line
-                    $processedLines += 1;
-                    if ($processedLines == 1 and $ignoreHeaderRow) {
-                        continue;
-                    }
+        $region = new Region(false);
+        $maxRows = 50;
+        $page = 1;
+        $count = 0;
+        while (true) {
+            $coachVolunteers = $region->getCoachVolunteers($page, $maxRows);
+            foreach ($coachVolunteers as $coachVolunteer) {
+                $coachName = $coachVolunteer->firstName . ' ' . $coachVolunteer->lastName;
+                $coachEmail = $coachVolunteer->email;
+                $coachPhone = $coachVolunteer->primaryPhone;
+                // print("<p>page: $page, count: $count, coachName: $coachName, coachEmail: $coachEmail, coachPhone: $coachPhone</p>");
 
-                    // Skip blank lines
-                    if ($line == '') {
-                        continue;
-                    }
-
-                    $count = count($line);
-                    Assertion::isTrue($count == 11, "Invalid line: $line, count: $count");
-
-                    // Get Coach Email and Phone Numbers
-                    $coachName  = $line[2] . ' ' . $line[3];
-                    $coachEmail = $line[4];
-                    $coachPhone = $line[5];
-                    $coachCell  = $line[7];
-                    $coachPhone = ($coachPhone == $coachCell) ? '' : $coachPhone;
-
-                    // Find Coach by name and then update phone numbers (this season coaches only)
-                    $coaches = Coach::findByName($coachName);
-                    foreach ($coaches as $coach) {
-                        if ($coach->team->division->season->id == $this->id) {
-                            print("<p>name:($coach->name, $coachName), email:($coach->email, $coachEmail), phone1:($coach->phone1, $coachPhone), phone2:($coach->phone2, $coachCell)</p>");
-                            $coach->phone1 = $coachPhone;
-                            $coach->phone2 = $coachCell;
-                        }
+                // Find Coach by name and then update (this season coaches only)
+                $coaches = Coach::findByName($coachName);
+                foreach ($coaches as $coach) {
+                    if ($coach->team->division->season->id == $this->id) {
+                        $count++;
+                        // print("<p>page: $page, count: $count, name:($coach->name, $coachName), email:($coach->email, $coachEmail), phone1:($coach->phone1, $coachPhone))</p>");
+                        $coach->email = $coachEmail;
+                        $coach->phone1 = $coachPhone;
                     }
                 }
-                fclose($handle);
             }
-        } catch (\Exception $e) {
-            print ("Error: Invalid line in uploaded file: '$line'<br>" . $e->getMessage());
+            if (count($coachVolunteers) < $maxRows) {
+                break;
+            }
+            $page++;
         }
     }
 
     /**
      * Populate Facilities, Fields and DivisionFields
-     *
-     * @param string $fileName - Expected file format:
-     *      Field,Active,Favored Divisions,Competitions, Street, City, Zip
-     *      Example: Girsh Park, Field 01, 7U (Girsh01_7U),Yes,B7,G7,Fall League,Girsh Park 7050 Phelps Rd,Goleta,93117
-     *
-     * @param bool  $ignoreHeaderRow - defaults to true
      */
-    public function populateInLeagueFields($fileName, $ignoreHeaderRow = true)
+    public function populateInLeagueFields()
     {
-        $processedLines = 0;
-        $line = '';
-        try {
-            if (($handle = fopen($fileName, "r")) !== FALSE) {
-                while (($line = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                    // Skip header line
-                    $processedLines += 1;
-                    if ($processedLines == 1 and $ignoreHeaderRow) {
-                        continue;
-                    }
-
-                    // Skip blank lines
-                    if ($line == '') {
-                        continue;
-                    }
-
-                    $count = count($line);
-                    Assertion::isTrue($count == 7, "Invalid line: $line, count: $count");
-
-                    // Get facilityName
-                    $offset = strpos($line[0], ',', 0);
-                    $facilityName = $line[0];
-                    if (!is_bool($offset)) {
-                        $facilityName = substr($line[0], 0, $offset);
-                    }
-
-                    // Get fieldName
-                    $startOffset = strpos($line[0], '(', 0);
-                    $endOffset = strpos($line[0], ')', 0);
-                    Assertion::isTrue(!is_bool($startOffset), "Invalid Field Format, missing (: $line[0]");
-                    Assertion::isTrue(!is_bool($endOffset), "Invalid Field Format, missing ): $line[0]");
-                    $fieldName = substr($line[0], $startOffset + 1, $endOffset - ($startOffset + 1));
-
-                    // Get enabled
-                    $enabled = $line[1] == 'Yes' ? 1 : 0;
-
-                    // Get Division List
-                    $divisionList = $line[2];
-
-                    // Facility address
-                    $address = $line[4];
-                    $city = $line[5];
-                    $state = 'California';
-                    $zipCode = $line[6];
-                    $country = 'United States';
-
-                    echo "<p> Facility: $facilityName, Field: $fieldName, Enabled: $enabled, Divisions: $divisionList<br /></p>\n";
-
-                    // Get or Create Facility
-                    $facility = Facility::create($this, $facilityName, $address, '', $city, $state, $zipCode, $country, '', '', '', '', $enabled, true);
-
-                    // Get or Create the Field
-                    $field = Field::create($facility, $fieldName, $enabled, true);
-
-                    // Create DivisionFields
-                    $divisionNames  = explode(",", $divisionList);
-                    foreach ($divisionNames as $divisionName) {
-                        $divisionName = ltrim($divisionName, 'BG');
-                        $divisionName .= 'U';
-                        $divisions = Division::lookupByName($this, $divisionName);
-                        foreach ($divisions as $division) {
-                            DivisionField::create($division, $field, true);
-                        }
-                    }
-
-                    // Create GameTimes if divisions are set
-                    if ($divisionList != '') {
-                        $this->createGameTimes($field, false);
-                    }
-                }
-                fclose($handle);
+        $region = new Region(false);
+        $playingFields = $region->getPlayingFields();
+        foreach ($playingFields as $playingField) {
+            if ($playingField->practice or $playingField->fieldName[0] == 'x') {
+                continue;
             }
-        } catch (\Exception $e) {
-            throw new \Exception("Error: Invalid line in uploaded file: '$line'<br>, caused by: " . $e->getMessage());
+            $facilityName = explode(',', $playingField->fieldName)[0];
+            $facilityCity = $playingField->fieldCity;
+            $facilityState = $playingField->fieldState;
+            $facilityStreet = $playingField->fieldStreet;
+            $fieldName = $playingField->fieldName;
+            $fieldAbbreviation = $playingField->fieldAbbrev;
+            $data = explode('_', $fieldAbbreviation);
+            if (count($data) == 2) {
+                $divisionName = $data[1];
+            }
+            else {
+                // assertion($fieldName[0] == 'x', "Invalid field name: $fieldName");
+                $divisionName = '16U';
+            }
+
+            // print("<p>divisionName: $divisionName, facilityName: $facilityName, facilityCity: $facilityCity, facilityState: $facilityState, facilityStreet: $facilityStreet, fieldName: $fieldName, fieldAbbreviation: $fieldAbbreviation</p>");
+            assertion($playingField->slotsPerField <= 1, "Invalid slots per field: $playingField->slotsPerField");
+
+            // Get or Create Facility
+            $enabled = 1;
+            $facility = Facility::create($this, $facilityName, $facilityStreet, '', $facilityCity, $facilityState, '', '', '', '', '', '', $enabled, true);
+
+            // Get or Create the Field
+            $field = Field::create($facility, $fieldName, $enabled, true);
+
+            // Create DivisionFields
+            $divisions = Division::lookupByName($this, $divisionName);
+            foreach ($divisions as $division) {
+                DivisionField::create($division, $field, true);
+                $this->createGameTimes($field, false);
+            }
+
+            // Conditionally create 19U Fields
+            if ($divisionName == '16U') {
+                $divisions = Division::lookupByName($this, '19U');
+                foreach ($divisions as $division) {
+                    DivisionField::create($division, $field, true);
+                    $this->createGameTimes($field, false);
+                }
+            }
         }
     }
 

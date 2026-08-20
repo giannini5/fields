@@ -16,10 +16,10 @@ class Region {
     private $competition;
     private $api;
 
-    public function __construct() {
+    public function __construct($verifySeason=true) {
         $this->api = new api(IN_LEAGUE_BASE_URL, IN_LEAGUE_TOKEN);
         $this->season = $this->getSeason(IN_LEAGUE_SEASON_NAME);
-        $this->competition = $this->getCompetition(IN_LEAGUE_COMPETITION_NAME);
+        $this->competition = $this->getCompetition(IN_LEAGUE_COMPETITION_NAME, $verifySeason);
     }
 
     /**
@@ -68,7 +68,6 @@ class Region {
         return $competition;
     }
 
-
     /**
      * getDivisions
      * @brief
@@ -81,6 +80,45 @@ class Region {
         assertion($divisions, "Error, Unable to find info for season " . $this->season->name);
 
         return $divisions;
+    }
+
+    /**
+     * getActiveTeams
+     * @brief
+     *      Get the list of active teams
+     * @return [] array of inLeague stdClass team data
+     */
+    public function getActiveTeams() {
+        $activeTeams = $this->api->activeTeams();
+        assertion($activeTeams, "Error, Unable to find active teams");
+
+        return $activeTeams;
+    }
+
+    /**
+     * getCoachVolunteers
+     * @brief
+     *      Get the list of coach volunteers
+     * @return [] array of inLeague stdClass volunteer data
+     */
+    public function getCoachVolunteers($page=1, $maxRows=50) {
+        $coachVolunteers = $this->api->coachVolunteers($this->season->seasonUID, $page, $maxRows);
+        assertion($coachVolunteers, "Error, Unable to find coach volunteers");
+
+        return $coachVolunteers;
+    }
+
+    /**
+     * getPlayingFields
+     * @brief
+     *      Get the list of playing fields
+     * @return [] array of inLeague stdClass field data
+     */
+    public function getPlayingFields() {
+        $playingFields = $this->api->playingFields();
+        assertion($playingFields, "Error, Unable to find playing fields");
+
+        return $playingFields;
     }
 
     /**
