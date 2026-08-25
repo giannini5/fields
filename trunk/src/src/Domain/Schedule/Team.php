@@ -95,9 +95,10 @@ class Team extends Domain
      * @param string $nameId
      * @param string $region
      * @param string $city
+     * @param string $color
      * @return Team
      */
-    public static function createOrUpdate($division, $pool, $name, $nameId, $region, $city)
+    public static function createOrUpdate($division, $pool, $name, $nameId, $region, $city, $color = '')
     {
         $team = null;
 
@@ -106,9 +107,10 @@ class Team extends Domain
             $team->name = $name;
             $team->region = $region;
             $team->city = $city;
+            $team->color = $color;
         }
         else {
-            $team = static::create($division, $pool, $name, $nameId, $region, $city);
+            $team = static::create($division, $pool, $name, $nameId, $region, $city, false, 0, 0, $color);
         }
 
         return $team;
