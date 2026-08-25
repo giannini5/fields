@@ -40,10 +40,10 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
                 $this->m_operation = View_Base::SYNC_DIVISIONS_TEAMS;
             } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::SYNC_COACHES)) {
                 $this->m_operation = View_Base::SYNC_COACHES;
-            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_INLEAGUE_GAME_FILE)) {
-                $this->m_operation = View_Base::UPLOAD_INLEAGUE_GAME_FILE;
-            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::UPLOAD_INLEAGUE_PLAYER_FILE)) {
-                $this->m_operation = View_Base::UPLOAD_INLEAGUE_PLAYER_FILE;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::SYNC_GAMES)) {
+                $this->m_operation = View_Base::SYNC_GAMES;
+            } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::SYNC_PLAYERS)) {
+                $this->m_operation = View_Base::SYNC_PLAYERS;
             } else if(isset($_POST[View_Base::SUBMIT]) and ($_POST[View_Base::SUBMIT] == View_Base::SYNC_FIELDS)) {
                 $this->m_operation = View_Base::SYNC_FIELDS;
             }
@@ -133,17 +133,16 @@ class Controller_AdminSchedules_Upload extends Controller_AdminSchedules_Base {
                 }
                 break;
 
-            case View_Base::UPLOAD_INLEAGUE_GAME_FILE:
-                $fileName = $this->_getFileName();
+            case View_Base::SYNC_GAMES:
                 if (isset($this->m_season)) {
-                    $this->m_season->populateInLeagueGames($fileName);
+                    $this->m_season->populateInLeagueGames();
                     $this->m_messageString = 'Operation Complete, Check out the Schedule Tabs to confirm data is correct';
                 } else {
                     $this->m_errorString = 'Unable to find an enabled Season.  Click on SEASON tab first to create/enable a Season';
                 }
                 break;
 
-            case View_Base::UPLOAD_INLEAGUE_PLAYER_FILE:
+            case View_Base::SYNC_PLAYERS:
                 $fileName = $this->_getFileName();
                 if (isset($this->m_season)) {
                     $this->m_season->populateInLeaguePlayers($fileName);

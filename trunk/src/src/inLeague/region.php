@@ -19,7 +19,7 @@ class Region {
     public function __construct($verifySeason=true) {
         $this->api = new api(IN_LEAGUE_BASE_URL, IN_LEAGUE_TOKEN);
         $this->season = $this->getSeason(IN_LEAGUE_SEASON_NAME);
-        $this->competition = $this->getCompetition(IN_LEAGUE_COMPETITION_NAME, $verifySeason);
+        $this->competition = $this->getCompetition(IN_LEAGUE_COMPETITION_NAME);
     }
 
     /**
@@ -46,20 +46,18 @@ class Region {
      * @brief
      *      Get the desired "active" competition
      * @param string    competitonName
-     * @param bool      verifySeason
      * @return stdClass inLeague Competition
      */
-    public function getCompetition($competitonName, $verifySeason=true): stdClass {
+    public function getCompetition($competitonName): stdClass {
         $competitions = null;
         $competitions = $this->api->competitions();
         assertion($competitions, "Error: Unable to find competitions for season " . $this->season->name);
 
+        // Competitions only exist for the current season; past seasons do not appear to have any competitions any more
         foreach ($competitions as $key => $competition) {
             if ($competition->competition == $competitonName) {
-                if ($verifySeason) {
-                    assertion($competition->currentCompetitionSeason->seasonUID == $this->season->seasonUID,
-                        "Error: Competition found, but not for season " . $this->season->name);
-                }
+                assertion($competition->currentCompetitionSeason->seasonUID == $this->season->seasonUID,
+                    "Error: Competition found, but not for season " . $this->season->name);
                 break;
             }
         }
@@ -177,9 +175,10 @@ class Region {
      * @param string    startDate in MM-DD-YY
      * @param string    Optional endDate in MM-DD-YY
      */
-    public function getGames($divisions, $startDate, $endDate=null) {
-        $startDate = date("m-d-y", strtotime($startDate));
-        $endDate = (!$endDate) ? $startDate : $endDate = date("m-d-y", strtotime($endDate));
+    // public function getGames($divisions, $startDate, $endDate=null) {
+    public function getGames() {
+        // $startDate = date("m-d-y", strtotime($startDate));
+        // $endDate = (!$endDate) ? $startDate : $endDate = date("m-d-y", strtotime($endDate));
 
         // B10: "9F91E3C4-D855-444D-BB86-994BF7DD0E98"
         // G10: "6DB3CA05-0174-4F61-B31C-B966C7B4D3F0"
@@ -189,14 +188,27 @@ class Region {
         // G15: "CACCAD7F-7E03-46BD-AE7A-258BACB21396"
 
         // Get comma separated list of division GUIDS
-        $divisionIds = array_map(function($x) {return $x->divID;}, $divisions);
+        // $divisionIds = array_map(function($x) {return $x->divID;}, $divisions);
         // $divisionIds = ['9F91E3C4-D855-444D-BB86-994BF7DD0E98'];
-        $divisionGuids = implode(',', $divisionIds);
+        // $divisionGuids = implode(',', $divisionIds);
 
-        $games = $this->api->games($this->competition->competitionID, $divisionGuids, $startDate, $endDate);
+        $games = $this->api->games($this->competition->competitionID);
 
         return $games;
     }
+
+
+    /**
+     * getTeamSeasonInfo
+     * @brief
+     *      Get team season info for a team
+     * @param string    teamUUID
+     */
+    public function getTeamSeasonInfo($teamUUID) {
+        $teamSeasonInfo = $this->api->teamSeasonInfo($this->season->seasonUID, $teamUUID);
+        return $teamSeasonInfo;
+    }
+
     /**
      * getRoster
      * @brief
@@ -205,7 +217,6 @@ class Region {
      */
     public function getRoster($teamID) {
         $roster = $this->api->roster($teamID);
-
         return $roster;
     }
 }

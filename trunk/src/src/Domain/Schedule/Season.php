@@ -798,20 +798,22 @@ class Season extends Domain
      */
     public function populateInLeagueDivisions()
     {
-        $regionAPI = new Region(false);
+        $regionAPI = new Region();
         $activeTeams = $regionAPI->getActiveTeams();
+        $successCount = 0;
+        $failureCount = 0;
         foreach ($activeTeams as $activeTeam) {
-            $divisionName = ltrim($activeTeam->division, 'BG') . 'U';
-            $result = explode('-', $activeTeam->team);
-            $teamId          = sprintf('%s-%02d', $result[0], $result[1]);
-            $teamName        = $activeTeam->teamName;
-            $teamUUID        = $activeTeam->teamID;
+            $divisionName   = ltrim($activeTeam->division, 'BG') . 'U';
+            $result         = explode('-', $activeTeam->team);
+            $teamId         = sprintf('%s-%02d', $result[0], $result[1]);
+            $teamName       = $activeTeam->teamName;
+            $teamUUID       = $activeTeam->teamID;
 
             if (count($activeTeam->coaches) > 0) {
                 $coachFirstName = $activeTeam->coaches[0]->firstName;
-                $coachLastName = $activeTeam->coaches[0]->lastName;
-                $coachName = $coachFirstName . ' ' . $coachLastName;
-                $coachEmail = $activeTeam->coaches[0]->email;
+                $coachLastName  = $activeTeam->coaches[0]->lastName;
+                $coachName      = $coachFirstName . ' ' . $coachLastName;
+                $coachEmail     = $activeTeam->coaches[0]->email;
             }
 
             // Other attributes
@@ -821,17 +823,18 @@ class Season extends Domain
             $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
             $gameDurationMinutes    = 30; // $this->getGameDurationMinutes($divisionName);
             $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
+            $color                  = $activeTeam->currentTeamSeason == null ? '' : $activeTeam->currentTeamSeason->colorJersey;
             // print("<p>divisionName:$divisionName, gender:$gender, teamName/Id: $teamName ($teamId), coach:$coachName, email:$coachEmail</p>");
 
             // Create or update division, team and coach
             $division   = Division::createOrUpdate($this, $divisionName, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder);
-            $team       = Team::createOrUpdate($division, null, $teamName, $teamId, $region, $city);
+            $team       = Team::createOrUpdate($division, null, $teamName, $teamId, $region, $city, $color);
             Coach::createOrUpdate($team, $coachName, $coachEmail);
 
             // Populate players for 10U, 12U, 14U, 16U and 19U teams
             if ($divisionName == '10U' or $divisionName == '12U' or $divisionName == '14U' or $divisionName == '16U' or $divisionName == '19U') {
                 $players = $regionAPI->getRoster($teamUUID);
-                print("<p>divisionName: $divisionName, team: $teamId, player count: " . count($players) . "</p>");
+                // print("<p>divisionName: $divisionName, team: $teamId, player count: " . count($players) . "</p>");
                 foreach ($players as $player) {
                     $playerName = $player->firstName . ' ' . $player->lastName;
                     $uniformNumber = $player->uniform === '' ? null : (int)$player->uniform;
@@ -839,6 +842,7 @@ class Season extends Domain
                 }
             }
         }
+        print("<p>Successfully processed $successCount teams, failed to process $failureCount teams</p>");
     }
 
     /**
@@ -846,7 +850,7 @@ class Season extends Domain
      */
     public function populateInLeagueCoaches()
     {
-        $region = new Region(false);
+        $region = new Region();
         $maxRows = 50;
         $page = 1;
         $count = 0;
@@ -881,7 +885,7 @@ class Season extends Domain
      */
     public function populateInLeagueFields()
     {
-        $region = new Region(false);
+        $region = new Region();
         $playingFields = $region->getPlayingFields();
         foreach ($playingFields as $playingField) {
             if ($playingField->practice or $playingField->fieldName[0] == 'x') {
@@ -920,6 +924,18 @@ class Season extends Domain
             }
 
             // Conditionally create 19U Fields
+            if ($divisionName == '14U') {
+                $divisions = Division::lookupByName($this, '16U');
+                foreach ($divisions as $division) {
+                    DivisionField::create($division, $field, true);
+                    $this->createGameTimes($field, false);
+                }
+                $divisions = Division::lookupByName($this, '19U');
+                foreach ($divisions as $division) {
+                    DivisionField::create($division, $field, true);
+                    $this->createGameTimes($field, false);
+                }
+            }
             if ($divisionName == '16U') {
                 $divisions = Division::lookupByName($this, '19U');
                 foreach ($divisions as $division) {
@@ -968,180 +984,135 @@ class Season extends Domain
 
     /**
      * Populate Games and FamilyGames
-     *
-     * @param string $fileName - Expected file format:
-     *      GameID,<blank>,Division,Game Date,Game Time,Field,HomeTeam,Visiting Team,Game Number
-     *      Example:
-     *          "00FD573E-F36B-1410-8753-00FFFFFFFFFF","","B8","Sat, Nov 9, 2024","2:00 PM","Girsh14_8U","B8-23 - Peabody Charter -","B8-22 - Harding Elementary -","1441"
-     *
-     * @param bool  $ignoreHeaderRow - defaults to true
      */
-    public function populateInLeagueGames($fileName, $ignoreHeaderRow = true)
+    public function populateInLeagueGames()
     {
-        $processedLines = 0;
-        $line = '';
-        try {
-            if (($handle = fopen($fileName, "r")) !== FALSE) {
-                while (($line = fgetcsv($handle, 2000, ",")) !== FALSE) {
-                    // Skip header line
-                    $processedLines += 1;
-                    if ($processedLines == 1 and $ignoreHeaderRow) {
-                        continue;
-                    }
+        $region = new Region();
+        $games = $region->getGames();
+        foreach ($games as $inLeagueGame) {
+            print("<p>game: $inLeagueGame->gameNum, division: $inLeagueGame->division, homeTeam: $inLeagueGame->homeTeamDesignation, visitingTeam: $inLeagueGame->visitorTeamDesignation, divGender: $inLeagueGame->divGender, fieldID: $inLeagueGame->fieldID, fieldName: $inLeagueGame->fieldName, gameStart: $inLeagueGame->gameStart, homeGoals: $inLeagueGame->homeGoals, visitingGoals: $inLeagueGame->visitingGoals  </p>");
 
-                    // Skip blank lines
-                    if ($line == '') {
-                        continue;
-                    }
+            // Get the field
+            $facilityName = explode(',', $inLeagueGame->fieldName)[0];
+            $facility = Facility::lookupByName($this, $facilityName);
+            $field = Field::lookupByName($facility, $inLeagueGame->fieldName);
 
-                    $count = count($line);
-                    Assertion::isTrue($count == 9, "Invalid line: $line, count: $count");
+            // Get the closest game time in the future to the game time string
+            $gameDate = GameDate::lookupByDay($this, substr($inLeagueGame->gameStart, 0, 10));
+            $gameTimeStr = substr($inLeagueGame->gameStart, 11, 8);
+            $gameTime = $this->getGameTimeFromString($gameTimeStr, $gameDate, $field);
+            assertion(!is_null($gameTime), "Unable to find gimeTime for: $inLeagueGame->gameStart on field $field->name");
+            $actualTimeStr = $gameTime->startTime == $gameTimeStr ? null : $gameTimeStr;
 
-                    // Get game data
-                    $divisionName = ltrim($line[0], 'BG');
-                    $divisionName .= 'U';
-                    $gameDateStr = $line[1];
-                    $gameDateAttributes = explode('/', $gameDateStr);
-                    Assertion::isTrue(count($gameDateAttributes) == 3, "Invalid game date format: $gameDateStr");
-                    $month = $gameDateAttributes[0];
-                    $day = $gameDateAttributes[1];
-                    $year = $gameDateAttributes[2];
-                    $gameDateStr = sprintf('%d-%02d-%02d', $year, $month, $day);
-                    if ($gameDateStr == '2024-06-29') {
-                        continue;
-                    }
-                    $gameDate = GameDate::lookupByDay($this, $gameDateStr);
+            // Set the inLeague game id
+            $inLeagueGameId = (string)$inLeagueGame->gameNum;
 
-                    $facilities = Facility::lookupBySeason($this);
-                    $field = null;
-                    foreach ($facilities as $facility) {
-                        $fields = Field::lookupByFacility($facility);
-                        foreach ($fields as $field) {
-                            if ($field->name == $line[3]) {
-                                break;
-                            }
-                        }
-                        if (!is_null($field) and $field->name == $line[3]) {
-                            break;
-                        }
-                    }
-                    assertion(!is_null($field), "Unable to find field for: $line[3]");
-
-                    $new_time = \DateTime::createFromFormat('h:i A', $line[2]);
-                    $gameTimeStr = $new_time->format('H:i:s');
-
-                    // Get the closest game time in the future to the game time string
-                    $gameTime = $this->getGameTimeFromString($gameTimeStr, $gameDate, $field);
-                    assertion(!is_null($gameTime), "Unable to find gimeTime for: $line[2] on field $field->name");
-
-                    // If the game time is not matching then set the actual game time
-                    $actualTimeStr = $gameTime->startTime == $gameTimeStr ? null : $gameTimeStr;
-
-                    // Set the inLeague game id
-                    $inLeagueGameId = $line[8];
-
-                    // If a game already exists in the new gameTime then remove it from the gameTime and delete the game if it is not the same game
-                    if (!is_null($gameTime->game)) {
-                        $oldGame = $gameTime->game;
-                        if ($oldGame->thirdPartyGameId != $inLeagueGameId) {
-                            $oldGame->delete();
-                        }
-                        $gameTime->game = null;
-                        $gameTime->actualStartTime = null;
-                    }
-
-                    $homeTeamId = explode(' ', $line[4])[0];
-
-                    if (substr($homeTeamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
-                        $homeTeamId = substr_replace($homeTeamId, 'B14-', 0, strlen('B14-B14-'));
-                    }
-                    // If $homeTeamId has more than one '-' character, keep everything before the second '-'
-                    $dashCount = substr_count($homeTeamId, '-');
-                    if ($dashCount > 1) {
-                        $parts = explode('-', $homeTeamId);
-                        $homeTeamId = $parts[0] . '-' . $parts[1];
-                    }
-
-                    $visitingTeamId = explode(' ', $line[5])[0];
-                    if (substr($visitingTeamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
-                        $visitingTeamId = substr_replace($visitingTeamId, 'B14-', 0, strlen('B14-B14-'));
-                    }
-                    // If $visitingTeamId has more than one '-' character, keep everything before the second '-'
-                    $dashCount = substr_count($visitingTeamId, '-');
-                    if ($dashCount > 1) {
-                        $parts = explode('-', $visitingTeamId);
-                        $visitingTeamId = $parts[0] . '-' . $parts[1];
-                    }
-
-                    // $divisionName = $homeTeamId == '(TBD)' ? explode('-', $visitingTeamId)[0] : explode('-', $homeTeamId)[0];
-                    $gender = $line[0][0] == 'B' ? 'Boys' : 'Girls';
-                    $division = Division::lookupByNameAndGender($this, $divisionName, $gender);
-
-                    $homeTeam = $homeTeamId == '(TBD)' ? null : Team::lookupByNameId($division, $homeTeamId);
-                    $visitingTeam = $visitingTeamId == '(TBD)' ? null : Team::lookupByNameId($division, $visitingTeamId);
-
-                    print("<p>date:$gameDate->day, time:($gameTime->startTime, $line[2]), field:$field->name, home:$homeTeamId, visit:$visitingTeamId</p>");
-
-                    // Find or create schedule
-                    $schedules = Schedule::lookupByDivision($division);
-                    $schedule = null;
-                    foreach ($schedules as $schedule) {
-                        if ($schedule->startDate == $this->startDate and $schedule->endDate == $this->endDate) {
-                            break;
-                        }
-                    }
-                    if (is_null($schedule)) {
-                        $schedule = Schedule::create($division, $this->name, ScheduleOrm::SCHEDULE_TYPE_LEAGUE, 10, $this->startDate, $this->endDate, $this->startTime, $this->endTime);
-                    }
-
-                    // Find or create flight
-                    $flights = Flight::lookupBySchedule($schedule);
-                    $flight = null;
-                    foreach ($flights as $flight) {
-                        if ($flight->name == 'Flight A') {
-                            break;
-                        }
-                    }
-                    if (is_null($flight)) {
-                        $flight = Flight::create($schedule, 'Flight A', 0, 0, 0, 0);
-                    }
-
-                    // Find or create pool
-                    $pools = Pool::lookupByFlight($flight);
-                    $pool = null;
-                    foreach ($pools as $pool) {
-                        if ($pool->name == 'A') {
-                            break;
-                        }
-                    }
-                    if (is_null($pool)) {
-                        $pool = Pool::create($flight, $schedule, 'A');
-                    }
-
-                    // Use schedule to createOrUpdateGame (family games also created)
-                    $game = $schedule->createOrUpdateGame($this, $flight, $pool, $gameTime, $homeTeam, $visitingTeam, thirdPartyGameId:$inLeagueGameId);
-                    $game->notes = "inLeague_Game#:$inLeagueGameId";
-
-                    // Set the score if available
-                    $homeScore = $line[6];
-                    $visitingScore = $line[7];
-                    if (is_numeric($homeScore) and is_numeric($visitingScore)) {
-                        $game->homeTeamScore =  intval($homeScore);
-                        $game->visitingTeamScore = intval($visitingScore);
-                    }
-
-                    // Set the actual start time if available
-                    if (!is_null($actualTimeStr)) {
-                        $gameTime->actualStartTime = $actualTimeStr;
-                    } else {
-                        $gameTime->actualStartTime = null;
-                    }
+            // If a game already exists in the new gameTime then remove it from the gameTime and delete the game if it is not the same game
+            if (!is_null($gameTime->game)) {
+                $oldGame = $gameTime->game;
+                if ($oldGame->thirdPartyGameId != $inLeagueGameId) {
+                    $oldGame->delete();
                 }
-                fclose($handle);
+                $gameTime->game = null;
+                $gameTime->actualStartTime = null;
             }
-        } catch (\Exception $e) {
-            print $e;
-            throw new \Exception("Error: Invalid line in uploaded file: '$line'<br>, caused by: " . $e->getMessage());
+
+            // Get the home team id
+            $homeTeamId = $inLeagueGame->homeTeamDesignation;
+            $homeTeamId = explode(' ', $homeTeamId)[0];
+            if (substr($homeTeamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
+                $homeTeamId = substr_replace($homeTeamId, 'B14-', 0, strlen('B14-B14-'));
+            }
+            // If $homeTeamId has more than one '-' character, keep everything before the second '-'
+            $dashCount = substr_count($homeTeamId, '-');
+            if ($dashCount > 1) {
+                $parts = explode('-', $homeTeamId);
+                $homeTeamId = $parts[0] . '-' . $parts[1];
+            }
+
+            // Get the visiting team id
+            $visitingTeamId = $inLeagueGame->visitorTeamDesignation;
+            $visitingTeamId = explode(' ', $visitingTeamId)[0];
+            if (substr($visitingTeamId, 0, strlen('B14-B14-')) == 'B14-B14-') {
+                $visitingTeamId = substr_replace($visitingTeamId, 'B14-', 0, strlen('B14-B14-'));
+            }
+            // If $visitingTeamId has more than one '-' character, keep everything before the second '-'
+            $dashCount = substr_count($visitingTeamId, '-');
+            if ($dashCount > 1) {
+                $parts = explode('-', $visitingTeamId);
+                $visitingTeamId = $parts[0] . '-' . $parts[1];
+            }
+
+            $divisionName = ltrim($inLeagueGame->division, 'BG');
+            $divisionName .= 'U';
+            $gender = $inLeagueGame->division[0] == 'B' ? 'Boys' : 'Girls';
+            $division = Division::lookupByNameAndGender($this, $divisionName, $gender);
+
+            $homeTeam = null;
+            $visitingTeam = null;
+            if ($homeTeamId != '(TBD)' and $homeTeamId != '') {
+                $homeTeam = Team::lookupByNameId($division, $homeTeamId);
+            }
+            if ($visitingTeamId != '(TBD)' and $visitingTeamId != '') {
+                $visitingTeam = Team::lookupByNameId($division, $visitingTeamId);
+            }
+
+            // print("<p>date:$gameDate->day, time:($gameTime->startTime, $gameTimeStr), field:$field->name, home:$homeTeamId, visit:$visitingTeamId</p>");
+
+            // Find or create schedule
+            $schedules = Schedule::lookupByDivision($division);
+            $schedule = null;
+            foreach ($schedules as $schedule) {
+                if ($schedule->startDate == $this->startDate and $schedule->endDate == $this->endDate) {
+                    break;
+                }
+            }
+            if (is_null($schedule)) {
+                $schedule = Schedule::create($division, $this->name, ScheduleOrm::SCHEDULE_TYPE_LEAGUE, 10, $this->startDate, $this->endDate, $this->startTime, $this->endTime);
+            }
+
+            // Find or create flight
+            $flights = Flight::lookupBySchedule($schedule);
+            $flight = null;
+            foreach ($flights as $flight) {
+                if ($flight->name == 'Flight A') {
+                    break;
+                }
+            }
+            if (is_null($flight)) {
+                $flight = Flight::create($schedule, 'Flight A', 0, 0, 0, 0);
+            }
+
+            // Find or create pool
+            $pools = Pool::lookupByFlight($flight);
+            $pool = null;
+            foreach ($pools as $pool) {
+                if ($pool->name == 'A') {
+                    break;
+                }
+            }
+            if (is_null($pool)) {
+                $pool = Pool::create($flight, $schedule, 'A');
+            }
+
+            // Use schedule to createOrUpdateGame (family games also created)
+            $game = $schedule->createOrUpdateGame($this, $flight, $pool, $gameTime, $homeTeam, $visitingTeam, thirdPartyGameId:$inLeagueGameId);
+            $game->notes = "inLeague_Game#:$inLeagueGameId";
+
+            // Set the score if available
+            $homeScore = $inLeagueGame->homeGoals;
+            $visitingScore = $inLeagueGame->visitingGoals;
+            if (is_numeric($homeScore) and is_numeric($visitingScore)) {
+                $game->homeTeamScore =  intval($homeScore);
+                $game->visitingTeamScore = intval($visitingScore);
+            }
+
+            // Set the actual start time if available
+            if (!is_null($actualTimeStr)) {
+                $gameTime->actualStartTime = $actualTimeStr;
+            } else {
+                $gameTime->actualStartTime = null;
+            }
         }
     }
 

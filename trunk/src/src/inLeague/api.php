@@ -80,8 +80,8 @@ class api {
      * @param int $seasonID - inLeague seasonID
      * @return {} json_data
      */
-    public function divisions($seasonuid) {
-        return $this->execute('/api/v1/divisions?seasonuid=' . $seasonuid);
+    public function divisions($seasonID) {
+        return $this->execute('/api/v1/divisions?seasonuid=' . $seasonID);
     }
 
     /**
@@ -125,8 +125,21 @@ class api {
      * @param string    endDate in MM-DD-YY
      * @return {} json_data
      */
-    public function games($competitionID, $divisionGuids, $startDate, $endDate) {
-        return $this->execute('/api/v1/games/' . $competitionID . '?divids=' . $divisionGuids . '&startdate=' . $startDate . '&enddate=' . $endDate);
+    // public function games($competitionID, $divisionGuids, $startDate, $endDate) {
+    public function games($competitionID) {
+        return $this->execute('/api/v1/games/' . $competitionID);
+    }
+
+    /**
+     * teamSeasonInfo
+     * @brief
+     *      Get team season info for a team
+     * @param string seasonUID - inLeague seasonUID
+     * @param string teamUUID - inLeague teamUUID
+     * @return {} json_data
+     */
+    public function teamSeasonInfo($seasonUID, $teamUUID) {
+        return $this->execute('/api/v1/team/' . $teamUUID . '/season/' . $seasonUID);
     }
 
     /**
@@ -136,9 +149,9 @@ class api {
      * @param string teamID - inLeague teamID
      * @return {} json_data
      */
-    public function roster($teamID) {
-        return $this->execute('/api/v1/roster/' . $teamID);
-    }
+        public function roster($teamID) {
+            return $this->execute('/api/v1/roster/' . $teamID);
+        }
 
     /**
      * instanceConfig

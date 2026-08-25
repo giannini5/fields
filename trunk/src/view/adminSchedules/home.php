@@ -61,17 +61,17 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         $this->renderLoadInLeagueFieldsFromFile();
         print "<br>";
         $this->renderLoadInLeagueGamesFromFile();
-        print "<br>";
-        $this->renderLoadInLeaguePlayersFromFile();
+        // print "<br>";
+        // $this->renderLoadInLeaguePlayersFromFile();
 
-        print "<br><strong style='font-size: 16px'>--------------- WebYouthSoccer Imports ---------------<br></strong>";
-        $this->renderLoadCoachesFromFile();
-        print "<br>";
-        $this->renderLoadPlayersFromFile();
-        print "<br>";
-        $this->renderLoadFacilitiesFromFile();
-        print "<br>";
-        $this->renderLoadFieldsFromFile();
+        // print "<br><strong style='font-size: 16px'>--------------- WebYouthSoccer Imports ---------------<br></strong>";
+        // $this->renderLoadCoachesFromFile();
+        // print "<br>";
+        // $this->renderLoadPlayersFromFile();
+        // print "<br>";
+        // $this->renderLoadFacilitiesFromFile();
+        // print "<br>";
+        // $this->renderLoadFieldsFromFile();
     }
 
     /**
@@ -137,22 +137,13 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
                     <td colspan='3' nowrap><strong style='color: blue; font-size: 18px'>Import Games</strong><br>
-                    <strong style='font-size: 12px'>inLeague: Go to Classic, Reports, Report Center, My Custom Reports, 2024 Games</strong><br><br>
-                    <strong style='font-size: 16px'>Sample CSV file format</strong><br>
-                    <p style='font-size: 12px'>
-                        GameID,<blank>,Division,Game Date,Game Time,Field,HomeTeam,Visiting Team,Game Number<br>
-                        '00FD573E-F36B-1410-8753-00FFFFFFFFFF','','B8','Sat, Nov 9, 2024','2:00 PM','Girsh14_8U','B8-23 - Peabody Charter -','B8-22 - Harding Elementary -','1441'<br>
-                        </p>
+                    <strong style='font-size: 12px'>inLeague: Uses API to create or update games (stale games are not yet deleted)</strong><br><br>
                     </td>
                 </tr>
                 <tr>
                     <form enctype='multipart/form-data' method='POST' action='" . self::SCHEDULE_UPLOAD_PAGE . $this->m_urlParams . "'>
-                        <td nowrap>Select csv file to upload:</td>
                         <td>
-                            <input type='file' name='fileToUpload' id='fileToUpload'>
-                        </td>
-                        <td>
-                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_GAME_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::SYNC_GAMES . "' name='" . View_Base::SUBMIT . "'>
                             <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                         </td>
                     </form>
@@ -188,7 +179,7 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
                             <input type='file' name='fileToUpload' id='fileToUpload'>
                         </td>
                         <td>
-                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::UPLOAD_INLEAGUE_PLAYER_FILE . "' name='" . View_Base::SUBMIT . "'>
+                            <input style='background-color: yellow' type='" . View_Base::SUBMIT . "' value='" . View_Base::SYNC_PLAYERS . "' name='" . View_Base::SUBMIT . "'>
                             <input type='hidden' id='sessionId' name='sessionId' value='$sessionId'>
                         </td>
                     </form>

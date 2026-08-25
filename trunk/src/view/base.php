@@ -141,8 +141,8 @@ abstract class View_Base {
     const SYNC_FIELDS           = 'Sync Fields';
     const SYNC_DIVISIONS_TEAMS  = 'Sync Divisions and Teams';
     const SYNC_COACHES          = 'Sync Coaches';
-    const UPLOAD_INLEAGUE_GAME_FILE = 'Upload inLeague Game File';
-    const UPLOAD_INLEAGUE_PLAYER_FILE = 'Upload inLeague Player File';
+    const SYNC_GAMES            = 'Sync Games';
+    const SYNC_PLAYERS          = 'Sync Players';
     const FIELD_VIEW            = 'Field View';
     const GENERATE_REF_CREWS    = 'Generate Referee Crews';
     const DIVISION_VIEW         = 'Division View';
