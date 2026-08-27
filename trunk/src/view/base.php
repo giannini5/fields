@@ -53,6 +53,7 @@ abstract class View_Base {
 
     # Admin Scoring pages
     const SCORING_ENTER_SCORES_PAGE     = '/admin_scoring_home';
+    const SCORING_TEAM_RANK_PAGE        = '/admin_scoring_team_rank';
     const SCORING_VOLUNTEER_POINTS_PAGE = '/admin_scoring_volunteerPoints';
     const SCORING_GAME_CARDS_PAGE       = '/admin_scoring_gameCards';
     const SCORING_SCORE_SHEET_PAGE      = '/admin_scoring_scoreSheet';
@@ -315,6 +316,7 @@ abstract class View_Base {
     const VISITING_TEAM_ID          = 'visitingTeamId';
     const VOLUNTEER_POINTS_DATA     = 'volunteerPointsData';
     const SEED                      = 'seed';
+    const RANK                      = 'rank';
     const TEAM_ID_COACH_SHORT_NAME  = 'teamIdWithCoachShortName';
     const TEAM_ID_COACH_AND_CITY    = 'teamIdWithCoachAndCity';
     const HOVER_TEXT                = 'hoverText';

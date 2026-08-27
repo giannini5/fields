@@ -177,8 +177,12 @@ class Web_Index
                 $this->m_controller = new Controller_AdminScoring_Home();
                 break;
 
+            case View_Base::SCORING_TEAM_RANK_PAGE:
+                $this->m_controller = new Controller_AdminScoring_TeamRank();
+                break;
+
             case View_Base::SCORING_VOLUNTEER_POINTS_PAGE:
-                $this->m_controller = new Controller_AdminScoring_VolunteerPoints();
+                $this->m_controller = new Controller_AdminScoring_TeamRank();
                 break;
 
             case View_Base::SCORING_GAME_CARDS_PAGE:

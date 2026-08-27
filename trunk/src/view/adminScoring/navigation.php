@@ -54,6 +54,8 @@ class View_AdminScoring_Navigation extends View_Navigation
                 <ul id="nav">'
             . ($this->pageName == View_Base::SCORING_ENTER_SCORES_PAGE ?
                 '<li><div>ENTER SCORES</div></li>' : '<li><a href="' . View_Base::SCORING_ENTER_SCORES_PAGE . '">ENTER SCORES</a></li>')
+            . ($this->pageName == View_Base::SCORING_TEAM_RANK_PAGE ?
+                '<li><div>TEAM RANK</div></li>' : '<li><a href="' . View_Base::SCORING_TEAM_RANK_PAGE . '">TEAM RANK</a></li>')
             . ($this->pageName == View_Base::SCORING_VOLUNTEER_POINTS_PAGE ?
                 '<li><div>VOLUNTEER POINTS</div></li>' : '<li><a href="' . View_Base::SCORING_VOLUNTEER_POINTS_PAGE . '">VOLUNTEER POINTS</a></li>')
             . ($this->pageName == View_Base::SCORING_GAME_CARDS_PAGE ?

@@ -196,6 +196,7 @@ class View_Games_Standings extends View_Games_Base
         $teamStats  = [];
         $teamPoints = [];
         $poolTeams  = [];
+        $teamRanks  = [];
 
         print "
                 <table valign='top' align='center' bgcolor='yellow' width='800' border='0' cellpadding='5' cellspacing='0'>
@@ -219,6 +220,7 @@ class View_Games_Standings extends View_Games_Base
                     $stats = $this->getGameStats($game, true, $stats, true);
                     $teamStats[$team->id] = $stats;
                     $teamPoints[$team->id] = $stats[self::POINTS];
+                    $teamRanks[$team->id] = $team->rank;
                 }
 
                 if (isset($game->visitingTeam) and empty($game->title)) {
@@ -230,6 +232,7 @@ class View_Games_Standings extends View_Games_Base
                     $stats                  = $this->getGameStats($game, false, $stats, true);
                     $teamStats[$team->id]   = $stats;
                     $teamPoints[$team->id]  = $stats[self::POINTS];
+                    $teamRanks[$team->id] = $team->rank;
                 }
             }
         }
@@ -242,6 +245,7 @@ class View_Games_Standings extends View_Games_Base
 
         // Sort by points, highest to lowest
         arsort($teamPoints);
+        arsort($teamRanks);
 
         foreach ($flights as $flight) {
             // Skip flights where no games are scheduled
@@ -261,7 +265,7 @@ class View_Games_Standings extends View_Games_Base
                 print "
                     <table valign='top' align='center' bgcolor='white' width='800' border='1' cellpadding='5' cellspacing='0'>
                         <tr bgcolor='lightskyblue'>
-                            <th colspan='12'>$schedule->name - Flight $flight->name: $pool->name</th>
+                            <th colspan='13'>$schedule->name - Flight $flight->name: $pool->name</th>
                         </tr>
                         <tr bgcolor='lightskyblue'>
                             <th>Team</th>
@@ -276,9 +280,11 @@ class View_Games_Standings extends View_Games_Base
                             <th>Red Cards</th>
                             <th>Volunteer Points</th>
                             <th>Total Points</th>
+                            <th>Rank</th>
                         </tr>";
 
-                foreach ($teamPoints as $teamId => $points) {
+                // foreach ($teamPoints as $teamId => $points) {
+                foreach ($teamRanks as $teamId => $rank) {
                     if (isset($poolTeams[$pool->id]) and in_array($teamId, $poolTeams[$pool->id])) {
                         $stats              = $teamStats[$teamId];
                         $teamName           = $teams[$teamId]->nameId . " (" . $teams[$teamId]->name . ")";
@@ -295,7 +301,7 @@ class View_Games_Standings extends View_Games_Base
                         $coach              = Coach::lookupByTeam($teams[$teamId]);
                         $coachName          = $coach->shortName;
                         $teamHTML           = "<a href=\"javascript:window.open('" . View_Base::GAMES_SCHEDULE_PAGE . "?" . View_Base::FILTER_COACH_ID . "=$coach->id&submit=submit&popup=1','game schedule','width=600,height=400')\">$teamName</a>";
-
+                        $rank               = $teamRanks[$teamId];
                         print "
                             <tr>
                                 <td nowrap>$teamHTML</td>
@@ -310,6 +316,7 @@ class View_Games_Standings extends View_Games_Base
                                 <td align='right'>$reds</td>
                                 <td align='right'>$volunteerPoints</td>
                                 <td align='right'>$points</td>
+                                <td align='right'>$rank</td>
                             </tr>";
                     }
                 }

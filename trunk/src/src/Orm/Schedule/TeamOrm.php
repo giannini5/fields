@@ -18,6 +18,8 @@ use DAG\Framework\Orm\DuplicateEntryException;
  * @property string $city
  * @property int    $volunteerPoints
  * @property int    $seed
+ * @property int    $rank
+ * @property string $thirdPartyId
  */
 class TeamOrm extends PersistenceModel
 {
@@ -31,18 +33,21 @@ class TeamOrm extends PersistenceModel
     const FIELD_CITY                = 'city';
     const FIELD_VOLUNTEER_POINTS    = 'volunteerPoints';
     const FIELD_SEED                = 'seed';
-
+    const FIELD_RANK                = 'rank';
+    const FIELD_THIRD_PARTY_ID      = 'thirdPartyId';
     protected static $fields = [
         self::FIELD_ID                  => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_DIVISION_ID         => [FV::INT,    [FV::NO_CONSTRAINTS]],
         self::FIELD_POOL_ID             => [FV::INT,    [FV::NO_CONSTRAINTS], null],
         self::FIELD_NAME                => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
-        self::FIELD_NAME_ID             => [FV::STRING, [FV::NO_CONSTRAINTS]],
+        self::FIELD_NAME_ID             => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_COLOR               => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_REGION              => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_CITY                => [FV::STRING, [FV::NO_CONSTRAINTS], ''],
         self::FIELD_VOLUNTEER_POINTS    => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
         self::FIELD_SEED                => [FV::INT,    [FV::NO_CONSTRAINTS], 0],
+        self::FIELD_RANK                => [FV::INT,    [FV::NO_CONSTRAINTS], 1000],
+        self::FIELD_THIRD_PARTY_ID      => [FV::STRING, [FV::NO_CONSTRAINTS], null],
     ];
 
     protected static $config = [
@@ -64,6 +69,8 @@ class TeamOrm extends PersistenceModel
      * @param string    $city
      * @param int       $volunteerPoints - defaults to 0
      * @param int       $seed - defaults to 0
+     * @param int       $rank - defaults to 1000
+     * @param string    $thirdPartyId - defaults to null
      *
      * @return TeamOrm
      * @throws DuplicateEntryException
@@ -77,7 +84,9 @@ class TeamOrm extends PersistenceModel
         $city,
         $volunteerPoints = 0,
         $seed = 0,
-        $color = ''
+        $color = '',
+        $rank = 1000,
+        $thirdPartyId = null
     ) {
         $result = self::getPersistenceDriver()->create(
             [
@@ -90,6 +99,8 @@ class TeamOrm extends PersistenceModel
                 self::FIELD_CITY                => $city,
                 self::FIELD_VOLUNTEER_POINTS    => $volunteerPoints,
                 self::FIELD_SEED                => $seed,
+                self::FIELD_RANK                => $rank,
+                self::FIELD_THIRD_PARTY_ID      => $thirdPartyId,
             ],
             function ($item) {
                 return $item !== null;
@@ -110,6 +121,19 @@ class TeamOrm extends PersistenceModel
     {
         $result = self::getPersistenceDriver()->getOne([self::FIELD_ID => $id]);
 
+        return new static($result);
+    }
+
+    /**
+     * Load a TeamOrm by thirdPartyId
+     *
+     * @param string $thirdPartyId
+     *
+     * @return TeamOrm
+     */
+    public static function loadByThirdPartyId($thirdPartyId)
+    {
+        $result = self::getPersistenceDriver()->getOne([self::FIELD_THIRD_PARTY_ID => $thirdPartyId]);
         return new static($result);
     }
 
