@@ -88,6 +88,7 @@ class View_Games_TeamStats extends View_Games_Base
                         <th title='Number of goals allowed by team'>Goals Allowed</th>
                         <th>Yellow Cards</th>
                         <th>Red Cards</th>
+                        <th>Rank</th>
                     </tr>";
 
         foreach ($teams as $team) {
@@ -114,6 +115,7 @@ class View_Games_TeamStats extends View_Games_Base
         $redCards     = 0;
         $teamName     = $team->nameIdWithSeed;
         $coachName    = $coach->name;
+        $rank         = $team->rank;
 
         $games = Game::lookupByTeam($team);
 
@@ -152,6 +154,7 @@ class View_Games_TeamStats extends View_Games_Base
                     <td align='right'>$goalsAllowed</td>
                     <td align='right'>$yellowCards</td>
                     <td align='right'>$redCards</td>
+                    <td align='right'>$rank</td>
                 </tr>";
     }
 }

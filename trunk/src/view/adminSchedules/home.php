@@ -40,16 +40,10 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
             <p align='left' style='font-size: 15px; text-indent: 25px'>Welcome ... let's create schedules - follow the instructions below</p>
             <ol>
                 <li>Click on <strong style='color: blue'>SEASON</strong> tab and create a season.</li>
-                <li>Upload Coaches file to create divisions, teams, coaches, assistant coaches and families.</li>
-                <li>OPTIONAL: Upload Players file to assign players to teams.</li>
-                <li>Go to the <strong  style='color: blue'>GAME DATE</strong> tab and delete Game Dates that are not in the calendar</li>
-                <li>Upload a Facility file using the Upload box below or go to the <strong style='color: blue'>FACILITY</strong> tab to manually create.</li>
-                <li>Upload a Field file using the Upload box below or go to the <strong  style='color: blue'>FIELD</strong> tab to manually create.</li>
-                <li>Go to the <strong  style='color: blue'>FIELD</strong> tab and delete Game Dates that are not in the calendar</li>
-                <li>Go to the <strong  style='color: blue'>SCHEDULE</strong> tab and start creating schedules for each division</li>
-                <li>Using the <strong  style='color: blue'>SCHEDULE</strong> tab apply schedule customizations (fix coach overlaps, apply special requests, etc.)</li>
-                <li>Go to the <strong  style='color: blue'>PREVIEW</strong> tab, copy link and send to board members for schedule approval</li>
-                <li>Once schedule approved, go to the <strong  style='color: blue'>SCHEDULE</strong> tab and publish each of the schedules</li>
+                <li>Import Divisions, Teams, Coaches and Players from inLeague</li>
+                <li>Import Coach Updates from inLeague to pull in phone numbers and email addresses</li>
+                <li>Import Facility and Fields from inLeague</li>
+                <li>Import Games from inLeague</li>
                 <li>Verify schedules correctly published</li>
             </ol>";
 
@@ -198,7 +192,7 @@ class View_AdminSchedules_Home extends View_AdminSchedules_Base {
         print "
             <table bgcolor='lightyellow' valign='top' style='margin-left:25px' width='700' border='1' cellpadding='5' cellspacing='0'>
                 <tr>
-                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Fields</strong><br>
+                    <td colspan='3' nowrap ><strong style='color: blue; font-size: 18px'>Import Fields</strong><br>
                     <strong style='font-size: 12px'>inLeague: Uses API to create or update fields</strong><br><br>
                     </td>
                 </tr>

@@ -20,6 +20,8 @@ use DAG\Framework\Exception\Precondition;
  * @property string     $city
  * @property int        $volunteerPoints
  * @property int        $seed
+ * @property int        $rank
+ * @property string     $thirdPartyId
  * @property string     $nameIdWithSeed
  */
 class Team extends Domain
@@ -56,6 +58,8 @@ class Team extends Domain
      * @param int       $volunteerPoints - defaults to 0
      * @param int       $seed - defaults to 0
      * @param string    $color - default to ''
+     * @param int       $rank - defaults to 1000
+     * @param string    $thirdPartyId - defaults to null
      *
      * @return Team
      *
@@ -72,7 +76,9 @@ class Team extends Domain
         $ignore = false,
         $volunteerPoints = 0,
         $seed = 0,
-        $color = '')
+        $color = '',
+        $rank = 1000,
+        $thirdPartyId = null)
     {
         $poolId = isset($pool) ? $pool->id : null;
 
@@ -81,9 +87,10 @@ class Team extends Domain
             $team = static::lookupByNameId($division, $nameId);
             $team->name = $name;
             $team->color = $color;
+            $team->thirdPartyId = $thirdPartyId;
             return $team;
         } catch (NoResultsException $e) {
-            $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints, $seed, $color);
+            $teamOrm = TeamOrm::create($division->id, $poolId, $name, $nameId, $region, $city, $volunteerPoints, $seed, $color, $rank, $thirdPartyId);
             return new static($teamOrm, $division, $pool);
         }
     }
@@ -96,9 +103,10 @@ class Team extends Domain
      * @param string $region
      * @param string $city
      * @param string $color
+     * @param string $thirdPartyId
      * @return Team
      */
-    public static function createOrUpdate($division, $pool, $name, $nameId, $region, $city, $color = '')
+    public static function createOrUpdate($division, $pool, $name, $nameId, $region, $city, $color = '', $thirdPartyId = null)
     {
         $team = null;
 
@@ -108,9 +116,10 @@ class Team extends Domain
             $team->region = $region;
             $team->city = $city;
             $team->color = $color;
+            $team->thirdPartyId = $thirdPartyId;
         }
         else {
-            $team = static::create($division, $pool, $name, $nameId, $region, $city, false, 0, 0, $color);
+            $team = static::create($division, $pool, $name, $nameId, $region, $city, false, 0, 0, $color, 1000,$thirdPartyId);
         }
 
         return $team;
@@ -124,6 +133,16 @@ class Team extends Domain
     public static function lookupById($teamId)
     {
         $teamOrm = TeamOrm::loadById($teamId);
+        return new static($teamOrm);
+    }
+
+    /**
+     * @param string $thirdPartyId
+     * @return Team
+     */
+    public static function lookupByThirdPartyId($thirdPartyId)
+    {
+        $teamOrm = TeamOrm::loadByThirdPartyId($thirdPartyId);
         return new static($teamOrm);
     }
 
@@ -229,6 +248,8 @@ class Team extends Domain
             case "city":
             case "volunteerPoints":
             case "seed":
+            case "rank":
+            case "thirdPartyId":
                 return $this->teamOrm->{$propertyName};
 
             case "nameIdWithSeed":
@@ -260,6 +281,8 @@ class Team extends Domain
             case "city":
             case "volunteerPoints":
             case "seed":
+            case "rank":
+            case "thirdPartyId":
                 $this->teamOrm->{$propertyName} = $value;
                 $this->teamOrm->save();
                 break;
@@ -296,6 +319,8 @@ class Team extends Domain
             case "division":
             case "volunteerPoints":
             case "seed":
+            case "rank":
+            case "thirdPartyId":
                 return true;
 
             case "color":

@@ -800,8 +800,6 @@ class Season extends Domain
     {
         $regionAPI = new Region();
         $activeTeams = $regionAPI->getActiveTeams();
-        $successCount = 0;
-        $failureCount = 0;
         foreach ($activeTeams as $activeTeam) {
             $divisionName   = ltrim($activeTeam->division, 'BG') . 'U';
             $result         = explode('-', $activeTeam->team);
@@ -824,11 +822,12 @@ class Season extends Domain
             $gameDurationMinutes    = 30; // $this->getGameDurationMinutes($divisionName);
             $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
             $color                  = $activeTeam->currentTeamSeason == null ? '' : $activeTeam->currentTeamSeason->colorJersey;
+            $thirdPartyId           = $activeTeam->teamID;
             // print("<p>divisionName:$divisionName, gender:$gender, teamName/Id: $teamName ($teamId), coach:$coachName, email:$coachEmail</p>");
 
             // Create or update division, team and coach
             $division   = Division::createOrUpdate($this, $divisionName, $gender, $maxPlayersPerTeam, $gameDurationMinutes, $displayOrder);
-            $team       = Team::createOrUpdate($division, null, $teamName, $teamId, $region, $city, $color);
+            $team       = Team::createOrUpdate($division, null, $teamName, $teamId, $region, $city, $color, $thirdPartyId);
             Coach::createOrUpdate($team, $coachName, $coachEmail);
 
             // Populate players for 10U, 12U, 14U, 16U and 19U teams
@@ -842,7 +841,6 @@ class Season extends Domain
                 }
             }
         }
-        print("<p>Successfully processed $successCount teams, failed to process $failureCount teams</p>");
     }
 
     /**

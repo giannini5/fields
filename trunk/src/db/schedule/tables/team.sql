@@ -9,6 +9,9 @@ create table if not exists team (
     city            varchar(60) not NULL default '',
     volunteerPoints int         not NULL default 0,
     seed            int         not NULL default 0,
+    rank            int         not NULL default 1000,
+    thirdPartyId    varchar(128) default NULL,
     PRIMARY KEY (id),
-    unique key ux_divisionNameIdName(divisionId, nameId, name)
+    unique key ux_divisionNameIdName(divisionId, nameId, name),
+    unique key ux_thirdPartyId(thirdPartyId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
