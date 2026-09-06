@@ -136,9 +136,11 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
             }
 
             // For each division print the games at the facility
+            $count = 1;
             foreach ($divisionsById as $id => $division) {
                 if ($division->isScoringTracked) {
                     $this->printMatchCardsByDivision($division, $gameDate, $facility);
+                    $count++;
                 }
             }
         }
@@ -149,11 +151,13 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
      * @param GameDate          $gameDate
      * @param Facility | null   $facilityFilter
      * @param string            $genderFilter - defaults to ALL
+     * @param int               $count - Match card count
      */
     private function printMatchCardsByDivision($division, $gameDate, $facilityFilter = null, $genderFilter = 'All')
     {
         $games = Game::lookupByDivisionDay($division, $gameDate->day, true);
 
+        $count = 1;
         foreach ($games as $game) {
             // Skip medal round games
             /*
@@ -177,67 +181,63 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
             }
 
             // Home Team Game Card (front and back, two pages
-            $this->printMatchCard($game, $game->homeTeam, $game->visitingTeam, View_AdminScoring_MatchCards::HOME);
+            $this->printMatchCard($game, $count);
+            $count++;
         }
     }
 
     /**
      * @param Game      $game
-     * @param Team      $team
-     * @param Team      $opposingTeam
-     * @param string    $homeOrVisitor - 'HOME', 'VISITOR'
      */
-    private function printMatchCard($game, $team, $opposingTeam, $homeOrVisitor)
+    private function printMatchCard($game, $count)
     {
+        $team                   = $game->homeTeam;
+        $opposingTeam           = $game->visitingTeam;
         $teamId                 = isset($team) ? $team->nameId : "";
         $teamName               = isset($team) ? $team->name : "";
         $opposingTeamId         = isset($opposingTeam) ? $opposingTeam->nameId : "";
         $opposingTeamName       = isset($opposingTeam) ? $opposingTeam->name : "";
-        $coach                  = isset($team) ? Coach::lookupByTeam($team) : null;
-        $coachName              = isset($coach) ? $coach->name : "";
-        $assistantCoaches       = isset($team) ? AssistantCoach::lookupByTeam($team) : [];
-        $assistantCoachName     = count($assistantCoaches) > 0 ? $assistantCoaches[0]->name : "";
         $day                    = $game->gameTime->gameDate->day;
         $time                   = substr($game->gameTime->actualStartTime, 0, 5);
-        $fieldName              = $game->gameTime->field->fullName;
-        $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId ($teamName)";
-        $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId ($opposingTeamName), $opposingTeam->color";
+        $fieldName              = $game->gameTime->field->name;
+        $divisionName           = $game->flight->schedule->division->nameWithGender;
         $gameId                 = $game->id;
-        $color                  = $team->color;
-        $color                  = $color == "" ? "<u>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</u>" : $color;
         $teamName               = $teamName == $teamId ? "<u>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</u>" : $teamName;
+        $pageBreakBefore        = $count % 2 == 0 ? "" : "page-break-before: always; ";
+        $color                  = $game->flight->schedule->division->gender == 'Boys' ? "#273CF5" : "#6E3F01";
 
         print '
-<table border="0" style="page-break-before: always; table-layout: fixed; width: 5.5in; font-size: 10px">
+<br><br><br>
+<table border="0" style="' . $pageBreakBefore . 'table-layout: fixed; width: 5.5in; font-size: 10px">
     <tr>
-        <td align="left" nowrap><strong>HOME</strong></td>
+        <td align="left" nowrap>HOME </strong><span style="color: ' . $color . ';">' . $teamId . ' ' . $teamName . '</span></td`>
         <td align="center" nowrap><strong>⏴☐ KICKOFF ☐⏵</strong></td>
-        <td align="right" nowrap><strong>AWAY</strong></td>
+        <td align="right" nowrap><span style="color: ' . $color . ';">' . $opposingTeamId . ' ' . $opposingTeamName . '</span><strong> AWAY</strong></td>
     </tr>
 </table>
 <table border="0" style="table-layout: fixed; width: 5.5in; border-collapse: collapse; font-size: 10px">
     <tr style="height: 15px; border-bottom: 1px solid black; border-top: 1px solid black">
-        <td nowrap align="left" style="border-right: 1px solid black"><strong>COLOR</strong></td>
+        <td nowrap align="left" style="border-right: 1px solid black"><strong>COLOR </strong><span style="color: ' . $color . ';">' . $team->color . '</span></td>
         <td style="border-right: 1px solid black">&nbsp;</td>
         <td nowrap align="center" style="border-right: 1px solid black"><strong>CAPTAIN(S)</strong></td>
         <td style="border-right: 1px solid black">&nbsp;</td>
-        <td nowrap align="right"><strong>COLOR</strong></td>
+        <td nowrap align="right"><span style="color:' . $color . ';">' . $opposingTeam->color . '</span><strong> COLOR</strong></td>
     </tr>
 </table>
 <table border="0" style="table-layout: fixed; width: 5.5in; border-collapse: collapse; font-size: 10px">
     <tr style="height: 20px; border-bottom: 1px solid black">
-        <td nowrap align="left" style="border-right: 1px solid black"><strong>DATE</strong></td>
+        <td nowrap align="left" style="border-right: 1px solid black"><strong>DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong><span style="color: ' . $color . ';">' . $day . ' ' . $time . '</span></td>
         <td rowspan="3" style="border-right: 1px solid black; padding: 4px; vertical-align: middle; text-align: center; width: 30px">
             <img src="/images/aysoLogoBlackAndWhite.png" alt="" style="width: 100%; height: auto; display: block; max-height: 1.5in">
         </td>
         <td nowrap align="left"><strong>DURATION (2X): 25&nbsp;&nbsp;&nbsp;30&nbsp;&nbsp;&nbsp;35&nbsp;&nbsp;&nbsp;40&nbsp;&nbsp;&nbsp;45 - O.T.</strong></td>
     </tr>
     <tr style="height: 20px; border-bottom: 1px solid black">
-        <td nowrap align="left" style="border-right: 1px solid black"><strong>FIELD</strong></td>
-        <td nowrap align="left" style="font-size: 8px">Sched:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start Time:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End First Half:</td>
+        <td nowrap align="left" style="border-right: 1px solid black"><strong>FIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong><span style="color: ' . $color . ';">' . $fieldName . '</span></td>
+        <td nowrap align="left" style="font-size: 8px">Start Time:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End First Half:</td>
     </tr>
     <tr style="height: 20px; border-bottom: 1px solid black">
-        <td nowrap align="left" style="border-right: 1px solid black"><strong>DIVISION</strong></td>
+        <td nowrap align="left" style="border-right: 1px solid black"><strong>DIVISION </strong><span style="color: ' . $color . ';">' . $divisionName . '</span></td>
         <td nowrap align="left" style="font-size: 8px">Start Second Half:</td>
     </tr>
 </table>
@@ -416,7 +416,8 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
 <table border="0" style="table-layout: fixed; width: 5.5in" cellpadding="0" cellspacing="0"; font-size: 9px>
     <tr>
         <td colspan="2" style="font-size: 10px; padding-top: 4px; border-right: 1px solid black""><strong>CAUTION FOR:</strong></td>
-        <td colspan="2" style="font-size: 10px; padding-top: 4px"><strong>SEND OFF FOR:</strong></td>
+        <td style="font-size: 10px; padding-top: 4px"><strong>SEND OFF FOR:</strong></td>
+        <td style="font-size: 10px; text-align: right"><strong><span style="color: ' . $color . ';">Game ID: ' . $gameId . '</span></strong></td>
     </tr>
     <tr>
         <td style="font-size: 7px; ">(A) DISSENT</td>
