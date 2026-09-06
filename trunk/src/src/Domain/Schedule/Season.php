@@ -993,6 +993,10 @@ class Season extends Domain
         $region = new Region();
         $games = $region->getGames();
         foreach ($games as $inLeagueGame) {
+            // Skip 16U and 19U games
+            if ($inLeagueGame->division == 'B16' or $inLeagueGame->division == 'G16' or $inLeagueGame->division == 'B19' or $inLeagueGame->division == 'G19') {
+                continue;
+            }
             print("<p>game: $inLeagueGame->gameNum, division: $inLeagueGame->division, homeTeam: $inLeagueGame->homeTeamDesignation, visitingTeam: $inLeagueGame->visitorTeamDesignation, divGender: $inLeagueGame->divGender, fieldID: $inLeagueGame->fieldID, fieldName: $inLeagueGame->fieldName, gameStart: $inLeagueGame->gameStart, homeGoals: $inLeagueGame->homeGoals, visitingGoals: $inLeagueGame->visitingGoals  </p>");
 
             // Get the field
