@@ -3,6 +3,7 @@
 namespace DAG\inLeague;
 
 use stdClass;
+use Exception;
 
 /**
  * Class Region
@@ -216,7 +217,12 @@ class Region {
      * @param string    teamID
      */
     public function getRoster($teamID) {
-        $roster = $this->api->roster($teamID);
-        return $roster;
+        try {
+            $roster = $this->api->roster($teamID);
+            return $roster;
+        } catch (Exception $e) {
+            print("<p>Error: Unable to get roster for team $teamID: " . $e->getMessage() . "</p>");
+            return [];
+        }
     }
 }

@@ -800,12 +800,15 @@ class Season extends Domain
     {
         $regionAPI = new Region();
         $activeTeams = $regionAPI->getActiveTeams();
+        $currentSeasonTeamInfoCount = 0;
+        $activeTeamCount = 0;
         foreach ($activeTeams as $activeTeam) {
             $divisionName   = ltrim($activeTeam->division, 'BG') . 'U';
             $result         = explode('-', $activeTeam->team);
             $teamId         = sprintf('%s-%02d', $result[0], $result[1]);
             $teamName       = $activeTeam->teamName;
             $teamUUID       = $activeTeam->teamID;
+            $activeTeamCount = $activeTeamCount + 1;
 
             if (count($activeTeam->coaches) > 0) {
                 $coachFirstName = $activeTeam->coaches[0]->firstName;
@@ -822,6 +825,7 @@ class Season extends Domain
             $gameDurationMinutes    = 30; // $this->getGameDurationMinutes($divisionName);
             $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
             $color                  = $activeTeam->currentTeamSeason == null ? '' : $activeTeam->currentTeamSeason->colorJersey;
+            $currentSeasonTeamInfoCount = $activeTeam->currentTeamSeason == null ? $currentSeasonTeamInfoCount : $currentSeasonTeamInfoCount + 1;
             $thirdPartyId           = $activeTeam->teamID;
             // print("<p>divisionName:$divisionName, gender:$gender, teamName/Id: $teamName ($teamId), coach:$coachName, email:$coachEmail</p>");
 
@@ -841,6 +845,7 @@ class Season extends Domain
                 }
             }
         }
+        print("<p>activeTeamCount: $activeTeamCount, currentSeasonTeamInfoCount: $currentSeasonTeamInfoCount</p>");
     }
 
     /**
