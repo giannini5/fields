@@ -280,7 +280,7 @@ class View_Games_Standings extends View_Games_Base
                             <th>Red Cards</th>
                             <th>Volunteer Points</th>
                             <th>Total Points</th>
-                            <th>Rank</th>
+                            <th>Rating</th>
                         </tr>";
 
                 // foreach ($teamPoints as $teamId => $points) {
