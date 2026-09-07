@@ -806,7 +806,6 @@ class Season extends Domain
             $divisionName   = ltrim($activeTeam->division, 'BG') . 'U';
             $result         = explode('-', $activeTeam->team);
             $teamId         = sprintf('%s-%02d', $result[0], $result[1]);
-            $teamName       = $activeTeam->teamName;
             $teamUUID       = $activeTeam->teamID;
             $activeTeamCount = $activeTeamCount + 1;
 
@@ -824,6 +823,7 @@ class Season extends Domain
             $displayOrder           = $this->getDivisionDisplayOrder($divisionName);
             $gameDurationMinutes    = 30; // $this->getGameDurationMinutes($divisionName);
             $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
+            $teamName               = $activeTeam->currentTeamSeason == null ? '' : $activeTeam->currentTeamSeason->teamName;
             $color                  = $activeTeam->currentTeamSeason == null ? '' : $activeTeam->currentTeamSeason->colorJersey;
             $currentSeasonTeamInfoCount = $activeTeam->currentTeamSeason == null ? $currentSeasonTeamInfoCount : $currentSeasonTeamInfoCount + 1;
             $thirdPartyId           = $activeTeam->teamID;
@@ -992,12 +992,13 @@ class Season extends Domain
     {
         $region = new Region();
         $games = $region->getGames();
+        $count = 0;
         foreach ($games as $inLeagueGame) {
             // Skip 16U and 19U games
             if ($inLeagueGame->division == 'B16' or $inLeagueGame->division == 'G16' or $inLeagueGame->division == 'B19' or $inLeagueGame->division == 'G19') {
                 continue;
             }
-            print("<p>game: $inLeagueGame->gameNum, division: $inLeagueGame->division, homeTeam: $inLeagueGame->homeTeamDesignation, visitingTeam: $inLeagueGame->visitorTeamDesignation, divGender: $inLeagueGame->divGender, fieldID: $inLeagueGame->fieldID, fieldName: $inLeagueGame->fieldName, gameStart: $inLeagueGame->gameStart, homeGoals: $inLeagueGame->homeGoals, visitingGoals: $inLeagueGame->visitingGoals  </p>");
+            // print("<p>game: $inLeagueGame->gameNum, division: $inLeagueGame->division, homeTeam: $inLeagueGame->homeTeamDesignation, visitingTeam: $inLeagueGame->visitorTeamDesignation, divGender: $inLeagueGame->divGender, fieldID: $inLeagueGame->fieldID, fieldName: $inLeagueGame->fieldName, gameStart: $inLeagueGame->gameStart, homeGoals: $inLeagueGame->homeGoals, visitingGoals: $inLeagueGame->visitingGoals  </p>");
 
             // Get the field
             $facilityName = explode(',', $inLeagueGame->fieldName)[0];
@@ -1120,7 +1121,9 @@ class Season extends Domain
             } else {
                 $gameTime->actualStartTime = null;
             }
+            $count++;
         }
+        print("<p>populateInLeagueGames: $count games processed</p>");
     }
 
     /**
