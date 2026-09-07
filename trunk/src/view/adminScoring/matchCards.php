@@ -195,15 +195,17 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
         $opposingTeam           = $game->visitingTeam;
         $teamId                 = isset($team) ? $team->nameId : "";
         $teamName               = isset($team) ? $team->name : "";
+        $teamColor              = isset($team) ? mb_substr($team->color, 0, 12) : "";
         $opposingTeamId         = isset($opposingTeam) ? $opposingTeam->nameId : "";
         $opposingTeamName       = isset($opposingTeam) ? $opposingTeam->name : "";
+        $opposingColor          = isset($opposingTeam) ? mb_substr($opposingTeam->color, 0, 12) : "";
         $day                    = $game->gameTime->gameDate->day;
         $time                   = substr($game->gameTime->actualStartTime, 0, 5);
         $fieldName              = $game->gameTime->field->name;
         $divisionName           = $game->flight->schedule->division->nameWithGender;
         $gameId                 = $game->id;
         $teamName               = $teamName == $teamId ? "<u>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</u>" : $teamName;
-        $pageBreakBefore        = $count % 2 == 0 ? "" : "page-break-before: always; ";
+        $pageBreakBefore        = $count == 1 || ($count - 1) % 2 == 0 ? "page-break-before: always; " : "";
         $color                  = $game->flight->schedule->division->gender == 'Boys' ? "#273CF5" : "#6E3F01";
 
         print '
@@ -217,30 +219,35 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
 </table>
 <table border="0" style="table-layout: fixed; width: 5.5in; border-collapse: collapse; font-size: 10px">
     <tr style="height: 15px; border-bottom: 1px solid black; border-top: 1px solid black">
-        <td nowrap align="left" style="border-right: 1px solid black"><strong>COLOR </strong><span style="color: ' . $color . ';">' . $team->color . '</span></td>
+        <td nowrap align="left" style="border-right: 1px solid black"><strong>COLOR </strong><span style="color: ' . $color . ';">' . $teamColor . '</span></td>
         <td style="border-right: 1px solid black">&nbsp;</td>
         <td nowrap align="center" style="border-right: 1px solid black"><strong>CAPTAIN(S)</strong></td>
         <td style="border-right: 1px solid black">&nbsp;</td>
-        <td nowrap align="right"><span style="color:' . $color . ';">' . $opposingTeam->color . '</span><strong> COLOR</strong></td>
+        <td nowrap align="right"><span style="color:' . $color . ';">' . $opposingColor . '</span><strong> COLOR</strong></td>
     </tr>
 </table>
 <table border="0" style="table-layout: fixed; width: 5.5in; border-collapse: collapse; font-size: 10px">
     <tr style="height: 20px; border-bottom: 1px solid black">
         <td nowrap align="left" style="border-right: 1px solid black"><strong>DATE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong><span style="color: ' . $color . ';">' . $day . ' ' . $time . '</span></td>
-        <td rowspan="3" style="border-right: 1px solid black; padding: 4px; vertical-align: middle; text-align: center; width: 30px">
+        <td rowspan="4" style="border-right: 1px solid black; padding: 4px; vertical-align: middle; text-align: center; width: 30px">
             <img src="/images/aysoLogoBlackAndWhite.png" alt="" style="width: 100%; height: auto; display: block; max-height: 1.5in">
         </td>
         <td nowrap align="left"><strong>DURATION (2X): 25&nbsp;&nbsp;&nbsp;30&nbsp;&nbsp;&nbsp;35&nbsp;&nbsp;&nbsp;40&nbsp;&nbsp;&nbsp;45 - O.T.</strong></td>
     </tr>
     <tr style="height: 20px; border-bottom: 1px solid black">
         <td nowrap align="left" style="border-right: 1px solid black"><strong>FIELD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong><span style="color: ' . $color . ';">' . $fieldName . '</span></td>
-        <td nowrap align="left" style="font-size: 8px">Start Time:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End First Half:</td>
+        <td nowrap align="left"><strong>AR1 NAME </strong></td>
     </tr>
     <tr style="height: 20px; border-bottom: 1px solid black">
         <td nowrap align="left" style="border-right: 1px solid black"><strong>DIVISION </strong><span style="color: ' . $color . ';">' . $divisionName . '</span></td>
+        <td nowrap align="left"><strong>AR2 NAME </strong></td>
+    </tr>
+    <tr style="height: 20px; border-bottom: 1px solid black">
+        <td nowrap align="left" style="font-size: 8px; border-right: 1px solid black">Start Time:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End First Half:</td>
         <td nowrap align="left" style="font-size: 8px">Start Second Half:</td>
     </tr>
 </table>
+<br>
 <div style="height: 0.5em"></div>
 <table border="0" style="width: 5.5in; border-collapse: collapse" cellpadding="0" cellspacing="0">
     <tr>
@@ -322,6 +329,7 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
         </td>
     </tr>
 </table>
+<br>
 <table border="0" style="table-layout: fixed; width: 5.5in">
     <tr>
         <td align="center" style="font-size: 10px; padding-bottom: 2px"><strong>M I S C O N D U C T</strong></td>
@@ -376,42 +384,6 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
         <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
         <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
     </tr>
-    <tr style="height: 15px">
-        <td style="border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 3px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-    </tr>
-    <tr style="height: 15px">
-        <td style="border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 3px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-    </tr>
-    <tr style="height: 15px">
-        <td style="border-left: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 3px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-        <td style="border-right: 1px solid black; border-bottom: 1px solid black">&nbsp;</td>
-    </tr>
 </table>
 <table border="0" style="table-layout: fixed; width: 5.5in" cellpadding="0" cellspacing="0"; font-size: 9px>
     <tr>
@@ -421,26 +393,26 @@ class View_AdminScoring_MatchCards extends View_AdminScoring_Base
     </tr>
     <tr>
         <td style="font-size: 7px; ">(A) DISSENT</td>
-        <td style="font-size: 7px; border-right: 1px solid black">(E) DELAYING RESTART OF GAME</td>
-        <td style="font-size: 7px">&nbsp;(H) HAND BALL</td>
-        <td style="font-size: 7px">(L) SERIOUS FOUL PLAY</td>
+        <td style="font-size: 7px; border-right: 1px solid black">(D) DELAYING RESTART OF GAME</td>
+        <td style="font-size: 7px">&nbsp;(G) DOGSO (Deliberate Handball)</td>
+        <td style="font-size: 7px">(K) SERIOUS FOUL PLAY</td>
     </tr>
     <tr>
         <td style="font-size: 7px">(B) UNSPORTING BEHAVIOR</td>
-        <td style="font-size: 7px; border-right: 1px solid black">(F) FAIL TO RESPECT DISTANCE</td>
-        <td style="font-size: 7px">&nbsp;(I) GIAL DENIED</td>
-        <td style="font-size: 7px">(M) VIOLENT CONDUCT</td>
+        <td style="font-size: 7px; border-right: 1px solid black">(E) FAIL TO RESPECT DISTANCE</td>
+        <td style="font-size: 7px">&nbsp;(H) DOGSO (FK or PK)</td>
+        <td style="font-size: 7px">(L) VIOLENT CONDUCT</td>
     </tr>
     <tr>
         <td style="font-size: 7px">(C) PERSISTENT INFRINGEMENT</td>
-        <td style="font-size: 7px; border-right: 1px solid black">(G) LEAVING THE FIELD OF PLAY</td>
-        <td style="font-size: 7px">&nbsp;(J) LANGUAGE VIOLATION</td>
-        <td style="font-size: 7px">(N) SPITS AT PERSON</td>
+        <td style="font-size: 7px; border-right: 1px solid black">(F) ILLEGAL ENTRY OR LEAVING</td>
+        <td style="font-size: 7px">&nbsp;(I) LANGUAGE VIOLATION</td>
+        <td style="font-size: 7px">(M) SPITS AT PERSON</td>
     </tr>
     <tr>
-        <td style="font-size: 7px">(D) ILLEGAL ENTRY</td>
+        <td style="font-size: 7px">&nbsp;</td>
         <td style="font-size: 7px; border-right: 1px solid black">&nbsp;</td>
-        <td style="font-size: 7px">&nbsp;(K) SECOND CAUTION SAME MATCH</td>
+        <td style="font-size: 7px">&nbsp;(J) SECOND CAUTION SAME MATCH</td>
         <td style="font-size: 7px">&nbsp;</td>
     </tr>
 </table>';

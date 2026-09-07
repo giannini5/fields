@@ -12,6 +12,7 @@ Grasslands in the midwest that need trimming after a thunderstorm.
 - Install VSCode extensions to support PHP (PHP, PHP Profiler, )
 
 # Additional PHP setup
+
 The php.ini and php-fpm.ini file can be found in:
     /usr/local/etc/php/8.2/
 
