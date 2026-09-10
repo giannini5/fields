@@ -810,10 +810,15 @@ class Season extends Domain
             $activeTeamCount = $activeTeamCount + 1;
 
             if (count($activeTeam->coaches) > 0) {
-                $coachFirstName = $activeTeam->coaches[0]->firstName;
-                $coachLastName  = $activeTeam->coaches[0]->lastName;
-                $coachName      = $coachFirstName . ' ' . $coachLastName;
-                $coachEmail     = $activeTeam->coaches[0]->email;
+                foreach ($activeTeam->coaches as $coach) {
+                    if ($coach->title == "Head Coach") {
+                        $coachFirstName = $coach->firstName;
+                        $coachLastName  = $coach->lastName;
+                        $coachName      = $coachFirstName . ' ' . $coachLastName;
+                        $coachEmail     = $coach->email;
+                        break;
+                    }
+                }
             }
 
             // Other attributes
