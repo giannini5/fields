@@ -40,9 +40,12 @@ xdebug.start_with_request=yes
 
 # To start/stop apache
 ```
+# Used on Dave's Work Computer
 # brew services start httpd
 # brew services stop httpd
 # brew services restart httpd
+
+# Used on Dave's home computer
 sudo apachectl <start | stop | restart>
 ```
 

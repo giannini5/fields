@@ -457,7 +457,8 @@ class View_AdminScoring_GameCards extends View_AdminScoring_Base
         $assistantCoachName     = count($assistantCoaches) > 0 ? $assistantCoaches[0]->name : "";
         $day                    = $game->gameTime->gameDate->day;
         $time                   = substr($game->gameTime->actualStartTime, 0, 5);
-        $fieldName              = $game->gameTime->field->fullName;
+        // $fieldName              = $game->gameTime->field->fullName;
+        $fieldName              = $game->gameTime->field->name;
         $fullTeamName           = $teamName == $teamId ? $teamId : "$teamId ($teamName)";
         $fullOpposingTeamName   = $opposingTeamName == $opposingTeamId ? $opposingTeamId : "$opposingTeamId ($opposingTeamName), $opposingTeam->color";
         $players                = $this->getPlayersOrderedByNumber($team);
