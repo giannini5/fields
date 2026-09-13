@@ -830,6 +830,7 @@ class Season extends Domain
             $maxPlayersPerTeam      = $this->getMaxPlayersPerTeam($divisionName);
             $teamName               = $activeTeam->currentTeamSeason == null ? '' : $activeTeam->currentTeamSeason->teamName;
             $color                  = $activeTeam->currentTeamSeason == null ? '' : $activeTeam->currentTeamSeason->colorJersey;
+            $color                  = mb_substr($color, 0, 12);
             $currentSeasonTeamInfoCount = $activeTeam->currentTeamSeason == null ? $currentSeasonTeamInfoCount : $currentSeasonTeamInfoCount + 1;
             $thirdPartyId           = $activeTeam->teamID;
             // print("<p>divisionName:$divisionName, gender:$gender, teamName/Id: $teamName ($teamId), coach:$coachName, email:$coachEmail</p>");
