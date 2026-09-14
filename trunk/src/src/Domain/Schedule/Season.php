@@ -1115,7 +1115,7 @@ class Season extends Domain
 
             // Set the score if available
             $homeScore = $inLeagueGame->homeGoals;
-            $visitingScore = $inLeagueGame->visitingGoals;
+            $visitingScore = $inLeagueGame->visitorGoals;
             if (is_numeric($homeScore) and is_numeric($visitingScore)) {
                 $game->homeTeamScore =  intval($homeScore);
                 $game->visitingTeamScore = intval($visitingScore);
