@@ -815,7 +815,7 @@ class Season extends Domain
             $coachEmail     = '';
             if (count($activeTeam->coaches) > 0) {
                 foreach ($activeTeam->coaches as $coach) {
-                    if ($coach->title == "Head Coach") {
+                    if ($coach->title == "Head Coach" or $coach->title == "Co-Coach") {
                         $coachFirstName = $coach->firstName;
                         $coachLastName  = $coach->lastName;
                         $coachName      = $coachFirstName . ' ' . $coachLastName;
