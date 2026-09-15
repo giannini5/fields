@@ -809,6 +809,10 @@ class Season extends Domain
             $teamUUID       = $activeTeam->teamID;
             $activeTeamCount = $activeTeamCount + 1;
 
+            $coachFirstName = '';
+            $coachLastName  = '';
+            $coachName      = '';
+            $coachEmail     = '';
             if (count($activeTeam->coaches) > 0) {
                 foreach ($activeTeam->coaches as $coach) {
                     if ($coach->title == "Head Coach") {
