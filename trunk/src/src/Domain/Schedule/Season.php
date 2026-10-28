@@ -956,6 +956,14 @@ class Season extends Domain
                     $this->createGameTimes($field, false);
                 }
             }
+            // Conditionally create 12U Fields
+            if ($divisionName == '10U' and ($fieldName == 'Girsh Park, Field 10, 10U' or $fieldName == 'Girsh Park, Field 11, 10U' or $fieldName == 'Girsh Park, Field 12, 10U')) {
+                $divisions = Division::lookupByName($this, '12U');
+                foreach ($divisions as $division) {
+                    DivisionField::create($division, $field, true);
+                    $this->createGameTimes($field, false);
+                }
+            }
         }
     }
 
